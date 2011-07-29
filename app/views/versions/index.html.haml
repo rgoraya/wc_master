@@ -1,0 +1,32 @@
+- content_for(:include_custom_stylesheet) do
+	= stylesheet_link_tag "styles"
+
+#contentwrapper
+	.contentmain
+		%div{:class=>"notice"}
+			= notice
+		%div{:class=>"versions"}
+		- @versions.each do |version|
+			- obj = version.get_object
+			%div{:class=>"version"}
+				- obj.attribute_names.each do |name|
+					- if !name.eql?('id') && !name.eql?('created_at') && !name.eql?('updated_at')
+						- if name.eql?('cause_id')
+							%b Cause:
+						- else
+							%b Issue:
+						= Issue.find(obj.attributes[name]).title
+						
+				%div{:style=>"float:right"}
+					%b Event:
+					= version.event
+					%b Type:
+					= version.item_type
+					- if !version.event.eql?('destroy')
+						= link_to "Set", restore_version_path(version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change"
+					- else
+						= link_to "Undelete", restore_version_path(version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change"
+				%div{:style=>"clear:both"}
+		%div{:class=>"pages"}
+			= will_paginate @versions
+				

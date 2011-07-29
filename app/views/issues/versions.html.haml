@@ -1,0 +1,48 @@
+- content_for(:include_custom_stylesheet) do
+	= stylesheet_link_tag "styles"
+
+#contentwrapper
+	.contentmain
+		%div{:style=>"color: #434343;font-size: 18px;text-align: center;"}
+			Changes for Issue:
+			%b				
+				= link_to @issue.title, issue_path(@issue), :class=>"logo_txt", :style=>"text-decoration:none"
+		-#%div{:id=>"notice"}
+			-#= notice
+		%div{:class=>"versions"}
+		- @versions.each do |version|
+			- relationship = version.get_object
+			%div{:class=>"version"}
+				%b
+					= @issue.title
+				- if !version.event.eql?('destroy')
+					has a new
+				- else
+					lose a
+				- if relationship.issue_id == @issue.id
+					cause:
+					%b
+						= link_to Issue.find(relationship.cause_id).title, issue_path(relationship.cause_id), :class=>"logo_txt", :style=>"text-decoration:none"
+				- elsif relationship.cause_id == @issue.id
+					effect: 
+					%b
+						= link_to Issue.find(relationship.issue_id).title, issue_path(relationship.issue_id), :class=>"logo_txt", :style=>"text-decoration:none"
+				%div{:style=>"float:right"}
+					Done by: 
+					= link_to User.find(version.whodunnit).username, user_path(version.whodunnit), :class=>"logo_txt", :style=>"text-decoration:none"
+					-#At:
+					-#= version.created_at
+					-# %b Event:
+					-# = version.event
+					-# %b Type:
+					-# = version.item_type
+					-# - if !version.event.eql?('destroy')
+					- if current_user && current_user.id == @issue.user.id
+						= link_to "Rollback", restore_issue_version_path(@issue, version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change", :style=>"background-image:none;padding:3px 10px 3px 10px;"
+					-# - else
+						-# = link_to "Undelete", restore_issue_version_path(@issue, version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change"
+					%div{:style=>"clear:both"}
+		%div{:class=>"pages"}
+			= will_paginate @versions
+
+#clear{:style=>"clear:left;"}

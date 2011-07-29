@@ -101,7 +101,7 @@ require 'wikipedia'
     
           # Retrieve plain text
           text = content.to_plain_text
-          text = text.gsub(/< \/?[^>]*>/, '').gsub(/&#\d+;/,'').gsub(/\([^\)]+\)/,'').gsub(/\[[^\]]+\]/,'').gsub(/ +/,' ')
+          text = text.gsub(/< \/?[^>]*>/, '').gsub(/&#\d+;/,'').gsub(/\([^\)]+\)/,'').gsub(/\[[^\]]+\]/,'').gsub(/ +/,' ').gsub(/\[\d\]/,'')
           
           # Limit the length of the text to be displayed
           if text.size > 450

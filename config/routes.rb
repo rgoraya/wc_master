@@ -6,8 +6,11 @@ Wikicausality::Application.routes.draw do
   get "pages/about"
 
   root :to => "pages#home"
-
+  match 'about' => 'pages#about', :as => :about
+  match 'contact' => 'pages#contact', :as => :contact
   
+
+
   resources :users
 
   resources :user_sessions
@@ -17,6 +20,8 @@ Wikicausality::Application.routes.draw do
   resources :issues do
     post :causality, :on => :member
   end
+  get "issues/:id/versions" => "issues#versions", :as => "issue_versions"
+  get "issues/:issue_id/versions/:id/restore" => "versions#restore", :as => "restore_issue_version"
 
 
   match 'login' => 'user_sessions#new', :as => :login

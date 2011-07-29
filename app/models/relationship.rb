@@ -2,6 +2,9 @@ class Relationship < ActiveRecord::Base
   belongs_to :issue
   belongs_to :cause, :class_name => 'Issue', :foreign_key => 'cause_id'
 
+  validates :cause_id, :uniqueness => {:scope => :issue_id}
+  has_paper_trail 
+
 def validate
   errors.add_to_base('Cannot be a cause/effect of itself!') if issue_id == cause_id
 end

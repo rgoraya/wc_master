@@ -1,2 +1,11 @@
-%h1 Pages#contact
-%p Find me in app/views/pages/contact.html.haml
+- content_for(:include_custom_stylesheet) do
+	= stylesheet_link_tag "styles"
+  
+ 
+#contentwrapper
+	.contentmain
+		%div{:style=>"color: #434343;font-size: 18px;"}
+			Find us at 
+			%a{:href=>"http://www.uci.edu", :class=>"logo_txt", :style=>"text-decoration:none"}www.uci.edu
+#clear{:style=>"clear:left;"}
+		

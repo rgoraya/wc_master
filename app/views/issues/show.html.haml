@@ -109,7 +109,8 @@
                       %img{:src=>"/images/issues/delete.png", :width=>"12px"}
 
                 %div{:style => "clear:both"}
-
+        -#- if current_user
+        = link_to "History", issue_versions_path(@issue), {:title=>"view all changes", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
 
         %div{:style => "clear:both"}
         %div{:class=>"created_by"}
