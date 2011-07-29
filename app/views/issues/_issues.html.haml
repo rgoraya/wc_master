@@ -1,0 +1,136 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+
+%div{:id=>"issues_head"}
+
+  %div{:style=>"float:left; margin-top:15px"}
+    - form_tag issues_path, :id=>"search_form", :method => 'get' do 
+      %div{:class=>"search_button"}
+        %div{:style=>"float:left;display:table-cell; vertical-align:middle"}
+          = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Enter search query. . .", :autocomplete=>"off", :class=>"searchfield"
+        %div{:style=>"float:left;"}
+           
+          = submit_tag "Search", :name => nil, :class=>"srch_button"
+        %div{:style=>"clear:both"}
+
+  %div{:style=>"margin:20px 0px -5px 10px; float:left;"}
+    = will_paginate (@issues, :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 )
+
+
+
+  -if current_user                    
+    %div{:style=>"float:right; margin:15px 0px 0px 10px;", :class=>"new_button"}
+      = link_to 'New Issue', new_issue_path 
+  
+  -if current_user
+    %div{:style=>"float:right; margin:15px 0px 0px 5px;background-image:none;padding-left:5px", :class=>"new_button"}
+      - @hash = Digest::MD5.hexdigest(current_user.email).to_s
+      %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=38&d=mm", :class=>"gravatar"}
+      
+      = link_to 'My Issues', current_user
+      /%div{:style=>"clear:both"}
+       
+  
+
+  
+  %div{:style=>"clear:both"}
+
+  %div{:style=>"text-align:center; height:30px; margin:-4px 0px 4px 0px;", :id=>"issues_wait"}
+
+
+%div{:style=>"margin-top:0px"}
+  - @issues.each_slice(2) do |slice|
+    %div{:class=>"index1"}
+      %div{:class=>"index_title1"}
+        
+        // Div containing the title and author
+        %div{:style=>"float:left"}
+          // title
+          %div
+            = link_to slice[0].title, slice[0], :title=>"View this Issue"
+          // author
+          %div{:class=>"index_author"}
+            - @hash = Digest::MD5.hexdigest(slice[0].user.email).to_s
+            %a{:href=>"/users/#{slice[0].user.id}", :style=>"text-decoration:none; "}
+              %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=18&d=mm", :style=>"margin:0px 0px -5px 0px; border:0px"}
+            %a{:href=>"/users/#{slice[0].user.id}"}
+              = slice[0].user.username
+        
+        // Div containing the buttons
+        %div{:style=>"float:right; padding-top:5px"}
+          = link_to 'View', slice[0], :class=>"show_button", :title=>"View this Issue"  
+
+          // Only show Edit and Delete if the Issue belongs to current user
+          -if current_user
+            -if current_user.id == slice[0].user_id    
+
+              /= link_to 'Edit', edit_issue_path(slice[0]), :class=>"edit_button", :title=>"Edit this Issue" 
+ 
+              = link_to 'Delete', slice[0], :confirm => 'Are you sure?', :method => :delete, :class=>"delete_button", :title=>"Delete this Issue"                  
+          
+          %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"wiki_button"}
+            Wiki  
+        %div{:style=>"clear:both"}
+      
+      // Image  
+      %div{:class=>"index_img_box", :style=>"float:left;"}
+        %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
+          %img{:src=> slice[0].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
+      
+      // Text
+      %div{:style=>"float:left; width:843px; text-align:justify;"}
+          
+        = slice[0].description
+  
+      %div{:style=>"clear:both"}
+  
+  
+    - if !slice[1].nil?  
+      %div{:class=>"index1"}
+        %div{:class=>"index_title1" }
+          
+          // Div containing the title and author
+          %div{:style=>"float:left"}
+            // title
+            %div
+              = link_to slice[1].title, slice[1], :title=>"View this Issue"
+            // author
+            %div{:class=>"index_author"}
+              - @hash = Digest::MD5.hexdigest(slice[1].user.email).to_s
+              %a{:href=>"/users/#{slice[1].user.id}", :style=>"text-decoration:none; "}
+                %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=18&d=mm", :style=>"margin:0px 0px -5px 0px; border:0px"}
+            
+              %a{:href=>"/users/#{slice[1].user.id}"}
+                = slice[1].user.username           
+          
+          // Div containing the buttons
+          %div{:style=>"float:right; padding-top:5px"}
+            = link_to 'View', slice[1], :class=>"show_button", :title=>"View this Issue"  
+
+            // Only show Delete if the Issue belongs to current user
+            -if current_user
+              -if current_user.id == slice[1].user_id     
+             
+                /= link_to 'Edit', edit_issue_path(slice[1]), :class=>"edit_button", :title=>"Edit this Issue" 
+                
+                = link_to 'Delete', slice[1], :confirm => 'Are you sure?', :method => :delete, :class=>"delete_button", :title=>"Delete this Issue"                  
+            
+            %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"wiki_button"}
+              Wiki                    
+        
+          %div{:style=>"clear:both"}  
+        
+        // Image
+        %div{:class=>"index_img_box", :style=>"float:right;"}
+          %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
+            %img{:src=> slice[1].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
+        // Text
+        %div{:style=>"float:right; width:843px; text-align:justify;"}
+              
+          = slice[1].description
+
+        %div{:style=>"clear:both"}
+
+%div{:style=>"clear:both"}
+
+         

@@ -1,0 +1,39 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+
+#contentwrapper
+
+  .contentmain
+           
+    // The issue  
+    %div{:id=>"notice"}
+      = notice
+
+    %div{:id=>"issues"}
+      = render 'userissues'
+
+        
+#clear{:style => "clear:left;"}
+
+%script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css", :type => "text/javascript"}
+%script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js", :type => "text/javascript"}
+%script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js", :type => "text/javascript"}
+%script{:type => "text/javascript"}
+
+  $("#notice").effect("highlight", {color: '#AADDEE'}, 3000); 
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+
+  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
+  if ($('#notice').html().trim()) {
+  $('#notice').append(close);
+  $('#notice').css("padding", "5px");
+  }
+  
+  $("#notice a").click(function(){
+  $("#notice").slideUp(100);
+  });
+
+
+
+

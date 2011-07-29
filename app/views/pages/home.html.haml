@@ -1,0 +1,33 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+ 
+#contentwrapper
+  .contentmain
+    
+    %div{:class=>"centralized"}
+      %div{:class=> "formheading"}
+        
+        Welcome to &nbsp;
+        %span{:style => "color:#BEBEBE;",:class=>"logo_txt_home"}> Wiki
+        %span{:class=>"logo_txt_home"}Causality
+      
+      %div{:class => "formcontentdiv"}
+        %div{:id=>"home_txt"}
+          
+          %div{:id => "wc_logo"} 
+          %b
+            WikiCausality 
+          aims to provide the users with a participatory environment where they can can identify Environmental issues and attach causal links to these issues.
+          %br
+          Users can access the Wikipedia information and geo-tagged media associated with these issues and locate geographic instances of these problems on Google Maps.
+          %br
+          We welcome you to learn about the complex webs of causality that underlie various environmental issues and collaborate to document the likely chains of causality underlying them.
+          
+            
+          %div{:style=>"clear:both;"}
+          
+          %div{:style=>"text-align:center; margin-top:40px; width:100%"}
+            = link_to "View Issues", :issues, :class=>"issues_button", :title=>"view all issues"
+          
+#clear{:style => "clear:left;"}        

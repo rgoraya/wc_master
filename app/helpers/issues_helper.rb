@@ -1,0 +1,6 @@
+module IssuesHelper
+
+
+
+
+end

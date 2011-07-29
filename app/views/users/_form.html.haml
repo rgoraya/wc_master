@@ -1,0 +1,86 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+ 
+#contentwrapper
+  .contentmain
+    
+    %div{:class=>"centralized"}
+      %div{:class=> "formheading"}
+        - if params[:action] == "new" 
+          Register as a new user
+        - elsif params[:action] == "edit" 
+          Edit profile information
+        - else  
+          Correct errors to proceed
+      %div{:class => "formcontentdiv"}
+          
+        = form_for @user do |f|
+          -if @user.errors.any?
+            #error_explanation
+              %div{:class=>"formerrorhead"}
+                = "#{pluralize(@user.errors.count, "error")} prohibited this user from being saved:"
+              %ul{:class=>"formerrordetails"}
+                - @user.errors.full_messages.each do |msg|
+                  %li= msg
+          
+          #form_elements
+            .field
+              %div{:class=>"formlabel", :style=>"text-align:right;"}
+                = f.label :username
+                %div{:class=>"helper_text"}
+                  Choose your username 
+                
+              %div{:class=>"formlabel"}
+                = f.text_field :username, :class=>"formfield", :autocomplete=>"off"
+              %div{:style=>"clear:both;"}
+            
+            .field
+              %div{:class=>"formlabel", :style=>"text-align:right;"}
+                = f.label :email
+                %div{:class=>"helper_text"}
+                  Add a valid email address                
+              %div{:class=>"formlabel"}
+                = f.text_field :email, :class=>"formfield", :autocomplete=>"off"
+              %div{:style=>"clear:both;"}
+      
+            .field
+              %div{:class=>"formlabel", :style=>"text-align:right;"}
+                = f.label :password
+                %div{:class=>"helper_text"}
+                  Minimum 4 characters                
+              %div{:class=>"formlabel"}
+                = f.password_field :password, :class=>"formfield", :autocomplete=>"off"
+              %div{:style=>"clear:both;"}
+              
+              
+            .field
+              %div{:class=>"formlabel", :style=>"text-align:right;"}
+                Confirm Password 
+                %div{:class=>"helper_text"}
+                  Re-enter your password
+              %div{:class=>"formlabel", :style=> "margin-bottom:30px"}
+                = f.password_field :password_confirmation, :class=>"formfield", :autocomplete=>"off"
+              %div{:style=>"clear:both;"}
+              
+            .actions
+              %div{:class=>"form_button"}
+                = f.submit 'Save', :class=>"save_button"
+              %div{:style=>"clear:both;"}
+          
+          
+          
+#clear{:style => "clear:left;"}       
+
+%script{:type => "text/javascript"}
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+
+  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='18' height='18' style='float:right' /></a>";
+  if ($('.formerrorhead').html().trim()) {
+  $('.formerrorhead').append(close);
+  }
+  
+  $(".formerrorhead a").click(function(){
+  $("#error_explanation").slideUp(300);
+  });
+ 

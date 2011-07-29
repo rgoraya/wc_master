@@ -1,0 +1,68 @@
+//   Karunatree
+//   Copyright 2009-2010 Derek Lyons & Karunatree. All Rights Reserved.
+//   
+//   Author: Raminder Goraya & Jason Lu
+
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+
+= javascript_include_tag :defaults
+
+/:javascript
+/  var titlequery = 
+  
+/- @titletxt = javascript:document.getElementById('txt_title').value;
+
+- @titletxt = 
+:javascript
+  document.getElementById('txt_title').value
+
+- if @titletxt != 0  
+  - @wikiurl, @wikiimg, @wikidescr, @imgcaption  = @issue.get_wiki_description(@titletxt)
+
+  - if @wikiurl != ''
+    %div{:class =>"issueblock"}
+      = @wikiurl
+      // Title of the Issue
+      %div{:class =>"title"}
+        = @titletxt
+      
+      // Contents retrieved by calling the above method
+      %div{:class =>"wikicontent" }
+        
+        // image link to wikipedia article using image retrived from there
+        // if an image link was retrieved from wikipedia display that
+        // otherwise display a placeholder
+        - if @wikiimg != ''
+          %div{:class=>"imgcontainer"}
+            
+            %a{:href => @wikiurl}                      
+              %img{:src => @wikiimg, :class=>"wikiimage" }
+            
+            %br
+            = @imgcaption  
+        
+        - else  
+          %div{:class=>"imgcontainer"}
+            
+            %a{:href => @wikiurl}                      
+              %img{:src => @issue.get_google_img(@titletxt), :class=>"wikiimage" }
+            
+            %br
+            Image courtesy: Google                     
+                      
+        // paragraph retrieved from wikipedia page
+        = @wikidescr
+        
+      
+      %div{:style => "clear:both"}
+ 
+%div{:style=>"background:pink; width:100px; height:20px;"}
+  = @titletxt
+
+/- if !cookies['liked' + @seedling.id.to_s()] # => @seedling.id
+/  %div{:class => "accord", :style=> "padding:1px"} 
+/    = link_to_remote image_tag('/images/system/icons/like.png', :size => "16x16", :title => "boost this seedling") , {:url=> {:model=>'seedling',:action=>"like", :id=>@seedling.id}, :update => 'boosts'}
+/- else
+/  %div{:class => "accord", :style=> "padding:1px"} 
+/    = link_to_remote image_tag('/images/system/icons/unlike.png', :size => "16x16", :title => "stop boosting this seedling") , {:url=> {:model=>'seedling',:action=>"unlike", :id=>@seedling.id}, :update => 'boosts'} 

@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Username:
+  = @user_session.username
+%p
+  %b Password:
+  = @user_session.password
+
+= link_to 'Edit', edit_user_session_path(@user_session)
+\|
+= link_to 'Back', user_sessions_path

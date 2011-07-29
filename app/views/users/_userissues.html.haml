@@ -1,0 +1,95 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+
+%div{:id=>"issues_head"}
+
+  /%div{:style=>"float:left; margin:15px 0px 0px 15px;"}
+  /  - form_tag issues_path, :id=>"search_form", :method => 'get' do 
+  /    %div{:class=>"search_button"}
+  /      %div{:style=>"float:left;display:table-cell; vertical-align:middle"}
+  /        = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Enter search query. . .", :autocomplete=>"off", :class=>"searchfield"
+  /      %div{:style=>"float:left;"}
+           
+  /        = submit_tag "Search", :name => nil, :class=>"srch_button"
+  /      %div{:style=>"clear:both"}
+
+  %div{:style=>"float:left;"}
+    - @hash = Digest::MD5.hexdigest(@user.email).to_s
+    %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=38&d=mm", :class=>"gravatar", :style=>"margin:20px 0px 0px 0px"}
+
+  %div{:style=>"float:left; margin:15px 0px 30px 5px;padding-top:5px;"}
+    %span{:style => "font-size:28px;",:class=>"logo_txt"} 
+      =@user.username+"'s"
+    %span{:style => "color:#BEBEBE;font-size:28px;", :class=>"logo_txt"} Issues
+
+  - if current_user                    
+    %div{:style=>"float:right; margin:15px 0px 30px 15px;", :class=>"new_button"}
+      = link_to 'New Issue', new_issue_path 
+  
+  %div{:style=>"float:right; margin:25px 10px 30px 0px;", :id=>"issues_wait"}
+  
+  %div{:style=>"clear:both"}
+
+
+
+
+- @user.issues.each_slice(2) do |slice|
+  %div{:class=>"index1"}
+    %div{:class=>"index_title1", :style=>"padding:15px;"}
+      = link_to slice[0].title, slice[0], :title=>"View this Issue"
+      %div{:style=>"float:right"}
+        = link_to 'View', slice[0], :class=>"show_button", :title=>"View this Issue"  
+
+        // Only show Edit and Delete if the Issue belongs to current user
+        -if current_user
+          -if current_user.id == slice[0].user_id        
+            
+            /= link_to 'Edit', edit_issue_path(slice[0]), :class=>"edit_button", :title=>"Edit this Issue" 
+            
+            = link_to 'Delete', slice[0], :confirm => 'Are you sure?', :method => :delete, :class=>"delete_button", :title=>"Delete this Issue"                  
+        
+        %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"wiki_button"}
+          Wiki  
+    %div{:class=>"index_img_box", :style=>"float:left;"}
+      %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
+        %img{:src=> slice[0].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
+    %div{:style=>"float:left; width:843px; text-align:justify;"}
+        
+      = slice[0].description
+
+    %div{:style=>"clear:both"}
+
+
+  - if !slice[1].nil?  
+    %div{:class=>"index1"}
+      %div{:class=>"index_title1", :style=>"padding:15px;"}
+        = link_to slice[1].title, slice[1], :title=>"View this Issue"
+         
+        %div{:style=>"float:right"}
+          = link_to 'View', slice[1], :class=>"show_button", :title=>"View this Issue"  
+          
+          // Only show Edit and Delete if the Issue belongs to current user
+          -if current_user
+            -if current_user.id == slice[0].user_id          
+               
+              /= link_to 'Edit', edit_issue_path(slice[1]), :class=>"edit_button", :title=>"Edit this Issue" 
+              
+              = link_to 'Delete', slice[1], :confirm => 'Are you sure?', :method => :delete, :class=>"delete_button", :title=>"Delete this Issue"                  
+          
+          %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"wiki_button"}
+            Wiki                    
+      %div{:class=>"index_img_box", :style=>"float:right;"}
+        %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
+          %img{:src=> slice[1].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
+      %div{:style=>"float:right; width:843px; text-align:justify;"}
+            
+        = slice[1].description
+
+                  
+
+
+      %div{:style=>"clear:both"}
+
+%div{:style=>"clear:both"}
+
+         

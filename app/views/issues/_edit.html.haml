@@ -1,0 +1,157 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+     
+#contentwrapper
+  #contentcolumn
+    .innertube
+      .contentmain
+
+            
+        %div{:class=> "formheading"} 
+          1. Is this what you're looking for?
+        %div{:class => "formcontentdiv"}
+            
+          = form_for @issue do |f|
+            -if @issue.errors.any?
+              #error_explanation
+                %h2= "#{pluralize(@issue.errors.count, "error")} prohibited this issue from being saved:"
+                %ul
+                  - @issue.errors.full_messages.each do |msg|
+                    %li= msg
+              
+  
+            - @wikiurl, @wikiimg, @wikidescr, @imgcaption, @title  = @issue.get_wiki_description(@issue.title.to_s)
+                  
+            .field
+              /%div{:class => "formlabel"}
+              /= f.label :description
+              /%div{:class => "field", :style=>"float:left"}  
+              = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr", :value=>@wikidescr
+              /%div{:style => "clear:both"}
+  
+                  
+            .field
+              /%div{:class => "formlabel"}
+              /  = f.label :wiki_url
+              /%div{:class => "field", :style=>"float:left"}  
+              = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_wiki_url", :value=>@wikiurl
+              /%div{:style => "clear:both"}
+                  
+            .field
+              /%div{:class => "formlabel"}
+              /  = f.label :short_url
+              /%div{:class => "field", :style=>"float:left"}  
+              = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_img_url", :value=>@wikiimg
+              /%div{:style => "clear:both"}                                                
+  
+                
+            %div{:class =>"issueblock_edit"}
+                  
+              // Title of the Issue
+              %div{:class =>"index_title1"}
+                .field
+  
+                      
+                  %div{:style=>"float:left"}  
+                    = f.text_field :title, :id=>"txt_title", :class=>"searchfield",:style=>"width:270px" ,:placeholder => "Enter an Issue name...", :autocomplete=>"off", :value=>@title 
+                  %div{:style=>"float:right"}
+                    = f.submit 'Preview', :class=>"preview_button", :name => "previewbutton"
+                  %div{:style => "clear:both"}
+                      
+              %div{:class =>"wikicontent_edit" }
+                
+                // image link to wikipedia article using image retrived from there
+                // if an image link was retrieved from wikipedia display that
+                // otherwise display a placeholder
+                  
+                %div{:class=>"imgcontainer_edit"}
+                      
+                  %a{:href => @wikiurl, :target=>"_blank"}                      
+                    %img{:src => @wikiimg, :class=>"wikiimage_edit" }
+                      
+                  %br
+                    = @imgcaption  
+                    
+                   
+                // paragraph retrieved from wikipedia page
+                = @wikidescr
+  
+                  
+              %div{:style => "clear:both"}
+                  
+              %p{:style => "font-size:smaller; padding:0px 10px 0px 10px;"}
+                Click
+                %b
+                  = link_to 'here', @wikiurl
+                or on the image above to view the Wikipedia article for
+                %b
+                  = @title              
+            %br
+            .actions
+              = f.submit 'Save', :class=>"save_button"
+     
+            %br
+
+
+#rightcolumn
+        
+
+  .contentmain
+    %div{:class=>"formheading"}
+      2. Causes and Effects
+        
+        
+    - @toc  = @issue.get_causes(@wikiurl)
+    %div{:class=>"formcontentdiv", :style=>"white-space:normal; overflow-y:auto; height:350px;"}
+      - @toc.each do |toc|
+        %div{:class=>"cause_effect_container"}
+              
+          %div{:style=>"float:left;"}   
+            %a{:class=>"cause_effect_button", :href=>"#", :title=>"accept this as a cause"}
+              %img{:src=>"/images/issues/cause.png", :align=>"top", :width=>"15px" } 
+              
+          %div{:style=>"float:left;margin:0px 5px 0px 5px;"}
+            %a{:href=> toc[:url], :target=>"_blank", :title=>toc[:url]}
+              = toc[:name]                 
+             
+          %div{:style=>"float:left;"} 
+            %a{:class=>"cause_effect_button",:href=>"#", :title=>"accept this as an effect"}
+              %img{:src=>"/images/issues/effect.png", :align=>"top", :width=>"15px" }  
+              
+          %div{:style=>"clear:both;"}
+          
+      %div{:style=>"clear:both;"}  
+      
+    %div{:class=>"formheading"}
+      3. All set ?
+    %div{:style=>"text-align:center;", :class=>"formcontentdiv" }      
+
+      %a{:href=>"javascript:$('edit_form').submit()", :class=>"save_button"}
+        Save
+
+      
+#clear{:style => "clear:left;"}
+    
+
+%script{:type => "text/javascript", :src=>"http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"}
+%script{:type => "text/javascript", :src=>"/javascripts/jquery.xdomainajax.js"}
+%script{:type => "text/javascript"}
+  
+  
+  $(document).ready(function(){
+
+  $('.issueblock_edit').hide().fadeIn('slow');
+  });
+
+
+
+
+
+
+
+
+
+
+
+         

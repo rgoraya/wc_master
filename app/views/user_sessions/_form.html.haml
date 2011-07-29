@@ -1,0 +1,61 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+ 
+#contentwrapper
+  .contentmain
+    
+    %div{:class=>"centralized"}
+      %div{:class=> "formheading"} 
+        Sign in to WikiCausality
+      %div{:class => "formcontentdiv"}
+    
+    
+        = form_for @user_session do |f|
+          -if @user_session.errors.any?
+            #error_explanation
+              %div{:class=>"formerrorhead"}
+                = "#{pluralize(@user_session.errors.count, "error")} prohibited successful login:"
+              %ul{:class=>"formerrordetails"}
+                - @user_session.errors.full_messages.each do |msg|
+                  %li= msg
+
+          #form_elements
+            .field
+              %div{:class=>"formlabel", :style=>"text-align:right;"}
+                = f.label :username
+                %div{:class=>"helper_text"}
+                  Enter your username 
+                
+              %div{:class=>"formlabel"}
+                = f.text_field :username, :class=>"formfield", :autocomplete=>"off"
+              %div{:style=>"clear:both;"}
+            
+            .field
+              %div{:class=>"formlabel", :style=>"text-align:right;"}
+                = f.label :password
+                %div{:class=>"helper_text"}
+                  Enter your password                
+              %div{:class=>"formlabel"}
+                = f.password_field :password, :class=>"formfield", :autocomplete=>"off"
+              %div{:style=>"clear:both;"}
+              %br
+            .actions
+              %div{:class=>"form_button"}
+                = f.submit 'Login', :class=>"save_button", :style=>"background-image:url('/images/system/login1.png')"
+              %div{:style=>"clear:both;"}
+          
+
+#clear{:style => "clear:left;"}   
+
+%script{:type => "text/javascript"}
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+
+  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='18' height='18' style='float:right' /></a>";
+  if ($('.formerrorhead').html().trim()) {
+  $('.formerrorhead').append(close);
+  }
+  
+  $(".formerrorhead a").click(function(){
+  $("#error_explanation").slideUp(300);
+  }); 
