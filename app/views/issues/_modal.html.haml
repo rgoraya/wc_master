@@ -204,7 +204,6 @@
   $("#rad_cause, #rad_effect").change(function(){
   
   $("#val_collector").removeAttr("disabled");  // enable the submit button
-  $("#frm_type_id").val(#{@issue.id.to_s});    // pass on the id of current issue
   
   if ($("#rad_cause").is(':checked')) {
   $("#frm_action").val('C');                   // pass C if its a Cause
@@ -221,8 +220,8 @@
   
   $("#btn_preview").click(function(){
   $("#results").empty();
-  $("#rad_cause, #rad_effect").removeAttr("checked");
-  $("#val_collector").attr("disabled", "disabled");
+  //$("#rad_cause, #rad_effect").removeAttr("checked");
+  //$("#val_collector").attr("disabled", "disabled");
   parseJSON();
   $("#results").empty();
   });
@@ -342,10 +341,32 @@
   $("#wait").empty(); }
   });
   
-  $(".cause_effect_link").click(function(){
+  // CHECK THE CORRECT RADIO BUTTON DEPENDING ON SELECTION
+  $(".cause_link").click(function(){
   $("#query").val($(this).html().trim());
+  $('#rad_cause').attr('checked', 'checked');  
+  $("#frm_action").val('C');
+  $("#frm_type_id").val(#{@issue.id.to_s});
+  });
+
+  $(".effect_link").click(function(){
+  $("#query").val($(this).html().trim());
+  $('#rad_effect').attr('checked', 'checked');
+  $("#frm_action").val('E');
+  $("#frm_type_id").val(#{@issue.id.to_s});
+  });  
+
+  $("#add_cause_btn").click(function(){
+  $('#rad_cause').attr('checked', 'checked');
+  $("#frm_action").val('C');
+  $("#frm_type_id").val(#{@issue.id.to_s});
   });
   
+  $("#add_effect_btn").click(function(){
+  $('#rad_effect').attr('checked', 'checked');
+  $("#frm_action").val('E');
+  $("#frm_type_id").val(#{@issue.id.to_s});
+  });
 
   // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
 

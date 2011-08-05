@@ -6,7 +6,7 @@
 		%div{:style=>"color: #434343;font-size: 18px;text-align: center;"}
 			Revision history for:
 			%b				
-				= link_to @issue.title, issue_path(@issue), :class=>"logo_txt", :style=>"text-decoration:none"
+				= link_to @issue.title, issue_path(@issue), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 		-#%div{:id=>"notice"}
 			-#= notice
 		%div{:class=>"versions"}
@@ -24,19 +24,18 @@
 					- elsif relationship.cause_id == @issue.id
 						- relation = 'Effect'
 						- id = relationship.issue_id 
-					= link_to relation, "", :title=>"view this relationship", :class=>"logo_txt", :style=>"text-decoration:none"
+					= link_to relation, "", :title=>"view this relationship", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 					- if !version.event.eql?('destroy')
 						added:
 					- else
 						removed:
-					%b
-						= link_to Issue.find(id).title, issue_path(id), :title=>"view this issue", :class=>"logo_txt", :style=>"text-decoration:none"
+					= link_to Issue.find(id).title, issue_path(id), :title=>"view this issue", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 				%div{:style=>"float:right"}
 					At:
-					= link_to DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S'), issue_snapshot_path(@issue, :at => version.created_at), :title => "view snapshot at this time", :class=>"logo_txt", :style=>"text-decoration:none"
+					= link_to DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S'), issue_snapshot_path(@issue, :at => version.created_at), :title => "view snapshot at this time", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 					By: 
 					- if version.whodunnit
-						= link_to User.find(version.whodunnit).username, user_path(version.whodunnit), :class=>"logo_txt", :style=>"text-decoration:none"
+						= link_to User.find(version.whodunnit).username, user_path(version.whodunnit), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 					- else
 						Anonymous
 				%div{:style=>"clear:left"}

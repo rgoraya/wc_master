@@ -33,32 +33,34 @@
 
         %div{:style => "clear:both"}
 
-        %div{:class => "panoramio_head", :style=>"margin:0px 0px -14px 10px;width:120px;"}
-          Suggestions
-        %div{:class => "panoramio_photos", :style=>"padding:15px 5px 15px 5px "}
-
           -if @toc.length > 0
-            %div{:class=>"scroll_button"}
-              %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous1",:style=>"display:none;"}
-            %div{:class=>"scroll_button", :style=>"float:right;"}
-              %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next1",:style=>"display:none;"}
-            %div{:style => "clear:both"}
-          
-          
-            %div{:class=>"suggestions_container"}
+            %div{:class => "panoramio_head", :style=>"margin:0px 0px -14px 10px;width:120px;"}
+              Suggestions
+            %div{:class => "panoramio_photos", :style=>"padding:15px 5px 15px 5px "}
+              %div{:class=>"scroll_button"}
+                %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous1",:style=>"display:none;"}
+              %div{:class=>"scroll_button", :style=>"float:right;"}
+                %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next1",:style=>"display:none;"}
+              %div{:style => "clear:both"}
             
-              %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel1"}
-                - @toc.each do |toc|
-                  %li{:class=>"cause_effect_container"}
-                    %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_effect_link"}
-                      = toc[:name]                 
+            
+              %div{:class=>"suggestions_container"}
+              
+                %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel1"}
+                  - @toc.each do |toc|
+                    %li{:class=>"cause_effect_container"}
+                      %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_link"}
+                        = toc[:name]                 
        
         
-        %div{:style=>"width:100%; margin:55px 0px 5px 0px;text-align:center;"}  
-          %a.poplight{:href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_cause.png')"} 
-            Add Cause
+
 
     %div{:style => "clear:both"}
+    
+    %div{:style=>"width:100%; margin:55px 0px 15px 0px;text-align:center; z-index:2; position:relative;"}  
+      %a.poplight{:id=>"add_cause_btn", :href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_cause.png')"} 
+        Add Cause
+
     %div{:class=>"arrow", :style=>"margin-top:-70px;"}
     // The issue  
     %div{:class =>"issues"}
@@ -110,8 +112,8 @@
         
       %div{:class=>"arrow", :style=>"background-image:url('/images/issues/diverge.png'); margin-bottom:-70px;"}            
 
-      %div{:style=>"margin:5px 0px 15px 0px;text-align:center;height:50px; z-index:2; position:relative;"}  
-        %a.poplight{:href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_effect.png')"} 
+      %div{:style=>"margin:15px 0px 15px 0px;text-align:center;height:50px; z-index:2; position:relative;"}  
+        %a.poplight{:id=>"add_effect_btn", :href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_effect.png')"} 
           Add Effect               
             
     // Effects    
@@ -146,24 +148,26 @@
 
         %div{:style => "clear:both"}
 
-        %div{:class => "panoramio_head",:style=>"margin:0px 0px -14px 10px; width:120px;"}
-          Suggestions
-        %div{:class => "panoramio_photos", :style=>"padding:15px 5px 15px 5px "}
+
 
           - if @effect.length > 0 
-            %div{:class=>"scroll_button"}
-              %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous",:style=>"display:none;"}
-            %div{:class=>"scroll_button", :style=>"float:right;"}
-              %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next",:style=>"display:none;"}
-            %div{:style => "clear:both"}
-          
-            %div{:class=>"suggestions_container"}
+            %div{:class => "panoramio_head",:style=>"margin:0px 0px -14px 10px; width:120px;"}
+              Suggestions
+            %div{:class => "panoramio_photos", :style=>"padding:15px 5px 15px 5px "}
+
+              %div{:class=>"scroll_button"}
+                %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous",:style=>"display:none;"}
+              %div{:class=>"scroll_button", :style=>"float:right;"}
+                %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next",:style=>"display:none;"}
+              %div{:style => "clear:both"}
             
-              %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel"}
-                - @effect.each do |effect|
-                  %li{:class=>"cause_effect_container"}
-                    %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"cause_effect_link"}
-                      = effect[:name] 
+              %div{:class=>"suggestions_container"}
+              
+                %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel"}
+                  - @effect.each do |effect|
+                    %li{:class=>"cause_effect_container"}
+                      %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"effect_link"}
+                        = effect[:name] 
           
           
 
