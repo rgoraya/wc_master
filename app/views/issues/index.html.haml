@@ -27,7 +27,7 @@
   var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
   if ($('#notice').html().trim()) {
   $('#notice').append(close);
-  $('#notice').css("padding", "5px");
+  $('#notice').css({padding : '5px', display : 'inline-table'});
   }
   
   $("#notice a").click(function(){

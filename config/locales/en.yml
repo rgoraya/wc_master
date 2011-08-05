@@ -3,3 +3,8 @@
 
 en:
   hello: "Hello world"
+
+en: 
+   authlogic: 
+     error_messages: 
+       login_not_found: not found - please register

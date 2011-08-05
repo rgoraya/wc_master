@@ -2,6 +2,8 @@ class Relationship < ActiveRecord::Base
   belongs_to :issue
   belongs_to :cause, :class_name => 'Issue', :foreign_key => 'cause_id'
 
+  has_many :references
+
   validates :cause_id, :uniqueness => {:scope => :issue_id}
   has_paper_trail 
 

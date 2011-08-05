@@ -1,0 +1,16 @@
+= form_for @reference do |f|
+  -if @reference.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@reference.errors.count, "error")} prohibited this reference from being saved:"
+      %ul
+        - @reference.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :relationship_id
+    = f.text_field :relationship_id
+  .field
+    = f.label :reference_content
+    = f.text_field :reference_content
+  .actions
+    = f.submit 'Save'

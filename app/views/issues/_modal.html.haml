@@ -78,18 +78,63 @@
    
   // Make sure the DOM is loaded
   $(document).ready(function(){
+
+  // Ensure that Panoramio Has loaded the pictures
+  $("#panoramio_iframe").load(function(){
+
+  // Function for Loading Maps 
+  // Doing this after the iFrame loads 
+  // to keep the height of map_canvas consistent.
+  initialize();  
+  
+  });
+
+
+  // Show or Hide the Scroll buttons if there were some 
+  // suggestions found and they are more than 2 rows
+  if ($("#cause_carousel1").height() > 54){
+  $("#previous1,#next1").css({display : 'inline'});
+  }
+
+  if ($("#cause_carousel").height() > 54){
+  $("#previous,#next").css({display : 'inline'});
+  }
+
+  // Add the close symbol and Highlight if some content was found in Notice
+  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
+  if ($('#notice').html().trim()) {
+  $('#notice').append(close);
+  $('#notice').css({padding : '5px', display : 'inline-table'});
+  $("#notice").effect("highlight", {color: '#AADDEE'}, 3000);
+  }
+
+  // D I S M I S S    T H E    F L A S H    N O T I C E  
+  $("#notice a").click(function(){
+  $("#notice").slideUp(100);
+  });
+
+  
+
+  //Hide (Collapse) the toggle containers on load
+  $(".toggle_container").hide(); 
+
+  //Switch the "Open" and "Close" state per click then slide up/down (depending on open/close state)
+  $("h2.trigger").click(function(){
+  $(this).toggleClass("active").next().slideToggle("slow");
+  return false; //Prevent the browser jump to the link anchor
+  });
   
   // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
 
   window.displayBoxIndex = -1;
   var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
-  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=1&v=1.0&q=';
+  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
   var query;
   var arr_length = 0;
   var search_results = [];
   var ignore_keys_array = [18,20,17,40,35,13,27,36,45,37,93,91,34,33,39,16,9,38];
   var mouse_is_inside = false;
-  var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&format=json&page=';
+  var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&redirects&format=json&page=';
   var jsonData = " ";
   var img_src = '';
   var text_preview = '';
@@ -223,9 +268,9 @@
   // hide the save button
   $('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_preview').showHtml('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
+  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
   // show dummy image for image
-  $('#image_preview').showHtml('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
+  $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
   
   //  If the search was successful - 
   } else {
@@ -234,7 +279,7 @@
   if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 
   // replace HTML of target Div
-  $('#text_preview').showHtml(text_preview, 400);
+  $('#text_preview').html(text_preview, 400);
   form_descr = $("#text_preview").html();
   // show the form 
   $("#form_container").css("display", "block");
@@ -301,26 +346,6 @@
   $("#query").val($(this).html().trim());
   });
   
-  // Function for Loading Maps.
-  initialize();
-  
-  // F A D E - I N    T H E    I S S U E    B L O C K
-
-  // $('.issueblock').hide().fadeIn('slow');
-
-  $("#notice").effect("highlight", {color: '#AADDEE'}, 3000); 
-  // D I S M I S S    T H E    F L A S H    N O T I C E
-
-  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
-  if ($('#notice').html().trim()) {
-  $('#notice').append(close);
-  $('#notice').css("padding", "5px");
-  }
-  
-  $("#notice a").click(function(){
-  $("#notice").slideUp(100);
-  });
-
 
   // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
 
@@ -368,15 +393,16 @@
   };
   })(jQuery);
 
+
   // S C R O L L - D I V
   var current_marg = 0;
   var current_marg1 = 0;
-  var step = 270;
+  var step = 54;
 
   // Next and previous functions for Causes Scroller  
   $("#next").click(function(){
-  
-  if (Math.abs(current_marg) < ($("#cause_carousel li").size()*27)-270){
+  //alert($("#cause_carousel").height());
+  if (Math.abs(current_marg) < ($("#cause_carousel").height())-54){
   
   $('#cause_carousel').animate({marginTop:current_marg - step}, 600);
   current_marg = current_marg - step;
@@ -395,7 +421,7 @@
   // Next and previous functions for Effects Scroller
   $("#next1").click(function(){
   
-  if (Math.abs(current_marg1) < ($("#cause_carousel1 li").size()*27)-270){
+  if (Math.abs(current_marg1) < ($("#cause_carousel1").height())-54){
   
   $('#cause_carousel1').animate({marginTop:current_marg1 - step}, 600);
   current_marg1 = current_marg1 - step;
@@ -409,11 +435,6 @@
   $('#cause_carousel1').animate({marginTop:current_marg1 + step}, 600);
   current_marg1 = current_marg1 + step;
   }
-  });
-
-  // D E L E T E   B U T T O N   O N   R E L A T I O N S H I P S
-  $(".bubble").hover(function(){
-  $("this .relationship_delete").animate({marginRight:-10}, 400);
   });
 
 
@@ -475,14 +496,19 @@
   center: nyHarbor,
   mapTypeId: google.maps.MapTypeId.HYBRID 
   };
+
+
  
   var map = new google.maps.Map(
   document.getElementById("map_canvas"),
   myOptions);
  
-  panoramioLayer = new google.maps.panoramio.PanoramioLayer();
- 
+  panoramioLayer = new google.maps.panoramio.PanoramioLayer(); 
   panoramioLayer.setMap(map);
   panoramioLayer.setTag('#{@issue.title}');
+  
+  // Ensure that the height of Map remains same as the rest of the content
+  $('#map_canvas').css({height: $('.wikicontent').height()-22});
+
   }
           

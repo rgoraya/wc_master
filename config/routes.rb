@@ -1,4 +1,6 @@
 Wikicausality::Application.routes.draw do
+  resources :references
+
   get "pages/home"
 
   get "pages/contact"
