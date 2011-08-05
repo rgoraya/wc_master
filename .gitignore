@@ -1,4 +1,6 @@
 .bundle
 db/*.sqlite3
 log/*.log
+config/deploy.rb
+Capfile
 tmp/

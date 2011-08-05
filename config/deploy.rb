@@ -31,13 +31,24 @@ role :db,  domain, :primary => true # This is where Rails migrations will run
 # these http://github.com/rails/irs_process_scripts
 
 #after "deploy:setup", "deploy:nginx:setup"
-after "deploy", "deploy:bundle_gems"
-after "deploy:bundle_gems", "deploy:restart"
+#after "deploy", "deploy:bundle_gems"
+#after "deploy:bundle_gems", "deploy:restart"
+
+after "deploy:symlink", "deploy:share_db"
+after "deploy:share_db", "deploy:restart"
 
 # If you are using Passenger mod_rails uncomment this:
  namespace :deploy do
-	task :bundle_gems do
-		run "cd #{deploy_to}/current && /opt/ruby-enterprise/bin/bundle install vendor/gems"
+	#task :bundle_gems do
+	#	run "cd #{deploy_to}/current && /opt/ruby-enterprise/bin/bundle install vendor/gems"
+	#end
+	task :share_db do
+		run "if [ ! -d #{shared_path}/db ]; then mkdir #{shared_path}/db;fi "
+
+		set :private_db_path, "db/#{stage}.sqlite3"
+		set :shared_db_path, "#{shared_path}/db/#{stage}.sqlite3"
+		set :config_db_path, "#{release_path}/config/database.yml"
+		run "sed -i 's;#{private_db_path};#{shared_db_path};g' #{config_db_path}"
 	end
    task :start do ; end
    task :stop do ; end

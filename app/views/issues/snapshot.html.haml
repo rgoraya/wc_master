@@ -1,0 +1,123 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+ 
+#contentwrapper
+  #contentcolumn
+    .innertube
+      .contentmain
+
+        %div{:id=>"notice"}
+          = @description
+
+        %div{:class =>"causes"}
+          %div{:class => "background", :onselectstart =>"return false;"}
+            CAUSES
+                 
+          %div{:class=> "foreground"}
+            - @causes.each do |issue|
+              %div{:class => "bubble"}
+                %div{:class=>"relation_link"}
+                  =issue.title
+                
+                  
+                %div{:style => "clear:both"}  
+
+        %div{:style => "clear:both"}
+        %div{:class=>"arrow", :style=>"margin-top:-25px"}
+        // The issue  
+        %div{:class =>"issues"}
+              
+          // Call the method to retrieve the Wikepedia URL, First Image and First paragraph
+          //- @wikiurl, @wikiimg, @wikidescr, @imgcaption, @toc  = @issue.get_wiki_description(@issue.title.to_s)
+             
+          %div{:class =>"issueblock"}
+                
+            // Title of the Issue
+            %div{:class =>"title"}
+              = @issue.title
+                
+            // Contents retrieved by calling the above method
+            %div{:class =>"wikicontent" }
+                  
+              // image link to wikipedia article using image retrived from there
+              // if an image link was retrieved from wikipedia display that
+              // otherwise display a placeholder
+                
+              %div{:class=>"imgcontainer"}   
+                %a{:href => @issue.wiki_url, :target=>"_blank"}                      
+                  %img{:src => @issue.short_url, :class=>"wikiimage"}
+                
+                  
+              // paragraph retrieved from wikipedia page
+              = @issue.description
+              /= @toc
+                  
+                
+            %div{:style => "clear:both"}
+                
+            %p{:style => "font-size:smaller; padding:0px 10px 0px 10px;"}
+              Click
+              %b
+                = link_to 'here', @issue.wiki_url
+              or on the image above to view the Wikipedia article for
+              %b
+                = @issue.title
+
+            %div{:class=>"panoramio_head"}
+              Related Photos       
+   
+            %div{:class=>"panoramio_photos"}
+              
+              %iframe{:frameborder => "0", :class=>"panoramioframe", :height => "80", :width => "478", :marginheight => "0", :marginwidth => "0", :scrolling => "no", :src => "http://www.panoramio.com/wapi/template/list.html?tag=*#{@issue.title}&width=478&height=80&columns=8&rows=1&orientation=horizontal&bgcolor=%2371C6E2"}
+      
+          %div{:class=>"arrow", :style=>"background-image:url('/images/issues/diverge.png'); margin-bottom:-30px"}            
+            
+            
+          // Effects      
+
+  
+        
+        %div{:class =>"effects"}
+          %div{:class => "background", :onselectstart =>"return false;"}
+            EFFECTS
+
+              
+          %div{:class=> "foreground"}
+            - @effects.each do |issue|
+              %div{:class=>"bubble"}
+                %div{:class=>"relation_link"}
+                  =issue.title
+                
+
+                %div{:style => "clear:both"}
+
+        = link_to "Current", issue_path(@issue), {:title=>"view current version", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
+
+
+        %div{:style => "clear:both"}
+        %div{:class=>"created_by"}
+          %span{:style=>"font-size:12px;"}
+            Author:
+          %br
+          %div{:style=>"float:left;"}
+            - @hash = Digest::MD5.hexdigest(@issue.user.email).to_s
+            %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none; "}
+              %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=38&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+          %div{:style=>"float:left; margin-left:3px;"} 
+            %div
+              %a{:href=>"/users/#{@issue.user.id}"}
+                = @issue.user.username
+            %div              
+
+              = pluralize(@issue.user.issues.length(), "issue")
+
+          %div{:style=>"clear:both;"}            
+      
+
+#clear{:style => "clear:left;"}
+
+%div{:id=>"modal_form"}      
+  = render :partial => "modal"
+
+  

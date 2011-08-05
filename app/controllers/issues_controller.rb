@@ -202,6 +202,7 @@ class IssuesController < ApplicationController
     
   end
 
+#issues/:id/versions
 	def versions
 		@issue = Issue.find(params[:id])
 		@versions = []
@@ -213,7 +214,6 @@ class IssuesController < ApplicationController
 		end 
 		@versions.sort!{|a,b| b.created_at <=> a.created_at}
 		@versions = @versions.paginate(:page => params[:page], :per_page => 10)
-		#@versions = Version.paginate(:page => params[:page], :order => 'created_at DESC')
 		
 		respond_to do |format|
 			format.html
@@ -221,5 +221,45 @@ class IssuesController < ApplicationController
 		end
 	end
 
+#issues/:id/snapshot/:at
+	def snapshot
+		ids = []
+		versions = []
+		versions_buffer = []
+		Version.find(:all, :conditions => ["item_type = 'Relationship'"], :order => 'created_at ASC').each do |version|
+			relationship = version.get_object
+			if (relationship.issue_id == params[:id].to_i || relationship.cause_id == params[:id].to_i) && version.created_at <= DateTime.parse(params[:at])
+				versions_buffer << version
+			end
+		end
+		versions_buffer.sort!{|a,b| b.created_at <=> a.created_at}
+		versions_buffer.each do |version|
+			if !ids.include?(version.item_id)
+				versions << version
+				ids << version.item_id
+			end
+		end
 
+		relationships = []
+		@causes = []
+		@effects = []
+		versions.each do |version|
+			if !version.event.eql?('destroy')
+				relationships << version.get_object
+			end
+		end
+		relationships.each do |relationship|
+			if relationship.issue_id == params[:id].to_i
+				@causes << Issue.find(relationship.cause_id)
+			elsif relationship.cause_id == params[:id].to_i
+				@effects << Issue.find(relationship.issue_id)
+			end
+		end
+		@issue = Issue.find(params[:id])
+		@description = "Snapshot of #{@issue.title} up to #{DateTime.parse(params[:at]).strftime('%b %d %Y - %R:%S')}"
+		respond_to do |format|
+			format.html 
+			format.xml 
+		end		
+	end
 end
