@@ -87,8 +87,7 @@ class IssuesController < ApplicationController
             redirect_to(:back, :notice => 'Causal link could not be created')
           end          
         end
-
-          
+      
       
       # * * * * The issue pointing to this wiki_url does not exist so create new issue before relation * * * *
       else

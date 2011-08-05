@@ -337,11 +337,12 @@ z-index:0;
 }
 
 .background{
-	max-width:600px;
+	max-width:1000px;
+	height:200px;
 	text-align:center;
 	margin:0 auto;
-	font-family:Impact, Charcoal, sans-serif;
-	font-weight:normal;
+	font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
+	font-weight:bold;
 	font-size:162px;
 	color:#434343;
 	-moz-user-select: none; 
