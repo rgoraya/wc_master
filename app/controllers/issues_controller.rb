@@ -82,8 +82,7 @@ class IssuesController < ApplicationController
           redirect_to(:back, :notice => 'The Causal link already Exists!')
         else
           if @relationship.save
-            # show pertinent flash message to user
-            redirect_to(:back, :notice => @notice)  
+            redirect_to(:back, :notice => @notice)
           else
             redirect_to(:back, :notice => 'Causal link could not be created')
           end          
@@ -114,11 +113,10 @@ class IssuesController < ApplicationController
             
           # Save the Relationship     
           if @relationship.save
-            # show pertinent flash message to user          
-            redirect_to(:back, :notice => @notice)  
+            redirect_to(:back, :notice => @notice)
           else
             redirect_to(:back, :notice => 'Causal link could not be created')
-          end          
+          end
         
         # some problem occurred and the Issue could not be saved
         else

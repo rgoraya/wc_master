@@ -6,12 +6,10 @@
 #contentwrapper
 
   .contentmain
-        
-    %div{:class=>"centralized"}
-      %div{:class=> "formheading"} 
-        Create a new Issue
-      %div{:class => "formcontentdiv"}
-
+    %div{:class=> "formheading"}    
+      Create a new Issue
+    %div{:class => "formcontentdiv"}
+      %div{:class=>"centralized"}
         -if @issue.errors.any?
           #error_explanation
             %div{:class=>"formerrorhead"}
@@ -99,7 +97,7 @@
   var search_results = [];
   var ignore_keys_array = [18,20,17,40,35,13,27,36,45,37,93,91,34,33,39,16,9,38];
   var mouse_is_inside = false;
-  var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&format=json&page=';
+  var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&redirects&format=json&page=';
   var jsonData = " ";
   var img_src = '';
   var text_preview = '';
@@ -215,9 +213,9 @@
   // hide the save button
   $('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_preview').showHtml('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
+  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
   // show dummy image for image
-  $('#image_preview').showHtml('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
+  $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
   
   //  If the search was successful - 
   } else {
@@ -226,7 +224,7 @@
   if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 
   // replace HTML of target Div
-  $('#text_preview').showHtml(text_preview, 400);
+  $('#text_preview').html(text_preview, 400);
   form_descr = $("#text_preview").html();
   // show the form 
   $("#form_container").css("display", "block");

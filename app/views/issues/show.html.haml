@@ -3,221 +3,194 @@
   
  
 #contentwrapper
-  #contentcolumn
-    .innertube
-      .contentmain
-
-        %div{:id=>"notice"}
-          = notice
-        %div{:id=>"wikiInfo"}  
-          - if current_user
-            %div{:style=>"width:100%; margin:10px 0px 0px 0px; text-align:right"}  
-              %a.poplight{:href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_effect.png')"} 
-                Add Cause or Effect
-
-        %div{:class =>"causes"}
-          %div{:class => "background", :onselectstart =>"return false;"}
-            CAUSES
-                 
-          %div{:class=> "foreground"}
-            - @causes = @issue.causes
-            - iterations = @causes.length
-            - iterations.times do |i|
-            - @relation = @issue.relationships.where(:cause_id=>@causes[i].id).select('id').first.id  
-              %div{:class => "bubble"}
-                %div{:class=>"relation_link"}
-                  =link_to @causes[i].title, "/issues/"+@causes[i].id.to_s+'-'+@causes[i].permalink.to_s, {:title=>"view this issue"}
-                - if current_user
-                  %div{:class=>"relationship_delete"}
-                    %a{"data-confirm" => "Are you sure you want to delete this Causal Link?", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link"} 
-                      %img{:src=>"/images/issues/delete.png", :width=>"12px"}
-                  
-                %div{:style => "clear:both"}  
-
-        %div{:style => "clear:both"}
-        %div{:class=>"arrow", :style=>"margin-top:-25px"}
-        // The issue  
-        %div{:class =>"issues"}
-              
-          // Call the method to retrieve the Wikepedia URL, First Image and First paragraph
-          //- @wikiurl, @wikiimg, @wikidescr, @imgcaption, @toc  = @issue.get_wiki_description(@issue.title.to_s)
-             
-          %div{:class =>"issueblock"}
-                
-            // Title of the Issue
-            %div{:class =>"title"}
-              = @issue.title
-                
-            // Contents retrieved by calling the above method
-            %div{:class =>"wikicontent" }
-                  
-              // image link to wikipedia article using image retrived from there
-              // if an image link was retrieved from wikipedia display that
-              // otherwise display a placeholder
-                
-              %div{:class=>"imgcontainer"}   
-                %a{:href => @issue.wiki_url, :target=>"_blank"}                      
-                  %img{:src => @issue.short_url, :class=>"wikiimage"}
-                
-                  
-              // paragraph retrieved from wikipedia page
-              = @issue.description
-              /= @toc
-                  
-                
-            %div{:style => "clear:both"}
-                
-            %p{:style => "font-size:smaller; padding:0px 10px 0px 10px;"}
-              Click
-              %b
-                = link_to 'here', @issue.wiki_url
-              or on the image above to view the Wikipedia article for
-              %b
-                = @issue.title
-
-            %div{:class=>"panoramio_head"}
-              Related Photos       
-   
-            %div{:class=>"panoramio_photos"}
-              
-              %iframe{:frameborder => "0", :class=>"panoramioframe", :height => "80", :width => "478", :marginheight => "0", :marginwidth => "0", :scrolling => "no", :src => "http://www.panoramio.com/wapi/template/list.html?tag=*#{@issue.title}&width=478&height=80&columns=8&rows=1&orientation=horizontal&bgcolor=%2371C6E2"}
-      
-          %div{:class=>"arrow", :style=>"background-image:url('/images/issues/diverge.png'); margin-bottom:-30px"}            
-            
-            
-          // Effects      
-
-  
-        
-        %div{:class =>"effects"}
-          %div{:class => "background", :onselectstart =>"return false;"}
-            EFFECTS
-
-              
-          %div{:class=> "foreground"}
-            - @effects = @issue.effects
-            - iterations = @effects.length
-            - link = ''
-            - iterations.times do |i|
-              - @relation = Relationship.where(:issue_id => @effects[i].id, :cause_id=>@issue.id).select('id').first.id
-              %div{:class=>"bubble"}
-                %div{:class=>"relation_link"}
-                  =link_to @effects[i].title, "/issues/"+@effects[i].id.to_s+'-'+@effects[i].permalink, {:title=>"view this issue"}
-                - if current_user
-                  %div{:class=>"relationship_delete"}
-                    %a{"data-confirm" => "Are you sure you want to delete this Causal Link?", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link"} 
-                      %img{:src=>"/images/issues/delete.png", :width=>"12px"}
-
-                %div{:style => "clear:both"}
-        -#- if current_user
-        = link_to "History", issue_versions_path(@issue), {:title=>"view all changes", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
-
-        %div{:style => "clear:both"}
-        %div{:class=>"created_by"}
-          %span{:style=>"font-size:12px;"}
-            Author:
-          %br
-          %div{:style=>"float:left;"}
-            - @hash = Digest::MD5.hexdigest(@issue.user.email).to_s
-            %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none; "}
-              %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=38&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
-          %div{:style=>"float:left; margin-left:3px;"} 
-            %div
-              %a{:href=>"/users/#{@issue.user.id}"}
-                = @issue.user.username
-            %div              
-
-              = pluralize(@issue.user.issues.length(), "issue")
-
-          %div{:style=>"clear:both;"}
-            
-#rightcolumn
 
   .contentmain
 
-    -if current_user                    
-      %div{:style=>"float:right; margin:0px -10px 15px 10px;", :class=>"new_button"}
-        = link_to 'New Issue', new_issue_path 
-    
-    -if current_user
-      %div{:style=>"float:left; margin:0px 0px 15px -10px;background-image:none;padding-left:5px", :class=>"new_button"}
-        - @hash = Digest::MD5.hexdigest(current_user.email).to_s
-        %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=38&d=mm", :class=>"gravatar"}
-        = link_to 'My Issues', current_user
-              
-    %div{:style=>"clear:both;"}
+    %div{:id=>"notice"}
+      = notice
+    %div{:id=>"wikiInfo"}  
+      - @toc, @effect  = @issue.get_causes(@issue.wiki_url)
 
-    - if current_user
-      %div{:class=>"formheading", :style=>"margin-top:0px;"}
-        Suggested Causal Links
-    
+    %div{:class =>"causes"}
+      %div{:class => "background", :onselectstart =>"return false;"}
+        CAUSES
+                 
+      %div{:class=> "foreground"}
 
-      %div{:class=>"formcontentdiv"} 
-        %div{:class=>"suggestions_container", :style=>"margin:10px 0px -40px 0px; height:25px; text-align:center;background-color:#ffffff"}
-          Causes
-        %div{:class=>"suggestions_container", :style=>"margin:10px 0px -40px 0px; height:25px; text-align:center;float:right;background-color:#ffffff"}
-          Effects
-        %div{:style=>"clear:both;"}
-        
-        %div{:class=>"scroll_button"}
-          %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous"}
-        %div{:class=>"scroll_button", :style=>"float:right;"}
-          %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous1"}
-        %div{:style=>"clear:both;"}
-        
-        - @toc, @effect  = @issue.get_causes(@issue.wiki_url)
-        %div{:class=>"suggestions_container", :style=>"border-right:1px solid #ededed"}
+        - @causes = @issue.causes
+        - iterations = @causes.length
+        - iterations.times do |i|
+        - @relation = @issue.relationships.where(:cause_id=>@causes[i].id).select('id').first.id  
+          %div{:class => "bubble"}
+            %div{:class=>"relation_link"}
+              =link_to @causes[i].title, "/issues/"+@causes[i].id.to_s+'-'+@causes[i].permalink.to_s, {:title=>"view this issue"}
+            - if current_user
+              %div{:class=>"relationship_delete"}
+                %a{"data-confirm" => "Are you sure you want to delete this Causal Link?", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link"} 
+                  %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+                  
+            %div{:style => "clear:both"} 
+
+        %div{:style => "clear:both"}
+
+        %div{:class => "panoramio_head", :style=>"margin:0px 0px -14px 10px;width:120px;"}
+          Suggestions
+        %div{:class => "panoramio_photos", :style=>"padding:15px 5px 15px 5px "}
+
           -if @toc.length > 0
-            %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel"}
-              - @toc.each do |toc|
-                %li{:class=>"cause_effect_container"}
-                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_effect_link"}
-                    = toc[:name]                 
-          - else
-            %p{:style=>"text-align:center"}
-              No Suggestions!  
-  
-        %div{:class=>"suggestions_container", :style=>"float:right;" }
-          - if @effect.length > 0
-            %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel1"}
-              - @effect.each do |effect|
-                %li{:class=>"cause_effect_container"}
-                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"cause_effect_link"}
-                    = effect[:name] 
-          - else
-            %p{:style=>"text-align:center"}
-              No Suggestions! 
-                    
-        %div{:style=>"clear:both;"}
-        
-        %div{:class=>"scroll_button"}
-          %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next"}
-  
-        %div{:class=>"suggestions_container", :style=>"height: 20px; width:auto; float:left; margin:5px 0px 0px 10px"}
-          Click to add a new Cause or Effect
-  
-        %div{:class=>"scroll_button", :style=>"float:right;"}
-          %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next1"}
-  
-        %div{:style=>"clear:both;"}      
-      
-    
-  
-    %div{:class=>"formheading"}
-      This issue on the globe
-    %div{:class=>"formcontentdiv"}        
-  
-      #map_canvas{:style => "position:relative; width:318px; height:280px;"}
-        %img{:src=>"/images/system/spinner.gif", :alt=>"spinner"}
-  
-
-
+            %div{:class=>"scroll_button"}
+              %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous1",:style=>"display:none;"}
+            %div{:class=>"scroll_button", :style=>"float:right;"}
+              %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next1",:style=>"display:none;"}
+            %div{:style => "clear:both"}
           
+          
+            %div{:class=>"suggestions_container"}
+            
+              %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel1"}
+                - @toc.each do |toc|
+                  %li{:class=>"cause_effect_container"}
+                    %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_effect_link"}
+                      = toc[:name]                 
+       
+        
+        %div{:style=>"width:100%; margin:55px 0px 5px 0px;text-align:center;"}  
+          %a.poplight{:href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_cause.png')"} 
+            Add Cause
+
+    %div{:style => "clear:both"}
+    %div{:class=>"arrow", :style=>"margin-top:-70px;"}
+    // The issue  
+    %div{:class =>"issues"}
+              
+           
+      %div{:class =>"issueblock"}
+                
+        // Title of the Issue
+        %div{:class =>"title"}
+          = @issue.title
+                
+        // Contents retrieved by calling the above method
+        %div{:class =>"wikicontent", :style=>"width:500px;float:left"}
+                  
+          // image link to wikipedia article using image retrived from there
+                
+          %div{:class=>"imgcontainer"}   
+            %a{:href => @issue.wiki_url, :target=>"_blank"}                      
+              %img{:src => @issue.short_url, :class=>"wikiimage"}
+              
+                  
+          // paragraph retrieved from wikipedia page
+          = @issue.description
+          /= @toc
+                  
+                
+          %div{:style => "clear:both"}
+               
+          %p{:style => "font-size:smaller; padding:0px 10px 0px 10px;"}
+            Click
+            %b
+              = link_to 'here', @issue.wiki_url
+            or on the image above to view the Wikipedia article for
+            %b
+              = @issue.title
+
+          %div{:class=>"panoramio_head"}
+            Related Photos       
+  
+          %div{:class=>"panoramio_photos"}
+              
+            %iframe{:id=>"panoramio_iframe", :frameborder => "0", :class=>"panoramioframe", :height => "80", :width => "478", :marginheight => "0", :marginwidth => "0", :scrolling => "no", :src => "http://www.panoramio.com/wapi/template/list.html?tag=*#{@issue.title}&width=478&height=80&columns=8&rows=1&orientation=horizontal&bgcolor=%2371C6E2"}
+        
+        %div{:style=>"padding:10px; float:left; margin-top:10px; border:1px solid #4DB8DB;"}
+          #map_canvas{:style => "width:298px; "}
+            %img{:src=>"/images/system/spinnerblue.gif", :alt=>"spinner", :class=>"result-spinner"}
+        
+        %div{:style => "clear:both"}
+        
+      %div{:class=>"arrow", :style=>"background-image:url('/images/issues/diverge.png'); margin-bottom:-70px;"}            
+
+      %div{:style=>"margin:5px 0px 15px 0px;text-align:center;height:50px; z-index:2; position:relative;"}  
+        %a.poplight{:href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_effect.png')"} 
+          Add Effect               
+            
+    // Effects    
+    %div{:class =>"effects"}
       
+      %div{:class => "background", :onselectstart =>"return false;"}
+        EFFECTS
+              
+      %div{:class=> "foreground"}
+
+
+
+
+        - @effects = @issue.effects
+        - iterations = @effects.length
+        - link = ''
+        - iterations.times do |i|
+          - @relation = Relationship.where(:issue_id => @effects[i].id, :cause_id=>@issue.id).select('id').first.id
+          - @references = Reference.where(:id => @relation).select('reference_content')
+          %div{:class=>"bubble"}
+            %div{:class=>"relation_link"}
+              =link_to @effects[i].title, "/issues/"+@effects[i].id.to_s+'-'+@effects[i].permalink, {:title=>"view this issue"}
+              
+            - if current_user
+              %div{:class=>"relationship_delete"}
+                %a{"data-confirm" => "Are you sure you want to delete this Causal Link?", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link"} 
+                  %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+
+            %div{:style => "clear:both"}
+
+            /- if current_user
+
+        %div{:style => "clear:both"}
+
+        %div{:class => "panoramio_head",:style=>"margin:0px 0px -14px 10px; width:120px;"}
+          Suggestions
+        %div{:class => "panoramio_photos", :style=>"padding:15px 5px 15px 5px "}
+
+          - if @effect.length > 0 
+            %div{:class=>"scroll_button"}
+              %img{:src=>"/images/system/up_arrow.png", :alt=>"carousal button", :id=>"previous",:style=>"display:none;"}
+            %div{:class=>"scroll_button", :style=>"float:right;"}
+              %img{:src=>"/images/system/down_arrow.png", :alt=>"carousal button", :id=>"next",:style=>"display:none;"}
+            %div{:style => "clear:both"}
+          
+            %div{:class=>"suggestions_container"}
+            
+              %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel"}
+                - @effect.each do |effect|
+                  %li{:class=>"cause_effect_container"}
+                    %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"cause_effect_link"}
+                      = effect[:name] 
+          
+          
+
+
+    %div{:style=>"float:right; padding-top:20px;margin-top:15px;"}
+      - if current_user
+        = link_to "History", issue_versions_path(@issue), {:title=>"view all changes", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
+      
+
+    %div{:class=>"created_by"}
+      %span{:style=>"font-size:10px;"}
+        Author:
+      %br
+      %div{:style=>"float:left;"}
+        - @hash = Digest::MD5.hexdigest(@issue.user.email).to_s
+        %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none; "}
+          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=40&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+      %div{:style=>"float:left; margin-left:3px;"} 
+        %div
+          %a{:href=>"/users/#{@issue.user.id}"}
+            = @issue.user.username
+        %div              
+          = pluralize(@issue.user.issues.length(), "issue")
+
+      %div{:style=>"clear:both;"}        
 
 #clear{:style => "clear:left;"}
 
 %div{:id=>"modal_form"}      
   = render :partial => "modal"
-
-  

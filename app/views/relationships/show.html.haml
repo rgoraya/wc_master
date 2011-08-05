@@ -7,6 +7,10 @@
   %b Cause:
   = @relationship.cause_id
 
+%p
+  %b Cause:
+  = @relationship.references
+
 = link_to 'Edit', edit_relationship_path(@relationship)
 \|
 = link_to 'Back', relationships_path

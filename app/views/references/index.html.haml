@@ -1,0 +1,21 @@
+%h1 Listing references
+
+%table
+  %tr
+    %th Relationship
+    %th Reference content
+    %th
+    %th
+    %th
+
+  - @references.each do |reference|
+    %tr
+      %td= reference.relationship_id
+      %td= reference.reference_content
+      %td= link_to 'Show', reference
+      %td= link_to 'Edit', edit_reference_path(reference)
+      %td= link_to 'Destroy', reference, :confirm => 'Are you sure?', :method => :delete
+
+%br
+
+= link_to 'New Reference', new_reference_path

@@ -5,16 +5,16 @@
 #contentwrapper
   .contentmain
     
-    %div{:class=>"centralized"}
-      %div{:class=> "formheading"}
-        - if params[:action] == "new" 
-          Register as a new user
-        - elsif params[:action] == "edit" 
-          Edit profile information
-        - else  
-          Correct errors to proceed
-      %div{:class => "formcontentdiv"}
-          
+
+    %div{:class=> "formheading"}
+      - if params[:action] == "new" 
+        Register as a new user
+      - elsif params[:action] == "edit" 
+        Edit profile information
+      - else  
+        Correct errors to proceed
+    %div{:class => "formcontentdiv"}
+      %div{:class=>"centralized"}    
         = form_for @user do |f|
           -if @user.errors.any?
             #error_explanation

@@ -5,11 +5,11 @@
 #contentwrapper
   .contentmain
     
-    %div{:class=>"centralized"}
-      %div{:class=> "formheading"} 
-        Sign in to WikiCausality
-      %div{:class => "formcontentdiv"}
     
+    %div{:class=> "formheading"} 
+      Sign in to WikiCausality
+    %div{:class => "formcontentdiv"}
+      %div{:class=>"centralized"}
     
         = form_for @user_session do |f|
           -if @user_session.errors.any?

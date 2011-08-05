@@ -78,6 +78,7 @@ require 'open-uri'
 require 'json'
 require 'cgi'
 require 'wikipedia'
+require 'uri'
 
   def get_wiki_description(query)
       
@@ -160,14 +161,13 @@ require 'wikipedia'
       end
   end
 
-  def get_links(query)
-    page = Wikipedia.find(query)
-    return 
-  end
+  #def get_links(query)
+  #  page = Wikipedia.find(query)
+  #  return 
+  #end
 
   def get_causes(url)
 
-    
       results = []
       effects = []
       if url.size > 10
@@ -177,11 +177,11 @@ require 'wikipedia'
           buffer = Hpricot(open(url, "UserAgent" => "reader"+rand(10000).to_s).read)
           
                 buffer.search('//p[text()*= "cause"]/a').each { |result|
-                 results << {:name => result.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""), :url => 'http://en.wikipedia.org'+result.attributes['href']}
+                 results << {:name => URI.unescape(result.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", "")), :url => 'http://en.wikipedia.org'+result.attributes['href']}
                 }
 
                 buffer.search('//p[text()*= "effect"]/a').each { |effect|
-                 effects << {:name => effect.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""), :url => 'http://en.wikipedia.org'+effect.attributes['href']}
+                 effects << {:name => URI.unescape(effect.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", "")), :url => 'http://en.wikipedia.org'+effect.attributes['href']}
                 }              
         
         rescue
@@ -193,33 +193,33 @@ require 'wikipedia'
       
   end
 
-  def get_related_resources(wikiped_url)
-  key = wikiped_url.gsub(/(http:\/\/)*(www\.)*en\.wikipedia\.org\/wiki\//,"")
-  query ="PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-SELECT DISTINCT * 
-WHERE
-{
-<http://dbpedia.org/resource/#{key}> <http://purl.org/dc/terms/subject> ?topic.
-MINUS{
-?topic skos:broader <http://dbpedia.org/resource/Category:Terminology>
-}
-?relatedResources <http://purl.org/dc/terms/subject> ?topic.
-MINUS{ 
-?relatedResources rdf:type <http://dbpedia.org/ontology/Person>.
-?relatedResources rdf:type <http://dbpedia.org/ontology/date>.
-}}"
-  query = CGI.escape(query)
-  terms = []
-  begin
-    doc = Hpricot(open("http://dbpedia.org/sparql?default-graph-uri=#{CGI.escape('http://dbpedia.org')}&query=#{query}").read)
-    doc.search("//binding[@name='relatedResources']//uri").each {|t|
-      terms << "http://en.wikipedia.org/wiki/#{t.inner_text.gsub(/http:\/\/dbpedia\.org\/resource\//,"")}"  
-    }
-  rescue
-    return nil
-  end
-  return terms
-end
+  #def get_related_resources(wikiped_url)
+  #key = wikiped_url.gsub(/(http:\/\/)*(www\.)*en\.wikipedia\.org\/wiki\//,"")
+  #query ="PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+  #SELECT DISTINCT * 
+  #WHERE
+  #{
+  #<http://dbpedia.org/resource/#{key}> <http://purl.org/dc/terms/subject> ?topic.
+  #MINUS{
+  #?topic skos:broader <http://dbpedia.org/resource/Category:Terminology>
+  #}
+  #?relatedResources <http://purl.org/dc/terms/subject> ?topic.
+  #MINUS{ 
+  #?relatedResources rdf:type <http://dbpedia.org/ontology/Person>.
+  #relatedResources rdf:type <http://dbpedia.org/ontology/date>.
+  #}}"
+  #  query = CGI.escape(query)
+  #  terms = []
+  #  begin
+  #    doc = Hpricot(open("http://dbpedia.org/sparql?default-graph-uri=#{CGI.escape('http://dbpedia.org')}&query=#{query}").read)
+  #    doc.search("//binding[@name='relatedResources']//uri").each {|t|
+  #      terms << "http://en.wikipedia.org/wiki/#{t.inner_text.gsub(/http:\/\/dbpedia\.org\/resource\//,"")}"  
+  #    }
+  #  rescue
+  #    return nil
+  # end
+  #  return terms
+  #end
 
   private
   def generate_slug   
