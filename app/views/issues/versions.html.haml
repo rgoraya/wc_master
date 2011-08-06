@@ -4,45 +4,52 @@
 #contentwrapper
 	.contentmain
 		%div{:style=>"color: #434343;font-size: 18px;text-align: center;"}
-			Changes for Issue:
+			Revision history for:
 			%b				
-				= link_to @issue.title, issue_path(@issue), :class=>"logo_txt", :style=>"text-decoration:none"
+				= link_to @issue.title, issue_path(@issue), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 		-#%div{:id=>"notice"}
 			-#= notice
 		%div{:class=>"versions"}
 		- @versions.each do |version|
 			- relationship = version.get_object
 			%div{:class=>"version"}
-				%b
-					= @issue.title
-				- if !version.event.eql?('destroy')
-					has a new
-				- else
-					lose a
-				- if relationship.issue_id == @issue.id
-					cause:
-					%b
-						= link_to Issue.find(relationship.cause_id).title, issue_path(relationship.cause_id), :class=>"logo_txt", :style=>"text-decoration:none"
-				- elsif relationship.cause_id == @issue.id
-					effect: 
-					%b
-						= link_to Issue.find(relationship.issue_id).title, issue_path(relationship.issue_id), :class=>"logo_txt", :style=>"text-decoration:none"
+				%div{:style=>"float:left"}
+					%b ID:
+					= version.id
+					- relation = nil
+					- id = nil
+					- if relationship.issue_id == @issue.id
+						- relation = 'Cause'
+						- id = relationship.cause_id
+					- elsif relationship.cause_id == @issue.id
+						- relation = 'Effect'
+						- id = relationship.issue_id 
+					= link_to relation, "", :title=>"view this relationship", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
+					- if !version.event.eql?('destroy')
+						added:
+					- else
+						removed:
+					= link_to Issue.find(id).title, issue_path(id), :title=>"view this issue", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 				%div{:style=>"float:right"}
-					Done by: 
-					= link_to User.find(version.whodunnit).username, user_path(version.whodunnit), :class=>"logo_txt", :style=>"text-decoration:none"
-					-#At:
-					-#= version.created_at
-					-# %b Event:
-					-# = version.event
-					-# %b Type:
-					-# = version.item_type
-					-# - if !version.event.eql?('destroy')
-					- if current_user && current_user.id == @issue.user.id
-						= link_to "Rollback", restore_issue_version_path(@issue, version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change", :style=>"background-image:none;padding:3px 10px 3px 10px;"
-					-# - else
-						-# = link_to "Undelete", restore_issue_version_path(@issue, version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change"
-					%div{:style=>"clear:both"}
+					At:
+					= link_to DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S'), issue_snapshot_path(@issue, :at => version.created_at), :title => "view snapshot at this time", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
+					By: 
+					- if version.whodunnit
+						= link_to User.find(version.whodunnit).username, user_path(version.whodunnit), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
+					- else
+						Anonymous
+				%div{:style=>"clear:left"}
+				%div{:style=>"float:left"}
+					- if  version.reverted_from
+						Reverted from version:
+						= version.reverted_from
+					- else
+						New action
+				%div{:style=>"float:right"}
+					- if current_user 
+						= link_to "Rollback", restore_issue_version_path(@issue,version), :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :class=>"edit_button", :title=>"reset to this change", :style=>"background-image:none;padding:0px 5px 0px 5px;font-size:16;"
+				%div{:style=>"clear:both"}
+
 		%div{:class=>"pages"}
 			= will_paginate @versions
-
-#clear{:style=>"clear:left;"}
+%div{:style=>"clear:both"}

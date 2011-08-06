@@ -48,12 +48,13 @@ ActiveRecord::Schema.define(:version => 20110803231217) do
   end
 
   create_table "versions", :force => true do |t|
-    t.string   "item_type",  :null => false
-    t.integer  "item_id",    :null => false
-    t.string   "event",      :null => false
+    t.string   "item_type",     :null => false
+    t.integer  "item_id",       :null => false
+    t.string   "event",         :null => false
     t.string   "whodunnit"
     t.text     "object"
     t.datetime "created_at"
+    t.integer  "reverted_from"
   end
 
   add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
