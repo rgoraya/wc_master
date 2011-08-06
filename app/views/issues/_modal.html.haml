@@ -92,11 +92,11 @@
 
   // Show or Hide the Scroll buttons if there were some 
   // suggestions found and they are more than 2 rows
-  if ($("#cause_carousel1").height() > 54){
+  if ($("#cause_carousel1").height() > 62){
   $("#previous1,#next1").css({display : 'inline'});
   }
 
-  if ($("#cause_carousel").height() > 54){
+  if ($("#cause_carousel").height() > 62){
   $("#previous,#next").css({display : 'inline'});
   }
 
@@ -418,12 +418,12 @@
   // S C R O L L - D I V
   var current_marg = 0;
   var current_marg1 = 0;
-  var step = 54;
+  var step = 62;
 
   // Next and previous functions for Causes Scroller  
   $("#next").click(function(){
   //alert($("#cause_carousel").height());
-  if (Math.abs(current_marg) < ($("#cause_carousel").height())-54){
+  if (Math.abs(current_marg) < ($("#cause_carousel").height())-62){
   
   $('#cause_carousel').animate({marginTop:current_marg - step}, 600);
   current_marg = current_marg - step;
@@ -442,7 +442,7 @@
   // Next and previous functions for Effects Scroller
   $("#next1").click(function(){
   
-  if (Math.abs(current_marg1) < ($("#cause_carousel1").height())-54){
+  if (Math.abs(current_marg1) < ($("#cause_carousel1").height())-62){
   
   $('#cause_carousel1').animate({marginTop:current_marg1 - step}, 600);
   current_marg1 = current_marg1 - step;
