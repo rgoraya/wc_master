@@ -1,10 +1,14 @@
 class Relationship < ActiveRecord::Base
+  
+  # issues have an owner
+  belongs_to :user  
+  
   belongs_to :issue
   belongs_to :cause, :class_name => 'Issue', :foreign_key => 'cause_id'
 
-  has_many :references
+  has_many :references, :dependent => :destroy
 
-  validates :cause_id, :uniqueness => {:scope => :issue_id}
+  validates :issue_id, :presence => true, :uniqueness => {:scope => :cause_id}
   has_paper_trail 
 
 def validate

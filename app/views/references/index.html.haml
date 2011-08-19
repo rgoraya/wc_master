@@ -2,15 +2,17 @@
 
 %table
   %tr
-    %th Relationship
+    %th Relationship_Id
+    %th User_Id
     %th Reference content
-    %th
+    %th  
     %th
     %th
 
   - @references.each do |reference|
     %tr
       %td= reference.relationship_id
+      %td= reference.user_id
       %td= reference.reference_content
       %td= link_to 'Show', reference
       %td= link_to 'Edit', edit_reference_path(reference)

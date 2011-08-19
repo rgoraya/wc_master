@@ -30,86 +30,87 @@
 
 
 - @user.issues.each_slice(2) do |slice|
-  //%div{:class=>"index1"}
-  %div{:class=>"formheading"}
-      
-    // Div containing the title and author
-    = link_to slice[0].title, slice[0], :title=>"View this Issue"
-
-      
-  // Div containing the buttons
-  %div{:style=>"float:right; padding-top:12px"}
-
-    // Only show Edit and Delete if the Issue belongs to current user
-    -if current_user
-      -if current_user.id == slice[0].user_id    
-
-        = link_to 'Delete', slice[0], :confirm => 'Are you sure?', :method => :delete, :class=>"head_link", :title=>"Delete this Issue"
-
-    // author
-      
-    - @hash = Digest::MD5.hexdigest(slice[0].user.email).to_s
-    %a{:href=>"/users/#{slice[0].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
-      %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
-    %a{:href=>"/users/#{slice[0].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
-      = slice[0].user.username
-
-   
-  %div{:class=>"formcontentdiv", :style=>"color:#434343;"}
-    // Image  
-    %div{:class=>"index_img_box", :style=>"float:left;"}
-      %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
-        %img{:src=> slice[0].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
-      
-    // Text
-    %div{:style=>"float:left; width:843px; text-align:justify;"}
-          
-      = slice[0].description
+  %div{:class=>"issue_container"}
+    %div{:class=>"formheading"}
         
-      %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"head_link",:style=>"padding-left:0px; margin-left:0px; background-image:none;"}
-        Read more on Wikipedia
-      
-    %div{:style=>"clear:both"}
+      // Div containing the title and author
+      = link_to slice[0].title, slice[0], :title=>"View this Issue"
+  
+        
+    // Div containing the buttons
+    %div{:style=>"float:right; padding-top:12px"}
+  
+      // Only show Edit and Delete if the Issue belongs to current user
+      -if current_user
+        -if current_user.id == slice[0].user_id    
+  
+          = link_to 'Delete', slice[0], "data-confirm" => "Are you sure you want to delete the issue #{slice[0].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+  
+      // author
+        
+      - @hash = Digest::MD5.hexdigest(slice[0].user.email).to_s
+      %a{:href=>"/users/#{slice[0].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
+        %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
+      %a{:href=>"/users/#{slice[0].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
+        = slice[0].user.username
+  
+     
+    %div{:class=>"formcontentdiv", :style=>"color:#434343;"}
+      // Image  
+      %div{:class=>"index_img_box", :style=>"float:left;"}
+        %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
+          %img{:src=> slice[0].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
+        
+      // Text
+      %div{:style=>"float:left; width:843px; text-align:justify;"}
+            
+        = slice[0].description
+          
+        %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"head_link",:style=>"padding-left:0px; margin-left:0px; background-image:none;"}
+          Read more on Wikipedia
+        
+      %div{:style=>"clear:both"}
 
 
 
   - if !slice[1].nil?  
-    %div{:class=>"formheading"}
-      
-      = link_to slice[1].title, slice[1], :title=>"View this Issue"
-
-    // Div containing the buttons
-    %div{:style=>"float:right; padding-top:12px"}
-
-      // Only show Edit and Delete if the Issue belongs to current user
-      -if current_user
-        -if current_user.id == slice[1].user_id    
+    %div{:class=>"issue_container"}
+      %div{:class=>"formheading"}
+        
+        = link_to slice[1].title, slice[1], :title=>"View this Issue"
   
-          = link_to 'Delete', slice[1], :confirm => 'Are you sure?', :method => :delete, :class=>"head_link", :title=>"Delete this Issue"                        
+      // Div containing the buttons
+      %div{:style=>"float:right; padding-top:12px"}
   
-      // author        
-      - @hash = Digest::MD5.hexdigest(slice[1].user.email).to_s
-      %a{:href=>"/users/#{slice[1].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
-        %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
-      %a{:href=>"/users/#{slice[1].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
-        = slice[1].user.username
+        // Only show Edit and Delete if the Issue belongs to current user
+        -if current_user
+          -if current_user.id == slice[1].user_id    
+    
+            = link_to 'Delete', slice[1], "data-confirm" => "Are you sure you want to delete the issue #{slice[1].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+    
+        // author        
+        - @hash = Digest::MD5.hexdigest(slice[1].user.email).to_s
+        %a{:href=>"/users/#{slice[1].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
+          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
+        %a{:href=>"/users/#{slice[1].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
+          = slice[1].user.username
+    
+       
+      %div{:class=>"formcontentdiv", :style=>"color:#434343;"}
   
-     
-    %div{:class=>"formcontentdiv", :style=>"color:#434343;"}
-
-      // Image
-      %div{:class=>"index_img_box", :style=>"float:right;"}
-        %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
-          %img{:src=> slice[1].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
-      // Text
-      %div{:style=>"float:right; width:843px; text-align:justify;"}
-            
-        = slice[1].description
-
-        %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"head_link",:style=>"padding-left:0px; margin-left:0px; background-image:none;"}
-          Read more on Wikipedia
-
-      %div{:style=>"clear:both"}
+        // Image
+        %div{:class=>"index_img_box", :style=>"float:right;"}
+          %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
+            %img{:src=> slice[1].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
+        // Text
+        %div{:style=>"float:right; width:843px; text-align:justify;"}
+              
+          = slice[1].description
+  
+          %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"head_link",:style=>"padding-left:0px; margin-left:0px; background-image:none;"}
+            Read more on Wikipedia
+  
+        %div{:style=>"clear:both"}
 
 %div{:style=>"clear:both"}
 

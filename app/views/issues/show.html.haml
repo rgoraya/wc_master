@@ -1,6 +1,7 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
-  
+
+- content_for(:title, @issue.title)
  
 #contentwrapper
 
@@ -10,6 +11,8 @@
       = notice
     %div{:id=>"wikiInfo"}  
       - @toc, @effect  = @issue.get_causes(@issue.wiki_url)
+      - @reference_list = []
+    //  * * * * * *    C A U S E S    * * * * * *
 
     %div{:class=> "formheading_small"}    
       Causes of
@@ -19,22 +22,70 @@
       %div{:style=>"margin:-37px 0px 0px 0px;float:right;"}  
         %a.poplight{:id=>"add_cause_btn", :href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_cause.png')"} 
           Add Cause
-
+      
+      - @ref_counter = 0
       - @causes = @issue.causes
       - iterations = @causes.length
       - iterations.times do |i|
-      - @relation = @issue.relationships.where(:cause_id=>@causes[i].id).select('id').first.id  
+        - @relation = @issue.relationships.where(:cause_id=>@causes[i].id).select('id').first.id
+        - @references = Reference.where(:relationship_id=>@relation)
+        - @references.length.times do |j|
+          - @reference_list << @references[j] 
         %div{:class => "bubble"}
+        
+          // The link to the relation Issue
           %div{:class=>"relation_link"}
             =link_to @causes[i].title, "/issues/"+@causes[i].id.to_s+'-'+@causes[i].permalink.to_s, {:title=>"view this issue"}
+ 
+          // Link to the references
+          - if @references.count > 0
+            - @ref_link = '#'+(@ref_counter + 1).to_s
+            %div{:class=>"relationship_refs"}
+              %a{:href => @ref_link, :class=>"ref_link", :rel=> @references.count, :title=>"view references"}
+                - if @references.count > 1
+                  [#{@ref_counter + 1}-#{@ref_counter + @references.count}] 
+                - else
+                  [#{@ref_counter + 1}]
+            
+            // increment the counter
+            - @ref_counter += @references.count
+                
+          // Add reference to Boost
+          %div{:class=>"relationship_boost"}
+            %img{:src=>"/images/issues/add.png", :width=>"12px", :title=>"add reference"} 
+          
+          // Delete Relation (shown only to registered users)
           - if current_user
             %div{:class=>"relationship_delete"}
-              %a{"data-confirm" => "Are you sure you want to delete this Causal Link?", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link"} 
+              %a{"data-confirm" => "Are you sure you want to remove the cause #{@causes[i].title}?", "data-title"=>"Delete Causal Link", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
                 %img{:src=>"/images/issues/delete.png", :width=>"12px"}
                 
           %div{:style => "clear:both"} 
+                
+          %div{:class => "relationship_addref"}
+            
+            %div{:class=>"search_button", :style=>"background-image:none; padding-left:2px"}
+              - form_for Reference.new do |f|
+                %div{:style=>"float:left;display:table-cell; vertical-align:middle"}
+                  .field                   
+                    = f.text_field :reference_content, :align=>"top", :autocomplete=>"off", :class=>"searchfield_smaller", :placeholder => "Provide reference. . .", :style=>"float:left;"
+                    %a{:class=>"srch_button save_reference", :href=>"#", :name=>"save_reference_button", :style=>"float:left; font-size:18px; padding:0px 5px 0px 5px;", :title=>"add this reference"}
+                      Add                   
+                    %img{:alt => "close button", :src => "/images/system/close.png",:class=>'close_addref'}
+                    %div{:style=>"clear:both; display:none;text-align:left; padding:5px;", :class=>"ref_error"} 
+                      Kindly provide a valid URL after 'http://'
+                  .field  
+                    = f.hidden_field :relationship_id, :class=>"formfield", :id=>"frm_relationship_url", :value=>@relation
+                  .field
+                    - if current_user
+                      = f.hidden_field :user_id, :class=>"formfield", :value=>current_user.id
+
+                %div{:style=>"clear:both;"}
+  
 
       %div{:style => "clear:both"}
+      
+
 
       -if @toc.length > 0
         %div{:class => "white_banner"}
@@ -108,7 +159,8 @@
         
     %div{:class=>"arrow-down", :style => "margin-top:2px;margin-bottom:-15px;"}
 
-    // Effects    
+    //   * * * * * *    E F F E C T S    * * * * * *
+         
     %div{:class=> "formheading_small"}    
       Effects of
       = @issue.title
@@ -122,18 +174,61 @@
       - iterations = @effects.length
       - link = ''
       - iterations.times do |i|
-        - @relation = Relationship.where(:issue_id => @effects[i].id, :cause_id=>@issue.id).select('id').first.id
-        - @references = Reference.where(:id => @relation).select('reference_content')
+        - @relation1 = Relationship.where(:issue_id => @effects[i].id, :cause_id=>@issue.id).select('id').first.id
+        - @references1 = Reference.where(:relationship_id=>@relation1)
+        - @references1.length.times do |j|
+          - @reference_list << @references1[j]         
         %div{:class=>"bubble"}
+          
+          // The link to the relation Issue
           %div{:class=>"relation_link"}
             =link_to @effects[i].title, "/issues/"+@effects[i].id.to_s+'-'+@effects[i].permalink, {:title=>"view this issue"}
+ 
+          // Link to the references
+          - if @references1.count > 0
+            - @ref_link1 = '#'+(@ref_counter + 1).to_s
+            %div{:class=>"relationship_refs"}
+              %a{:href => @ref_link1, :class=>"ref_link", :rel=> @references1.count, :title=>"view references"}
+                - if @references1.count > 1
+                  [#{@ref_counter + 1}-#{@ref_counter + @references1.count}] 
+                - else
+                  [#{@ref_counter + 1}]
             
+            // increment the counter
+            - @ref_counter += @references1.count
+            
+          // Add reference to Boost
+          %div{:class=>"relationship_boost"}
+            %img{:src=>"/images/issues/add.png", :width=>"12px", :title=>"add reference"} 
+          
+          // Delete Relation (shown only to registered users)            
           - if current_user
             %div{:class=>"relationship_delete"}
-              %a{"data-confirm" => "Are you sure you want to delete this Causal Link?", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link"} 
+              %a{"data-confirm" => "Are you sure you want to remove the effect #{@effects[i].title}?", "data-title" => "Delete Causal Link", "data-method" => "delete", :href => "../relationships/#{@relation1}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
                 %img{:src=>"/images/issues/delete.png", :width=>"12px"}
 
           %div{:style => "clear:both"}
+
+          %div{:class => "relationship_addref"}
+            
+            %div{:class=>"search_button", :style=>"background-image:none; padding-left:2px"}
+              - form_for Reference.new do |f|
+                %div{:style=>"float:left;display:table-cell; vertical-align:bottom; padding-bottom:-2px;"}
+                  .field{:style=>"display:block"}
+                    = f.text_field :reference_content, :align=>"top", :autocomplete=>"off", :class=>"searchfield_smaller", :placeholder => "Provide reference. . .", :style=>"float:left;"
+                    %a{:class=>"srch_button save_reference", :href=>"#", :name=>"save_reference_button", :style=>"float:left; font-size:18px; padding:0px 5px 0px 5px;", :title=>"add this reference"}
+                      Add                   
+                    %img{:alt => "close button", :src => "/images/system/close.png",:class=>'close_addref'}
+                    %div{:style=>"clear:both; display:none;text-align:left; padding:5px;", :class=>"ref_error"} 
+                      Kindly provide a valid URL after 'http://'
+                  .field  
+                    = f.hidden_field :relationship_id, :class=>"formfield", :id=>"frm_relationship_url", :value=>@relation1
+                  .field
+                    - if current_user
+                      = f.hidden_field :user_id, :class=>"formfield", :value=>current_user.id
+                      
+               
+                %div{:style=>"clear:both"}
       
       %div{:style => "clear:both"}
 
@@ -165,20 +260,54 @@
       %span{:style=>"font-size:10px;"}
         Author:
       %br
-      %div{:style=>"float:left;"}
-        - @hash = Digest::MD5.hexdigest(@issue.user.email).to_s
-        %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none; "}
+      
+      // The Issue has an Owner  
+      - if @issue.user
+        %div{:style=>"float:left;"}        
+          - @hash = Digest::MD5.hexdigest(@issue.user.email).to_s
+          %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none; "}
+            %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=40&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+        %div{:style=>"float:left; margin:5px 0px -5px 3px;"} 
+          %div
+            %a{:href=>"/users/#{@issue.user.id}"}
+              = @issue.user.username
+          %div              
+            = pluralize(@issue.user.issues.length(), "issue")
+        %div{:style=>"clear:both;"}
+      - else
+        %div{:style=>"float:left;"}
           %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=40&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
-      %div{:style=>"float:left; margin-left:3px;"} 
-        %div
-          %a{:href=>"/users/#{@issue.user.id}"}
-            = @issue.user.username
-        %div              
-          = pluralize(@issue.user.issues.length(), "issue")
+        %div{:style=>"float:left; margin:5px 0px -5px 3px;"} 
+          %div
+            Anonymous
+        %div{:style=>"clear:both;"}
+      
+      %div{:style=>"clear:both;"}                  
+  
+  - if @reference_list.count > 0 
+    .contentmain
+      %div{:class=> "formheading_small"}    
+        References
+      %div{:class => "formcontentdiv_small ref_container"}
+        %ol{:class=>"ref_ol"}
+          - @reference_list.length.times do |n|
+            %li{:class=>"ref_li"}
+              %a{:name => n+1, :href=>@reference_list[n].reference_content}
+                = @reference_list[n].reference_content
+        %div{:style=>"clear:both;"}
 
-      %div{:style=>"clear:both;"}        
 
 #clear{:style => "clear:left;"}
-
+        
+    
 %div{:id=>"modal_form"}      
   = render :partial => "modal"
+
+#confirm_popup
+  #confirm_title{:class=>"formheading_small"}
+  .formcontentdiv_small
+    #confirm_wait{:style=>"margin:-42px 0px 0px 0px;float:right;background-color:#ffffff;"}  
+    #confirm_msg
+    #confirm_buttons{:style=>"margin-top:10px; text-align:center"}
+      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}
+      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}

@@ -25,8 +25,8 @@
 
 
 %div{:style=>"margin-top:0px"}
-  - @issues.each_slice(2) do |slice|
-    //%div{:class=>"index1"}
+- @issues.each_slice(2) do |slice|
+  %div{:class=>"issue_container"}
     %div{:class=>"formheading"}
       
       // Div containing the title and author
@@ -40,16 +40,19 @@
       -if current_user
         -if current_user.id == slice[0].user_id    
 
-          = link_to 'Delete', slice[0], :confirm => 'Are you sure?', :method => :delete, :class=>"head_link", :title=>"Delete this Issue"
+          = link_to 'Delete', slice[0], "data-confirm" => "Are you sure you want to delete the issue #{slice[0].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
 
       // author
-      
-      - @hash = Digest::MD5.hexdigest(slice[0].user.email).to_s
-      %a{:href=>"/users/#{slice[0].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
-        %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
-      %a{:href=>"/users/#{slice[0].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
-        = slice[0].user.username
-
+      - if slice[0].user
+        - @hash = Digest::MD5.hexdigest(slice[0].user.email).to_s
+        %a{:href=>"/users/#{slice[0].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
+          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
+        %a{:href=>"/users/#{slice[0].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
+          = slice[0].user.username
+      - else
+        %img{:src=> "http://www.gravatar.com/avatar/?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
+        %span{:class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;"}
+          Anonymous
    
     %div{:class=>"formcontentdiv", :style=>"color:#434343;"}
       // Image  
@@ -68,8 +71,8 @@
       %div{:style=>"clear:both"}
   
   
-    - if !slice[1].nil?  
-      
+  - if !slice[1].nil?  
+    %div{:class=>"issue_container"}  
       %div{:class=>"formheading"}
       
         = link_to slice[1].title, slice[1], :title=>"View this Issue"
@@ -81,15 +84,19 @@
         -if current_user
           -if current_user.id == slice[1].user_id    
   
-            = link_to 'Delete', slice[1], :confirm => 'Are you sure?', :method => :delete, :class=>"head_link", :title=>"Delete this Issue"                        
+            = link_to 'Delete', slice[1], "data-confirm" => "Are you sure you want to delete the issue #{slice[1].title}?", "data-title" =>"Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"                        
   
         // author        
-        - @hash = Digest::MD5.hexdigest(slice[1].user.email).to_s
-        %a{:href=>"/users/#{slice[1].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
-          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
-        %a{:href=>"/users/#{slice[1].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
-          = slice[1].user.username
-  
+        - if slice[1].user
+          - @hash = Digest::MD5.hexdigest(slice[1].user.email).to_s
+          %a{:href=>"/users/#{slice[1].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
+            %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
+          %a{:href=>"/users/#{slice[1].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
+            = slice[1].user.username
+        - else
+          %img{:src=> "http://www.gravatar.com/avatar/?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
+          %span{:class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;"}
+            Anonymous
      
       %div{:class=>"formcontentdiv", :style=>"color:#434343;"}
 

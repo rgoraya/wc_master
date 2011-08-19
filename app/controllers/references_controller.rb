@@ -44,10 +44,10 @@ class ReferencesController < ApplicationController
 
     respond_to do |format|
       if @reference.save
-        format.html { redirect_to(@reference, :notice => 'Reference was successfully created.') }
+        format.html { redirect_to(:back, :notice => 'Reference was successfully added.') }
         format.xml  { render :xml => @reference, :status => :created, :location => @reference }
       else
-        format.html { render :action => "new" }
+        format.html { redirect_to(:back, :notice => @reference.errors) }
         format.xml  { render :xml => @reference.errors, :status => :unprocessable_entity }
       end
     end

@@ -10,9 +10,7 @@ class Issue < ActiveRecord::Base
   # The wiki_url has to be unique else do not create
   validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" (wikipedia URL) provided was already used to create an existing Issue."
   validates :title, :presence => {:message => ' cannot be blank, Issue not saved!'}
-  
-  # Can accept relationship fields (required for adding cause/effects on the fly)
-  accepts_nested_attributes_for :relationships, :allow_destroy => true
+  validates :wiki_url, :presence => {:message => ' cannot be blank, Issue not saved!'}
   
   # Do the following on Destroy
   after_destroy :cleanup_relationships

@@ -1,73 +1,69 @@
 #popup_name.popup_block
-  %div{:style=>"padding:0px; width:100%; clear:both;"}
-      
-   
-    %div{:class =>"issueblock_edit", :style=>"margin:0px;"}
-        
-      // Title of the Issue
-      %div{:class =>"title_edit"}
-        
+  .formheading_small
+    Add New Causal Link
+  .formcontentdiv_small{:style=>"padding-left:0px; padding-right:0px;"}
+    // Title of the Issue
+    %div{:class =>"title_edit", :style=>"padding-top:25px; margin-top:-25px;"}
            
-        %div{:style=>"float:left"}  
-          %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px" ,:placeholder => "Enter an Issue name. . .", :autocomplete=>"off"}
-        /%div{:style=>"float:right"}
-        /  = submit_tag "Prev", :name => nil, :id=>"preview_button_half"          
-        %div{:style=>"float:left; margin:2px 10px 0px 25px;", :id=>"wait"}
-        %div{:style=>"float:right"}
-          %input{:type=>"button", :id=>"btn_preview", :class=>"preview_button", :value=>"Preview"}          
-        %div{:style => "clear:both;"}
+      %div{:style=>"float:left"}  
+        %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px" ,:placeholder => "Enter an Issue name. . .", :autocomplete=>"off"}
+          
+      %div{:style=>"float:left; margin:2px 10px -10px 25px;", :id=>"wait"}
+
+      %div{:style=>"float:right"}
+        %input{:type=>"button", :id=>"btn_preview", :class=>"preview_button", :value=>"Preview"}          
+
+      %div{:style => "clear:both;"}
+  
+    %div{:id=>"results", :class=>"result-box"}            
+    %div{:style => "clear:both"}
+    %div{:class =>"wikicontent_edit"}
       
-      %div{:id=>"results", :class=>"result-box"}            
+      %div{:id=>"image_preview"}                     
+        %img{:src => "/images/issues/image.png", :style=>"background-color:transparent;opacity:0.1" }
+        
+        %div{:style=>"text-align:center;" }
+          Wikipedia image
+                
+  
+      %div{:id=>"text_preview"}
+        %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
+        %div{:style=>"text-align:center;"}
+          Wikipedia text 
+        
       %div{:style => "clear:both"}
-      %div{:class =>"wikicontent_edit"}
         
+    %div{:id=>"form_container"}
+      - form_for Issue.new :id=>"relationship_form" do |f|
         
-              
-        %div{:id=>"image_preview"}                     
-          %img{:src => "/images/issues/image.png", :style=>"background-color:transparent;opacity:0.1" }
-            
-          %div{:style=>"text-align:center;" }
-            Wikipedia image
-              
-
-        %div{:id=>"text_preview"}
-          %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
-          %div{:style=>"text-align:center;"}
-            Wikipedia text 
-          
-        %div{:style => "clear:both"}
-        
-      %div{:id=>"form_container", :style=>"display:none; margin-bottom:10px; background-color:#ededed"}
-        - form_for Issue.new do |f|
-          
-          .field                   
-            = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr"
-                           
-          .field  
-            = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_wiki_url"
+        .field  
+          = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_wiki_url"
                 
-          .field
-            = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_img_url"
-    
-          .field
-            = f.hidden_field :title, :class=>"formfield", :id=>"frm_title"
+        .field                   
+          = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr"
+                              
+        .field
+          = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_img_url"
+  
+        .field
+          = f.hidden_field :title, :class=>"formfield", :id=>"frm_title"
 
-          .field
-            - if current_user
-              = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id
+        .field
+          - if current_user
+            = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id
 
                 
-          .actions
-            %span{:class=>"save_button", :style=>"background-image:none;padding:3px 5px 3px 5px;"}
-              %form
-                %input{:type=>"hidden", :name=>"action_carrier", :id=>"frm_action"}
-                %input{:type=>"hidden", :name=>"id_carrier", :id=>"frm_type_id"}
-                %input#rad_cause{:type => "radio", :name=>"causality_rad", :style=>"width:24px; height:24px;" }
-                  Cause
-                %input#rad_effect{:type => "radio", :name=>"causality_rad", :style=>"width:24px; height:24px;" }
-                  Effect
-            = f.submit 'Create', :class=>"save_button", :name=>"save_issue_rel_button", :id=>"val_collector" 
-
+        .actions
+          %div{:style=>"float:left;margin:5px 0px -5px 0px;"}
+            %form
+              %input{:type=>"hidden", :name=>"action_carrier", :id=>"frm_action"}
+              %input{:type=>"hidden", :name=>"id_carrier", :id=>"frm_type_id"}
+              %input#rad_cause{:type => "radio", :name=>"causality_rad" }
+                Cause
+              %input#rad_effect{:type => "radio", :name=>"causality_rad" }
+                Effect
+          = f.submit 'Create', :class=>"save_button", :name=>"save_issue_rel_button", :id=>"val_collector", :style=>"float:right;"
+          %div{:style => "clear:both"}
 
 
 %script{:src => "http://maps.google.com/maps/api/js?sensor=false&libraries=panoramio", :type => "text/javascript"}
@@ -79,18 +75,25 @@
   // Make sure the DOM is loaded
   $(document).ready(function(){
 
-  // Ensure that Panoramio Has loaded the pictures
+  // I N I T I A L    F O R M A T T I N G / P R O C E S S I N G
+  
+  // (1.) Add the close symbol and Highlight if some content was found in Notice
+  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
+  if ($('#notice').html().trim()) {
+  $('#notice').append(close);
+  $('#notice').css({padding : '5px', display : 'inline-table'});
+  $("#notice").effect("highlight", {color: '#AADDEE'}, 3000);
+  }
+  
+  // (2.) Ensure that Panoramio Has loaded the pictures
   $("#panoramio_iframe").load(function(){
-
   // Function for Loading Maps 
   // Doing this after the iFrame loads 
   // to keep the height of map_canvas consistent.
   initialize();  
-  
   });
-
-
-  // Show or Hide the Scroll buttons if there were some 
+  
+  // (3.) Show or Hide the Scroll buttons if there were some 
   // suggestions found and they are more than 2 rows
   if ($("#cause_carousel1").height() > 62){
   $("#previous1,#next1").css({display : 'inline'});
@@ -100,33 +103,109 @@
   $("#previous,#next").css({display : 'inline'});
   }
 
-  // Add the close symbol and Highlight if some content was found in Notice
-  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
-  if ($('#notice').html().trim()) {
-  $('#notice').append(close);
-  $('#notice').css({padding : '5px', display : 'inline-table'});
-  $("#notice").effect("highlight", {color: '#AADDEE'}, 3000);
-  }
+  // D E L E T E     C O N F I R M A T I O N
+  var href_carrier = '';
+  var bubble_to_remove = '';
+        
+  $(".del-relation").click(function() {
+  var title = $(this).data('title');
+  var msg = $(this).data('confirm');
+  href_carrier = $(this).attr('href');
+  bubble_to_remove = $(this).parents(".bubble");
+  showPopup(title, msg);
+  return false;      
+  });
 
+  $("#confirm_yes").click(function() {
+  /$("#confirm_popup").fadeOut('slow');
+  $("#confirm_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
+  $.ajax({
+  type: "DELETE",
+  url: href_carrier,
+  cache: false,
+  success: function(){
+  bubble_to_remove.fadeOut('slow');
+  bubble_to_remove = '';
+  $("#confirm_msg").html('Causal Link Deleted!'); 
+  $("#confirm_buttons").hide(); 
+  $("#confirm_wait").empty();
+  $("#confirm_popup").delay(2000).fadeOut('slow', function(){
+  $('#fade').delay(2000).remove();
+  });
+  
+  }
+  });  
+  /location.href = href_carrier;
+  });
+    
+  $("#confirm_cancel").click(function() {
+  $('#fade').remove();
+  $("#confirm_popup").fadeOut('slow');    
+  href_carrier = '';
+  });
+  
   // D I S M I S S    T H E    F L A S H    N O T I C E  
   $("#notice a").click(function(){
   $("#notice").slideUp(100);
   });
 
-  
-
-  //Hide (Collapse) the toggle containers on load
-  $(".toggle_container").hide(); 
-
-  //Switch the "Open" and "Close" state per click then slide up/down (depending on open/close state)
-  $("h2.trigger").click(function(){
-  $(this).toggleClass("active").next().slideToggle("slow");
-  return false; //Prevent the browser jump to the link anchor
+  // C L I C K    E V E N T    F O R    R E F E R E N C E S 
+  $(".relationship_boost").click(function(){
+  $(".relationship_addref,.ref_error").css({display : 'none'});
+  $(".searchfield_smaller").val('http://');
+  $(this).siblings(".relationship_addref").css({display : 'block'});
   });
   
+  // Closing the references
+  $(".close_addref").click(function(){
+  $(this).parents(".relationship_addref").css({display : 'none'});
+  $(this).siblings(".ref_error").css({display : 'none'});
+  $(this).siblings(".searchfield_smaller").val('http://');
+  });
+
+  // A R R O W    K E Y    N A V I G A T I O N    F O R    T H E    M O D A L
+  window.displayBoxIndex = -1;
+  
+  
+  // Arrow keys pressed while being within the Query Box
+  $("#query").keyup(function(e) 
+  {
+  if (e.keyCode == 40){  
+  Navigate(1);}
+  if(e.keyCode==38){
+  Navigate(-1);}
+  if (e.keyCode == 13){
+  $("#query").val($(".suggestion").eq(displayBoxIndex).html());
+  $("#results").empty();
+  displayBoxIndex = -1;
+  }
+  });
+                   
+  var Navigate = function(diff) {
+  displayBoxIndex += diff;
+  var oBoxCollection = $(".suggestion");
+  if (displayBoxIndex >= oBoxCollection.length)
+  displayBoxIndex = 0;
+  if (displayBoxIndex < 0)
+  displayBoxIndex = oBoxCollection.length - 1;
+  var class = "suggestion_hover";
+  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);
+  }
+
+  $(".suggestion").live('mouseover', function(){
+  displayBoxIndex = $(this).index();
+  var class = "suggestion_hover";
+  var oBoxCollection = $(".suggestion");
+  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);  
+  });  
+
+  $("#relationship_form").submit(function(){
+  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_'));
+  alert($("#frm_wiki_url").val()); 
+  });
+
   // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
 
-  window.displayBoxIndex = -1;
   var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
   var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
   var query;
@@ -198,6 +277,7 @@
   $('.suggestion').live("click", function(){
   $("#query").val($(this).html()); 
   $("#results").empty();
+  displayBoxIndex = -1;
   });
 
   // Enable Create button if user selects Caue/Effect
@@ -316,13 +396,13 @@
   }   // END of function  
 
   function valueCollect() {
+  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_')); 
   $("#frm_img_url").val($('#image_preview').find("img").attr("src"));
   $("#frm_descr").val(form_descr);
   $("#frm_title").val($("#query").val());
-  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_')); 
   }
 
-  $("#val_collector").click(function(){
+  $("#val_collector").live('click', function(){
   if ($("#rad_cause").is(':checked') || $("#rad_effect").is(':checked'))
   { valueCollect();}
   });
@@ -338,7 +418,8 @@
   $("body").mouseup(function(){ 
   if(! mouse_is_inside) {
   $("#results").empty();
-  $("#wait").empty(); }
+  $("#wait").empty(); 
+  displayBoxIndex = -1; }
   });
   
   // CHECK THE CORRECT RADIO BUTTON DEPENDING ON SELECTION
@@ -346,26 +427,69 @@
   $("#query").val($(this).html().trim());
   $('#rad_cause').attr('checked', 'checked');  
   $("#frm_action").val('C');
-  $("#frm_type_id").val(#{@issue.id.to_s});
+  $("#frm_type_id").val(#{@issue.id});
   });
 
   $(".effect_link").click(function(){
   $("#query").val($(this).html().trim());
   $('#rad_effect').attr('checked', 'checked');
   $("#frm_action").val('E');
-  $("#frm_type_id").val(#{@issue.id.to_s});
+  $("#frm_type_id").val(#{@issue.id});
   });  
 
   $("#add_cause_btn").click(function(){
   $('#rad_cause').attr('checked', 'checked');
   $("#frm_action").val('C');
-  $("#frm_type_id").val(#{@issue.id.to_s});
+  $("#frm_type_id").val(#{@issue.id});
   });
   
   $("#add_effect_btn").click(function(){
   $('#rad_effect').attr('checked', 'checked');
   $("#frm_action").val('E');
-  $("#frm_type_id").val(#{@issue.id.to_s});
+  $("#frm_type_id").val(#{@issue.id});
+  });
+
+  // S A V E    R E F E R E N C E S
+  $(".save_reference").click(function(){
+  
+  var elem = $(this).siblings(".searchfield_smaller")
+  var myVariable = elem.val();
+  
+  // if user has not entered http:// https:// or ftp:// assume they mean http://
+  if(!/^(https?|ftp):\/\//i.test(myVariable)) {
+  myVariable = 'http://'+myVariable; 
+  $(elem).val(myVariable); // also update the form element
+  }
+  
+  if(/^([a-z]([a-z]|\d|\+|-|\.)*):(\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?((\[(|(v[\da-f]{1,}\.(([a-z]|\d|-|\.|_|~)|[!\$&'\(\)\*\+,;=]|:)+))\])|((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=])*)(:\d*)?)(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*|(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)|((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)|((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)){0})(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(myVariable) && myVariable != 'http://') {
+  $(this).parents("#new_reference").submit();
+  } else {
+  $(this).siblings(".ref_error").css({'display' : 'block'});
+  return false;
+  }
+  
+  
+  });
+
+
+  // # L I N K S     T O     R E F E R E N C E S
+  $(".ref_link").click(function(){
+  
+  // initialize the background-color back to white
+  $("li.ref_li a").animate({'backgroundColor' : '#ffffff'}, 200);
+  
+  // variable to collect the starting point for highlighting
+  var link_href = $(this).attr("href");
+  var trimmed_link_href = parseInt(link_href.substring(1,link_href.length));
+  
+  // variable to collect the number of list items to highlight
+  var num_refs = parseInt($(this).attr("rel"));
+  
+  // highlight the relevant references
+  for( i = trimmed_link_href; i <= trimmed_link_href + num_refs - 1 ; i++){
+  $("li.ref_li:nth-child(" + i + ") a").animate({'backgroundColor' : '#aaddee'}, 1000);
+  }
+  
   });
 
   // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
@@ -472,7 +596,7 @@
   var popWidth = dim[0].split('=')[1]; //Gets the first query string value
 
   //Fade in the Popup and add close button
-  $('#' + popID).fadeIn().css({ 'width': Number( popWidth ) }).prepend('<a href="#" class="close"><img src="/images/system/close.png" class="btn_close" title="Close Window" alt="Close" /></a>');
+  $('#' + popID).fadeIn().css({ 'width': Number( popWidth ) }).prepend('<a href="#" class="close"><img src="/images/system/close1.png" class="btn_close" title="Close Window" alt="Close" /></a>');
 
   //Define margin for center alignment (vertical   horizontal) - we add 80px to the height/width to accomodate for the padding  and border width defined in the css
   var popMargTop = ($('#' + popID).height() + 80) / 2;
@@ -499,14 +623,23 @@
   $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
   $('#form_container').css("display", "none");
   $("#query").val(''); 
-  
-  
+  $("#confirm_popup").fadeOut('slow');    
+  href_carrier = '';
   });
   return false;
   });
+    
   
+  });  //  E N D    O F    D O C U M E N T     L O A D
   
-  });
+  function showPopup(title, msg) {
+  $("#confirm_title").html(title);
+  $("#confirm_msg").html(msg);
+  $("#confirm_buttons").show();
+  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
+  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies   
+  $("#confirm_popup").fadeIn('slow');
+  }  
   
   var panoramioLayer;
   

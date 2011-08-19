@@ -1,7 +1,7 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
   
-
+- content_for(:title, 'Create New Issue')
       
 #contentwrapper
 
@@ -70,7 +70,8 @@
                 = f.hidden_field :title, :class=>"formfield", :id=>"frm_title"
 
               .field
-                = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user", :value=>current_user.id      
+                - if current_user
+                  = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id     
               .action
                 = f.submit "Save", :class=>"save_button", :name=>"save_button", :id=>"val_collector"
               
@@ -86,6 +87,44 @@
    
   // Make sure the DOM is loaded
   $(document).ready(function(){
+
+  // A R R O W    K E Y    N A V I G A T I O N    F O R    T H E    M O D A L
+  window.displayBoxIndex = -1;
+  
+  
+  // Arrow keys pressed while being within the Query Box
+  $("#query").keyup(function(e) 
+  {
+  if (e.keyCode == 40){  
+  Navigate(1);}
+  if(e.keyCode==38){
+  Navigate(-1);}
+  if (e.keyCode == 13){
+  $("#query").val($(".suggestion").eq(displayBoxIndex).html());
+  $("#results").empty();
+  displayBoxIndex = -1;
+  }
+  });
+                   
+  var Navigate = function(diff) {
+  displayBoxIndex += diff;
+  var oBoxCollection = $(".suggestion");
+  if (displayBoxIndex >= oBoxCollection.length)
+  displayBoxIndex = 0;
+  if (displayBoxIndex < 0)
+  displayBoxIndex = oBoxCollection.length - 1;
+  var class = "suggestion_hover";
+  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);
+  }
+
+  $(".suggestion").live('mouseover', function(){
+  displayBoxIndex = $(this).index();
+  var class = "suggestion_hover";
+  var oBoxCollection = $(".suggestion");
+  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);  
+  });  
+
+
   
   // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
 
@@ -161,6 +200,7 @@
   $('.suggestion').live("click", function(){
   $("#query").val($(this).html()); 
   $("#results").empty();
+  displayBoxIndex = -1;
   });
 
   //  R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
@@ -284,7 +324,8 @@
   $("body").mouseup(function(){ 
   if(! mouse_is_inside) {
   $("#results").empty();
-  $("#wait").empty(); }
+  $("#wait").empty(); 
+  displayBoxIndex = -1;}
   });
   
   // F A D E - I N    T H E    I S S U E    B L O C K
