@@ -102,8 +102,17 @@
             %ul{:style=>"list-style-type: none; padding:0px; margin:0px;margin-left:40px;margin-right:40px", :id=>"cause_carousel1"}
               - @toc.each do |toc|
                 %li{:class=>"cause_effect_container"}
-                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_link"}
-                    = toc[:name]                 
+                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_link", :style=>"float:left"}
+                    = toc[:name]            
+
+                  %a{:href => "#", :title=>"accept this causal link", :class=>"relationship_boost", :style=>"padding-top:4px;"} 
+                    %img{:src=>"/images/issues/preview1.png", :width=>"13px", :height=>"15px"}       
+
+                  %a{:href => "#", :title=>"accept this causal link", :class=>"relationship_delete", :style=>"padding-top:5px;"} 
+                    %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+
+                  %div{:style => "clear:both"}
+       
        
           %div{:style => "clear:both"}
 
@@ -246,8 +255,16 @@
             %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel"}
               - @effect.each do |effect|
                 %li{:class=>"cause_effect_container"}
-                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"effect_link"}
+                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"effect_link", :style=>"float:left"}
                     = effect[:name] 
+
+                  %a{:href => "#", :title=>"accept this causal link", :class=>"relationship_boost", :style=>"padding-top:4px;"} 
+                    %img{:src=>"/images/issues/preview1.png", :width=>"13px", :height=>"15px"}       
+
+                  %a{:href => "#", :title=>"delete suggestion", :class=>"relationship_delete", :style=>"padding-top:5px;"} 
+                    %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+
+                  %div{:style => "clear:both"}
       
           %div{:style => "clear:both"}
           

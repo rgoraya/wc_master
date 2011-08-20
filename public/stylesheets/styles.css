@@ -604,7 +604,7 @@ background: #ededed;
 	display:inline-block;
 	font:normal 13px "lucida grande",tahoma,verdana,arial,sans-serif;
 	margin:2px;
-	padding:0px 2px 0px 2px;
+	padding:0px 0px 0px 2px;
 	color: #4DB8DB;
 	border-radius: 4px;
 	-moz-border-radius: 4px;
@@ -652,12 +652,12 @@ background: #ededed;
 	float:left; 
 	width:12px; 
 	border-left:1px solid #858585; 
-	padding: 5px 0px 3px 2px; 
+	padding: 5px 2px 3px 2px; 
 	opacity:0.4;
 }
 
 .relationship_delete:hover{
-	opacity:0.7;
+	opacity:0.8;
 }
 
 .relationship_boost{
@@ -671,7 +671,7 @@ background: #ededed;
 }
 
 .relationship_boost:hover{
-	opacity:0.7;
+	opacity:0.8;
 }
 
 .relationship_refs{
@@ -696,7 +696,7 @@ background: #ededed;
 }
 
 .relationship_refs:hover{
-	opacity:0.7;
+	opacity:0.8;
 }
 
 .ref_ol{
@@ -1632,16 +1632,11 @@ a.head_link:hover{
 }
 
 .cause_effect_container{
-	padding:4px;
+	padding:0px 2px 0px 2px;
 	text-decoration:none;
 	font:normal 13px "lucida grande",tahoma,verdana,arial,sans-serif;
 	color: #4DB8DB;
-	max-width:120px;
-	margin: 2px 0px 2px 0px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	height:17px;
+	margin: 1px 0px 1px 0px;
 	display:inline-block;
 	border:1px solid #4DB8DB;
 	border-radius: 4px;
@@ -1669,6 +1664,14 @@ a.head_link:hover{
 .cause_effect_container a:hover{
 	text-decoration:none;
 	color:#ffffff;
+}
+
+.cause_link, .effect_link{
+	padding:4px 0px 4px 0px;
+	max-width:120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;	
 }
 
 .scroll_button{
@@ -1991,4 +1994,15 @@ color: #4EB8DB;
 	text-align:left;
 }
 
+.locked_para{
+	text-align:center; font-size:18px; font-weight:bold
+}
 
+.locked_para a{
+	text-decoration:none;
+	color:#4EB8DB;
+}
+
+.locked_para a:hover{
+	text-decoration:underline;
+}

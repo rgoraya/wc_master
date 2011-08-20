@@ -43,6 +43,8 @@ gem "authlogic"
 
 gem "json"
 
+gem "lock"
+
 group :development do
 	gem "hpricot"
 end

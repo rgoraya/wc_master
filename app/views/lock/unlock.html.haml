@@ -1,0 +1,18 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+- content_for(:title, 'Unlock Site')
+      
+#contentwrapper
+  
+  .contentmain
+    
+    .formheading
+      Unlocked!
+    .formcontentdiv{:style=>"color:#434343;"}
+      .centralized{:style=>"text-align:center; font-size:36px; font-weight:bold;"}
+        The content is now unlocked!
+        %p{:class=>"locked_para"}
+          Go to
+          %a{:href=>'/', :title=>"go to login page"}
+            homepage  
