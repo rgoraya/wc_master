@@ -31,47 +31,71 @@
   %div{:style=>"clear:both"}
 
 
-%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:700px;float:left;border-collapse:collapse;"}
+
+
+%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:790px;float:left;border-collapse:collapse;"}
   %tr
-    %th{:style=>"border-bottom: 1px solid #4EB8DB;margin-bottom:2px;height:19px;"} Recent Activities
+    %th{:style=>"color:white;background-color:#4EB8DB;border-bottom: 1px solid #4EB8DB;height:19px;"} Recent Activities
   %tr
     %td
       - if @activities.count > 0
-        %div{:style=>"height:200px;overflow:auto;"}
+        %div{:style=>"height:190px;overflow:auto;"}
           -@activities.each do |activity|
             %div{:style=>"float:left;"}
-              = activity[:action]
-              = activity[:type]
+              - if activity[:action].include?('deleted')
+                %span{:id=>"type", :style=>"color:red;"}
+                  = activity[:action]
+              - else
+                %span{:id=>"type", :style=>"color:green;"}
+                  = activity[:action]
+              = activity[:type] +':'
               %span{:id=>"type", :style=>"color:#4EB8DB;"}
                 = activity[:what]
-            - if !activity[:action].include?('deleted')
-              - score = "+"+activity[:score].to_s
-              %div{:id=>"score", :style=>"color:green;float:right; margin:0px 15px 0px 0px;"}
-                = score
+            - if activity[:score]
+              - if !activity[:action].include?('deleted')
+                - score = "+"+activity[:score].to_s
+                %div{:id=>"score", :style=>"color:green;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
+                  = score
+              - else
+                - score = "-"+activity[:score].to_s
+                %div{:id=>"score", :style=>"color:red;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
+                  = score
             - else
-              - score = "-"+activity[:score].to_s
-              %div{:id=>"score", :style=>"color:red;float:right; margin:0px 15px 0px 0px;"}
-                = score
+              %div{:id=>"score", :style=>"color:#434343;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;"}
+                = '--'
+            %div{:id=>"username", :style=>"color:#434343;float:right; margin:0px 5px 0px 0px;"}
+              = !activity[:owner].nil? ? (link_to activity[:owner].username, user_path(activity[:owner]), :style=>'color:#4EB8DB;text-decoration:none;', :title=>'view owner') : '--'
             %div{:style=>"clear:both;"}
       -else
         None     
   
 
-%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:250px;float:right;border-collapse:collapse;"}
+%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:240px; float:right;border-collapse:collapse;"}
   %tr
-    %th{:style=>"border-bottom: 1px solid #4EB8DB;margin-bottom:2px;"} Profile
-  %tr
-    %td
-      Total issues created:
-      = Version.find(:all, :conditions=>['item_type=? AND whodunnit=?', 'Issue', @user.id]).group_by(&:item_id).count
+    %th{:style=>"color:white;background-color:#4EB8DB;border-bottom: 1px solid #4EB8DB;height:19px;"} Profile
   %tr
     %td
-      Total links created:
-      = Version.find(:all, :conditions=>['item_type=? AND whodunnit=?', 'Relationship', @user.id]).group_by(&:item_id).count
-  %tr
-    %td
-      Total references:
-      = @user.references.count
+      %div
+        Total issues created:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'create', @user.id]).group_by(&:item_id).count
+      %div
+        Total issues removed:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'destroy', @user.id]).group_by(&:item_id).count
+      %div
+        Total current issues:
+        = @user.issues.count
+      %div
+        Total causal links connected:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'create', @user.id]).group_by(&:item_id).count
+      %div
+        Total causal links deleted:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'destroy', @user.id]).group_by(&:item_id).count
+      %div
+        Total current causal links:
+        = @user.relationships.count
+      %div
+        Total references:
+        = @user.references.count
 %div{:style=>"clear:both"}
 
 -if @user.issues.count > 0
@@ -82,43 +106,43 @@
 - @user.issues.order("created_at DESC").each_slice(2) do |slice|
   %div{:class=>"issue_container"}
     %div{:class=>"formheading"}
-      
+        
       // Div containing the title and author
       = link_to slice[0].title, slice[0], :title=>"View this Issue"
-
-      
+  
+        
     // Div containing the buttons
     %div{:style=>"float:right; padding-top:12px"}
-
+  
       // Only show Edit and Delete if the Issue belongs to current user
       -if current_user
         -if current_user.id == slice[0].user_id    
-
-          = link_to 'Delete', slice[0], :confirm => 'Are you sure?', :method => :delete, :class=>"head_link", :title=>"Delete this Issue"
-
+  
+          = link_to 'Delete', slice[0], "data-confirm" => "Are you sure you want to delete the issue #{slice[0].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+  
       // author
-      
+        
       - @hash = Digest::MD5.hexdigest(slice[0].user.email).to_s
       %a{:href=>"/users/#{slice[0].user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
         %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=17&d=mm", :style=>"margin-bottom:-3px; border:0px"}
       %a{:href=>"/users/#{slice[0].user.id}", :class=>"head_link", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}
         = slice[0].user.username
-
-   
+  
+     
     %div{:class=>"formcontentdiv", :style=>"color:#434343;"}
       // Image  
       %div{:class=>"index_img_box", :style=>"float:left;"}
         %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
           %img{:src=> slice[0].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
-      
+        
       // Text
       %div{:style=>"float:left; width:843px; text-align:justify;"}
-          
+            
         = slice[0].description
-        
+          
         %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"head_link",:style=>"padding-left:0px; margin-left:0px; background-image:none;"}
           Read more on Wikipedia
-      
+        
       %div{:style=>"clear:both"}
 
 

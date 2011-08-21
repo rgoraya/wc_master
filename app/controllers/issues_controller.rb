@@ -1,11 +1,11 @@
 class IssuesController < ApplicationController
 
-	@@mutex = Mutex.new
+	@@mutex=Mutex.new
 
   # GET /issues
   # GET /issues.xml
   def index
-    @issues = Issue.search(params[:search]).paginate(:per_page => 5, :page => params[:page])
+    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 5, :page => params[:page])
 
     respond_to do |format|
       format.js {render :layout=>false}
@@ -65,10 +65,10 @@ class IssuesController < ApplicationController
         # Define a new Relationship
         @relationship = Relationship.new
           
-        # Populate User_Id if relationship was created by a logged in User
-        if @issue.user_id.to_s != ""
-          @relationship.user_id = @issue.user_id  
-        end            
+          # Populate User_Id if relationship was created by a logged in User
+          if @issue.user_id.to_s != ""
+            @relationship.user_id = @issue.user_id  
+          end            
         
         # It is a Cause
         if @causality == "C"  
@@ -91,8 +91,9 @@ class IssuesController < ApplicationController
 
           redirect_to(:back, :notice => @notice)
         else
-          redirect_to(:back, :notice => 'Causal link could not be created')
-        end          
+          @notice = @relationship.errors.full_messages
+          redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
+        end
       
       # * * * * The issue pointing to this wiki_url does not exist so create new issue before relation * * * *
       else
@@ -139,8 +140,12 @@ class IssuesController < ApplicationController
           redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
           
         end
+        
       end
-    else 
+      
+         
+    else
+      
      respond_to do |format|     
         if @issue.save
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
@@ -192,13 +197,11 @@ class IssuesController < ApplicationController
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
-
-		@@mutex.synchronize{
+    @@mutex.synchronize{
     	@issue.destroy
 			who = Version.find(:first, :conditions=>["item_type=? AND item_id=?", 'Issue', @issue.id]).sibling_versions.last.whodunnit
 			RepManagement::Utils.reputation(:action=>:destroy, :type=>:issue, :id=>@issue.id, :me=>who, :you=>@issue.user_id, :calculate=>false)
 		}
-
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }

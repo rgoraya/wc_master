@@ -76,11 +76,11 @@ class RelationshipsController < ApplicationController
   # DELETE /relationships/1.xml
   def destroy
     @relationship = Relationship.find(params[:id])
-		@@mutex.synchronize{
+    #@@mutex.synchronize{
     	@relationship.destroy
-			who = Version.find(:first, :conditions=>["item_type=? AND item_id=?", 'Relationship', @relationship.id]).sibling_versions.last.whodunnit
-			RepManagement::Utils.reputation(:action=>:destroy, :type=>:relationship, :id=>@relationship.id, :me=>who, :you=>@relationship.user_id, :calculate=>false)
-		}
+		#	who = Version.find(:first, :conditions=>["item_type=? AND item_id=?", 'Relationship', @relationship.id]).sibling_versions.last.whodunnit
+		#	RepManagement::Utils.reputation(:action=>:destroy, :type=>:relationship, :id=>@relationship.id, :me=>who, :you=>@relationship.user_id, :calculate=>false)
+		#}
 
     respond_to do |format|
       format.html { redirect_to(:back,:notice => 'Causal link was successfully deleted.' ) }

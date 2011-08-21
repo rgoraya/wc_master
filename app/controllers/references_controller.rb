@@ -1,6 +1,6 @@
 class ReferencesController < ApplicationController
 
-  @@mutex = Mutex.new
+	@@mutex=Mutex.new
 
   # GET /references
   # GET /references.xml
@@ -79,11 +79,11 @@ class ReferencesController < ApplicationController
   # DELETE /references/1.xml
   def destroy
     @reference = Reference.find(params[:id])
-
-		#@@mutex.synchronize{
+    #@@mutex.synchronize{
     	@reference.destroy
 			#RepManagement::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>@reference.user_id, :calculate=>true)
 		#}
+
     respond_to do |format|
       format.html { redirect_to(references_url) }
       format.xml  { head :ok }
