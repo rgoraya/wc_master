@@ -7,9 +7,6 @@ class User < ActiveRecord::Base
   has_many :relationships
   has_many :references
 
-  has_many :relationships
-  has_many :references
-
   # search functionality
   def self.search(search)
     if search

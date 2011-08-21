@@ -1,13 +1,14 @@
 class Reference < ActiveRecord::Base
 
+has_paper_trail
+
 belongs_to :relationship
 belongs_to :user
-has_paper_trail
 
 validates_url_format_of :reference_content,
                         :allow_nil => true,
                         :message => ' is not a valid URL'
                         
-validates :reference_content, :presence => true, :uniqueness => {:scope => :relationship_id, :message => ' is already submitted.'}
+validates :reference_content, :presence => true, :uniqueness => {:scope => :relationship_id, :message => ' is already submitted.'}                     
 
 end

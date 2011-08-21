@@ -4,7 +4,6 @@ class Issue < ActiveRecord::Base
 
   # issues have an owner
   belongs_to :user
-  #validates :user_id, :presence => true
 
   # relations
   has_many :relationships, :dependent => :destroy
@@ -40,9 +39,9 @@ class Issue < ActiveRecord::Base
   # search functionality for Index page
   def self.search(search)
     if search
-      where('title LIKE ?', "%#{search}%").order("created_at DESC")
+      where('title LIKE ?', "%#{search}%")
     else
-      scoped.order("created_at DESC")
+      scoped
     end
   end  
 
@@ -103,7 +102,7 @@ require 'uri'
     
           # Retrieve plain text
           text = content.to_plain_text
-          text = text.gsub(/< \/?[^>]*>/, '').gsub(/&#\d+;/,'').gsub(/\([^\)]+\)/,'').gsub(/\[[^\]]+\]/,'').gsub(/ +/,' ').gsub(/\[\d+\]/,'')
+          text = text.gsub(/< \/?[^>]*>/, '').gsub(/&#\d+;/,'').gsub(/\([^\)]+\)/,'').gsub(/\[[^\]]+\]/,'').gsub(/ +/,' ').gsub(/\[\d\]/,'')
           
           # Limit the length of the text to be displayed
           if text.size > 450
