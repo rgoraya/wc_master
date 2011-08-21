@@ -157,8 +157,8 @@
           %div{:style => "clear:both"}
           
     %div{:style=>"float:right; padding-top:20px;margin-top:15px;"}
-      - if current_user
-        = link_to "History", issue_versions_path(@issue), {:title=>"view all changes", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
+      -#- if current_user
+      = link_to "History", issue_versions_path(@issue), {:title=>"view all changes", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
       
 
     %div{:class=>"created_by"}

@@ -1055,8 +1055,8 @@ box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
 	background-size:18px 18px;
 	background-position:5px 5px;
 	background-color:#858585;
-	min-width:30px;
-	padding:4px 5px 4px 27px;
+	/*min-width:30px;*/
+	padding:4px 10px 4px 27px;
 	text-decoration:none;
 	font:bold 18px "lucida grande",tahoma,verdana,arial,sans-serif;
 	text-shadow:0 -1px 1px rgba(0,0,0,0.2);
@@ -1872,4 +1872,9 @@ h2.active {background-position: left bottom;} /*--When toggle is triggered, it w
 	background: url(toggle_block_btm.gif) no-repeat left bottom; /*--Bottom rounded corners--*/
 }
 
+table{}
+tr{}
+th, td{
+padding:2px 5px 2px 5px;
+}
 

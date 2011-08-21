@@ -1,4 +1,7 @@
 class IssuesController < ApplicationController
+
+	@@mutex = Mutex.new
+
   # GET /issues
   # GET /issues.xml
   def index
@@ -61,6 +64,11 @@ class IssuesController < ApplicationController
         
         # Define a new Relationship
         @relationship = Relationship.new
+          
+          # Populate User_Id if relationship was created by a logged in User
+          if @issue.user_id.to_s != ""
+            @relationship.user_id = @issue.user_id  
+          end            
         
         # It is a Cause
         if @causality == "C"  
@@ -72,34 +80,39 @@ class IssuesController < ApplicationController
         # It is an Effect
         if @causality == "E"
           @relationship.cause_id = @causality_id
-          @relationship.issue_id = @issueid
+          @relationship.issue_id = @issueid      
           @notice = 'New Effect linked Successfully'
         end
         
         # Save the Relationship     
-        if (Relationship.exists?(:cause_id => [@relationship.cause_id], :issue_id=>[@relationship.issue_id]) ||
-           Relationship.exists?(:cause_id => [@relationship.issue_id], :issue_id=>[@relationship.cause_id]))
-          redirect_to(:back, :notice => 'The Causal link already Exists!')
+        if @relationship.save
+
+					RepManagement::Utils.reputation(:action=>:create, :type=>:relationship, :id=>@relationship.id, :me=>@relationship.user_id, :calculate=>true)
+
+          redirect_to(:back, :notice => @notice)
         else
-          if @relationship.save
-            redirect_to(:back, :notice => @notice)
-          else
-            redirect_to(:back, :notice => 'Causal link could not be created')
-          end          
+          @notice = @relationship.errors.full_messages
+          redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
         end
-      
       
       # * * * * The issue pointing to this wiki_url does not exist so create new issue before relation * * * *
       else
         if @issue.save
           
+					RepManagement::Utils.reputation(:action=>:create, :type=>:issue, :me=>@issue.user_id, :calculate=>true)
+
           # Define a new Relationship
           @relationship = Relationship.new
+          
+          # Populate User_Id if relationship was created by a logged in User
+          if @issue.user_id.to_s != ""
+            @relationship.user_id = @issue.user_id  
+          end
           
           # It is a Cause
           if @causality == "C"  
             @relationship.cause_id = @issue.id
-            @relationship.issue_id = @causality_id
+            @relationship.issue_id = @causality_id          
             @notice = 'New Issue was created and linked as a cause'
           end
           
@@ -112,9 +125,13 @@ class IssuesController < ApplicationController
             
           # Save the Relationship     
           if @relationship.save
+
+						RepManagement::Utils.reputation(:action=>:create, :type=>:relationship, :id=>@relationship.id, :me=>@relationship.user_id, :calculate=>true)
+
             redirect_to(:back, :notice => @notice)
           else
-            redirect_to(:back, :notice => 'Causal link could not be created')
+            @notice = @relationship.errors.full_messages
+            redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
           end
         
         # some problem occurred and the Issue could not be saved
@@ -180,7 +197,12 @@ class IssuesController < ApplicationController
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
-    @issue.destroy
+
+		@@mutex.synchronize{
+    	@issue.destroy
+			who = Version.find(:first, :conditions=>["item_type=? AND item_id=?", 'Issue', @issue.id]).sibling_versions.last.whodunnit
+			RepManagement::Utils.reputation(:action=>:destroy, :type=>:issue, :id=>@issue.id, :me=>who, :you=>@issue.user_id, :calculate=>false)
+		}
 
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }

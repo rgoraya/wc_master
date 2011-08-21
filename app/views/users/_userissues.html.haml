@@ -22,14 +22,66 @@
       =@user.username+"'s"
     %span{:style => "color:#BEBEBE;font: bold 28px 'lucida grande',tahoma,verdana,arial,sans-serif;", :class=>"logo_txt"} Issues
 
-  %div{:style=>"float:right; margin:25px 10px 15px 0px;", :id=>"issues_wait"}
-  
+  %div{:style=>"float:right; margin:25px 10px 15px 0px; font: bold 20px 'lucida grande',tahoma,verdana,arial,sans-serif;"}
+    %b{:style=>"color:#434343"} Reputation:
+    %span{:id=>"reputation", :style=>"color:green;"}
+      %b
+        = @user.reputation
+    -#= link_to "Profile", user_activities_path(@user), {:title=>"view profile", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
   %div{:style=>"clear:both"}
 
+%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:700px;float:left;border-collapse:collapse;"}
+  %tr
+    %th{:style=>"border-bottom: 1px solid #4EB8DB;margin-bottom:2px;height:19px;"} Recent Activities
+  %tr
+    %td
+      - if @activities.count > 0
+        %div{:style=>"height:200px;overflow:auto;"}
+          -@activities.each do |activity|
+            %div{:style=>"float:left;"}
+              = activity[:action]
+              = activity[:type]
+              %span{:id=>"type", :style=>"color:#4EB8DB;"}
+                = activity[:what]
+            - if !activity[:action].include?('deleted')
+              - score = "+"+activity[:score].to_s
+              %div{:id=>"score", :style=>"color:green;float:right; margin:0px 15px 0px 0px;"}
+                = score
+            - else
+              - score = "-"+activity[:score].to_s
+              %div{:id=>"score", :style=>"color:red;float:right; margin:0px 15px 0px 0px;"}
+                = score
+            %div{:style=>"clear:both;"}
+      -else
+        None     
+  
+
+%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:250px;float:right;border-collapse:collapse;"}
+  %tr
+    %th{:style=>"border-bottom: 1px solid #4EB8DB;margin-bottom:2px;"} Profile
+  %tr
+    %td
+      Total issues created:
+      = Version.find(:all, :conditions=>['item_type=? AND whodunnit=?', 'Issue', @user.id]).group_by(&:item_id).count
+  %tr
+    %td
+      Total links created:
+      = Version.find(:all, :conditions=>['item_type=? AND whodunnit=?', 'Relationship', @user.id]).group_by(&:item_id).count
+  %tr
+    %td
+      Total references:
+      = @user.references.count
+
+%div{:style=>"clear:both;"}
+
+
+- if @user.issues.count > 0
+  %div{:style=>"border-top: 2px groove white;"}
 
 
 
-- @user.issues.each_slice(2) do |slice|
+
+- @user.issues.order("created_at DESC").each_slice(2) do |slice|
   //%div{:class=>"index1"}
   %div{:class=>"formheading"}
       

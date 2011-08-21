@@ -23,8 +23,9 @@ Wikicausality::Application.routes.draw do
     post :causality, :on => :member
   end
   get "issues/:id/versions" => "issues#versions", :as => "issue_versions"
-  get "issues/:issue_id/versions/:id/restore" => "versions#restore", :as => "restore_issue_version"
+  get "versions/:id/restore" => "versions#restore", :as => "restore_version"
   get "issues/:id/snapshot/:at" => "issues#snapshot", :as => "issue_snapshot"
+	get "users/:id/activities" => "users#activities", :as => "user_activities"
 
 
   match 'login' => 'user_sessions#new', :as => :login

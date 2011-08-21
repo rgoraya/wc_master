@@ -12,43 +12,48 @@
 		%div{:class=>"versions"}
 		- @versions.each do |version|
 			- relationship = version.get_object
-			%div{:class=>"version"}
-				%div{:style=>"float:left"}
-					%b ID:
-					= version.id
-					- relation = nil
-					- id = nil
-					- if relationship.issue_id == @issue.id
-						- relation = 'Cause'
-						- id = relationship.cause_id
-					- elsif relationship.cause_id == @issue.id
-						- relation = 'Effect'
-						- id = relationship.issue_id 
-					= link_to relation, "", :title=>"view this relationship", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-					- if !version.event.eql?('destroy')
-						added:
-					- else
-						removed:
-					= link_to Issue.find(id).title, issue_path(id), :title=>"view this issue", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-				%div{:style=>"float:right"}
-					At:
-					= link_to DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S'), issue_snapshot_path(@issue, :at => version.created_at), :title => "view snapshot at this time", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-					By: 
-					- if version.whodunnit
-						= link_to User.find(version.whodunnit).username, user_path(version.whodunnit), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-					- else
-						Anonymous
-				%div{:style=>"clear:left"}
-				%div{:style=>"float:left"}
-					- if  version.reverted_from
-						Reverted from version:
-						= version.reverted_from
-					- else
-						New action
-				%div{:style=>"float:right"}
-					- if current_user 
-						= link_to "Rollback", restore_issue_version_path(@issue,version), :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :class=>"edit_button", :title=>"reset to this change", :style=>"background-image:none;padding:0px 5px 0px 5px;font-size:16;"
-				%div{:style=>"clear:both"}
+			- if relationship.cause_id && relationship.issue_id
+				- relation = nil
+				- id = nil
+				- if relationship.issue_id == @issue.id
+					- relation = 'Cause'
+					- id = relationship.cause_id
+				- elsif relationship.cause_id == @issue.id
+					- relation = 'Effect'
+					- id = relationship.issue_id
+
+				- if Issue.exists?(id)
+					%div{:class=>"version"}
+						%div{:style=>"float:left"}
+							%b ID:
+							= version.id
+							= link_to relation, "", :title=>"view this relationship", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
+							- if !version.event.eql?('destroy')
+								added:
+							- else
+								removed:
+							= link_to Issue.find(id).title, issue_path(id), :title=>"view this issue", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none" 
+						
+						
+						%div{:style=>"float:right"}
+							At:
+							= link_to DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S'), issue_snapshot_path(@issue, :at => version.created_at), :title => "view snapshot at this time", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
+							By: 
+							- if version.whodunnit
+								= link_to User.find(version.whodunnit).username, user_path(version.whodunnit), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
+							- else
+								Anonymous
+						%div{:style=>"clear:left"}
+						%div{:style=>"float:left"}
+							- if  version.reverted_from
+								Reverted from version:
+								= version.reverted_from
+							- else
+								New action
+						%div{:style=>"float:right"}
+							- if current_user 
+								= link_to "Rollback", restore_version_path(version), :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :class=>"head_link", :title=>"reset to this change", :style=>"font-size:16px;"
+						%div{:style=>"clear:both"}
 
 		%div{:class=>"pages"}
 			= will_paginate @versions
