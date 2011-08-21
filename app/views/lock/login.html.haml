@@ -1,0 +1,20 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+  
+- content_for(:title, 'Unlock Site')
+      
+#contentwrapper
+  
+  .contentmain
+    
+    .formheading
+      Unlock to proceed
+    .formcontentdiv{:style=>"color:#434343;"}
+      .centralized{:style=>"text-align:center;"}
+        #lock-login-form.lock-login
+          %form{"accept-charset" => "UTF-8", :action => "http://localhost:3000/lock/unlock", :method => "post"}
+            %div{:style => "margin:0;padding:0;display:inline"}
+              %input{:name => "utf8", :type => "hidden", :value => "✓"}/
+              %input{:name => "authenticity_token", :type => "hidden", :value => "vEQFd59dNN+ZU6ejunRJ5cKi+aHU/EekXRS49o6Ry0g="}/
+            %input#password{:class=>"formfield", :name => "password", :type => "password"}/
+            %input{:class=>"wiki_button", :style=>"background-image:url('/images/system/login1.png')", :name => "commit", :type => "submit", :value => "Unlock"}/

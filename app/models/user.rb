@@ -4,6 +4,8 @@ class User < ActiveRecord::Base
   acts_as_authentic
 
   has_many :issues
+  has_many :relationships
+  has_many :references
 
   has_many :relationships
   has_many :references

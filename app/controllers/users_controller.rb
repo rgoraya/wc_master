@@ -39,7 +39,8 @@ class UsersController < ApplicationController
 				when 'Relationship'
 					activity[:what]=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first.get_object.title
 				when 'Reference'
-					activity[:what]='for relationship '+(rel= Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_objet.relationship_id]).first.get_object)+(Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.cause_id]).first.get_object.title)
+					(rel= Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first.get_object)
+					activity[:what]='for relationship '+(Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.cause_id]).first.get_object.title)
 			end
 			activity[:score]=RepManagement::Utils.reputation(:action=>version.event.downcase.to_sym, :type=>version.item_type.downcase.to_sym, :id=>version.item_id.to_i, :me=>version.whodunnit.to_i, :you=>version.get_object.user_id.to_i, :calculate=>false)[0]
 			@activities << activity

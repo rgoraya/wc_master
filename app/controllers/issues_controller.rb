@@ -65,10 +65,10 @@ class IssuesController < ApplicationController
         # Define a new Relationship
         @relationship = Relationship.new
           
-          # Populate User_Id if relationship was created by a logged in User
-          if @issue.user_id.to_s != ""
-            @relationship.user_id = @issue.user_id  
-          end            
+        # Populate User_Id if relationship was created by a logged in User
+        if @issue.user_id.to_s != ""
+          @relationship.user_id = @issue.user_id  
+        end            
         
         # It is a Cause
         if @causality == "C"  
@@ -91,9 +91,8 @@ class IssuesController < ApplicationController
 
           redirect_to(:back, :notice => @notice)
         else
-          @notice = @relationship.errors.full_messages
-          redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
-        end
+          redirect_to(:back, :notice => 'Causal link could not be created')
+        end          
       
       # * * * * The issue pointing to this wiki_url does not exist so create new issue before relation * * * *
       else
@@ -140,12 +139,8 @@ class IssuesController < ApplicationController
           redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
           
         end
-        
       end
-      
-         
-    else
-      
+    else 
      respond_to do |format|     
         if @issue.save
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
