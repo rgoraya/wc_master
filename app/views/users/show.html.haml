@@ -6,10 +6,6 @@
 #contentwrapper
 
   .contentmain
-           
-    // The issue  
-    %div{:id=>"notice"}
-      = notice
     
     %div{:id=>"issues"}
       = render 'userissues'
@@ -38,17 +34,14 @@
   
   window.confirm = false;
 
-  $("#notice").effect("highlight", {color: '#AADDEE'}, 3000); 
   // D I S M I S S    T H E    F L A S H    N O T I C E
-
-  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
   if ($('#notice').html().trim()) {
-  $('#notice').append(close);
-  $('#notice').css({padding : '5px', display : 'inline-table'});
+  $("#notice_container").effect("bounce", { times:3 }, 200);
+  $('#notice').css({display : 'block'});
   }
   
-  $("#notice a").click(function(){
-  $("#notice").slideUp(100);
+  $("#notice_container a.closebutton").click(function(){
+  $("#notice_container").slideUp(100);
   });
 
   // D E L E T E     C O N F I R M A T I O N

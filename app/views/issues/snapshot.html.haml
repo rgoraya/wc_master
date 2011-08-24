@@ -8,8 +8,7 @@
     %div{:class=>"desc", :style=>"text-align:center;color:#4EB8DB;"}
       %b
         = @description
-    %div{:id=>"notice"}
-      = notice
+
     %div{:id=>"wikiInfo"}  
       - @toc, @effect  = @issue.get_causes(@issue.wiki_url)
 

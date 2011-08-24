@@ -84,5 +84,14 @@
         /%img{:src=>"/images/system/panoramio.png", :style=>"height:32px; margin-bottom:-12px"}
         %a{:href=>"http://www.panoramio.com/api/widget/api.html", :title=>"Panoramio API website", :target=>"_blank"}
           Panoramio APIs
-          
+      
+           
+      // The Notice Div
+      %div{:id=>"notice_container"}
+        %div{:id=>"notice"}
+          = notice
+        %div{:style=>"float:left;width:15px;"}
+          %a{:href=>'#', :class=>'closebutton'}
+            %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
+        %div{:style=>"clear:both;"}          
               

@@ -5,7 +5,7 @@ set :application, "wikicausality"
 set :repository,  "git://github.com/rgoraya/wc_master.git"
 set :scm, :git
 set :git_enable_submodules, 1
-set :branch, 'master'
+set :branch, '4630602'
 set :ssh_options, {:forward_agent => true}
 
 set :user, 'deploy'
