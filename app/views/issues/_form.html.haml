@@ -113,15 +113,15 @@
   displayBoxIndex = 0;
   if (displayBoxIndex < 0)
   displayBoxIndex = oBoxCollection.length - 1;
-  var class = "suggestion_hover";
-  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);
+  var elem_class = "suggestion_hover";
+  oBoxCollection.removeClass(elem_class).eq(displayBoxIndex).addClass(elem_class);
   }
 
   $(".suggestion").live('mouseover', function(){
   displayBoxIndex = $(this).index();
-  var class = "suggestion_hover";
+  var elem_class = "suggestion_hover";
   var oBoxCollection = $(".suggestion");
-  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);  
+  oBoxCollection.removeClass(elem_class).eq(displayBoxIndex).addClass(elem_class);  
   });  
 
 

@@ -7,8 +7,6 @@
 
   .contentmain
 
-    %div{:id=>"notice"}
-      = notice
     %div{:id=>"wikiInfo"}  
       - @toc, @effect  = @issue.get_causes(@issue.wiki_url)
       - @reference_list = []
@@ -19,8 +17,8 @@
       = @issue.title
     %div{:class => "formcontentdiv_small"}
 
-      %div{:style=>"margin:-37px 0px 0px 0px;float:right;"}  
-        %a.poplight{:id=>"add_cause_btn", :href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_cause.png')"} 
+      %div{:style=>"margin:-41px 0px 0px 0px;float:right;"}  
+        %a.poplight{:id=>"add_cause_btn", :href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_cause.png');float:right;"} 
           Add Cause
       
       - @ref_counter = 0
@@ -175,8 +173,8 @@
       = @issue.title
     %div{:class => "formcontentdiv_small"}
 
-      %div{:style=>"margin:-37px 0px 0px 0px;float:right;"}  
-        %a.poplight{:id=>"add_effect_btn", :href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_effect.png')"} 
+      %div{:style=>"margin:-41px 0px 0px 0px;float:right;"}  
+        %a.poplight{:id=>"add_effect_btn", :href => "#?w=500", :rel => "popup_name", :class=>"wiki_button", :style=>"background-image:url('/images/issues/add_effect.png');float:right;"} 
           Add Effect
 
       - @effects = @issue.effects
