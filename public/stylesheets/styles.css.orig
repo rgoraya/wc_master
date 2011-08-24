@@ -665,8 +665,8 @@ background: #ededed;
 	float:left; 
 	width:12px; 
 	border-left:1px solid #858585; 
-	padding: 5px 2px 2px 2px; 
-	opacity:0.4;
+	padding: 5px 0px 2px 2px; 
+	opacity:0.3;
 	cursor:pointer;
 }
 
@@ -1995,24 +1995,22 @@ color: #4EB8DB;
 }
 
 .locked_para{
-	text-align:center; font-size:18px; font-weight:bold;
-	text-shadow:0 -1px 1px rgba(0,0,0,0.1);
-
+	text-align:center; font-size:18px; font-weight:bold
 }
-
-.locked_para a{
-	text-decoration:none;
-	color:#4EB8DB;
-}
+<<<<<<< HEAD:public/stylesheets/styles.css
 
 table{}
 tr{}
 th, td{
 padding:2px 5px 2px 5px;
+=======
+
+.locked_para a{
+	text-decoration:none;
+	color:#4EB8DB;
+>>>>>>> 46306024baba2b203deb5a24f2f4bd36f30a5dcf:public/stylesheets/styles.css
 }
 
 .locked_para a:hover{
 	text-decoration:underline;
 }
-
-

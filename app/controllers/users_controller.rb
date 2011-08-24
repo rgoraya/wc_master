@@ -15,6 +15,40 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
 
+		@versions = Version.find(:all, :conditions=>["whodunnit = ?", @user.id])
+		@versions.sort!{|a,b| b.created_at <=> a.created_at}
+		#@versions=@versions[0..6]
+	
+		#@versions=[]
+		@activities=[]	
+		@versions.each do |version|
+			activity={}
+			case version.event
+				when 'create'
+					case version.item_type
+						when 'Issue' then activity[:action]='created a new'
+						when 'Relationship' then activity[:action]='linked a new'
+						when 'Reference' then activity[:action]='added a new'
+					end 
+				when 'update' then activity[:action]='updated the'
+				when 'destroy' then activity[:action]='deleted the'
+				else
+					activity[:action]='?'
+			end
+			activity[:type]=version.item_type.downcase
+			case version.item_type
+				when 'Issue' then activity[:what]=version.get_object.title.to_s
+				when 'Relationship'
+					activity[:what]=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first.get_object.title
+				when 'Reference'
+					(rel= Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first.get_object)
+					activity[:what]='for relationship '+(Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.cause_id]).first.get_object.title)
+			end
+			activity[:score]=RepManagement::Utils.reputation(:action=>version.event.downcase.to_sym, :type=>version.item_type.downcase.to_sym, :id=>version.item_id.to_i, :me=>version.whodunnit.to_i, :you=>version.get_object.user_id.to_i, :calculate=>false)[0]
+			@activities << activity
+		end
+
+
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @user }

@@ -11,17 +11,6 @@
     %div{:id=>"notice"}
       = notice
     
-    %div{:class=>"user_stats"}
-      %p
-        Issues created:
-        = @user.issues.count
-      %p
-        Causal Links identified:
-        = @user.relationships.count
-      %p
-        References added:
-        = @user.references.count        
-    
     %div{:id=>"issues"}
       = render 'userissues'
 

@@ -1,4 +1,7 @@
 class ReferencesController < ApplicationController
+
+	@@mutex=Mutex.new
+
   # GET /references
   # GET /references.xml
   def index
@@ -44,6 +47,9 @@ class ReferencesController < ApplicationController
 
     respond_to do |format|
       if @reference.save
+
+				RepManagement::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>@reference.user_id, :calculate=>true)
+
         format.html { redirect_to(:back, :notice => 'Reference was successfully added.') }
         format.xml  { render :xml => @reference, :status => :created, :location => @reference }
       else
@@ -73,7 +79,10 @@ class ReferencesController < ApplicationController
   # DELETE /references/1.xml
   def destroy
     @reference = Reference.find(params[:id])
-    @reference.destroy
+    #@@mutex.synchronize{
+    	@reference.destroy
+			#RepManagement::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>@reference.user_id, :calculate=>true)
+		#}
 
     respond_to do |format|
       format.html { redirect_to(references_url) }

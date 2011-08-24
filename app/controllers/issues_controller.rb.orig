@@ -1,6 +1,6 @@
 class IssuesController < ApplicationController
 
-	@@mutex=Mutex.new
+	@@mutex = Mutex.new
 
   # GET /issues
   # GET /issues.xml
@@ -197,11 +197,13 @@ class IssuesController < ApplicationController
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
-    @@mutex.synchronize{
+
+		@@mutex.synchronize{
     	@issue.destroy
 			who = Version.find(:first, :conditions=>["item_type=? AND item_id=?", 'Issue', @issue.id]).sibling_versions.last.whodunnit
 			RepManagement::Utils.reputation(:action=>:destroy, :type=>:issue, :id=>@issue.id, :me=>who, :you=>@issue.user_id, :calculate=>false)
 		}
+
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }

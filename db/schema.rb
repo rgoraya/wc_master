@@ -47,6 +47,7 @@ ActiveRecord::Schema.define(:version => 20110819003114) do
     t.string   "persistence_token"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "reputation",        :default => 1
   end
 
   create_table "versions", :force => true do |t|

@@ -1,5 +1,7 @@
 class Issue < ActiveRecord::Base
 
+	has_paper_trail
+
   # issues have an owner
   belongs_to :user
 
