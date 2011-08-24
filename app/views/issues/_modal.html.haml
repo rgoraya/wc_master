@@ -46,7 +46,7 @@
           = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_img_url"
   
         .field
-          = f.hidden_field :title, :class=>"formfield", :id=>"frm_title"
+          = f.hidden_field :title, :class =>"formfield", :id=>"frm_title"
 
         .field
           - if current_user
@@ -58,10 +58,10 @@
             %form
               %input{:type=>"hidden", :name=>"action_carrier", :id=>"frm_action"}
               %input{:type=>"hidden", :name=>"id_carrier", :id=>"frm_type_id"}
-              %input#rad_cause{:type => "radio", :name=>"causality_rad" }
-                Cause
-              %input#rad_effect{:type => "radio", :name=>"causality_rad" }
-                Effect
+              %input#rad_cause{:type => "radio", :name=>"causality_rad", :value=>"Cause"}
+              %span Cause
+              %input#rad_effect{:type => "radio", :name=>"causality_rad", :value=>"Effect"} 
+              %span Effect
           = f.submit 'Create', :class=>"save_button", :name=>"save_issue_rel_button", :id=>"val_collector", :style=>"float:right;"
           %div{:style => "clear:both"}
 
@@ -81,7 +81,7 @@
   var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
   if ($('#notice').html().trim()) {
   $('#notice').append(close);
-  $('#notice').css({padding : '5px', display : 'inline-table'});
+  $('#notice').css({padding : '5px'});
   $("#notice").effect("highlight", {color: '#AADDEE'}, 3000);
   }
   
@@ -188,15 +188,15 @@
   displayBoxIndex = 0;
   if (displayBoxIndex < 0)
   displayBoxIndex = oBoxCollection.length - 1;
-  var class = "suggestion_hover";
-  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);
+  var elem_class = "suggestion_hover";
+  oBoxCollection.removeClass(elem_class).eq(displayBoxIndex).addClass(elem_class);
   }
 
   $(".suggestion").live('mouseover', function(){
   displayBoxIndex = $(this).index();
-  var class = "suggestion_hover";
+  var elem_class = "suggestion_hover";
   var oBoxCollection = $(".suggestion");
-  oBoxCollection.removeClass(class).eq(displayBoxIndex).addClass(class);  
+  oBoxCollection.removeClass(elem_class).eq(displayBoxIndex).addClass(elem_class);  
   });  
 
   $("#relationship_form").submit(function(){

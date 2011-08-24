@@ -665,8 +665,8 @@ background: #ededed;
 	float:left; 
 	width:12px; 
 	border-left:1px solid #858585; 
-	padding: 5px 0px 2px 2px; 
-	opacity:0.3;
+	padding: 5px 2px 2px 2px; 
+	opacity:0.4;
 	cursor:pointer;
 }
 
@@ -1995,7 +1995,9 @@ color: #4EB8DB;
 }
 
 .locked_para{
-	text-align:center; font-size:18px; font-weight:bold
+	text-align:center; font-size:18px; font-weight:bold;
+	text-shadow:0 -1px 1px rgba(0,0,0,0.1);
+
 }
 
 .locked_para a{
