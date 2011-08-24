@@ -7,8 +7,7 @@
 			Revision history for:
 			%b				
 				= link_to @issue.title, issue_path(@issue), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-		-#%div{:id=>"notice"}
-			-#= notice
+
 		%div{:class=>"versions"}
 		- @versions.each do |version|
 			- relationship = version.get_object

@@ -7,8 +7,6 @@
 
   .contentmain
 
-    %div{:id=>"notice"}
-      = notice
     %div{:id=>"wikiInfo"}  
       - @toc, @effect  = @issue.get_causes(@issue.wiki_url)
       - @reference_list = []

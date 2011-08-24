@@ -77,20 +77,22 @@
 
   // I N I T I A L    F O R M A T T I N G / P R O C E S S I N G
   
-  // (1.) Add the close symbol and Highlight if some content was found in Notice
-  var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='14' height='14' /></a>";
-  if ($('#notice').html().trim()) {
-  $('#notice').append(close);
-  $('#notice').css({padding : '5px'});
-  $("#notice").effect("highlight", {color: '#AADDEE'}, 3000);
-  }
-  
-  // (2.) Ensure that Panoramio Has loaded the pictures
+  // (1.) Ensure that Panoramio Has loaded the pictures
   $("#panoramio_iframe").load(function(){
   // Function for Loading Maps 
   // Doing this after the iFrame loads 
   // to keep the height of map_canvas consistent.
   initialize();  
+  });
+
+  // (2.) D I S M I S S    T H E    F L A S H    N O T I C E
+  if ($('#notice').html().trim()) {
+  $("#notice_container").effect("bounce", { times:3 }, 200);
+  $('#notice').css({display : 'block'});
+  }
+  
+  $("#notice_container a.closebutton").click(function(){
+  $("#notice_container").slideUp(100);
   });
   
   // (3.) Show or Hide the Scroll buttons if there were some 
@@ -144,11 +146,6 @@
   href_carrier = '';
   });
   
-  // D I S M I S S    T H E    F L A S H    N O T I C E  
-  $("#notice a").click(function(){
-  $("#notice").slideUp(100);
-  });
-
   // C L I C K    E V E N T    F O R    R E F E R E N C E S 
   $(".relationship_boost").click(function(){
   $(".relationship_addref,.ref_error").css({display : 'none'});

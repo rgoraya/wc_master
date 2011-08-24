@@ -3,8 +3,7 @@
 
 #contentwrapper
 	.contentmain
-		%div{:class=>"notice"}
-			= notice
+
 		%div{:class=>"versions"}
 		- @versions.each do |version|
 			- obj = version.get_object
