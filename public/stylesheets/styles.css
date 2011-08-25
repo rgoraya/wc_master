@@ -369,6 +369,25 @@ z-index:0;
     border-top: 25px solid #ededed;		
 }
 
+.arrow-tooltip {
+    width: 0px;
+	margin:0 auto;
+	height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 10px solid #bebebe;		
+}
+
+.txt-tooltip{
+	background-color:#bebebe; 
+	color:#ffffff; 
+	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	padding:10px;
+	/* borders */
+	border-radius: 3px;
+	-moz-border-radius: 3px;	
+}
+
 .white_banner {
 	background-color:#ffffff;
 	float:left;

@@ -489,6 +489,29 @@
   
   });
 
+  // T O O L - T I P 
+  $(".effect_link, .cause_link").live('mouseover', function(){
+  var parent_div = ($(this).parents('.cause_effect_container'))
+  var sug_offset = parent_div.offset();
+  var sug_top    = sug_offset.top;
+  var sug_left   = sug_offset.left;
+  var sug_height = parent_div.height() + 2;
+  var calc_left  = sug_left - 234 + ((parent_div.width()+6)/2); 
+  
+  /alert ('offset: '+sug_offset+' top: '+sug_top+' left: '+sug_left+' height: '+sug_height+' width: '+sug_width)
+  
+  $("#tool_tip").css({'display' : 'block', 'top' : sug_top + sug_height, 'left' : calc_left});
+   
+  });
+
+  $(".effect_link, .cause_link").live('mouseleave', function(){
+  //$("#tool_tip").live('mouseleave', function(){
+  $("#tool_tip").css({'display' : 'none'});
+  //});
+  });
+
+
+
   // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
 
   // Animates the dimensional changes resulting from altering element contents
@@ -626,6 +649,9 @@
   return false;
   });
     
+  
+  
+  
   
   });  //  E N D    O F    D O C U M E N T     L O A D
   
