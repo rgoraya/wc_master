@@ -26,25 +26,33 @@ class UsersController < ApplicationController
 			case version.event
 				when 'create'
 					case version.item_type
-						when 'Issue' then activity[:action]='created a new'
-						when 'Relationship' then activity[:action]='linked a new'
-						when 'Reference' then activity[:action]='added a new'
+						when 'Issue' then activity[:action]='created'
+						when 'Relationship' then activity[:action]='linked'
+						when 'Reference' then activity[:action]='added'
 					end 
-				when 'update' then activity[:action]='updated the'
-				when 'destroy' then activity[:action]='deleted the'
+				when 'update' then activity[:action]='updated'
+				when 'destroy' then activity[:action]='deleted'
 				else
 					activity[:action]='?'
 			end
 			activity[:type]=version.item_type.downcase
-			case version.item_type
-				when 'Issue' then activity[:what]=version.get_object.title.to_s
-				when 'Relationship'
-					activity[:what]=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first.get_object.title
-				when 'Reference'
-					(rel= Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first.get_object)
-					activity[:what]='for relationship '+(Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.cause_id]).first.get_object.title)
+			activity[:what]=''
+			begin
+				case version.item_type
+					when 'Issue' then activity[:what]=version.get_object.title.to_s
+					when 'Relationship'
+						activity[:what]=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first.get_object.title
+					when 'Reference'
+						(rel= Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first.get_object)
+						activity[:what]=(Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.issue_id]).first.get_object.title+' - '+Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.cause_id]).first.get_object.title)
+				end
+			rescue
+					activity[:what]='? <data untraceable>'				
 			end
-			activity[:score]=RepManagement::Utils.reputation(:action=>version.event.downcase.to_sym, :type=>version.item_type.downcase.to_sym, :id=>version.item_id.to_i, :me=>version.whodunnit.to_i, :you=>version.get_object.user_id.to_i, :calculate=>false)[0]
+			#activity[:time]=version.created_at
+			version.get_object.user_id.nil? ? activity[:owner]=nil : activity[:owner]=version.get_object.user
+
+			!activity[:what].include?('untraceable') ? activity[:score]=RepManagement::Utils.reputation(:action=>version.event.downcase.to_sym, :type=>version.item_type.downcase.to_sym, :id=>version.item_id.to_i, :me=>version.whodunnit.to_i, :you=>version.get_object.user_id.to_i, :calculate=>false)[0] : activity[:score]=nil
 			@activities << activity
 		end
 

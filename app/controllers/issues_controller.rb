@@ -5,7 +5,7 @@ class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
   def index
-    @issues = Issue.search(params[:search]).paginate(:per_page => 5, :page => params[:page])
+    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 5, :page => params[:page])
 
     respond_to do |format|
       format.js {render :layout=>false}
