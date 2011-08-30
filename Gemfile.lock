@@ -42,6 +42,7 @@ GEM
       activesupport (~> 3.0)
       haml (~> 3.0)
       railties (~> 3.0)
+    hirb (0.5.0)
     hpricot (0.8.4)
     i18n (0.5.0)
     jquery-rails (1.0.12)
@@ -95,6 +96,7 @@ PLATFORMS
 DEPENDENCIES
   authlogic
   haml-rails
+  hirb
   hpricot
   jquery-rails
   json

@@ -1,7 +1,5 @@
 class IssuesController < ApplicationController
 
-	@@mutex=Mutex.new
-
   # GET /issues
   # GET /issues.xml
   def index
@@ -87,7 +85,12 @@ class IssuesController < ApplicationController
         # Save the Relationship     
         if @relationship.save
 
-					RepManagement::Utils.reputation(:action=>:create, :type=>:relationship, :id=>@relationship.id, :me=>@relationship.user_id, :calculate=>true)
+					RepManagement::Utils.reputation(:action=>:create, \
+																					:type=>:relationship, \
+																					:id=>@relationship.id, \
+																					:me=>@relationship.user_id, \
+																					:undo=>false, \
+																					:calculate=>true)
 
           redirect_to(:back, :notice => @notice)
         else
@@ -99,7 +102,11 @@ class IssuesController < ApplicationController
       else
         if @issue.save
           
-					RepManagement::Utils.reputation(:action=>:create, :type=>:issue, :me=>@issue.user_id, :calculate=>true)
+					RepManagement::Utils.reputation(:action=>:create, \
+																					:type=>:issue, \
+																					:me=>@issue.user_id, \
+																					:undo=>false, \
+																					:calculate=>true)
 
           # Define a new Relationship
           @relationship = Relationship.new
@@ -126,7 +133,12 @@ class IssuesController < ApplicationController
           # Save the Relationship     
           if @relationship.save
 
-						RepManagement::Utils.reputation(:action=>:create, :type=>:relationship, :id=>@relationship.id, :me=>@relationship.user_id, :calculate=>true)
+						RepManagement::Utils.reputation(:action=>:create, \
+																						:type=>:relationship, \
+																						:id=>@relationship.id, \
+																						:me=>@relationship.user_id, \
+																						:undo=>false, \
+																						:calculate=>true)
 
             redirect_to(:back, :notice => @notice)
           else
@@ -197,11 +209,16 @@ class IssuesController < ApplicationController
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
-    @@mutex.synchronize{
-    	@issue.destroy
-			who = Version.find(:first, :conditions=>["item_type=? AND item_id=?", 'Issue', @issue.id]).sibling_versions.last.whodunnit
-			RepManagement::Utils.reputation(:action=>:destroy, :type=>:issue, :id=>@issue.id, :me=>who, :you=>@issue.user_id, :calculate=>false)
-		}
+    @issue.destroy
+
+		RepManagement::Utils.reputation(:action=>:destroy, \
+																		:type=>:issue, \
+																		:id=>@issue.id, \
+																		:me=>current_user.id, \
+																		:you=>@issue.user_id, \
+																		:undo=>false, \
+																		:calculate=>false)
+
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }

@@ -1,6 +1,8 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
 
+= javascript_include_tag "sorttable.js"
+
 %div{:id=>"issues_head"}
 
   /%div{:style=>"float:left; margin:15px 0px 0px 15px;"}
@@ -23,83 +25,96 @@
     %span{:style => "color:#BEBEBE;font: bold 28px 'lucida grande',tahoma,verdana,arial,sans-serif;", :class=>"logo_txt"} Issues
 
   %div{:style=>"float:right; margin:25px 10px 15px 0px; font: bold 20px 'lucida grande',tahoma,verdana,arial,sans-serif;"}
-    %b{:style=>"color:#434343"} Reputation:
-    %span{:id=>"reputation", :style=>"color:green;"}
+    %b{:style=>"color:#434343;font-size:25px;"} Reputation:
+    %span{:id=>"reputation", :style=>"color:green;font-size:25px;"}
       %b
         = @user.reputation
     -#= link_to "Profile", user_activities_path(@user), {:title=>"view profile", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
   %div{:style=>"clear:both"}
 
 
+%table{:id=>"profile", :style=>"float:left;"}
+  %thead
+    %tr
+      %th{:style=>"height:20px;width:200px;"} Profile
+  %tbody{:style=>"height:200px;overflow:auto;"}
+    %tr
+      %td{:style=>"width:200px;display:block;text-align:left;padding:0px 0px 0px 2px;"}
+        Issues created:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'create', @user.id, nil]).group_by(&:item_id).count
+        %br
+        Issues removed:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'destroy', @user.id, nil]).group_by(&:item_id).count
+        %br
+        Current issues:
+        = @user.issues.count
+        %br
+        Causal links connected:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'create', @user.id, nil]).group_by(&:item_id).count
+        %br
+        Causal links deleted:
+        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'destroy', @user.id, nil]).group_by(&:item_id).count
+        %br
+        Current causal links:
+        = @user.relationships.count
+        %br
+        References:
+        = @user.references.count
 
 
-%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:790px;float:left;border-collapse:collapse;"}
-  %tr
-    %th{:style=>"color:white;background-color:#4EB8DB;border-bottom: 1px solid #4EB8DB;height:19px;"} Recent Activities
-  %tr
-    %td
-      - if @activities.count > 0
-        %div{:style=>"height:190px;overflow:auto;"}
-          -@activities.each do |activity|
-            %div{:style=>"float:left;"}
-              - if activity[:action].include?('deleted')
-                %span{:id=>"type", :style=>"color:red;"}
-                  = activity[:action]
-              - else
-                %span{:id=>"type", :style=>"color:green;"}
-                  = activity[:action]
-              = activity[:type] +':'
-              %span{:id=>"type", :style=>"color:#4EB8DB;"}
-                = activity[:what]
+%table{:class=>"sortable", :id=>"activities", :style=>"border-left:none;"}
+  %thead{:style=>"display:block;"}
+    %th{:id=>"action",:style=>"height:20px;width:580px;"} Action
+    %th{:id=>"time",:style=>"height:20px;width:125px;"} Time
+    %th{:id=>"owner",:style=>"height:20px;width:110px;"} Owner
+    %th{:id=>"score",:style=>"height:20px;width:50px;"} Score
+  %tbody{:style=>"height:200px;overflow:auto;"}
+    - if @activities.count > 0
+      - @activities.each do |activity|
+        %tr
+          %td{:style=>"width:580px;overflow:hidden;text-overflow:ellipsis; text-align:left;padding:0px 0px 0px 2px;"}
+            - if activity[:action].include?('deleted')
+              - color='red'
+            - else  
+              - color='green'
+            %span{:id=>"type", :style=>"color:#{color};"}
+              = activity[:action] 
+            = activity[:type] +': '
+            %span{:id=>"type", :style=>"color:#4EB8DB;",:title=>"#{activity[:what]}"}
+              = activity[:what].html_safe
+          %td{:sorttable_customkey=>DateTime.parse(activity[:time].to_s).strftime('%Y%m%d%H%M%S').to_s,:style=>"width:125px;"}
+            = DateTime.parse(activity[:time].to_s).strftime('%m/%d/%y-%R')
+          %td{:style=>"width:110px;", :title=>'view owner'}
+            = !activity[:owner].nil? ? (link_to activity[:owner].username, user_path(activity[:owner]), :style=>'color:#4EB8DB;text-decoration:none;', :title=>"view #{activity[:type]}'s owner") : '--'
+          %td{:sorttable_customkey=>activity[:score].to_s,:style=>"width:50px;"}
             - if activity[:score]
               - if !activity[:action].include?('deleted')
-                - score = "+"+activity[:score].to_s
-                %div{:id=>"score", :style=>"color:green;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
+                - score = "+"+activity[:score].abs.to_s
+                %span{:id=>"score", :style=>"color:green;"}
                   = score
               - else
-                - score = "-"+activity[:score].to_s
-                %div{:id=>"score", :style=>"color:red;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
+                - score = "-"+activity[:score].abs.to_s
+                %span{:id=>"score", :style=>"color:red;"}
                   = score
             - else
-              %div{:id=>"score", :style=>"color:#434343;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;"}
+              %span{:id=>"score", :style=>"color:#434343;"}
                 = '--'
-            %div{:id=>"username", :style=>"color:#434343;float:right; margin:0px 5px 0px 0px;"}
-              = !activity[:owner].nil? ? (link_to activity[:owner].username, user_path(activity[:owner]), :style=>'color:#4EB8DB;text-decoration:none;', :title=>'view owner') : '--'
-            %div{:style=>"clear:both;"}
-      -else
-        None     
-  
+    - else
+      %tr
+        %td None
+        %td
+        %td
+        %td
 
-%table{:style=>"color:#434343;border: 1px solid #4EB8DB;margin: 10px 0px 20px 0px;width:240px; float:right;border-collapse:collapse;"}
-  %tr
-    %th{:style=>"color:white;background-color:#4EB8DB;border-bottom: 1px solid #4EB8DB;height:19px;"} Profile
-  %tr
-    %td
-      %div
-        Total issues created:
-        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'create', @user.id]).group_by(&:item_id).count
-      %div
-        Total issues removed:
-        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'destroy', @user.id]).group_by(&:item_id).count
-      %div
-        Total current issues:
-        = @user.issues.count
-      %div
-        Total causal links connected:
-        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'create', @user.id]).group_by(&:item_id).count
-      %div
-        Total causal links deleted:
-        = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'destroy', @user.id]).group_by(&:item_id).count
-      %div
-        Total current causal links:
-        = @user.relationships.count
-      %div
-        Total references:
-        = @user.references.count
-%div{:style=>"clear:both"}
+
+%div{:style=>"clear:both;"}
+
+
+
+         
 
 -if @user.issues.count > 0
-  %div{:style=>"border-top: 2px groove white;margin:10px 0px 10px 0px;"}
+  %div{:style=>"border-top: 2px groove white;margin:20px 0px 20px 0px;"}
 
 
 

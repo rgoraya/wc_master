@@ -1956,8 +1956,8 @@ img.btn_close {
 
 .version{
 	background: white;
-	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-	padding: 8px 8px 5px 8px;
+	font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
+	padding: 5px 5px 5px 5px;
 	/*text-align:left;*/
 	font-size: 16px;
 	/*text-shadow:0 -1px 1px rgba(0,0,0,0.2);*/
@@ -1973,7 +1973,7 @@ img.btn_close {
 	/* curved borders */
 	/*-webkit-border-radius: 5px;
 	-moz-border-radius:5px;*/
-	margin:10px;
+	margin:10px 0px 0px 0px;
 }
 .vlink{
 color: #4EB8DB;
@@ -2017,11 +2017,36 @@ color: #4EB8DB;
 	color:#4EB8DB;
 }
 
-table{}
-tr{}
-th, td{
-padding:5px 5px 5px 5px;
+table{
+border-collapse:collapse;
+color:#434343;
+border: 1px solid #4EB8DB;
+margin:10px 0px 10px 0px;
 }
+thead, tbody, tfoot {
+border:none;
+display:block;
+}
+tr{}
+th{
+padding:none;
+border:none;
+text-align:center;
+color:white;
+background-color:#4EB8DB;
+}
+td{
+text-align:center;
+padding:0px 0px 0px 0px;
+}
+table#activities th:hover{
+color:#4EB8DB;
+background-color:white;
+}
+table.sortable th {
+cursor:default;
+}
+
 
 .locked_para a:hover{
 	text-decoration:underline;
