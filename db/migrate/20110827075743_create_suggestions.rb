@@ -3,7 +3,7 @@ class CreateSuggestions < ActiveRecord::Migration
     create_table :suggestions do |t|
       t.string :title
       t.string :wiki_url
-      t.string :type
+      t.string :causality
       t.string :status
       t.integer :issue_id
 

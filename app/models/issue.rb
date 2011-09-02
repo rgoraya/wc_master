@@ -14,6 +14,9 @@ class Issue < ActiveRecord::Base
   validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" (wikipedia URL) provided was already used to create an existing Issue."
   validates :title, :presence => {:message => ' cannot be blank, Issue not saved!'}
   validates :wiki_url, :presence => {:message => ' cannot be blank, Issue not saved!'}
+  validates :short_url, :presence => {:message => ' cannot be blank, Issue not saved!'}
+  validates :description, :presence => {:message => ' cannot be blank, Issue not saved!'}
+  
   
   # Do the following on Destroy
   after_destroy :cleanup_relationships
