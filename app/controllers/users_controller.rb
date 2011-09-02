@@ -15,6 +15,8 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
 
+    @userissues = @user.issues.search(params[:search]).order("created_at DESC").paginate(:per_page => 5, :page => params[:page])
+
 		@versions = Version.find(:all, :conditions=>["whodunnit = ?", @user.id])
 		@versions.sort!{|a,b| b.created_at <=> a.created_at}
 		#@versions=@versions[0..6]
@@ -58,7 +60,8 @@ class UsersController < ApplicationController
 
 
     respond_to do |format|
-      format.html # show.html.erb
+      format.js {render :layout=>false}
+      format.html # index.html.erb
       format.xml  { render :xml => @user }
     end
   end

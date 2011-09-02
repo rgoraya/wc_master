@@ -358,6 +358,7 @@ z-index:0;
 	border:1px solid #bebebe; 
 	padding: 25px 5px 10px 5px; 
 	text-align:center;
+	font: normal 14px "lucida grande",tahoma,verdana,arial,sans-serif;
 }
 
 .arrow-down {
@@ -369,23 +370,57 @@ z-index:0;
     border-top: 25px solid #ededed;		
 }
 
+.large_icon_box{
+	opacity:0.6;
+	padding:3px;
+	transition:opacity 0.6s;
+	-moz-transition:opacity 0.6s; /* Firefox 4 */
+	-webkit-transition:opacity 0.6s; /* Safari and Chrome */
+	-o-transition:opacity 0.6s; /* Opera */
+}
+
+.large_icon_box:hover{
+	opacity:0.9;	
+}
+
+#tool_tip{
+	position:absolute; width:300px; display:none;
+}
+
 .arrow-tooltip {
     width: 0px;
 	margin:0 auto;
 	height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 10px solid #bebebe;		
+    border-bottom: 10px solid #858585;		
+}
+
+.contents-tooltip {
+	background-color:#858585; 
+	text-align:center;
+	padding:5px;
+	/* borders */
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+}
+
+.img-tooltip {
+	float:left;
+	background-color:#ffffff;
+	width:62px;
+	padding:3px ;
+	border:1px solid #ededed;	
+	margin-right:5px;
+	display:none;
 }
 
 .txt-tooltip{
-	background-color:#bebebe; 
+	float:left;
 	color:#ffffff; 
 	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
-	padding:10px;
-	/* borders */
-	border-radius: 3px;
-	-moz-border-radius: 3px;	
+	width:215px;
+	text-align:left;
 }
 
 .white_banner {
@@ -1081,6 +1116,11 @@ background: #ededed;
 
 a.head_link:hover{
 	text-decoration:underline;
+}
+
+.date_time{
+	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color:#bebebe;
 }
 
 .del-issue{
@@ -1952,6 +1992,52 @@ img.btn_close {
 
 .pagination span.current { padding: 3px; margin: 3px; font-weight: bold; color: #4DB8DB; } 
 .pagination span.disabled { padding: 3px; margin: 3px; color: #bebebe; font-weight: bold;}
+
+.username{
+	font: bold 30px 'lucida grande',tahoma,verdana,arial,sans-serif;
+	color:#4DB8DB;
+	text-align:center;
+	text-shadow:0 -1px 1px rgba(0,0,0,0.2);
+	height:38px;
+}
+
+.reputation_block{
+	font: bold 32px 'lucida grande',tahoma,verdana,arial,sans-serif;
+	color:#858585;
+	padding:5px;
+	text-align:center;
+	text-shadow:0 -1px 1px rgba(0,0,0,0.2);
+	width:120px;
+}
+
+.profile_stats_label{
+	padding:4px;
+	font: bold 14px 'lucida grande',tahoma,verdana,arial,sans-serif;
+	width: 160px;
+	float:left;
+	clear:both;
+	color:#858585;
+	margin-left:15px;
+}
+
+.profile_stats_value{
+	float:left;
+	margin-left:10px;
+	padding:4px;
+	font: bold 14px 'lucida grande',tahoma,verdana,arial,sans-serif;
+	width: 40px;
+	color:#434343;
+}
+
+.activity_container{
+	height:154px;
+	padding:1px;
+	overflow:auto; 
+	clear:both; 
+	font: normal 14px 'lucida grande',tahoma,verdana,arial,sans-serif;
+	color:#434343;
+}
+
 
 .gravatar {
 	margin:-10px 0px -9px 0px; 

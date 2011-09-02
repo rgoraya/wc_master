@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
   # search functionality
   def self.search(search)
     if search
-      where('issue.title LIKE ?', "%#{search}%")
+      where('title LIKE ?', "%#{search}%")
     else
       scoped
     end

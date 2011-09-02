@@ -19,6 +19,10 @@ class IssuesController < ApplicationController
   def show
     @issue = Issue.find(params[:id])
 
+    @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
+
+    @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
+
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @issue }
@@ -49,11 +53,18 @@ class IssuesController < ApplicationController
  
     
     # A D D    N E W    C A U S E / E F F E C T
-    if params[:save_issue_rel_button]
+    if params[:action_carrier]
 
       # Read in the :type passed with form to recognize whether this is a Cause or Effect
       @causality = params[:action_carrier].to_s
       @causality_id = params[:id_carrier]     
+
+      if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
+        @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
+        @suggestion = Suggestion.find(@suggestion_id)
+        @suggestion.update_attributes('status' => 'A')
+        @suggestion.save
+      end
       
       # * * * * Check whether the Cause/effect already exists as an issue * * * *
       if Issue.exists?(:wiki_url => [@issue.wiki_url])

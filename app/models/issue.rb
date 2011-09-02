@@ -8,6 +8,7 @@ class Issue < ActiveRecord::Base
   # relations
   has_many :relationships, :dependent => :destroy
   has_many :causes, :through => :relationships 
+  has_many :suggestions
   
   # The wiki_url has to be unique else do not create
   validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" (wikipedia URL) provided was already used to create an existing Issue."
@@ -48,13 +49,14 @@ class Issue < ActiveRecord::Base
   # SQL for getting Effects on the Issue page
   def effects
     Issue.find_by_sql "
-      select id, title, permalink
+      select id, title, permalink, wiki_url
       from issues
       where id in (
         select issue_id
         from relationships
         where cause_id = #{id})"
   end
+
 
   #Method to get the link for Wikipedia from Google search results
   def get_wiki_url(query)

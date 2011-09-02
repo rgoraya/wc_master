@@ -6,9 +6,105 @@
 #contentwrapper
 
   .contentmain
+    .profile_stats_container
+      %div{:class=>"formheading", :style=>"background:#f5f5f5; margin-bottom:-25px; z-index:400; position:relative;"}
+        %div{:class => "username"} 
+          = @user.username
+      
+      %div{:style=>"float:right; margin:15px 0px -25px 0px;"}
+        - form_tag user_path, :id=>"search_form", :method => 'get' do 
+          %div{:class=>"search_button"}
+            %div{:style=>"float:left;display:table-cell; vertical-align:middle"}
+              = text_field_tag :search, params[:search], :align=>"top", :placeholder => "#{@user.username}'s issues. . .", :autocomplete=>"off", :class=>"searchfield_small"
+            %div{:style=>"float:left;"}
+              
+              = submit_tag "Search", :name => nil, :class=>"srch_button"
+            %div{:style=>"clear:both"} 
+              
+    
+      %div{:class=>"formcontentdiv", :style=>"border-color:#f5f5f5; float:left; padding-left:15px"}
+        %div{:style=>"float:left;"}
+          - @hash = Digest::MD5.hexdigest(@user.email).to_s
+          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=128&d=mm", :class=>"gravatar", :style=>"margin-top:5px;"}
+          %div{:class => "reputation_block"}
+            = @user.reputation
+          %div{:class => "reputation_block", :style=>"color:#bebebe;font-size:18px;margin-top:-15px;"}
+            reputation   
+    
+        %div{:style=>"float:left;padding-top:10px"}
+          %div{:class=>"profile_stats_label"}
+            Issues created
+          %div{:class=>"profile_stats_value"}  
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'create', @user.id]).group_by(&:item_id).count
+          %div{:class=>"profile_stats_label"}
+            Issues removed
+          %div{:class=>"profile_stats_value"}  
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'destroy', @user.id]).group_by(&:item_id).count
+          %div{:class=>"profile_stats_label"}
+            Current issues
+          %div{:class=>"profile_stats_value"}  
+            = @user.issues.count
+          %div{:class=>"profile_stats_label"}
+            Causal links connected
+          %div{:class=>"profile_stats_value"}  
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'create', @user.id]).group_by(&:item_id).count
+          %div{:class=>"profile_stats_label"}
+            Causal links deleted
+          %div{:class=>"profile_stats_value"}  
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'destroy', @user.id]).group_by(&:item_id).count
+          %div{:class=>"profile_stats_label"}
+            Current causal links
+          %div{:class=>"profile_stats_value"}  
+            = @user.relationships.count
+          %div{:class=>"profile_stats_label"}
+            References
+          %div{:class=>"profile_stats_value"}  
+            = @user.references.count  
+        %div{:style=>"clear:both;"}
+      
+      %div{:style=>"float:right; margin-top:40px; width:620px;"}    
+        %div{:class => "formheading_small", :style=>"margin-left:0px;background:#f5f5f5;color:#858585;"}
+          Contribution
+        - if @activities.count > 0
+          %div{:class => "formcontentdiv_small", :style=>"margin-left:0px;border-color:#f5f5f5;padding:25px 10px 10px 10px;"}
+            %div{:class=>"activity_container"}
+              -@activities.each do |activity|
+                %div{:style=>"float:left;"}
+                  - if activity[:action].include?('deleted')
+                    %span{:id=>"type", :style=>"color:red;"}
+                      = activity[:action]
+                  - else
+                    %span{:id=>"type", :style=>"color:green;"}
+                      = activity[:action]
+                  = activity[:type] +':'
+                  %span{:id=>"type", :style=>"color:#4EB8DB;"}
+                    = activity[:what]
+                - if activity[:score]
+                  - if !activity[:action].include?('deleted')
+                    - score = "+"+activity[:score].to_s
+                    %div{:id=>"score", :style=>"color:green;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
+                      = score
+                  - else
+                    - score = "-"+activity[:score].to_s
+                    %div{:id=>"score", :style=>"color:red;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
+                      = score
+                - else
+                  %div{:id=>"score", :style=>"color:#434343;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;"}
+                    = '--'
+                %div{:id=>"username", :style=>"color:#434343;float:right; margin:0px 5px 0px 0px;"}
+                  = !activity[:owner].nil? ? (link_to activity[:owner].username, user_path(activity[:owner]), :style=>'color:#4EB8DB;text-decoration:none;', :title=>'view owner') : '--'
+                %div{:style=>"clear:both;"}
+        -else
+          %div{:class => "formcontentdiv_small", :style=>"margin-left:0px;border-color:#f5f5f5;padding:25px 10px 10px 10px;"}
+            %div{:class=>"activity_container", :style=>"font-weight:bold; color:#bebebe;"}
+              No events have been recorded yet. 
+        
+    
+      %div{:style=>"clear:both;"}
+
     
     %div{:id=>"issues"}
-      = render 'userissues'
+      = render 'issues'
 
         
 #clear{:style => "clear:left;"}
