@@ -59,13 +59,6 @@ class IssuesController < ApplicationController
       @causality = params[:action_carrier].to_s
       @causality_id = params[:id_carrier]     
 
-      if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
-        @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
-        @suggestion = Suggestion.find(@suggestion_id)
-        @suggestion.update_attributes('status' => 'A')
-        @suggestion.save
-      end
-      
       # * * * * Check whether the Cause/effect already exists as an issue * * * *
       if Issue.exists?(:wiki_url => [@issue.wiki_url])
         
@@ -98,6 +91,14 @@ class IssuesController < ApplicationController
         # Save the Relationship     
         if @relationship.save
 
+          # remove duplicate suggestions if any
+          if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
+            @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
+            @suggestion = Suggestion.find(@suggestion_id)
+            @suggestion.update_attributes('status' => 'A')
+            @suggestion.save
+          end  
+
 					RepManagement::Utils.reputation(:action=>:create, :type=>:relationship, :id=>@relationship.id, :me=>@relationship.user_id, :calculate=>true)
 
           redirect_to(:back, :notice => @notice)
@@ -109,7 +110,7 @@ class IssuesController < ApplicationController
       # * * * * The issue pointing to this wiki_url does not exist so create new issue before relation * * * *
       else
         if @issue.save
-          
+
 					RepManagement::Utils.reputation(:action=>:create, :type=>:issue, :me=>@issue.user_id, :calculate=>true)
 
           # Define a new Relationship
@@ -136,6 +137,14 @@ class IssuesController < ApplicationController
             
           # Save the Relationship     
           if @relationship.save
+
+            # remove duplicate suggestions if any
+            if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
+              @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
+              @suggestion = Suggestion.find(@suggestion_id)
+              @suggestion.update_attributes('status' => 'A')
+              @suggestion.save
+            end  
 
 						RepManagement::Utils.reputation(:action=>:create, :type=>:relationship, :id=>@relationship.id, :me=>@relationship.user_id, :calculate=>true)
 

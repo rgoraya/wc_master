@@ -1076,7 +1076,8 @@ background: #ededed;
 
 
 .index_img_box{
-	width:140px; 
+	max-width:140px;
+	max-height:140px; 
 	margin:0px 10px 0px 10px;
 	padding:10px;
 	border:1px solid #BEBEBE;
@@ -1097,7 +1098,8 @@ background: #ededed;
 }
 
 .indeximg{
-	width:140px;	
+	max-width:140px;
+	max-height:140px; 
 	background:#ffffff;
 }
 

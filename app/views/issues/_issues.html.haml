@@ -70,7 +70,7 @@
           %img{:src=> slice[0].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
       
       // Text
-      %div{:style=>"float:left; width:843px; text-align:justify;"}
+      %div{:style=>"text-align:justify; margin-right:15px"}
           
         = slice[0].description
         
@@ -118,7 +118,7 @@
           %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank"}
             %img{:src=> slice[1].short_url, :class=>"indeximg", :alt=>"Image not found", :onError=>"this.src='/images/issues/image.png';" }
         // Text
-        %div{:style=>"float:right; width:843px; text-align:justify;"}
+        %div{:style=>"text-align:justify; margin-left:15px"}
               
           = slice[1].description
 
