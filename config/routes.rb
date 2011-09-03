@@ -1,4 +1,8 @@
 Wikicausality::Application.routes.draw do
+  resources :suggestions
+  
+  get "suggestions/:id/reject" => "suggestions#reject"
+
   resources :references
 
   get "pages/home"

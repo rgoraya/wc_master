@@ -71,6 +71,13 @@
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js", :type => "text/javascript"}
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js", :type => "text/javascript"}
 %script{:type => "text/javascript"}
+  
+  
+  var tooltip_preview_text = '';
+  var accept_link_text = '';
+
+  var hold_image_link = '';
+  var hold_text_descr = '';
    
   // Make sure the DOM is loaded
   $(document).ready(function(){
@@ -489,6 +496,39 @@
   
   });
 
+  // T O O L - T I P 
+  $(".effect_link, .cause_link").live('mouseover', function(){
+  $('.txt-tooltip').empty();
+  $('.img-tooltip').empty();
+  var parent_div = ($(this).parents('.cause_effect_container'))
+  var sug_offset = parent_div.offset();
+  var sug_top    = sug_offset.top;
+  var sug_left   = sug_offset.left;
+  var sug_height = parent_div.height() + 2;
+  var calc_left  = sug_left - 284 + ((parent_div.width()+6)/2); 
+  
+  tooltip_preview_text = $(this).text().trim();
+  
+  var url_to_parse = $.trim(url_img_name+encodeURIComponent(tooltip_preview_text)+'&callback=?');
+  
+
+  // call the function
+  parseJSON_preview(url_to_parse);
+    
+  // Display the collected data in tooltip
+  $("#tool_tip").css({'display' : 'block', 'top' : sug_top + sug_height, 'left' : calc_left});
+   
+  });
+
+  $(".effect_link, .cause_link").live('mouseleave', function(){
+  $('.txt-tooltip').empty();
+  $('.img-tooltip').empty();
+  $('.img-tooltip').css({'display' : 'none'});
+  $("#tool_tip").css({'display' : 'none'});
+  });
+
+
+
   // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
 
   // Animates the dimensional changes resulting from altering element contents
@@ -625,7 +665,130 @@
   });
   return false;
   });
-    
+
+  // O N E    T O U C H    A C C E P T    C A U S E    A N D    E F F E C T     
+  $('a.accept_cause').click(function(){
+  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + (accept_link_text).split(' ').join('_')); 
+  $("#frm_img_url").val($('#onetouch_image').find("img").attr("src"));
+  $("#frm_descr").val($('#onetouch_text').html());
+  $("#frm_title").val(accept_link_text);
+  $("#frm_type_id").val(#{@issue.id});
+  $("#frm_action").val('C')
+
+  $("#new_issue").submit();
+  /alert('url: ' + $("#frm_wiki_url").val() + ' img: ' + $("#frm_img_url").val() + ' descr: ' + $("#frm_descr").val() + ' title: ' + $("#frm_title").val() + ' action: ' + $("#frm_action").val() + ' id of this issue ' + $("#frm_type_id").val() + '    ' + $(this).attr('class'));
+  
+  return false;
+  });
+
+  $('a.accept_effect').click(function(){
+  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + (accept_link_text).split(' ').join('_')); 
+  $("#frm_img_url").val($('#onetouch_image').find("img").attr("src"));
+  $("#frm_descr").val($('#onetouch_text').html());
+  $("#frm_title").val(accept_link_text);
+  $("#frm_type_id").val(#{@issue.id});
+  $("#frm_action").val('E')
+  $("#new_issue").submit();
+  /alert('url: ' + $("#frm_wiki_url").val() + ' img: ' + $("#frm_img_url").val() + ' descr: ' + $("#frm_descr").val() + ' title: ' + $("#frm_title").val() + ' action: ' + $("#frm_action").val() + ' id of this issue ' + $("#frm_type_id").val() + '    ' + $(this).attr('class'));
+  
+  return false;
+  });
+
+  $('.accept_cause').mouseover(function(){
+  // get the title of query
+  accept_link_text = $(this).siblings(".cause_link").text().trim();
+  // create json request url
+  var url_to_accept = $.trim(url_img_name+encodeURIComponent(accept_link_text)+'&callback=?');
+  // parse the JSON
+  parseJSON_accept(url_to_accept);
+  //alert($('.img-tooltip').html());
+  });
+
+  $('.accept_effect').mouseover(function(){
+
+  // get the title of query
+  accept_link_text = $(this).siblings(".effect_link").text().trim();
+  // create json request url
+  var url_to_accept = $.trim(url_img_name+encodeURIComponent(accept_link_text)+'&callback=?');
+  // parse the JSON
+  parseJSON_accept(url_to_accept);
+  //alert($('.img-tooltip').html());
+  });
+
+
+  $("a.accept_cause, a.accept_effect").mouseout(function(){
+  });
+
+  function parseJSON_accept(url_to_accept) {
+  // parse the json
+  
+  $.getJSON(url_to_accept, function (data_accept) {
+  $.each(data_accept, function (key_accept, val_accept) {
+  // call the getJson function
+  getJson_accept(val_accept);    
+  });    
+  });
+  
+  }  
+ 
+  function getJson_accept(JData_accept) {   
+
+  $.each(JData_accept, function (Jkey_accept, Jval_accept) {
+  if (Jval_accept && typeof Jval_accept == "object") {
+  getJson_accept(Jval_accept);    
+  } else {
+  //  Throw error if no text was received
+  var text_to_accept = $(Jval_accept).filter('p:first').text();
+
+  if(text_to_accept == ''){
+  text_to_accept = "No data!"
+  
+  //  If the search was successful 
+  } else {
+
+  // shorten if beyond limit
+  if(text_to_accept.length > 450){text_to_accept = text_to_accept.substring(0, 450) + '...';}
+
+  // replace HTML of target Div
+  /$("#frm_descr").val(text_to_accept);
+  $('#onetouch_text').html(text_to_accept);
+
+  // find the image from Json
+  var img_src_accept = $(Jval_accept).find('img.thumbimage').attr('src');  
+  
+  // if image not found from wikipedia, get it from google
+  if (img_src_accept == null){
+
+  // retrieve JSON from google images search and pull the url for first image result
+  
+  var url_google_img_accept = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
+  $.getJSON(url_google_img_accept+encodeURIComponent(accept_link_text)+'&callback=?', function(data) {
+  $.each(data.responseData.results, function(i,item){
+  // replace HTML of target Div
+  $('#onetouch_image').html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" width="62px" align="middle" />');
+  /$("#frm_img_url").val(item.tbUrl);
+  if ( i == 0 ) return false;
+  });  
+  });
+  
+  // if the image was found from WIKIPEDIA itself, then just go ahead and use that.
+  } else {
+  // replace HTML of target Div 
+  $('#onetouch_image').html('<img src="'+img_src_accept+'" onError="this.src=\'/images/issues/image.png\';" width="62px" align="middle"/>');
+  /$("#frm_img_url").val(img_src_accept);
+  
+  }	  //        END of If structure (checking for Image Success from Wikipedia)	  
+  
+  }   //      END of If structure (checking for Text Success from Wikipedia)
+  
+  }   //     END of If structure (checking for type Object)
+
+  }); //   END of Each loop
+
+  }   // END of function     
+  
+  
+  
   
   });  //  E N D    O F    D O C U M E N T     L O A D
   
@@ -662,4 +825,85 @@
   $('#map_canvas').css({height: $('.wikicontent').height()-22});
 
   }
-          
+
+  // T O O L - T I P     P R E V I E W 
+
+  function parseJSON_preview(url_to_parse) {
+
+  //Show the spinner
+  $('.txt-tooltip').css({'display' : 'block'});
+  $("#tool_tip .txt-tooltip").html('<img border="0" src="/images/system/spinnerdarkgray.gif" width="24px"/>'); 
+
+  // parse the json
+  $.getJSON(url_to_parse, function (data_prev) {
+  $.each(data_prev, function (key_prev, val_prev) {
+  // call the getJson function
+  getJson_prev(val_prev);    
+  });    
+
+  //$('.txt-tooltip').css({'display' : 'block'});
+  $('.img-tooltip').css({'display' : 'block'});
+
+  });}  
+  
+
+  function getJson_prev(JData_prev) {
+   
+  $.each(JData_prev, function (Jkey_prev, Jval_prev) {
+  if (Jval_prev && typeof Jval_prev == "object") {
+  
+  getJson_prev(Jval_prev);    
+  
+  } else {
+  
+  
+  //  Throw error if no text was received
+  
+  var text_to_preview = $(Jval_prev).filter('p:first').text();
+
+  if(text_to_preview == ''){
+  text_to_preview = "No data!"
+  
+  //  If the search was successful - 
+  } else {
+
+  // shorten if beyond limit
+  if(text_to_preview.length > 150){text_to_preview = text_to_preview.substring(0, 150) + '...';}
+
+  // replace HTML of target Div
+  $('.txt-tooltip').html(text_to_preview);
+
+  // find the image from Json
+  var img_src_prev = $(Jval_prev).find('img.thumbimage').attr('src');  
+  
+  // if image not found from wikipedia, get it from google
+  if (img_src_prev == null){
+
+  // retrieve JSON from google images search and pull the url for first image result
+  
+  var url_google_img_prev = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
+  $.getJSON(url_google_img_prev+encodeURIComponent(tooltip_preview_text)+'&callback=?', function(data) {
+  $.each(data.responseData.results, function(i,item){
+  // replace HTML of target Div
+  $('.img-tooltip').html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" width="62px" align="middle" />');
+  if ( i == 0 ) return false;
+  });  
+  });
+  
+  // if the image was found from WIKIPEDIA itself, then just go ahead and use that.
+  } else {
+  // replace HTML of target Div 
+  $('.img-tooltip').html('<img src="'+img_src_prev+'" onError="this.src=\'/images/issues/image.png\';" width="62px" align="middle"/>');
+
+  
+  }	  //        END of If structure (checking for Image Success from Wikipedia)	  
+  
+  }   //      END of If structure (checking for Text Success from Wikipedia)
+  
+  }   //     END of If structure (checking for type Object)
+
+  }); //   END of Each loop
+  
+  }   // END of function   
+  
+  

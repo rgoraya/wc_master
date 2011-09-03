@@ -8,7 +8,7 @@
   .contentmain
 
     %div{:id=>"wikiInfo"}  
-      - @toc, @effect  = @issue.get_causes(@issue.wiki_url)
+      /- @toc, @effect  = @issue.get_causes(@issue.wiki_url)
       - @reference_list = []
     //  * * * * * *    C A U S E S    * * * * * *
 
@@ -23,71 +23,87 @@
       
       - @ref_counter = 0
       - @causes = @issue.causes
-      - iterations = @causes.length
-      - iterations.times do |i|
-        - @relation = @issue.relationships.where(:cause_id=>@causes[i].id).select('id').first.id
-        - @references = Reference.where(:relationship_id=>@relation)
-        - @references.length.times do |j|
-          - @reference_list << @references[j] 
-        %div{:class => "bubble"}
+      - if @causes.length > 0
+        - iterations = @causes.length
+        - iterations.times do |i|
+          - @relation = @issue.relationships.where(:cause_id=>@causes[i].id).select('id').first.id
+          - @references = Reference.where(:relationship_id=>@relation)
+          - @references.length.times do |j|
+            - @reference_list << @references[j] 
+          %div{:class => "bubble"}
         
-          // The link to the relation Issue
-          %div{:class=>"relation_link"}
-            =link_to @causes[i].title, "/issues/"+@causes[i].id.to_s+'-'+@causes[i].permalink.to_s, {:title=>"view this issue"}
+            // The link to the relation Issue
+            %div{:class=>"relation_link"}
+              =link_to @causes[i].title, "/issues/"+@causes[i].id.to_s+'-'+@causes[i].permalink.to_s, {:title=>"view this issue"}
  
-          // Link to the references
-          - if @references.count > 0
-            - @ref_link = '#'+(@ref_counter + 1).to_s
-            %div{:class=>"relationship_refs"}
-              %a{:href => @ref_link, :class=>"ref_link", :rel=> @references.count, :title=>"view references"}
-                - if @references.count > 1
-                  [#{@ref_counter + 1}-#{@ref_counter + @references.count}] 
-                - else
-                  [#{@ref_counter + 1}]
+            // Link to the references
+            - if @references.count > 0
+              - @ref_link = '#'+(@ref_counter + 1).to_s
+              %div{:class=>"relationship_refs"}
+                %a{:href => @ref_link, :class=>"ref_link", :rel=> @references.count, :title=>"view references"}
+                  - if @references.count > 1
+                    [#{@ref_counter + 1}-#{@ref_counter + @references.count}] 
+                  - else
+                    [#{@ref_counter + 1}]
             
-            // increment the counter
-            - @ref_counter += @references.count
+              // increment the counter
+              - @ref_counter += @references.count
                 
-          // Add reference to Boost
-          %div{:class=>"relationship_boost"}
-            %img{:src=>"/images/issues/add.png", :width=>"12px", :title=>"add reference"} 
+            // Add reference to Boost
+            %div{:class=>"relationship_boost"}
+              %img{:src=>"/images/issues/add.png", :width=>"12px", :title=>"add reference"} 
           
-          // Delete Relation (shown only to registered users)
-          - if current_user
-            %div{:class=>"relationship_delete"}
-              %a{"data-confirm" => "Are you sure you want to remove the cause #{@causes[i].title}?", "data-title"=>"Delete Causal Link", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
-                %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+            // Delete Relation (shown only to registered users)
+            - if current_user
+              %div{:class=>"relationship_delete"}
+                %a{"data-confirm" => "Are you sure you want to remove the cause #{@causes[i].title}?", "data-title"=>"Delete Causal Link", "data-method" => "delete", :href => "../relationships/#{@relation}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
+                  %img{:src=>"/images/issues/delete.png", :width=>"12px"}
                 
-          %div{:style => "clear:both"} 
-                
-          %div{:class => "relationship_addref"}
+            %div{:style => "clear:both"} 
+                  
+            %div{:class => "relationship_addref"}
             
-            %div{:class=>"search_button", :style=>"background-image:none; padding-left:2px"}
-              - form_for Reference.new do |f|
-                %div{:style=>"float:left;display:table-cell; vertical-align:middle"}
-                  .field                   
-                    = f.text_field :reference_content, :align=>"top", :autocomplete=>"off", :class=>"searchfield_smaller", :placeholder => "Provide reference. . .", :style=>"float:left;"
-                    %a{:class=>"srch_button save_reference", :href=>"#", :name=>"save_reference_button", :style=>"float:left; font-size:18px; padding:0px 5px 0px 5px;", :title=>"add this reference"}
-                      Add                   
-                    %img{:alt => "close button", :src => "/images/system/close.png",:class=>'close_addref'}
-                    %div{:style=>"clear:both; display:none;text-align:left; padding:5px;", :class=>"ref_error"} 
-                      Kindly provide a valid URL after 'http://'
-                  .field  
-                    = f.hidden_field :relationship_id, :class=>"formfield", :id=>"frm_relationship_url", :value=>@relation
-                  .field
-                    - if current_user
-                      = f.hidden_field :user_id, :class=>"formfield", :value=>current_user.id
+              %div{:class=>"search_button", :style=>"background-image:none; padding-left:2px"}
+                - form_for Reference.new do |f|
+                  %div{:style=>"float:left;display:table-cell; vertical-align:middle"}
+                    .field                   
+                      = f.text_field :reference_content, :align=>"top", :autocomplete=>"off", :class=>"searchfield_smaller", :placeholder => "Provide reference. . .", :style=>"float:left;"
+                      %a{:class=>"srch_button save_reference", :href=>"#", :name=>"save_reference_button", :style=>"float:left; font-size:18px; padding:0px 5px 0px 5px;", :title=>"add this reference"}
+                        Add                   
+                      %img{:alt => "close button", :src => "/images/system/close.png",:class=>'close_addref'}
+                      %div{:style=>"clear:both; display:none;text-align:left; padding:5px;", :class=>"ref_error"} 
+                        Kindly provide a valid URL after 'http://'
+                    .field  
+                      = f.hidden_field :relationship_id, :class=>"formfield", :id=>"frm_relationship_url", :value=>@relation
+                    .field
+                      - if current_user
+                        = f.hidden_field :user_id, :class=>"formfield", :value=>current_user.id
 
-                %div{:style=>"clear:both;"}
-  
-
+                  %div{:style=>"clear:both;"}
+          
+      - else
+        No causes have been identified yet.
       %div{:style => "clear:both"}
       
 
+      /-if @toc.length > 0
+      %div{:class => "white_banner"}  
+   
+        %div{:class=>"large_icon_box", :style=>"float:left; margin:-6px 5px -12px 0px"}
+          - form_for Suggestion.new :id=>"suggestions_form" do |f|   
+            .field  
+              = f.hidden_field :issue_id, :class=>"formfield", :id=>"frm_suggestion_id", :value=>@issue.id
+            .field                   
+              = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_suggestion_url", :value=>@issue.wiki_url
+            .actions 
+              = f.submit 'Retrieve',:type => :image, :src => "/images/issues/sync1.png", :name=>"save_suggestion_button", :id=>"suggestions_collector", :title=>"retrieve suggestions", :border=>0        
+        %div{:style=>"float:left;"}
+          Suggestions   
+        %div{:style=>"clear:both"}
 
-      -if @toc.length > 0
-        %div{:class => "white_banner"}
-          Suggestions
+
+      - if @issue_cause_suggestion.length > 0
+
         %div.formcontentdiv_white
           %div{:style=>"float:right;"}
             %div
@@ -98,22 +114,32 @@
           %div{:class=>"suggestions_container"}
           
             %ul{:style=>"list-style-type: none; padding:0px; margin:0px;margin-left:40px;margin-right:40px", :id=>"cause_carousel1"}
-              - @toc.each do |toc|
-                %li{:class=>"cause_effect_container"}
-                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_link", :style=>"float:left"}
-                    = toc[:name]            
+              /- @toc.each do |toc|
+              /  %li{:class=>"cause_effect_container"}
+              /    %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>toc[:url], :class=>"cause_link", :style=>"float:left"}
+              /      = toc[:name]            
 
-                  %a{:href => "#", :title=>"accept this causal link", :class=>"relationship_boost", :style=>"padding-top:4px;"} 
+              - @issue_cause_suggestion.each do |toc|
+                %li{:class=>"cause_effect_container"}
+                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :class=>"cause_link", :style=>"float:left"}
+                    = toc.title 
+
+                  %a{:href => "#", :title=>"accept suggestion", :class=>"relationship_boost accept_cause", :style=>"padding-top:4px;"} 
                     %img{:src=>"/images/issues/preview1.png", :width=>"13px", :height=>"15px"}       
 
-                  %a{:href => "#", :title=>"accept this causal link", :class=>"relationship_delete", :style=>"padding-top:5px;"} 
-                    %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+                  /= link_to image_tag("/images/issues/preview1.png", :width=>"13px", :height=>"15px"), suggestion_path(toc,:suggestion => {:status => 'A'}), :method => :put, :class=>"relationship_boost accept_cause", :style=>"padding-top:4px;", :title=>"accept suggestion"
+
+                  = link_to image_tag('/images/issues/delete.png', :width=>"12px"), suggestion_path(toc,:suggestion => {:status => 'D'}), :method => :put, :class=>"relationship_delete", :style=>"padding-top:5px;", :title=>"reject suggestion"
 
                   %div{:style => "clear:both"}
        
        
           %div{:style => "clear:both"}
-
+      - else
+        %div.formcontentdiv_white
+          %span No suggestions. Use the
+          %img{:src => "/images/issues/sync1.png", :align=>"bottom", :width=>"16px", :style=>"margin-bottom:-3px; opacity:0.4"}
+          %span button above to retrieve suggestions from the corresponding Wikipedia article. 
 
     %div{:class=>"arrow-down"}
         
@@ -178,70 +204,87 @@
           Add Effect
 
       - @effects = @issue.effects
-      - iterations = @effects.length
-      - link = ''
-      - iterations.times do |i|
-        - @relation1 = Relationship.where(:issue_id => @effects[i].id, :cause_id=>@issue.id).select('id').first.id
-        - @references1 = Reference.where(:relationship_id=>@relation1)
-        - @references1.length.times do |j|
-          - @reference_list << @references1[j]         
-        %div{:class=>"bubble"}
+      - if @effects.length > 0 
+        - iterations = @effects.length
+        - link = ''
+        - iterations.times do |i|
+          - @relation1 = Relationship.where(:issue_id => @effects[i].id, :cause_id=>@issue.id).select('id').first.id
+          - @references1 = Reference.where(:relationship_id=>@relation1)
+          - @references1.length.times do |j|
+            - @reference_list << @references1[j]         
+          %div{:class=>"bubble"}
           
-          // The link to the relation Issue
-          %div{:class=>"relation_link"}
-            =link_to @effects[i].title, "/issues/"+@effects[i].id.to_s+'-'+@effects[i].permalink, {:title=>"view this issue"}
+            // The link to the relation Issue
+            %div{:class=>"relation_link"}
+              =link_to @effects[i].title, "/issues/"+@effects[i].id.to_s+'-'+@effects[i].permalink, {:title=>"view this issue"}
  
-          // Link to the references
-          - if @references1.count > 0
-            - @ref_link1 = '#'+(@ref_counter + 1).to_s
-            %div{:class=>"relationship_refs"}
-              %a{:href => @ref_link1, :class=>"ref_link", :rel=> @references1.count, :title=>"view references"}
-                - if @references1.count > 1
-                  [#{@ref_counter + 1}-#{@ref_counter + @references1.count}] 
-                - else
-                  [#{@ref_counter + 1}]
+            // Link to the references
+            - if @references1.count > 0
+              - @ref_link1 = '#'+(@ref_counter + 1).to_s
+              %div{:class=>"relationship_refs"}
+                %a{:href => @ref_link1, :class=>"ref_link", :rel=> @references1.count, :title=>"view references"}
+                  - if @references1.count > 1
+                    [#{@ref_counter + 1}-#{@ref_counter + @references1.count}] 
+                  - else
+                    [#{@ref_counter + 1}]
             
-            // increment the counter
-            - @ref_counter += @references1.count
+              // increment the counter
+              - @ref_counter += @references1.count
             
-          // Add reference to Boost
-          %div{:class=>"relationship_boost"}
-            %img{:src=>"/images/issues/add.png", :width=>"12px", :title=>"add reference"} 
+            // Add reference to Boost
+            %div{:class=>"relationship_boost"}
+              %img{:src=>"/images/issues/add.png", :width=>"12px", :title=>"add reference"} 
           
-          // Delete Relation (shown only to registered users)            
-          - if current_user
-            %div{:class=>"relationship_delete"}
-              %a{"data-confirm" => "Are you sure you want to remove the effect #{@effects[i].title}?", "data-title" => "Delete Causal Link", "data-method" => "delete", :href => "../relationships/#{@relation1}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
-                %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+            // Delete Relation (shown only to registered users)            
+            - if current_user
+              %div{:class=>"relationship_delete"}
+                %a{"data-confirm" => "Are you sure you want to remove the effect #{@effects[i].title}?", "data-title" => "Delete Causal Link", "data-method" => "delete", :href => "../relationships/#{@relation1}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
+                  %img{:src=>"/images/issues/delete.png", :width=>"12px"}
 
-          %div{:style => "clear:both"}
+            %div{:style => "clear:both"}
 
-          %div{:class => "relationship_addref"}
+            %div{:class => "relationship_addref"}
             
-            %div{:class=>"search_button", :style=>"background-image:none; padding-left:2px"}
-              - form_for Reference.new do |f|
-                %div{:style=>"float:left;display:table-cell; vertical-align:bottom; padding-bottom:-2px;"}
-                  .field{:style=>"display:block"}
-                    = f.text_field :reference_content, :align=>"top", :autocomplete=>"off", :class=>"searchfield_smaller", :placeholder => "Provide reference. . .", :style=>"float:left;"
-                    %a{:class=>"srch_button save_reference", :href=>"#", :name=>"save_reference_button", :style=>"float:left; font-size:18px; padding:0px 5px 0px 5px;", :title=>"add this reference"}
-                      Add                   
-                    %img{:alt => "close button", :src => "/images/system/close.png",:class=>'close_addref'}
-                    %div{:style=>"clear:both; display:none;text-align:left; padding:5px;", :class=>"ref_error"} 
-                      Kindly provide a valid URL after 'http://'
-                  .field  
-                    = f.hidden_field :relationship_id, :class=>"formfield", :id=>"frm_relationship_url", :value=>@relation1
-                  .field
-                    - if current_user
-                      = f.hidden_field :user_id, :class=>"formfield", :value=>current_user.id
+              %div{:class=>"search_button", :style=>"background-image:none; padding-left:2px"}
+                - form_for Reference.new do |f|
+                  %div{:style=>"float:left;display:table-cell; vertical-align:bottom; padding-bottom:-2px;"}
+                    .field{:style=>"display:block"}
+                      = f.text_field :reference_content, :align=>"top", :autocomplete=>"off", :class=>"searchfield_smaller", :placeholder => "Provide reference. . .", :style=>"float:left;"
+                      %a{:class=>"srch_button save_reference", :href=>"#", :name=>"save_reference_button", :style=>"float:left; font-size:18px; padding:0px 5px 0px 5px;", :title=>"add this reference"}
+                        Add                   
+                      %img{:alt => "close button", :src => "/images/system/close.png",:class=>'close_addref'}
+                      %div{:style=>"clear:both; display:none;text-align:left; padding:5px;", :class=>"ref_error"} 
+                        Kindly provide a valid URL after 'http://'
+                    .field  
+                      = f.hidden_field :relationship_id, :class=>"formfield", :id=>"frm_relationship_url", :value=>@relation1
+                    .field
+                      - if current_user
+                        = f.hidden_field :user_id, :class=>"formfield", :value=>current_user.id
                       
                
-                %div{:style=>"clear:both"}
-      
+                  %div{:style=>"clear:both"}
+      - else
+        No Effects have been identified yet.   
       %div{:style => "clear:both"}
 
-      - if @effect.length > 0 
-        %div{:class => "white_banner"}
-          Suggestions
+      /- if @effect.length > 0 
+      %div{:class => "white_banner"}
+   
+        %div{:class=>"large_icon_box", :style=>"float:left; margin:-6px 5px -12px 0px"}
+          - form_for Suggestion.new :id=>"suggestions_form" do |f|   
+            .field  
+              = f.hidden_field :issue_id, :class=>"formfield", :id=>"frm_suggestion_id", :value=>@issue.id
+            .field                   
+              = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_suggestion_url", :value=>@issue.wiki_url
+            .actions 
+              = f.submit 'Retrieve',:type => :image, :src => "/images/issues/sync1.png", :name=>"save_suggestion_button", :id=>"suggestions_collector", :title=>"retrieve suggestions", :border=>0        
+        %div{:style=>"float:left;"}
+          Suggestions  
+        %div{:style=>"clear:both"}
+
+      
+      - if @issue_effect_suggestion.length > 0
+        
         %div.formcontentdiv_white
           %div{:style=>"float:right;"}
             %div
@@ -251,25 +294,44 @@
          
           %div{:class=>"suggestions_container"}          
             %ul{:style=>"list-style-type: none; padding:0px; margin:0px;", :id=>"cause_carousel"}
-              - @effect.each do |effect|
-                %li{:class=>"cause_effect_container"}
-                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"effect_link", :style=>"float:left"}
-                    = effect[:name] 
+              /- @effect.each do |effect|
+              /  %li{:class=>"cause_effect_container"}
+              /    %a.poplight{:href => "#?w=500", :rel => "popup_name", :title=>effect[:url], :class=>"effect_link", :style=>"float:left"}
+              /      = effect[:name] 
 
-                  %a{:href => "#", :title=>"accept this causal link", :class=>"relationship_boost", :style=>"padding-top:4px;"} 
+              - @issue_effect_suggestion.each do |effect|
+                %li{:class=>"cause_effect_container"}
+                  %a.poplight{:href => "#?w=500", :rel => "popup_name", :class=>"effect_link", :style=>"float:left"}
+                    = effect.title 
+
+                  %a{:href => "#", :title=>"accept suggestion", :class=>"relationship_boost accept_effect", :style=>"padding-top:4px;"} 
                     %img{:src=>"/images/issues/preview1.png", :width=>"13px", :height=>"15px"}       
 
-                  %a{:href => "#", :title=>"delete suggestion", :class=>"relationship_delete", :style=>"padding-top:5px;"} 
-                    %img{:src=>"/images/issues/delete.png", :width=>"12px"}
+                  
+                    /= url_for :action => 'reject', :controller => 'suggestions', :only_path => false, :id => effect.id
+                    /= link_to image_tag('/images/issues/delete.png', :width=>"12px"), {:controller => :suggestions, :action => :reject, :id => effect.id} , :class=>"relationship_delete", :style=>"padding-top:5px;", :title=>"reject suggestion"
+                  
+                  = link_to image_tag('/images/issues/delete.png', :width=>"12px"), suggestion_path(effect,:suggestion => {:status => 'D'}), :method => :put, :class=>"relationship_delete", :style=>"padding-top:5px;", :title=>"reject suggestion"
+                  
+                  /%a{:href => "#", :title=>"reject suggestion", :class=>"relationship_delete", :style=>"padding-top:5px;"} 
+                  /  %img{:src=>"/images/issues/delete.png", :width=>"12px"}
 
                   %div{:style => "clear:both"}
       
           %div{:style => "clear:both"}
-          
-    %div{:style=>"float:right; padding-top:20px;margin-top:15px;"}
-      - if current_user
-        = link_to "History", issue_versions_path(@issue), {:title=>"view all changes", :class=>"wiki_button", :style=>"float:right;background-image:none;padding:3px 10px 3px 10px"}
+      - else
+        %div.formcontentdiv_white
+          %span No suggestions. Use the
+          %img{:src => "/images/issues/sync1.png", :align=>"bottom", :width=>"16px", :style=>"margin-bottom:-3px; opacity:0.4"}
+          %span button above to retrieve suggestions from the corresponding Wikipedia article.        
       
+    - if current_user      
+  
+      %div{:style=>"float:right; margin-top:20px; margin-left:10px;text-align:center;font-size:12px;"}    
+        %div{:class=>"large_icon_box"}
+          = link_to image_tag('/images/issues/history.png'), issue_versions_path(@issue), {:title=>"view all changes", :border=>0, :height=>0}
+        %div{:style=>"font-weight:normal;"}
+          History
 
     %div{:class=>"created_by"}
       %span{:style=>"font-size:10px;"}
@@ -298,6 +360,7 @@
         %div{:style=>"clear:both;"}
       
       %div{:style=>"clear:both;"}                  
+              
   
   - if @reference_list.count > 0 
     .contentmain
@@ -326,3 +389,14 @@
     #confirm_buttons{:style=>"margin-top:10px; text-align:center"}
       %input#confirm_yes{:type => "button", :value => "Delete", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}
       %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}
+
+#tool_tip
+  .arrow-tooltip
+  .contents-tooltip
+    .img-tooltip
+    .txt-tooltip
+      random text
+    %div{:style=>"clear:both"}    
+      
+#onetouch_image{:style=>"display:none;"}
+#onetouch_text{:style=>"display:none;"}     

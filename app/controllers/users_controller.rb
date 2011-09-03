@@ -14,6 +14,7 @@ class UsersController < ApplicationController
   # GET /users/1.xml
   def show
     @user = User.find(params[:id])
+    @userissues = @user.issues.search(params[:search]).order("created_at DESC").paginate(:per_page => 5, :page => params[:page])
 
 		@versions = Version.find(:all, :conditions=>["whodunnit = ? AND reverted_from IS ? ", @user.id, nil])
 		@versions.sort!{|a,b| b.created_at <=> a.created_at}
@@ -47,7 +48,7 @@ class UsersController < ApplicationController
 						activity[:what]= Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first.get_object.title + ' &#x27a1; ' + Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first.get_object.title
 					when 'Reference'
 						(rel= Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first.get_object)
-						activity[:what]= Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.cause_id]).first.get_object.title + ' -> ' + Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.issue_id]).first.get_object.title 
+						activity[:what]= Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.cause_id]).first.get_object.title + ' &#x27a1; ' + Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', rel.issue_id]).first.get_object.title 
 				end
 			rescue
 					activity[:what]='? <data untraceable>'				
@@ -61,7 +62,8 @@ class UsersController < ApplicationController
 
 
     respond_to do |format|
-      format.html # show.html.erb
+      format.js {render :layout=>false}
+      format.html # index.html.erb
       format.xml  { render :xml => @user }
     end
   end
