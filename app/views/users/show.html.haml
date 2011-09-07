@@ -37,11 +37,11 @@
           %div{:class=>"profile_stats_label"}
             Issues created
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'create', @user.id]).group_by(&:item_id).count
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'create', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Issues removed
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Issue', 'destroy', @user.id]).group_by(&:item_id).count
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'destroy', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Current issues
           %div{:class=>"profile_stats_value"}  
@@ -49,11 +49,11 @@
           %div{:class=>"profile_stats_label"}
             Causal links connected
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'create', @user.id]).group_by(&:item_id).count
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'create', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Causal links deleted
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=?', 'Relationship', 'destroy', @user.id]).group_by(&:item_id).count
+            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'destroy', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Current causal links
           %div{:class=>"profile_stats_value"}  

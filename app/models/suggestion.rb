@@ -1,5 +1,8 @@
 class Suggestion < ActiveRecord::Base
 
+has_paper_trail :on=>[:update], :only=>[:status]
+
+
 belongs_to :issue
 
   def get_suggestions(url, issueid)

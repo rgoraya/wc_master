@@ -8,6 +8,7 @@ class IssuesController < ApplicationController
       format.js {render :layout=>false}
       format.html # index.html.erb
       format.xml  { render :xml => @issues }
+			format.json { render :json => @issues }
     end
   end
   
@@ -48,7 +49,6 @@ class IssuesController < ApplicationController
     
     @issue = Issue.new(params[:issue])
  
-    
     # A D D    N E W    C A U S E / E F F E C T
     if params[:action_carrier]
 
@@ -258,7 +258,7 @@ class IssuesController < ApplicationController
 	def versions
 		@issue = Issue.find(params[:id])
 		@versions = []
-		Version.find(:all, :conditions => ["item_type = 'Relationship'"]).each do |version|
+		Version.find(:all, :conditions => ["item_type=?", 'Relationship']).each do |version|
 			relationship = version.get_object #should return a Relationshiop object here
 			if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
 				@versions << version

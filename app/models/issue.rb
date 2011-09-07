@@ -52,7 +52,7 @@ class Issue < ActiveRecord::Base
   # SQL for getting Effects on the Issue page
   def effects
     Issue.find_by_sql "
-      select id, title, permalink, wiki_url
+      select id, title, permalink, description, short_url, wiki_url
       from issues
       where id in (
         select issue_id

@@ -35,7 +35,8 @@ Wikicausality::Application.routes.draw do
   match 'login' => 'user_sessions#new', :as => :login
   match 'logout' => 'user_sessions#destroy', :as => :logout
 
-
+	get "gate/get" => "gate#get"
+	post "gate/post" => "gate#post"
   
 
   # The priority is based upon order of creation:

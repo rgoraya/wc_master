@@ -2,6 +2,9 @@ class Version
 
 	cattr_reader :per_page
 	@@per_page = 5
+
+	belongs_to :user, :class_name=>'User', :foreign_key=>:whodunnit
+
 	
 	def get_object
 		object = nil		

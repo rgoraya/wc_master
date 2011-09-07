@@ -8,8 +8,8 @@ module RepManagement
 		  begin
 			  unless (!options.empty? &&
 					  (options.keys - [:action, :type, :id, :me, :you, :calculate, :undo, :vid]).empty? &&
-					  [:create, :destroy, :up, :down].include?(options[:action].to_sym) && 
-					  [:relationship, :issue, :reference].include?(options[:type].to_sym) &&
+					  [:create, :destroy, :update, :up, :down].include?(options[:action].to_sym) && 
+					  [:relationship, :issue, :suggestion, :reference].include?(options[:type].to_sym) &&
 					  [true, false].include?(options[:undo]) &&
 						[true, false].include?(options[:calculate])
 					  )
@@ -92,6 +92,13 @@ module RepManagement
 																																										(!options[:me].nil? && options[:me].integer?) && 
 																																										(!options[:you].nil? && options[:you].integer?))
 
+					when [:update, :suggestion]
+						raise ArgumentError, "Missing or invalid argument :id :me" unless ((!options[:id].nil? && options[:id].integer?) && 
+																																								(!options[:me].nil? && options[:me].integer?))
+						return false unless !(v = Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Suggestion', options[:id]]).first).nil?
+						if v.reify.status.eql?('N') && v.get_object.status.eql?('D')
+							score = [1,0]
+						end
 			  end
 				  
 				if options[:undo]
@@ -128,7 +135,7 @@ module RepManagement
 																					:type=>version.item_type.downcase.to_sym, \
 																					:id=>version.item_id.to_i, \
 																					:me=>version.whodunnit.to_i, \
-																					:you=>version.get_object.user_id.to_i, \
+																					:you=>(version.get_object.attributes.has_key?("user_id") ? version.get_object.user_id.to_i : nil), \
 																					:undo=>false, :calculate=>true)
 				end
 				if version.next
@@ -136,7 +143,7 @@ module RepManagement
 																					:type=>version.sibling_versions.first.item_type.downcase.to_sym, \
 																					:id=>version.sibling_versions.first.item_id.to_i, \
 																					:me=>version.sibling_versions.first.whodunnit.to_i, \
-																					:you=>version.get_object.user_id.to_i, \
+																					:you=>(version.get_object.attributes.has_key?("user_id") ? version.get_object.user_id.to_i : nil), \
 																					:vid=>version.id, \
 																					:undo=>true, \
 																					:calculate=>true)
