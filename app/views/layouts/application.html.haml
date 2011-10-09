@@ -51,11 +51,10 @@
                   Hello
                   = link_to current_user.username, edit_user_path(current_user.id), :title=>"edit profile"
                   
-<<<<<<< HEAD
                 = link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-5px 3px -10px 10px; border:0px;"
-=======
-                  -#= link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-3px 3px -10px 15px; border:0px;"
->>>>>>> 3fea20928d74f82d54f63aaa61ad184d4aa4d47f
+
+                /= link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-3px 3px -10px 15px; border:0px;"
+
 
                 = link_to 'My Issues', current_user, :title=>"view your issues", :class=>"login_button", :style=>"background-image:none; padding-left:0px;margin-left:0px;"
                                
