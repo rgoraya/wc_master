@@ -7,7 +7,11 @@ class Issue < ActiveRecord::Base
 
   # relations
   has_many :relationships, :dependent => :destroy
-  has_many :causes, :through => :relationships 
+  has_many :causes, :through => :relationships, :conditions => ['relationship_type IS NULL']
+  has_many :inhibitors, :source=> :cause ,:through => :relationships, :conditions => ['relationship_type = "I"']
+  has_many :supersets, :source=> :cause, :through => :relationships, :conditions => ['relationship_type = "H"']
+
+  # suggestions
   has_many :suggestions
   
   # The wiki_url has to be unique else do not create
@@ -57,9 +61,32 @@ class Issue < ActiveRecord::Base
       where id in (
         select issue_id
         from relationships
-        where cause_id = #{id})"
+        where cause_id = #{id} AND relationship_type IS NULL)"
   end
 
+  # SQL for getting Effects on the Issue page
+  def inhibited
+    Issue.find_by_sql "
+      select id, title, permalink, wiki_url
+      from issues
+      where id in (
+        select issue_id
+        from relationships
+        where cause_id = #{id} AND relationship_type = 'I')"
+  end
+
+  # SQL for getting Effects on the Issue page
+  def subsets
+    Issue.find_by_sql "
+      select id, title, permalink, wiki_url
+      from issues
+      where id in (
+        select issue_id
+        from relationships
+        where cause_id = #{id} AND relationship_type = 'H')"
+  end
+
+  # SQL for getting Effects on the Issue page
 
   #Method to get the link for Wikipedia from Google search results
   def get_wiki_url(query)
