@@ -21,7 +21,7 @@
         - @causes.each do |issue|
           %div{:class => "bubble"}
             %div{:class=>"relation_link"}
-              = issue.title
+              = link_to issue.title, issue_path(issue)
                   
             %div{:style => "clear:both"} 
 
@@ -96,10 +96,10 @@
 
         - @effects.each do |issue|
           - @relation = Relationship.where(:issue_id => issue.id, :cause_id=>@issue.id).select('id').first.id
-          - @references = Reference.where(:id => @relation).select('reference_content')
+          -# - @references = Reference.where(:id => @relation).select('reference_content')
           %div{:class=>"bubble"}
             %div{:class=>"relation_link"}
-              = issue.title
+              = link_to issue.title, issue_path(issue)
               
 
             %div{:style => "clear:both"}

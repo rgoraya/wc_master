@@ -45,6 +45,8 @@ gem "json"
 
 gem "lock"
 
+gem 'hirb'
+
 group :development do
 	gem "hpricot"
 end

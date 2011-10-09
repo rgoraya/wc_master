@@ -14,7 +14,8 @@
         %div{:style=>"clear:both"}
 
   %div{:style=>"margin:25px 0px 15px -10px; float:left;"}
-    = will_paginate (@issues, :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 )
+    = will_paginate (@issues)
+    -# , :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 )
 
   %div{:style=>"float:left; margin:18px 0px -15px 10px;", :id=>"issues_wait"}
 
@@ -128,7 +129,8 @@
         %div{:style=>"clear:both"}
 
 %div{:style=>"margin:25px 0px 15px -10px; float:left;"}
-  = will_paginate (@issues, :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 )
+  = will_paginate (@issues)
+  -#, :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 )
 
 %div{:style=>"float:left; margin:18px 0px -15px 10px;", :id=>"issues_wait"}
 

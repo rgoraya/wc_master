@@ -1,5 +1,5 @@
 class VersionsController < ApplicationController
-	
+	@@mutex = Mutex.new
 	require 'thread'	
 	
 	def index
@@ -11,7 +11,8 @@ class VersionsController < ApplicationController
 	end
 
 	def restore
-		Mutex.new.synchronize{ #mutex to ensure reverted_from is updated correctly
+		@@mutex.synchronize{ #mutex to ensure reverted_from is updated correctly
+		count = Version.all.count
 		version = Version.find(params[:id])
 		if !version.event.eql?('create')
 			version.reify.save
@@ -21,7 +22,18 @@ class VersionsController < ApplicationController
 			rescue ActiveRecord::RecordNotFound
 			end
 		end
-		Version.find(:all, :conditions => ["item_id = ? AND item_type = 'Relationship'", version.item_id], :order => 'created_at DESC').first.update_attributes(:reverted_from => version.id.to_s)
+		if Version.all.count > count
+			version.sibling_versions.last.update_attributes(:reverted_from => version.id.to_s)
+			RepManagement::Utils.reputation(:action=>version.sibling_versions.first.event.downcase.to_sym, \
+																			:type=>version.sibling_versions.first.item_type.downcase.to_sym, \
+																			:id=>version.sibling_versions.first.item_id.to_i, \
+																			:me=>version.sibling_versions.first.whodunnit.to_i, \
+																			:you=>version.get_object.user_id.to_i, \
+																			:vid=>version.id, \
+																			:undo=>true, \
+																			:calculate=>true)
+
+		end
 		}
 
 		respond_to do |format|

@@ -1,6 +1,8 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
-  
+
+= javascript_include_tag "sorttable.js"
+
 - content_for(:title, @user.username+"'s "+"Issues")
 
 #contentwrapper
@@ -62,40 +64,49 @@
             = @user.references.count  
         %div{:style=>"clear:both;"}
       
-      %div{:style=>"float:right; margin-top:40px; width:620px;"}    
+      %div{:style=>"float:right; margin-top:40px; width:680px;"}    
         %div{:class => "formheading_small", :style=>"margin-left:0px;background:#f5f5f5;color:#858585;"}
           Contribution
         - if @activities.count > 0
-          %div{:class => "formcontentdiv_small", :style=>"margin-left:0px;border-color:#f5f5f5;padding:25px 10px 10px 10px;"}
-            %div{:class=>"activity_container"}
-              -@activities.each do |activity|
-                %div{:style=>"float:left;"}
-                  - if activity[:action].include?('deleted')
-                    %span{:id=>"type", :style=>"color:red;"}
-                      = activity[:action]
-                  - else
-                    %span{:id=>"type", :style=>"color:green;"}
-                      = activity[:action]
-                  = activity[:type] +':'
-                  %span{:id=>"type", :style=>"color:#4EB8DB;"}
-                    = activity[:what]
-                - if activity[:score]
-                  - if !activity[:action].include?('deleted')
-                    - score = "+"+activity[:score].to_s
-                    %div{:id=>"score", :style=>"color:green;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
-                      = score
-                  - else
-                    - score = "-"+activity[:score].to_s
-                    %div{:id=>"score", :style=>"color:red;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;", :title=>'score earned'}
-                      = score
-                - else
-                  %div{:id=>"score", :style=>"color:#434343;float:right;width:30px; text-align:right; margin:0px 20px 0px 5px;"}
-                    = '--'
-                %div{:id=>"username", :style=>"color:#434343;float:right; margin:0px 5px 0px 0px;"}
-                  = !activity[:owner].nil? ? (link_to activity[:owner].username, user_path(activity[:owner]), :style=>'color:#4EB8DB;text-decoration:none;', :title=>'view owner') : '--'
-                %div{:style=>"clear:both;"}
+          %div{:class => "formcontentdiv_small", :style=>"margin-left:0px;border-color:#f5f5f5;padding:10px 0px 0px 0px;"}
+            %table{:class=>"sortable", :id=>"activities", :style=>"height:100%;width:100%;border:none;"}
+              %thead{:style=>"display:block;"}
+                %th{:id=>"action",:style=>"height:20px;width:405px;"} Action
+                %th{:id=>"time",:style=>"height:20px;width:125px;"} Time
+                %th{:id=>"owner",:style=>"height:20px;width:90px;"} Owner
+                %th{:id=>"score",:style=>"height:20px;width:50px;"} Score
+              %tbody{:style=>"height:134px;overflow:auto;"}
+                - @activities.each do |activity|
+                  %tr
+                    %td{:style=>"width:405px;overflow:hidden;text-overflow:ellipsis; text-align:left;padding:0px 0px 0px 2px;"}
+                      - if activity[:action].include?('deleted')
+                        - color='red'
+                      - else  
+                        - color='green'
+                      %span{:id=>"type", :style=>"color:#{color};"}
+                        = activity[:action] 
+                      = activity[:type] +': '
+                      %span{:id=>"type", :style=>"color:#4EB8DB;",:title=>"#{activity[:what]}"}
+                        = activity[:what].html_safe
+                    %td{:sorttable_customkey=>DateTime.parse(activity[:time].to_s).strftime('%Y%m%d%H%M%S').to_s, :style=>"width:125px;"}
+                      = DateTime.parse(activity[:time].to_s).strftime('%m/%d/%y-%R')
+                    %td{:style=>"width:90px;", :title=>'view owner'}
+                      = !activity[:owner].nil? ? (link_to activity[:owner].username, user_path(activity[:owner]), :style=>'color:#4EB8DB;text-decoration:none;', :title=>"view #{activity[:type]}'s owner") : '--'
+                    %td{:sorttable_customkey=>activity[:score].to_s, :style=>"width:50px;"}
+                      - if activity[:score]
+                        - if !activity[:action].include?('deleted')
+                          - score = "+"+activity[:score].abs.to_s
+                          %span{:id=>"score", :style=>"color:green;"}
+                            = score
+                        - else
+                          - score = "-"+activity[:score].abs.to_s
+                          %span{:id=>"score", :style=>"color:red;"}
+                            = score
+                      - else
+                        %span{:id=>"score", :style=>"color:#434343;"}
+                          = '--'
         -else
-          %div{:class => "formcontentdiv_small", :style=>"margin-left:0px;border-color:#f5f5f5;padding:25px 10px 10px 10px;"}
+          %div{:class => "formcontentdiv_small", :style=>"margin-left:0px;border-color:#f5f5f5;padding:21px 5px 10px 5px;"}
             %div{:class=>"activity_container", :style=>"font-weight:bold; color:#bebebe;"}
               No events have been recorded yet. 
         
@@ -193,6 +204,3 @@
   $("#confirm_popup").fadeIn('slow');
   }   
  
- 
-
-

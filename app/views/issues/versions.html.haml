@@ -22,16 +22,19 @@
 				- id = relationship.issue_id 
 			- if Issue.exists?(id)
 				%div{:class=>"version"}
-					%div{:style=>"float:left"}
-						%b ID:
-						= version.id
+					%div{:style=>"float:left;margin:2px 1px 2px 1px;"}
 						= link_to relation, "", :title=>"view this relationship", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-						- if !version.event.eql?('destroy')
-							added:
+						- if version.event.eql?('create')
+							%span{:style=>"color:green;"}
+								added:
+						- elsif version.event.eql?('update')
+							%span{:style=>"color:green;"}
+								updated:
 						- else
-							removed:
+							%span{:style=>"color:red;"}
+								removed:
 						= link_to Issue.find(id).title, issue_path(id), :title=>"view this issue", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-					%div{:style=>"float:right"}
+					%div{:style=>"float:right;margin:2px 1px 2px 1px;"}
 						At:
 						= link_to DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S'), issue_snapshot_path(@issue, :at => version.created_at), :title => "view snapshot at this time", :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
 						By: 
@@ -40,15 +43,17 @@
 						- else
 							Unknown
 					%div{:style=>"clear:left"}
-					%div{:style=>"float:left"}
+					%div{:style=>"float:left;margin:2px 1px 2px 1px;"}
+						%b
+							= version.id.to_s+':'
 						- if  version.reverted_from
 							Reverted from version:
 							= version.reverted_from
 						- else
 							New action
-					%div{:style=>"float:right"}
+					%div{:style=>"float:right;margin:2px 1px 2px 1px;"}
 						- if current_user
-							= link_to "Rollback", restore_version_path(version), :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :class=>"edit_button", :title=>"reset to this change", :style=>"background-image:none;padding:0px 5px 0px 5px;font-size:16;"
+							= link_to "Rollback", restore_version_path(version), :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :title=>"reset to this change", :style=>"background-image:none;color:#4EB8DB;text-decoration:none;font-weight:bold;margin:0px 5px 0px 5px;font-size:16;"
 					%div{:style=>"clear:both"}
 
 		%div{:class=>"pages"}

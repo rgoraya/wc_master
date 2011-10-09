@@ -355,7 +355,7 @@ z-index:0;
 .formcontentdiv{
 	clear:both;
 	border:1px solid #4DB8DB; 
-	padding: 35px 0px 15px 0px; 
+	padding: 35px 0px 10px 0px; 
 }
 
 .formheading_small {
@@ -2428,19 +2428,19 @@ img.btn_close {
 .profile_stats_label{
 	padding:4px;
 	font: bold 14px 'lucida grande',tahoma,verdana,arial,sans-serif;
-	width: 160px;
+	width: 170px;
 	float:left;
 	clear:both;
 	color:#858585;
-	margin-left:15px;
+	margin-left:5px;
 }
 
 .profile_stats_value{
 	float:left;
-	margin-left:10px;
+	margin-left:5px;
 	padding:4px;
 	font: bold 14px 'lucida grande',tahoma,verdana,arial,sans-serif;
-	width: 40px;
+	width: 20px;
 	color:#434343;
 }
 
@@ -2476,25 +2476,27 @@ img.btn_close {
 
 .version{
 	background: white;
-	font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-	padding: 8px 8px 5px 8px;
+	font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
+	padding: 5px 5px 5px 5px;
 	/*text-align:left;*/
 	font-size: 16px;
 	/*text-shadow:0 -1px 1px rgba(0,0,0,0.2);*/
-	color: #434343; 
+	color: #858585; 
 	border-style:solid;
-	border-color:#4EB8DB;
+	border-color:whiteSmoke;
 	border-width:1px;
 	
-	/*-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
-	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px; 
-	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px; */
-	/*margin-bottom:15px;*/
-	/* curved borders */
-	/*-webkit-border-radius: 5px;
-	-moz-border-radius:5px;*/
-	margin:10px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -khtml-border-radius: 5px;
+  border-radius: 5px;
+	margin:10px 0px 0px 0px;
 }
+.version:hover{
+color:#434343;
+background-color:whiteSmoke;
+}
+
 .vlink{
 color: #4EB8DB;
 }
@@ -2537,11 +2539,37 @@ color: #4EB8DB;
 	color:#4EB8DB;
 }
 
-table{}
-tr{}
-th, td{
-padding:5px 5px 5px 5px;
+table{
+border-collapse:collapse;
+color:#858585;
+border: 1px solid #858585;;
+margin:10px 0px 10px 0px;
 }
+thead, tbody, tfoot {
+border:none;
+display:block;
+}
+tr{}
+th{
+padding:none;
+border:none;
+text-align:center;
+color:#858585;
+background-color:none;
+border-bottom:1px solid whiteSmoke;
+}
+td{
+text-align:center;
+padding:0px 0px 0px 0px;
+}
+table#activities th:hover{
+color:#434343;
+background-color:whiteSmoke;
+}
+table.sortable th {
+cursor:default;
+}
+
 
 .locked_para a:hover{
 	text-decoration:underline;
