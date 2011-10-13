@@ -31,7 +31,7 @@
               = link_to "Issues", :issues, :title=>"view all issues", :class=>"login_button", :style=>"background-image:url('/images/system/goto.png');"
   
               /-if current_user                    
-              = link_to 'New', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');background-size:17px 17px;" 
+              = link_to 'New Issue', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');background-size:17px 17px;" 
                       
               /= link_to "About", :about, :title=>"about wikiCausality", :class=>"login_button"
               /= link_to "Contact", :contact, :title=>"contact", :class=>"login_button"
@@ -52,9 +52,6 @@
                   = link_to current_user.username, edit_user_path(current_user.id), :title=>"edit profile"
                   
                 = link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-5px 3px -10px 10px; border:0px;"
-
-                /= link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-3px 3px -10px 15px; border:0px;"
-
 
                 = link_to 'My Issues', current_user, :title=>"view your issues", :class=>"login_button", :style=>"background-image:none; padding-left:0px;margin-left:0px;"
                                

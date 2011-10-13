@@ -33,9 +33,11 @@
                 
   
       %div{:id=>"text_preview"}
-        %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
-        %div{:style=>"text-align:center;"}
-          Wikipedia text 
+        %div#title_holder
+        %div#text_holder  
+          %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
+          %div{:style=>"text-align:center;"}
+            Wikipedia text 
         
       %div{:style => "clear:both"}
         
@@ -361,9 +363,10 @@
   $("#btn_preview").click(function(){
   if ($("#query").val()){
   $("#results").empty();
-  $("#searchfield_reset").css({'display' : 'block'});
-  $("#query").attr("disabled", "disabled");
+  /$("#searchfield_reset").css({'display' : 'block'});
+  /$("#query").attr("disabled", "disabled");
   parseJSON();
+  $("#title_holder").html($("#query").val());
   $("#results").empty();
   }
   });
@@ -409,7 +412,7 @@
   // hide the save button
   $('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
+  $('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
   // show dummy image for image
   $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
   
@@ -420,8 +423,8 @@
   if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 
   // replace HTML of target Div
-  $('#text_preview').html(text_preview, 400);
-  form_descr = $("#text_preview").html();
+  $('#text_holder ').html(text_preview, 400);
+  form_descr = $("#text_holder ").html();
   // show the form 
   $("#form_container").css("display", "block");
 
@@ -458,24 +461,24 @@
   }   // END of function  
 
   // R E S E T    M O D A L
-  $("#searchfield_reset").click(function(){
-  $("#query").attr("disabled", "");
-  $("#query").val("");
+  /$("#searchfield_reset").click(function(){
+  /$("#query").attr("disabled", "");
+  /$("#query").val("");
   //hide save button
-  $('#form_container').css("display", "none");
+  /$('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia image</div>');  
+  /$('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia image</div>');  
   // show dummy image for image
-  $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia text</div>');
-  $("#searchfield_reset").css({'display' : 'none'});
-  });
+  /$('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia text</div>');
+  /$("#searchfield_reset").css({'display' : 'none'});
+  /});
   
 
   function valueCollect() {
   $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_')); 
   $("#frm_img_url").val($('#image_preview').find("img").attr("src"));
   $("#frm_descr").val(form_descr);
-  $("#frm_title").val($("#query").val());
+  $("#frm_title").val($("#title_holder").html());
   }
 
   $("#val_collector").live('click', function(){
@@ -503,36 +506,36 @@
   // CHECK THE CORRECT RADIO BUTTON DEPENDING ON SELECTION
   $(".cause_link, .effect_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").click(function(){
   var className = $(this).attr('class');
-  
+  var issueTitle = '#{@issue.title.to_s}'
   // CAUSE
   if (className.indexOf("cause") >= 0){
   $("#frm_action").val('C');
-  $("#modalhead").html('Add a Cause');  
+  $("#modalhead").html('Add a Cause of ' + issueTitle);  
   }
   // EFFECT
   else if (className.indexOf("effect") >= 0){    
   $("#frm_action").val('E');
-  $("#modalhead").html('Add an Effect');  
+  $("#modalhead").html('Add an Effect of ' + issueTitle);  
   }
   // INHIBITOR
   else if (className.indexOf("inhibitor") >= 0){ 
   $("#frm_action").val('I');
-  $("#modalhead").html('Add something that reduces this');  
+  $("#modalhead").html('Add something that reduces ' + issueTitle);  
   }
   // INHIBITED
   else if (className.indexOf("inhibited") >= 0) {
   $("#frm_action").val('R');
-  $("#modalhead").html('Add something reduced by this');  
+  $("#modalhead").html('Add something reduced by ' + issueTitle);  
   }
   // SUPERSET
   else if (className.indexOf("super") >= 0) {    
   $("#frm_action").val('P');
-  $("#modalhead").html('Add a Superset');  
+  $("#modalhead").html('Add a Superset of ' + issueTitle);  
   }
   //SUBSET
   else if (className.indexOf("sub") >= 0){       
   $("#frm_action").val('S');
-  $("#modalhead").html('Add a Subset');  
+  $("#modalhead").html('Add a Subset of ' + issueTitle);  
   }
   
   $("#query").val($(this).html().trim());
@@ -544,35 +547,36 @@
   $("#add_cause_btn, #add_effect_btn, #add_inhibitor_btn, #add_inhibited_btn, #add_super_btn, #add_sub_btn").click(function(){
   var idName = $(this).attr('id');
   /alert(idName);
+  var issueTitle = '#{@issue.title.to_s}'
   // CAUSE
   if (idName == "add_cause_btn"){
   $("#frm_action").val('C');
-  $("#modalhead").html('Add a Cause');  
+  $("#modalhead").html('Add a Cause of ' + issueTitle);   
   }
   // EFFECT
   else if (idName == "add_effect_btn"){    
   $("#frm_action").val('E');
-  $("#modalhead").html('Add an Effect');  
+  $("#modalhead").html('Add an Effect of ' + issueTitle);  
   }
   // INHIBITOR
   else if (idName == "add_inhibitor_btn"){ 
   $("#frm_action").val('I');
-  $("#modalhead").html('Add something that reduces this');  
+  $("#modalhead").html('Add something that reduces ' + issueTitle);  
   }
   // INHIBITED
   else if (idName == "add_inhibited_btn"){
   $("#frm_action").val('R');
-  $("#modalhead").html('Add something reduced by this');  
+  $("#modalhead").html('Add something reduced by ' + issueTitle);   
   }
   // SUPERSET
   else if (idName == "add_super_btn"){    
   $("#frm_action").val('P');
-  $("#modalhead").html('Add a Superset');  
+  $("#modalhead").html('Add a Superset of ' + issueTitle);   
   }
   //SUBSET
   else if (idName == "add_sub_btn"){       
   $("#frm_action").val('S');
-  $("#modalhead").html('Add a Subset');  
+  $("#modalhead").html('Add a Subset of ' + issueTitle);
   }
 
   $("#frm_type_id").val(#{@issue.id});
@@ -905,9 +909,10 @@
   $('#fade , .popup_block').fadeOut(function() {
   $('#fade, a.close').remove();  //fade them both out
   $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia image</div>');
-  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
-  $("#query").attr("disabled", ""); 
-  $("#searchfield_reset").css({'display' : 'none'}); 
+  $('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
+  $('#title_holder').html('');
+  /$("#query").attr("disabled", ""); 
+  /$("#searchfield_reset").css({'display' : 'none'}); 
   $('#form_container').css("display", "none");
   $("#query").val(''); 
   $("#confirm_popup").fadeOut('slow');    

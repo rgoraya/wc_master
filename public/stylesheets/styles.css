@@ -149,10 +149,10 @@ margin:0 auto;
 #wc_logo{
 	background-image:url("/images/system/wc_logo.png");
 	background-repeat: no-repeat;
-	background-size:200px 200px;
-	background-position:-5px -2px;
+	background-size:180px 180px;
+	background-position:0px 0px;
 	height:170px;
-	width:190px;
+	width:180px;
 	opacity:0.7;
 	margin:0px 10px 10px 0px;
 	float:left;
@@ -1982,6 +1982,14 @@ a.head_link:hover{
 	margin-bottom:50px;
 	margin-left:119px;
 }
+
+#title_holder{
+	text-align:left; 
+	padding:0px;
+	font: bold 20px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color:#858585; 
+}
+
 
 #image_preview{
 	float:left; 
