@@ -1,5 +1,6 @@
 !!!
 %html
+  
   %head
     %link{:href => "http://code.google.com/apis/maps/documentation/javascript/examples/default.css", :rel => "stylesheet", :type => "text/css"}/
     %link{:href => "/images/system/favicon.png", :rel => "shortcut icon"}/
@@ -10,80 +11,89 @@
     = javascript_include_tag :defaults
     = yield :include_custom_javascript_head
     = csrf_meta_tag
+  
   %body
     
     #container{:align => "center"}
+      .head
+        .headnav
+          .logocontainer
+            %a{:href=>"/", :title=>"Home"}
+              %img{:src=>"/images/system/thiscausesthat_logo.png", :style=>"margin-bottom:-12px"}
+              
+              
+          .navigation
+            %div{:id=>"quickaccess"}
+              
+              /= link_to "Home", :root, :title=>"go to homepage", :class=>"login_button", :style=>"background-image:url('/images/system/home.png');"
+               
+              
+              = link_to "Issues", :issues, :title=>"view all issues", :class=>"login_button", :style=>"background-image:url('/images/system/goto.png');"
+  
+              /-if current_user                    
+              = link_to 'New Issue', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');background-size:17px 17px;" 
+                      
+              /= link_to "About", :about, :title=>"about wikiCausality", :class=>"login_button"
+              /= link_to "Contact", :contact, :title=>"contact", :class=>"login_button"
+   
+              %div{:style=>"clear:both;"}
+
+          .navigation{:style=>"float:right;"}
+            %div{:id=>"authentication"}
+                
+              - if current_user
+                  
+                // retrieve gravatar image
+                - @hash = Digest::MD5.hexdigest(current_user.email).to_s
+                  
+                // say hello!
+                %div{:class=>"navigation_txt"}
+                  Hello
+                  = link_to current_user.username, edit_user_path(current_user.id), :title=>"edit profile"
+                  
+                = link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-5px 3px -10px 10px; border:0px;"
+
+                = link_to 'My Issues', current_user, :title=>"view your issues", :class=>"login_button", :style=>"background-image:none; padding-left:0px;margin-left:0px;"
+                               
+                = link_to "Logout", :logout, :title=>"logout", :class=>"login_button", :style=>"background-image:url('/images/system/logout.png');"
+                
+              - else
+                  
+                = link_to "Login", :login, :title=>"login", :class=>"login_button"
+                    
+                = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button", :style=>"background-image:url('/images/system/register.png');"
+                 
+              %div{:style=>"clear:both;"}
+            %div{:style=>"clear:both;"}           
+
+
+          
+          %div{:style=>"clear:both;"}  
+
       #content
         //.filler
-        .head
-          .headnav
-            %a{:href=>"/"}
-              %span{:style => "color:#BEBEBE",:class=>"logo_txt"}> Wiki
-              %span{:class=>"logo_txt"}Causality
-            %div{:class=>"navigation"}
-              
-              %div{:id=>"quickaccess"}
-                
-                = link_to "Home", :root, :title=>"go to homepage", :class=>"login_button", :style=>"background-image:url('/images/system/home.png');"
-                 
-                
-                = link_to "Issues", :issues, :title=>"view all issues", :class=>"login_button", :style=>"background-image:url('/images/system/goto.png');"
-
-                /-if current_user                    
-                = link_to 'New Issue', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');background-size:18px 17px;" 
-                      
-                /= link_to "About", :about, :title=>"about wikiCausality", :class=>"login_button"
-                /= link_to "Contact", :contact, :title=>"contact", :class=>"login_button"
- 
-                %div{:style=>"clear:both;"}
-              
-              %div{:id=>"authentication"}
-                
-                - if current_user
-                  
-                  // retrieve gravatar image
-                  - @hash = Digest::MD5.hexdigest(current_user.email).to_s
-                  
-                  // say hello!
-                  %div{:class=>"navigation_txt"}
-                    Hello
-                    = link_to current_user.username, edit_user_path(current_user.id), :title=>"edit profile"
-                  
-                  -#= link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-3px 3px -10px 15px; border:0px;"
-
-                  = link_to 'My Issues', current_user, :title=>"view your issues", :class=>"login_button", :style=>"background-image:none; padding-left:0px;margin-left:0px;"
-                               
-                  = link_to "Logout", :logout, :title=>"logout", :class=>"login_button", :style=>"background-image:url('/images/system/logout.png');"
-                
-                - else
-                  
-                  = link_to "Login", :login, :title=>"login", :class=>"login_button"
-                    
-                  = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button", :style=>"background-image:url('/images/system/register.png');"
-                 
-                %div{:style=>"clear:both;"}
-              %div{:style=>"clear:both;"}      
+     
         = yield
-      #footer
-        %span{:style => "color:#BEBEBE;font-size:18px;", :class=>"logo_txt"}> Wiki 
-        %span{:style => "font-size:18px;", :class=>"logo_txt" } Causality
-        is a research project by 
-        %a{:href=>"http://www.ics.uci.edu/~wmt/socialCodeGroup/", :title=>"Social code group website", :target=>"_blank"}
-          Social Code Group 
-        at 
-        %a{:href=>"http://www.uci.edu/", :title=>"UCI website", :target=>"_blank"}
-          UC, Irvine.
-        The Site uses 
-        /%img{:src=>"/images/system/mediawiki.png", :style=>"height:32px; margin-bottom:-12px"}
-        %a{:href=>"http://www.mediawiki.org/wiki/API:Main_page", :title=>"MediaWiki API website", :target=>"_blank"}
-          MediaWiki, 
-        /%img{:src=>"/images/system/google.png", :style=>"height:22px; margin-bottom:-7px"}
-        %a{:href=>"http://code.google.com/apis/maps/index.html", :title=>"Google Maps API website", :target=>"_blank"}  
-          Google Maps
-        and 
-        /%img{:src=>"/images/system/panoramio.png", :style=>"height:32px; margin-bottom:-12px"}
-        %a{:href=>"http://www.panoramio.com/api/widget/api.html", :title=>"Panoramio API website", :target=>"_blank"}
-          Panoramio APIs
+        #footer
+          %span{:style => "color:#BEBEBE;font-size:18px;", :class=>"logo_txt"}> Wiki 
+          %span{:style => "font-size:18px;", :class=>"logo_txt" } Causality
+          is a research project by 
+          %a{:href=>"http://www.ics.uci.edu/~wmt/socialCodeGroup/", :title=>"Social code group website", :target=>"_blank"}
+            Social Code Group 
+          at 
+          %a{:href=>"http://www.uci.edu/", :title=>"UCI website", :target=>"_blank"}
+            UC, Irvine.
+          The Site uses 
+          /%img{:src=>"/images/system/mediawiki.png", :style=>"height:32px; margin-bottom:-12px"}
+          %a{:href=>"http://www.mediawiki.org/wiki/API:Main_page", :title=>"MediaWiki API website", :target=>"_blank"}
+            MediaWiki, 
+          /%img{:src=>"/images/system/google.png", :style=>"height:22px; margin-bottom:-7px"}
+          %a{:href=>"http://code.google.com/apis/maps/index.html", :title=>"Google Maps API website", :target=>"_blank"}  
+            Google Maps
+          and 
+          /%img{:src=>"/images/system/panoramio.png", :style=>"height:32px; margin-bottom:-12px"}
+          %a{:href=>"http://www.panoramio.com/api/widget/api.html", :title=>"Panoramio API website", :target=>"_blank"}
+            Panoramio APIs
       
            
       // The Notice Div

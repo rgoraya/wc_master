@@ -1,15 +1,21 @@
 #popup_name.popup_block
-  .formheading_small
+  #modalhead.formheading_small
     Add New Causal Link
   .formcontentdiv_small{:style=>"padding-left:0px; padding-right:0px;"}
     // Title of the Issue
     %div{:class =>"title_edit", :style=>"padding-top:25px; margin-top:-25px;"}
            
+      // Search text-field     
       %div{:style=>"float:left"}  
-        %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px" ,:placeholder => "Enter an Issue name. . .", :autocomplete=>"off"}
-          
+        %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px;" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
+      
+      // Hidden div holding the reset button
+      %div{:id=>"searchfield_reset"}         
+
+      // Spinner
       %div{:style=>"float:left; margin:2px 10px -10px 25px;", :id=>"wait"}
 
+      // Preview Button
       %div{:style=>"float:right"}
         %input{:type=>"button", :id=>"btn_preview", :class=>"preview_button", :value=>"Preview"}          
 
@@ -27,9 +33,11 @@
                 
   
       %div{:id=>"text_preview"}
-        %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
-        %div{:style=>"text-align:center;"}
-          Wikipedia text 
+        %div#title_holder
+        %div#text_holder  
+          %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
+          %div{:style=>"text-align:center;"}
+            Wikipedia text 
         
       %div{:style => "clear:both"}
         
@@ -58,11 +66,11 @@
             %form
               %input{:type=>"hidden", :name=>"action_carrier", :id=>"frm_action"}
               %input{:type=>"hidden", :name=>"id_carrier", :id=>"frm_type_id"}
-              %input#rad_cause{:type => "radio", :name=>"causality_rad", :value=>"Cause"}
-              %span Cause
-              %input#rad_effect{:type => "radio", :name=>"causality_rad", :value=>"Effect"} 
-              %span Effect
-          = f.submit 'Create', :class=>"save_button", :name=>"save_issue_rel_button", :id=>"val_collector", :style=>"float:right;"
+              /%input#rad_cause{:type => "radio", :name=>"causality_rad", :value=>"Cause"}
+              /%span Cause
+              /%input#rad_effect{:type => "radio", :name=>"causality_rad", :value=>"Effect"} 
+              /%span Effect
+          = f.submit 'Create', :class=>"save_button", :name=>"save_issue_rel_button", :id=>"val_collector"
           %div{:style => "clear:both"}
 
 
@@ -82,15 +90,37 @@
   // Make sure the DOM is loaded
   $(document).ready(function(){
 
+  $(".mapcontainer").hide();
+
   // I N I T I A L    F O R M A T T I N G / P R O C E S S I N G
   
+  // (0.) Align the blobs and arrows Correctly based on height of the Issueblock
+  $('img.wikiimage').ready(function(){
+  var block_height = $('.issueblock').height();
+  var arrow_height = $('.arrow-carrier-right').height();
+  var blob_height  = $('.blob-carrier').height();
+  var right_height = $('.arrow-leftward').height();
+  
+  var arrow_marg_top = (block_height - arrow_height)/2
+  var blob_marg_top  = (block_height - blob_height - 42)/2
+  var right_marg_top = (block_height - right_height - 40)/2
+  
+  $('.arrow-carrier-right, .arrow-carrier-left').animate({'margin-top': arrow_marg_top});
+  $('.blob-carrier').animate({'margin-top': blob_marg_top});
+  $('.arrow-leftward').animate({'margin-top': right_marg_top});
+  /$(".blue_banner").effect("highlight", {color: '#4DB8DB'}, 1000);
+  
+  // Ensure that the height of Map remains same as the rest of the content
+  var mapcontainer_height = $('.wikicontent').height();
+  $('#map_canvas').css({'height': mapcontainer_height});
+  });
+  
   // (1.) Ensure that Panoramio Has loaded the pictures
-  $("#panoramio_iframe").load(function(){
+  //$("#panoramio_iframe").load(function(){
   // Function for Loading Maps 
   // Doing this after the iFrame loads 
-  // to keep the height of map_canvas consistent.
-  initialize();  
-  });
+  // to keep the height of map_canvas consistent.  
+  //});
 
   // (2.) D I S M I S S    T H E    F L A S H    N O T I C E
   if ($('#notice').html().trim()) {
@@ -102,16 +132,44 @@
   $("#notice_container").slideUp(100);
   });
   
-  // (3.) Show or Hide the Scroll buttons if there were some 
-  // suggestions found and they are more than 2 rows
-  if ($("#cause_carousel1").height() > 62){
-  $("#previous1,#next1").css({display : 'inline'});
+  // (3.) Show or Hide the Suggestion Scroll buttons if required
+
+  if ($(".cause_carousel").height() > 30){
+  $(".cause_scroller").css({display : 'inline'});
   }
 
-  if ($("#cause_carousel").height() > 62){
-  $("#previous,#next").css({display : 'inline'});
+  if ($(".effect_carousel").height() > 30){
+  $(".effect_scroller").css({display : 'inline'});
   }
 
+  if ($(".inhibitor_carousel").height() > 30){
+  $(".inhibitor_scroller").css({display : 'inline'});
+  }
+  
+  if ($(".inhibited_carousel").height() > 30){
+  $(".inhibited_scroller").css({display : 'inline'});
+  }
+    
+
+  // (4.) Show or Hide the Accepted Scroll buttons if required
+  if ($(".accepted_causes").height() > 64){
+  $(".cause_scroll").css({display : 'block'});
+  }
+
+  if ($(".accepted_effects").height() > 64){
+  $(".effect_scroll").css({display : 'block'});
+  }
+
+  if ($(".accepted_inhibitors").height() > 64){
+  $(".inhibitor_scroll").css({display : 'block'});
+  }
+
+  if ($(".accepted_inhibited").height() > 64){
+  $(".inhibited_scroll").css({display : 'block'});
+  }
+  
+
+      
   // D E L E T E     C O N F I R M A T I O N
   var href_carrier = '';
   var bubble_to_remove = '';
@@ -303,11 +361,14 @@
   //  R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
   
   $("#btn_preview").click(function(){
+  if ($("#query").val()){
   $("#results").empty();
-  //$("#rad_cause, #rad_effect").removeAttr("checked");
-  //$("#val_collector").attr("disabled", "disabled");
+  /$("#searchfield_reset").css({'display' : 'block'});
+  /$("#query").attr("disabled", "disabled");
   parseJSON();
+  $("#title_holder").html($("#query").val());
   $("#results").empty();
+  }
   });
 
   //  P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
@@ -351,7 +412,7 @@
   // hide the save button
   $('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
+  $('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
   // show dummy image for image
   $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
   
@@ -362,8 +423,8 @@
   if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 
   // replace HTML of target Div
-  $('#text_preview').html(text_preview, 400);
-  form_descr = $("#text_preview").html();
+  $('#text_holder ').html(text_preview, 400);
+  form_descr = $("#text_holder ").html();
   // show the form 
   $("#form_container").css("display", "block");
 
@@ -399,16 +460,32 @@
   
   }   // END of function  
 
+  // R E S E T    M O D A L
+  /$("#searchfield_reset").click(function(){
+  /$("#query").attr("disabled", "");
+  /$("#query").val("");
+  //hide save button
+  /$('#form_container').css("display", "none");
+  // replace HTML of target Div
+  /$('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia image</div>');  
+  // show dummy image for image
+  /$('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia text</div>');
+  /$("#searchfield_reset").css({'display' : 'none'});
+  /});
+  
+
   function valueCollect() {
   $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_')); 
   $("#frm_img_url").val($('#image_preview').find("img").attr("src"));
   $("#frm_descr").val(form_descr);
-  $("#frm_title").val($("#query").val());
+  $("#frm_title").val($("#title_holder").html());
   }
 
   $("#val_collector").live('click', function(){
-  if ($("#rad_cause").is(':checked') || $("#rad_effect").is(':checked'))
-  { valueCollect();}
+  /if ($("#rad_cause").is(':checked') || $("#rad_effect").is(':checked'))
+  /{ 
+  valueCollect();
+  /}
   });
 
 
@@ -427,32 +504,84 @@
   });
   
   // CHECK THE CORRECT RADIO BUTTON DEPENDING ON SELECTION
-  $(".cause_link").click(function(){
-  $("#query").val($(this).html().trim());
-  $('#rad_cause').attr('checked', 'checked');  
+  $(".cause_link, .effect_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").click(function(){
+  var className = $(this).attr('class');
+  var issueTitle = '#{@issue.title.to_s}'
+  // CAUSE
+  if (className.indexOf("cause") >= 0){
   $("#frm_action").val('C');
+  $("#modalhead").html('Add a Cause of ' + issueTitle);  
+  }
+  // EFFECT
+  else if (className.indexOf("effect") >= 0){    
+  $("#frm_action").val('E');
+  $("#modalhead").html('Add an Effect of ' + issueTitle);  
+  }
+  // INHIBITOR
+  else if (className.indexOf("inhibitor") >= 0){ 
+  $("#frm_action").val('I');
+  $("#modalhead").html('Add something that reduces ' + issueTitle);  
+  }
+  // INHIBITED
+  else if (className.indexOf("inhibited") >= 0) {
+  $("#frm_action").val('R');
+  $("#modalhead").html('Add something reduced by ' + issueTitle);  
+  }
+  // SUPERSET
+  else if (className.indexOf("super") >= 0) {    
+  $("#frm_action").val('P');
+  $("#modalhead").html('Add a Superset of ' + issueTitle);  
+  }
+  //SUBSET
+  else if (className.indexOf("sub") >= 0){       
+  $("#frm_action").val('S');
+  $("#modalhead").html('Add a Subset of ' + issueTitle);  
+  }
+  
+  $("#query").val($(this).html().trim());
   $("#frm_type_id").val(#{@issue.id});
   });
 
-  $(".effect_link").click(function(){
-  $("#query").val($(this).html().trim());
-  $('#rad_effect').attr('checked', 'checked');
-  $("#frm_action").val('E');
-  $("#frm_type_id").val(#{@issue.id});
-  });  
 
-  $("#add_cause_btn").click(function(){
-  $('#rad_cause').attr('checked', 'checked');
+
+  $("#add_cause_btn, #add_effect_btn, #add_inhibitor_btn, #add_inhibited_btn, #add_super_btn, #add_sub_btn").click(function(){
+  var idName = $(this).attr('id');
+  /alert(idName);
+  var issueTitle = '#{@issue.title.to_s}'
+  // CAUSE
+  if (idName == "add_cause_btn"){
   $("#frm_action").val('C');
+  $("#modalhead").html('Add a Cause of ' + issueTitle);   
+  }
+  // EFFECT
+  else if (idName == "add_effect_btn"){    
+  $("#frm_action").val('E');
+  $("#modalhead").html('Add an Effect of ' + issueTitle);  
+  }
+  // INHIBITOR
+  else if (idName == "add_inhibitor_btn"){ 
+  $("#frm_action").val('I');
+  $("#modalhead").html('Add something that reduces ' + issueTitle);  
+  }
+  // INHIBITED
+  else if (idName == "add_inhibited_btn"){
+  $("#frm_action").val('R');
+  $("#modalhead").html('Add something reduced by ' + issueTitle);   
+  }
+  // SUPERSET
+  else if (idName == "add_super_btn"){    
+  $("#frm_action").val('P');
+  $("#modalhead").html('Add a Superset of ' + issueTitle);   
+  }
+  //SUBSET
+  else if (idName == "add_sub_btn"){       
+  $("#frm_action").val('S');
+  $("#modalhead").html('Add a Subset of ' + issueTitle);
+  }
+
   $("#frm_type_id").val(#{@issue.id});
   });
   
-  $("#add_effect_btn").click(function(){
-  $('#rad_effect').attr('checked', 'checked');
-  $("#frm_action").val('E');
-  $("#frm_type_id").val(#{@issue.id});
-  });
-
   // S A V E    R E F E R E N C E S
   $(".save_reference").click(function(){
   
@@ -497,7 +626,7 @@
   });
 
   // T O O L - T I P 
-  $(".effect_link, .cause_link").live('mouseover', function(){
+  $(".effect_link, .cause_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").live('mouseover', function(){
   $('.txt-tooltip').empty();
   $('.img-tooltip').empty();
   var parent_div = ($(this).parents('.cause_effect_container'))
@@ -505,7 +634,7 @@
   var sug_top    = sug_offset.top;
   var sug_left   = sug_offset.left;
   var sug_height = parent_div.height() + 2;
-  var calc_left  = sug_left - 284 + ((parent_div.width()+6)/2); 
+  var calc_left  = sug_left - 154 + ((parent_div.width()+6)/2); 
   
   tooltip_preview_text = $(this).text().trim();
   
@@ -520,7 +649,7 @@
    
   });
 
-  $(".effect_link, .cause_link").live('mouseleave', function(){
+  $(".effect_link, .cause_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").live('mouseleave', function(){
   $('.txt-tooltip').empty();
   $('.img-tooltip').empty();
   $('.img-tooltip').css({'display' : 'none'});
@@ -577,46 +706,169 @@
 
 
   // S C R O L L - D I V
-  var current_marg = 0;
-  var current_marg1 = 0;
-  var step = 62;
-
-  // Next and previous functions for Causes Scroller  
-  $("#next").click(function(){
-  //alert($("#cause_carousel").height());
-  if (Math.abs(current_marg) < ($("#cause_carousel").height())-62){
+ 
+  var step = 30;
+  var accepted_step = 64; 
   
-  $('#cause_carousel').animate({marginTop:current_marg - step}, 600);
+  // Next and previous functions for Suggestion Scrollers  
+  $(".next").click(function(){
+  
+  var carousalDiv;
+  var parentDiv = $(this).parents().eq(1);
+  var className = $(parentDiv).attr('class');
+
+  // CAUSE
+  if (className.indexOf("cause") >= 0){
+  carousalDiv = $('ul.cause_carousel');
+  }
+  // EFFECT
+  else if (className.indexOf("effect") >= 0){    
+  carousalDiv = $('ul.effect_carousel'); 
+  }
+  // INHIBITOR
+  else if (className.indexOf("inhibitor") >= 0){ 
+  carousalDiv = $('ul.inhibitor_carousel');  
+  }
+  // INHIBITED
+  else if (className.indexOf("inhibited") >= 0) {
+  carousalDiv = $('ul.inhibited_carousel'); 
+  }
+  // SUPERSET
+  else if (className.indexOf("super") >= 0) {    
+  carousalDiv = $('ul.super_carousel'); 
+  }
+  //SUBSET
+  else if (className.indexOf("sub") >= 0){       
+  carousalDiv = $('ul.sub_carousel');
+  }
+  
+  var current_marg_txt = ($(carousalDiv).css('margin-top'))
+  var current_marg = parseInt(current_marg_txt.substring(0, current_marg_txt.length - 2))
+  
+  if (Math.abs(current_marg) < ($(carousalDiv).height())-30){
+  
+  $(carousalDiv).animate({marginTop:current_marg - step}, 100);
   current_marg = current_marg - step;
   }
   });
 
-  $("#previous").click(function(){
+  $(".previous").click(function(){
+
+  var carousalDiv;
+  var parentDiv = $(this).parents().eq(1);
+  var className = $(parentDiv).attr('class');
+
+  // CAUSE
+  if (className.indexOf("cause") >= 0){
+  carousalDiv = $('ul.cause_carousel');
+  }
+  // EFFECT
+  else if (className.indexOf("effect") >= 0){    
+  carousalDiv = $('ul.effect_carousel'); 
+  }
+  // INHIBITOR
+  else if (className.indexOf("inhibitor") >= 0){ 
+  carousalDiv = $('ul.inhibitor_carousel');  
+  }
+  // INHIBITED
+  else if (className.indexOf("inhibited") >= 0) {
+  carousalDiv = $('ul.inhibited_carousel'); 
+  }
+  // SUPERSET
+  else if (className.indexOf("super") >= 0) {    
+  carousalDiv = $('ul.super_carousel'); 
+  }
+  //SUBSET
+  else if (className.indexOf("sub") >= 0){       
+  carousalDiv = $('ul.sub_carousel');
+  }
+  
+  var current_marg_txt = ($(carousalDiv).css('margin-top'))
+  var current_marg = parseInt(current_marg_txt.substring(0, current_marg_txt.length - 2))
   
   if (current_marg < 0){
   
-  $('#cause_carousel').animate({marginTop:current_marg + step}, 600);
+  $(carousalDiv).animate({marginTop:current_marg + step}, 100);
   current_marg = current_marg + step;
+  /alert(current_marg);
   }
   });
 
-  // Next and previous functions for Effects Scroller
-  $("#next1").click(function(){
-  
-  if (Math.abs(current_marg1) < ($("#cause_carousel1").height())-62){
-  
-  $('#cause_carousel1').animate({marginTop:current_marg1 - step}, 600);
-  current_marg1 = current_marg1 - step;
+
+  // Next and previous functions for accepted Scrollers
+  $(".up_scroll").click(function(){
+
+  var carousalDiv;
+  var parentDiv = $(this).parents().eq(1);
+  var className = $(parentDiv).attr('class');
+  // CAUSE
+  if (className.indexOf("cause") >= 0){
+  carousalDiv = $('.accepted_causes');
   }
+  // EFFECT
+  else if (className.indexOf("effect") >= 0){    
+  carousalDiv = $('.accepted_effects'); 
+  }
+  // INHIBITOR
+  else if (className.indexOf("inhibitor") >= 0){ 
+  carousalDiv = $('.accepted_inhibitors');  
+  }
+  // INHIBITED
+  else if (className.indexOf("inhibited") >= 0) {
+  carousalDiv = $('.accepted_inhibited'); 
+  }
+  // SUPERSET
+  else if (className.indexOf("super") >= 0) {    
+  carousalDiv = $('.accepted_supersets'); 
+  }
+  //SUBSET
+  else if (className.indexOf("sub") >= 0){       
+  carousalDiv = $('.accepted_subsets');
+  }
+  var current_marg_txt = ($(carousalDiv).css('margin-top'))  
+  var current_marg = parseInt(current_marg_txt.substring(0, current_marg_txt.length - 2))  
+
+  if (current_marg < 0){  
+  $(carousalDiv).animate({marginTop:current_marg + accepted_step}, 100);
+  }
+
   });
 
-  $("#previous1").click(function(){
-  
-  if (current_marg1 < 0){
-  
-  $('#cause_carousel1').animate({marginTop:current_marg1 + step}, 600);
-  current_marg1 = current_marg1 + step;
+  $(".down_scroll").click(function(){
+  var carousalDiv;
+  var parentDiv = $(this).parents().eq(1);
+  var className = $(parentDiv).attr('class');
+  // CAUSE
+  if (className.indexOf("cause") >= 0){
+  carousalDiv = $('.accepted_causes');
   }
+  // EFFECT
+  else if (className.indexOf("effect") >= 0){    
+  carousalDiv = $('.accepted_effects'); 
+  }
+  // INHIBITOR
+  else if (className.indexOf("inhibitor") >= 0){ 
+  carousalDiv = $('.accepted_inhibitors');  
+  }
+  // INHIBITED
+  else if (className.indexOf("inhibited") >= 0) {
+  carousalDiv = $('.accepted_inhibited'); 
+  }
+  // SUPERSET
+  else if (className.indexOf("super") >= 0) {    
+  carousalDiv = $('.accepted_supersets'); 
+  }
+  //SUBSET
+  else if (className.indexOf("sub") >= 0){       
+  carousalDiv = $('.accepted_subsets');
+  }
+  var current_marg_txt = ($(carousalDiv).css('margin-top'))
+  var current_marg = parseInt(current_marg_txt.substring(0, current_marg_txt.length - 2))
+  
+  if (Math.abs(current_marg) < ($(carousalDiv).height())-64){  
+  $(carousalDiv).animate({marginTop:current_marg - accepted_step}, 100);
+  }  
+  
   });
 
 
@@ -657,7 +909,10 @@
   $('#fade , .popup_block').fadeOut(function() {
   $('#fade, a.close').remove();  //fade them both out
   $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia image</div>');
-  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
+  $('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
+  $('#title_holder').html('');
+  /$("#query").attr("disabled", ""); 
+  /$("#searchfield_reset").css({'display' : 'none'}); 
   $('#form_container').css("display", "none");
   $("#query").val(''); 
   $("#confirm_popup").fadeOut('slow');    
@@ -667,36 +922,76 @@
   });
 
   // O N E    T O U C H    A C C E P T    C A U S E    A N D    E F F E C T     
-  $('a.accept_cause').click(function(){
+  $('a.accept_cause, a.accept_effect, a.accept_inhibitor, a.accept_inhibited, a.accept_super, a.accept_sub').click(function(){
+
+  var className = $(this).attr('class');
+  
+  // CAUSE
+  if (className.indexOf("cause") >= 0){
+  $("#frm_action").val('C'); 
+  }
+  // EFFECT
+  else if (className.indexOf("effect") >= 0){    
+  $("#frm_action").val('E');  
+  }
+  // INHIBITOR
+  else if (className.indexOf("inhibitor") >= 0){ 
+  $("#frm_action").val('I');  
+  }
+  // INHIBITED
+  else if (className.indexOf("inhibited") >= 0) {
+  $("#frm_action").val('R'); 
+  }
+  // SUPERSET
+  else if (className.indexOf("super") >= 0) {    
+  $("#frm_action").val('P'); 
+  }
+  //SUBSET
+  else if (className.indexOf("sub") >= 0){       
+  $("#frm_action").val('S'); 
+  }
+
   $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + (accept_link_text).split(' ').join('_')); 
   $("#frm_img_url").val($('#onetouch_image').find("img").attr("src"));
   $("#frm_descr").val($('#onetouch_text').html());
   $("#frm_title").val(accept_link_text);
   $("#frm_type_id").val(#{@issue.id});
-  $("#frm_action").val('C')
 
   $("#new_issue").submit();
-  /alert('url: ' + $("#frm_wiki_url").val() + ' img: ' + $("#frm_img_url").val() + ' descr: ' + $("#frm_descr").val() + ' title: ' + $("#frm_title").val() + ' action: ' + $("#frm_action").val() + ' id of this issue ' + $("#frm_type_id").val() + '    ' + $(this).attr('class'));
-  
+
   return false;
   });
 
-  $('a.accept_effect').click(function(){
-  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + (accept_link_text).split(' ').join('_')); 
-  $("#frm_img_url").val($('#onetouch_image').find("img").attr("src"));
-  $("#frm_descr").val($('#onetouch_text').html());
-  $("#frm_title").val(accept_link_text);
-  $("#frm_type_id").val(#{@issue.id});
-  $("#frm_action").val('E')
-  $("#new_issue").submit();
-  /alert('url: ' + $("#frm_wiki_url").val() + ' img: ' + $("#frm_img_url").val() + ' descr: ' + $("#frm_descr").val() + ' title: ' + $("#frm_title").val() + ' action: ' + $("#frm_action").val() + ' id of this issue ' + $("#frm_type_id").val() + '    ' + $(this).attr('class'));
-  
-  return false;
-  });
 
-  $('.accept_cause').mouseover(function(){
-  // get the title of query
-  accept_link_text = $(this).siblings(".cause_link").text().trim();
+  $('.accept_cause, a.accept_effect, a.accept_inhibitor, a.accept_inhibited, a.accept_super, a.accept_sub').mouseover(function(){
+
+  var className = $(this).attr('class');
+  
+  // CAUSE
+  if (className.indexOf("cause") >= 0){
+  accept_link_text = $(this).siblings(".cause_link").text().trim(); 
+  }
+  // EFFECT
+  else if (className.indexOf("effect") >= 0){    
+  accept_link_text = $(this).siblings(".effect_link").text().trim(); 
+  }
+  // INHIBITOR
+  else if (className.indexOf("inhibitor") >= 0){ 
+  accept_link_text = $(this).siblings(".inhibitor_link").text().trim();
+  }
+  // INHIBITED
+  else if (className.indexOf("inhibited") >= 0) {
+  accept_link_text = $(this).siblings(".inhibited_link").text().trim();
+  }
+  // SUPERSET
+  else if (className.indexOf("super") >= 0) {    
+  accept_link_text = $(this).siblings(".super_link").text().trim();
+  }
+  //SUBSET
+  else if (className.indexOf("sub") >= 0){       
+  accept_link_text = $(this).siblings(".sub_link").text().trim();
+  }
+
   // create json request url
   var url_to_accept = $.trim(url_img_name+encodeURIComponent(accept_link_text)+'&callback=?');
   // parse the JSON
@@ -704,20 +999,6 @@
   //alert($('.img-tooltip').html());
   });
 
-  $('.accept_effect').mouseover(function(){
-
-  // get the title of query
-  accept_link_text = $(this).siblings(".effect_link").text().trim();
-  // create json request url
-  var url_to_accept = $.trim(url_img_name+encodeURIComponent(accept_link_text)+'&callback=?');
-  // parse the JSON
-  parseJSON_accept(url_to_accept);
-  //alert($('.img-tooltip').html());
-  });
-
-
-  $("a.accept_cause, a.accept_effect").mouseout(function(){
-  });
 
   function parseJSON_accept(url_to_accept) {
   // parse the json
@@ -788,6 +1069,63 @@
   }   // END of function     
   
   
+  $(".img-expand").click(function(){
+  initialize();  
+  $(".wikicontent").hide();
+  $(".mapcontainer").show();
+  });
+
+  $(".descr-expand").click(function(){ 
+  $(".mapcontainer").hide();
+  $("#map_canvas").empty();
+  map = null;
+  $(".wikicontent").show();
+  });
+
+  /$(".blob-carrier").mouseover(function(){
+  
+  /$(".arrow-carrier-left, .arrow-carrier-right").fadeIn(1000, function(){
+  /$(".arrow-carrier-left, .arrow-carrier-right").fadeOut()
+  /});           
+  /});
+
+  /$(".blob-carrier").mouseleave(function(){
+  /});
+
+
+  $(".blob-carrier").click(function(){ 
+  $("#wikiInfo").toggle();
+  $("#superclass_container").toggle();
+  $("#effects_inhibiteds_container").toggle();
+  $("#subclass_container").toggle();
+
+  $("#blob_sub").toggle();
+  $("#blob_effect_inhibit").toggle();
+  $("#blob_super").toggle();
+  $("#blob_cause_inhibit").toggle();
+
+  $("#arrow_tail_after").toggle();
+  $("#arrow_down_after").toggle();
+
+  // Show hide Scroll buttons if required
+  if ($(".accepted_supersets").height() > 64){
+  $(".super_scroll").css({display : 'inline'});
+  }
+  
+  if ($(".accepted_subsets").height() > 64){
+  $(".sub_scroll").css({display : 'inline'});
+  }
+
+  if ($(".super_carousel").height() > 30){
+  $(".super_scroller").css({display : 'inline'});
+  }
+  
+  if ($(".sub_carousel").height() > 30){
+  $(".sub_scroller").css({display : 'inline'});
+  }    
+
+  $(".blue_banner").effect("highlight", {color: '#4DB8DB'}, 1000);
+  });
   
   
   });  //  E N D    O F    D O C U M E N T     L O A D
@@ -802,9 +1140,9 @@
   }  
   
   var panoramioLayer;
-  
+  var map = null;
   function initialize() {
-  var nyHarbor = new google.maps.LatLng(34.885931,-15.117187);
+  var nyHarbor = new google.maps.LatLng(52.696361,-0.703125);
   var myOptions = {
   zoom: 1,
   center: nyHarbor,
@@ -812,7 +1150,7 @@
   };
 
 
- 
+  /return new google.maps.Map($('#mapCanvas')[0], myOptions); 
   var map = new google.maps.Map(
   document.getElementById("map_canvas"),
   myOptions);
@@ -820,9 +1158,10 @@
   panoramioLayer = new google.maps.panoramio.PanoramioLayer(); 
   panoramioLayer.setMap(map);
   panoramioLayer.setTag('#{@issue.title}');
-  
+  /var elem_height = $('.wikicontent').height()-22;
+  /var elem_marg_top = -1 * elem_height
   // Ensure that the height of Map remains same as the rest of the content
-  $('#map_canvas').css({height: $('.wikicontent').height()-22});
+  /$('#map_canvas').css({'height': elem_height});
 
   }
 
@@ -832,7 +1171,7 @@
 
   //Show the spinner
   $('.txt-tooltip').css({'display' : 'block'});
-  $("#tool_tip .txt-tooltip").html('<img border="0" src="/images/system/spinnerdarkgray.gif" width="24px"/>'); 
+  $("#tool_tip .txt-tooltip").html('<img border="0" src="/images/system/spinner.gif" width="24px"/>'); 
 
   // parse the json
   $.getJSON(url_to_parse, function (data_prev) {

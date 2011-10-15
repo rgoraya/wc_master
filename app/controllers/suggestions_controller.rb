@@ -43,24 +43,26 @@ class SuggestionsController < ApplicationController
     
     @suggestion = Suggestion.new(params[:suggestion])
 
-    @suggested_causes, @suggested_effects = @suggestion.get_suggestions(@suggestion.wiki_url, @suggestion.issue_id)
-
-    #@suggested_causes.each do |cause|
-    #  @suggestion = Suggestion.new(params[:title=>cause[:title],:wiki_url=>cause[:wiki_url],:causality=>cause[:causality],:status=>cause[:status],:issue_id=>cause[:issue_id]])
-    #  @suggestion.save
-    #end
-
-    #@suggested_effects.each do |effect|
-    #  @suggestion = Suggestion.new(params[:title=>effect[:title],:wiki_url=>effect[:wiki_url],:causality=>effect[:causality],:status=>effect[:status],:issue_id=>effect[:issue_id]])
-    #  @suggestion.save
-    #end
+    @suggested_causes, @suggested_effects, @suggested_inhibitors, @suggested_reduced, @suggested_parents, @suggested_subsets = @suggestion.get_suggestions(@suggestion.wiki_url, @suggestion.issue_id)
 
     Suggestion.create(@suggested_causes)
     Suggestion.create(@suggested_effects)
+    Suggestion.create(@suggested_inhibitors)
+    Suggestion.create(@suggested_reduced)
+    Suggestion.create(@suggested_parents)
+    Suggestion.create(@suggested_subsets)
+
 
     respond_to do |format|
-      if  @suggested_causes.count > 0 ||  @suggested_effects.count > 0
-        format.html { redirect_to(:back, :notice => @suggested_causes.count.to_s + ' causes and ' + @suggested_effects.count.to_s + ' effects were suggested!') }
+      if  @suggested_causes.count > 0 ||  @suggested_effects.count > 0 || @suggested_inhibitors.count > 0 || @suggested_reduced.count > 0 || @suggested_parents.count > 0 || @suggested_subsets.count > 0
+        format.html { redirect_to(:back, :notice => @suggested_causes.count.to_s + ' causes, ' + 
+                                                    @suggested_effects.count.to_s + ' effects, ' +
+                                                    @suggested_inhibitors.count.to_s + ' inhibitors, ' +
+                                                    @suggested_reduced.count.to_s + ' inhibited, ' +
+                                                    @suggested_parents.count.to_s + ' supersets, ' + 
+                                                    @suggested_subsets.count.to_s + ' subsets were suggested '
+        
+        ) }
         format.xml  { render :xml => @suggestion, :status => :created, :location => @suggestion }
       else
         format.html { redirect_to(:back, :notice => 'No new suggestions were found.') }

@@ -25,10 +25,14 @@
             
                
             %div{:style=>"float:left"}  
-              %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px" ,:placeholder => "Enter an Issue name. . .", :autocomplete=>"off"}
+              %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
             /%div{:style=>"float:right"}
             /  = submit_tag "Prev", :name => nil, :id=>"preview_button_half"          
+            // Hidden div holding the reset button
+            %div{:id=>"searchfield_reset"}  
+            
             %div{:style=>"float:left; margin:2px 10px 0px 25px;", :id=>"wait"}
+            
             %div{:style=>"float:right"}
               %input{:type=>"button", :id=>"btn_preview", :class=>"preview_button", :value=>"Preview"}          
             %div{:style => "clear:both;"}
@@ -47,9 +51,11 @@
                   
     
             %div{:id=>"text_preview"}
-              %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
-              %div{:style=>"text-align:center;"}
-                Wikipedia text 
+              %div#title_holder
+              %div#text_holder  
+                %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
+                %div{:style=>"text-align:center;"}
+                  Wikipedia text 
               
             %div{:style => "clear:both"}
             
@@ -206,9 +212,14 @@
   //  R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
 
   $("#btn_preview").click(function(){
-  if ($("#query").val())
-  {parseJSON();}
-  
+  if ($("#query").val()){
+  $("#results").empty();
+  /$("#searchfield_reset").css({'display' : 'block'});
+  /$("#query").attr("disabled", "disabled");
+  parseJSON();
+  $("#title_holder").html($("#query").val());  
+  $("#results").empty();
+  }
   });
 
   //  P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
@@ -253,7 +264,7 @@
   // hide the save button
   $('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
+  $('#text_holder').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
   // show dummy image for image
   $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
   
@@ -264,8 +275,8 @@
   if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 
   // replace HTML of target Div
-  $('#text_preview').html(text_preview, 400);
-  form_descr = $("#text_preview").html();
+  $('#text_holder').html(text_preview, 400);
+  form_descr = $("#text_holder").html();
   // show the form 
   $("#form_container").css("display", "block");
 
@@ -301,10 +312,23 @@
   
   }   // END of function  
 
+  // R E S E T    M O D A L
+  /$("#searchfield_reset").click(function(){
+  /$("#query").attr("disabled", "");
+  /$("#query").val("");
+  //hide save button
+  /$('#form_container').css("display", "none");
+  // replace HTML of target Div
+  /$('#text_holder').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia image</div>');  
+  // show dummy image for image
+  /$('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia text</div>');
+  /$("#searchfield_reset").css({'display' : 'none'});
+  /});
+
   function valueCollect() {
   $("#frm_img_url").val($('#image_preview').find("img").attr("src"));
   $("#frm_descr").val(form_descr);
-  $("#frm_title").val($("#query").val());
+  $("#frm_title").val($("#title_holder").html());
   $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_'));
   $("#new_issue_form").submit();
   }
@@ -428,7 +452,8 @@
   $('#fade , .popup_block').fadeOut(function() {
   $('#fade, a.close').remove();  //fade them both out
   $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia image</div>');
-  $('#text_preview').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
+  $('#text_holder').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
+  $('#title_holder').html('');
   $('#form_container').css("display", "none");
   $("#query").val(''); 
   

@@ -2,7 +2,7 @@ class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
   def index
-    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 5, :page => params[:page])
+    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 10, :page => params[:page])
 
     respond_to do |format|
       format.js {render :layout=>false}
@@ -20,6 +20,14 @@ class IssuesController < ApplicationController
     @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
 
     @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
+
+    @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
+
+    @issue_inhibited_suggestion = @issue.suggestions.where(:causality => 'R',:status => 'N')
+
+    @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
+    
+    @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
 
     respond_to do |format|
       format.html # show.html.erb
@@ -75,15 +83,48 @@ class IssuesController < ApplicationController
         if @causality == "C"  
           @relationship.cause_id = @issueid
           @relationship.issue_id = @causality_id
-          @notice = 'New Cause linked Successfully'
+          @notice = 'New cause linked Successfully'
+        end
+
+        # It is an Inhibitor
+        if @causality == "I"  
+          @relationship.cause_id = @issueid
+          @relationship.issue_id = @causality_id
+          @relationship.relationship_type = 'I'
+          @notice = 'New reducing issue linked Successfully'
+        end        
+
+        # It is a Superset
+        if @causality == "P"  
+          @relationship.cause_id = @issueid
+          @relationship.issue_id = @causality_id
+          @relationship.relationship_type = 'H'
+          @notice = 'New superset linked Successfully'
         end
         
         # It is an Effect
         if @causality == "E"
           @relationship.cause_id = @causality_id
           @relationship.issue_id = @issueid      
-          @notice = 'New Effect linked Successfully'
+          @notice = 'New effect linked Successfully'
         end
+
+        # It is an Inhibited
+        if @causality == "R"
+          @relationship.cause_id = @causality_id
+          @relationship.issue_id = @issueid      
+          @relationship.relationship_type = 'I'
+          @notice = 'New reduced issue linked Successfully'
+        end
+        
+        # It is a Subset
+        if @causality == "S"
+          @relationship.cause_id = @causality_id
+          @relationship.issue_id = @issueid
+          @relationship.relationship_type = 'H'          
+          @notice = 'New subset linked Successfully'
+        end        
+        
         
         # Save the Relationship     
         if @relationship.save
@@ -133,6 +174,22 @@ class IssuesController < ApplicationController
             @relationship.issue_id = @causality_id          
             @notice = 'New Issue was created and linked as a cause'
           end
+
+          # It is an Inhibitor
+          if @causality == "I"  
+            @relationship.cause_id = @issue.id
+            @relationship.issue_id = @causality_id
+            @relationship.relationship_type = 'I'            
+            @notice = 'New Issue was created and linked as reducer'
+          end
+
+          # It is a Superset
+          if @causality == "P"  
+            @relationship.cause_id = @issue.id
+            @relationship.issue_id = @causality_id 
+            @relationship.relationship_type = 'H'
+            @notice = 'New Issue was created and linked as a superset'
+          end         
           
           # It is an Effect
           if @causality == "E"  
@@ -140,6 +197,22 @@ class IssuesController < ApplicationController
             @relationship.issue_id = @issue.id
             @notice = 'New Issue was created and linked as an effect'
           end          
+
+          # It is an Inhibited
+          if @causality == "R"  
+            @relationship.cause_id = @causality_id
+            @relationship.issue_id = @issue.id
+            @relationship.relationship_type = 'I'
+            @notice = 'New Issue was created and linked as reduced'
+          end              
+            
+          # It is a Subset
+          if @causality == "S"  
+            @relationship.cause_id = @causality_id
+            @relationship.issue_id = @issue.id
+            @relationship.relationship_type = 'H'
+            @notice = 'New Issue was created and linked as a subset'
+          end  
             
           # Save the Relationship     
           if @relationship.save
@@ -172,6 +245,12 @@ class IssuesController < ApplicationController
           
         end
         
+        #code to generate suggestions for the Newly created Issue
+        
+        # Define new Suggestions
+        Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])       
+        
+        
       end
       
          
@@ -179,6 +258,10 @@ class IssuesController < ApplicationController
       
      respond_to do |format|     
         if @issue.save
+        # Define new Suggestions
+        #@suggestion = Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url]) 
+        #@suggestion.create
+          
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
           format.xml  { render :xml => @issue, :status => :created, :location => @issue }
         else
@@ -187,6 +270,10 @@ class IssuesController < ApplicationController
         end
       end      
     end
+    
+    
+    
+    
   end
 
   #protected

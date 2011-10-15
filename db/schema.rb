@@ -10,7 +10,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110827075743) do
+ActiveRecord::Schema.define(:version => 20110930102036) do
+
+  create_table "hierarchies", :force => true do |t|
+    t.integer  "issue_id"
+    t.integer  "superclass_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "issues", :force => true do |t|
     t.string   "title"
@@ -37,6 +45,7 @@ ActiveRecord::Schema.define(:version => 20110827075743) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "user_id"
+    t.string   "relationship_type"
   end
 
   create_table "suggestions", :force => true do |t|
