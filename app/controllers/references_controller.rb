@@ -47,7 +47,7 @@ class ReferencesController < ApplicationController
     respond_to do |format|
       if @reference.save
 
-				RepManagement::Utils.reputation(:action=>:create, \
+				Reputation::Utils.reputation(:action=>:create, \
 																				:type=>:reference, \
 																				:id=>@reference.id, \
 																				:me=>@reference.user_id, \
@@ -85,7 +85,7 @@ class ReferencesController < ApplicationController
     @reference = Reference.find(params[:id])
     @reference.destroy
 
-		#RepManagement::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>false)
+		#Reputation::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>false)
 
 
     respond_to do |format|

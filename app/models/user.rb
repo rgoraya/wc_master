@@ -20,9 +20,9 @@ class User < ActiveRecord::Base
     end
   end
 
-	def get_history(options={})
-		unless (!options.empty? && (options.keys - [:of]).empty? && [:contributions, :reverts, :actitivies].include?(options[:of].to_sym))
-			raise ArgumentError, 'Missing or invalid argument :of'
+	def history(options={})
+		unless (!options.empty? && (options.keys - [:of, :max]).empty? && [:contributions, :reverts, :actitivies].include?(options[:of].to_sym) && options[:max].integer?)
+			raise ArgumentError, 'Missing or invalid argument :of, :max'
 		end
 
 		versions = []
@@ -31,8 +31,8 @@ class User < ActiveRecord::Base
 		#	when [:reverts] then versions += self.reverts
 		#	when [:activities] then versions += self.activities
 		#end
-		versions += self.contributions
-		versions.sort!{|a,b| b.created_at <=> a.created_at}
+		versions += self.contributions.order('created_at DESC').limit(options[:max].to_i)
+		#versions.sort!{|a,b| b.created_at <=> a.created_at}
 	
 		history=[]	
 		versions.each do |version|
@@ -64,6 +64,12 @@ class User < ActiveRecord::Base
 					else
 						activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
 					end
+				
+					case version.get_object.relationship_type
+						when 'I' then activity[:what] += ' (inhibitory)'
+						when 'H' then activity[:what] += ' (set)'
+						when nil then activity[:what] += ' (causal)'
+					end
 
 				when 'Reference'
 					case version.event
@@ -84,6 +90,12 @@ class User < ActiveRecord::Base
 						activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
 					end
 
+					case relationship_version.get_object.relationship_type
+						when 'I' then activity[:what] += ' (inhibitory)'
+						when 'H' then activity[:what] += ' (set)'
+						when nil then activity[:what] += ' (causal)'
+					end
+
 				when 'Suggestion'
 					case version.event
 						when 'create' then activity[:action]='created'
@@ -94,7 +106,7 @@ class User < ActiveRecord::Base
 			end #case item_type
 
 			!activity[:what].include?('untraceable') ? activity[:score]= \
-					RepManagement::Utils.reputation(:action=>version.event.downcase.to_sym, \
+					Reputation::Utils.reputation(:action=>version.event.downcase.to_sym, \
 					:type=>version.item_type.downcase.to_sym, \
 					:id=>version.item_id.to_i, \
 					:me=>version.whodunnit.to_i, \

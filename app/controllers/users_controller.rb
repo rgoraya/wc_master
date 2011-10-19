@@ -15,8 +15,15 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
     @userissues = @user.issues.search(params[:search]).order("created_at DESC").paginate(:per_page => 5, :page => params[:page])
+		
+		max = 15
+		if params[:segment]
+			max = params[:segment].to_i*15
+		end
+		@activities = @user.history(:of=>:contributions, :max=>max)
 
-		@activities=@user.get_history(:of=>:contributions)[0..74]
+		
+
 
     respond_to do |format|
       format.js {render :layout=>false}

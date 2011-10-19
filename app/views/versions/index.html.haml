@@ -22,9 +22,9 @@
 					%b Type:
 					= version.item_type
 					- if !version.event.eql?('destroy')
-						= link_to "Set", restore_version_path(version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change"
+						= link_to "Set", restore_version_path(version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"Reset to this change"
 					- else
-						= link_to "Undelete", restore_version_path(version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"reset to this change"
+						= link_to "Undelete", restore_version_path(version), :confirm=>'Are you sure?', :class=>"edit_button", :title=>"Reset to this change"
 				%div{:style=>"clear:both"}
 		%div{:class=>"pages"}
 			= will_paginate @versions

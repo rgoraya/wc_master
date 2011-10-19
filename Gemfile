@@ -46,6 +46,7 @@ gem "json"
 gem "lock"
 
 gem 'hirb'
+gem "query-analyzer", "~> 0.1.1"
 
 group :development do
 	gem "hpricot"

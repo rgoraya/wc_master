@@ -1,0 +1,47 @@
+
+%div{:id=>"easter-egg", :style=>"border:1px solid green;padding:5px 5px 5px 5px;font-weight:bold;font-size:16px;text-align:center;"}
+	Congratulations, you've found a secret page!
+	%br
+	But there are more out there...
+	%div
+		%img{:src=>"/images/system/spinner.gif"}
+%br
+%div{:id=>"stats", :style=>"border:1px solid green;text-align:left;padding:5px 5px 5px 5px;"}
+	%div{:id=>"issue"}
+		Total number of issues:
+		%span
+			= Issue.all.count
+	%div{:id=>"relationships",}
+		Total number of relationships:
+		%span
+			= Relationship.all.count
+		%br
+		Total number of causal relationships:
+		%span
+			= Relationship.find(:all,:conditions=>["relationship_type IS ?", nil]).count
+		%br
+		Total number of inhibitory relationships:
+		%span
+			= Relationship.find(:all,:conditions=>["relationship_type = ?", "I"]).count
+		%br
+		Total number of set relationships:
+		%span
+			= Relationship.find(:all,:conditions=>["relationship_type = ?", "H"]).count
+	%div{:id=>"references"}
+		Total number of references:
+		%span
+			= Reference.all.count
+	%div{:id=>"reputations"}
+		Max reputation:
+		%span
+			= User.all.map(&:reputation).max
+		%br
+		Min reputation:
+		%span
+			= User.all.map(&:reputation).min
+	%div{:id=>"users"}
+		Total number of users:
+		%span
+			= User.all.count
+%br
+%div{:style=>"clear:both;"}

@@ -24,7 +24,7 @@ class VersionsController < ApplicationController
 		end
 		if Version.all.count > count
 			version.sibling_versions.last.update_attributes(:reverted_from => version.id.to_s)
-			RepManagement::Utils.reputation(:action=>version.sibling_versions.first.event.downcase.to_sym, \
+			Reputation::Utils.reputation(:action=>version.sibling_versions.first.event.downcase.to_sym, \
 																			:type=>version.sibling_versions.first.item_type.downcase.to_sym, \
 																			:id=>version.sibling_versions.first.item_id.to_i, \
 																			:me=>version.sibling_versions.first.whodunnit.to_i, \

@@ -1,4 +1,4 @@
-module RepManagement
+module Reputation
 	
 	
 	module Utils
@@ -38,9 +38,9 @@ module RepManagement
 					  end
 
 					  case degree
-						  when 1 then score = [0,0] #both issues are yours
-						  when 2 then score = [2,1] #one of them is yours
-						  when 3 then score = [4,2] #none of them is yours
+						  when 1 then score = [1,0] #both issues are yours
+						  when 2 then score = [3,1] #one of them is yours
+						  when 3 then score = [6,2] #none of them is yours
 					  end
 
 				  when [:destroy, :relationship]
@@ -51,7 +51,7 @@ module RepManagement
 
 				  when [:create, :issue]
 					  raise ArgumentError, "Missing or invalid argument :me" unless (!options[:me].nil? && options[:me].integer?)
-					  score = [0,0]
+					  score = [1,0]
 
 				  when [:destroy, :issue]
 					  raise ArgumentError, "Missing or invalid argument :id :me :you" unless ((!options[:me].nil? && options[:me].integer?) && 
@@ -131,7 +131,7 @@ module RepManagement
 			end
 			Version.all.each do |version|
 				if version.reverted_from.nil?
-					RepManagement::Utils.reputation(:action=>version.event.downcase.to_sym, \
+					Reputation::Utils.reputation(:action=>version.event.downcase.to_sym, \
 																					:type=>version.item_type.downcase.to_sym, \
 																					:id=>version.item_id.to_i, \
 																					:me=>version.whodunnit.to_i, \
@@ -139,7 +139,7 @@ module RepManagement
 																					:undo=>false, :calculate=>true)
 				end
 				if version.next
-					RepManagement::Utils.reputation(:action=>version.sibling_versions.first.event.downcase.to_sym, \
+					Reputation::Utils.reputation(:action=>version.sibling_versions.first.event.downcase.to_sym, \
 																					:type=>version.sibling_versions.first.item_type.downcase.to_sym, \
 																					:id=>version.sibling_versions.first.item_id.to_i, \
 																					:me=>version.sibling_versions.first.whodunnit.to_i, \
@@ -185,6 +185,19 @@ module Maintenance
 						Version.find(:all, :conditions=>['item_type=? AND item_id=? AND event != ?', 'Relationship', version.item_id, 'create']).each do |v|
 							!(o = v.object).include?('user_id') ? v.update_attributes(:object=>o+"user_id: #{version.whodunnit.to_s}\n") : v.update_attributes(:object=>o.gsub(/user_id\:/,"user_id: #{version.whodunnit.to_s}"))
 						end
+					end
+				end
+			end
+		end
+	
+		#add 'relationship_type' to object string of each version that doesn't have relationship_type
+		#run once only
+		def self.make_consistent1
+			Version.find(:all, :conditions=>["item_type=?", "Relationship"]).each do |version|
+				if version.object
+					if !version.object.include?("relationship_type")
+						o = version.object
+						version.update_attributes(:object=>o+"relationship_type: \n")
 					end
 				end
 			end

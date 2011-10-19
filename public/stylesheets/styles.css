@@ -2551,7 +2551,7 @@ table{
 border-collapse:collapse;
 color:#858585;
 border: 1px solid #858585;;
-margin:10px 0px 10px 0px;
+margin:10px 0px 0px 0px;
 }
 thead, tbody, tfoot {
 border:none;
@@ -2570,9 +2570,10 @@ td{
 text-align:center;
 padding:0px 0px 0px 0px;
 }
-table#activities th:hover{
+table#activities thead th:hover, div#more:hover{
 color:#434343;
 background-color:whiteSmoke;
+cursor:pointer;
 }
 table.sortable th {
 cursor:default;

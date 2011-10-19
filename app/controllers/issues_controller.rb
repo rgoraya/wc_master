@@ -137,7 +137,7 @@ class IssuesController < ApplicationController
             @suggestion.save
           end  
 
-					RepManagement::Utils.reputation(:action=>:create, \
+					Reputation::Utils.reputation(:action=>:create, \
 																					:type=>:relationship, \
 																					:id=>@relationship.id, \
 																					:me=>@relationship.user_id, \
@@ -154,7 +154,7 @@ class IssuesController < ApplicationController
       else
         if @issue.save
 
-					RepManagement::Utils.reputation(:action=>:create, \
+					Reputation::Utils.reputation(:action=>:create, \
 																					:type=>:issue, \
 																					:me=>@issue.user_id, \
 																					:undo=>false, \
@@ -225,7 +225,7 @@ class IssuesController < ApplicationController
               @suggestion.save
             end  
 
-						RepManagement::Utils.reputation(:action=>:create, \
+						Reputation::Utils.reputation(:action=>:create, \
 																					:type=>:relationship, \
 																					:id=>@relationship.id, \
 																					:me=>@relationship.user_id, \
@@ -317,7 +317,7 @@ class IssuesController < ApplicationController
     @issue = Issue.find(params[:id])
     @issue.destroy
 
-		RepManagement::Utils.reputation(:action=>:destroy, \
+		Reputation::Utils.reputation(:action=>:destroy, \
 																		:type=>:issue, \
 																		:id=>@issue.id, \
 																		:me=>current_user.id, \
