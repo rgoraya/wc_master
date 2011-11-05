@@ -1,5 +1,8 @@
 Wikicausality::Application.routes.draw do
+  resources :feed_backs
+
   resources :suggestions
+	resources :feedbacks
   
   get "suggestions/:id/reject" => "suggestions#reject"
 

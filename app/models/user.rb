@@ -11,6 +11,8 @@ class User < ActiveRecord::Base
   has_many :relationships
   has_many :references
 
+	has_many :feedbacks
+
   # search functionality
   def self.search(search)
     if search
