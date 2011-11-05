@@ -34,13 +34,12 @@
               = link_to 'New Issue', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');background-size:17px 17px;" 
                       
               /= link_to "About", :about, :title=>"about wikiCausality", :class=>"login_button"
-              /= link_to "Contact", :contact, :title=>"contact", :class=>"login_button"
+              
    
               %div{:style=>"clear:both;"}
-
+              
           .navigation{:style=>"float:right;"}
             %div{:id=>"authentication"}
-                
               - if current_user
                   
                 // retrieve gravatar image
@@ -62,7 +61,7 @@
                 = link_to "Login", :login, :title=>"login", :class=>"login_button"
                     
                 = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button", :style=>"background-image:url('/images/system/register.png');"
-                 
+              = link_to "Feedback", new_feed_back_path, :title=>"contact", :class=>"login_button", :style=>"background-image:url('/images/issues/default_text.png');background-size:17px 17px;"
               %div{:style=>"clear:both;"}
             %div{:style=>"clear:both;"}           
 

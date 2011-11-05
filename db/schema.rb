@@ -10,7 +10,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111015021218) do
+ActiveRecord::Schema.define(:version => 20111102232424) do
+
+  create_table "feed_backs", :force => true do |t|
+    t.string   "subject"
+    t.string   "description"
+    t.string   "email"
+    t.integer  "user_id"
+    t.integer  "category"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "issues", :force => true do |t|
     t.string   "title"
