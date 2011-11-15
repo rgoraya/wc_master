@@ -8,6 +8,78 @@
   .contentmain
 
     //  * * * * * * * * * * * * * * * * * * * * * * * * *
+    //  * * * * * * * * * * * * * * * * * * * * * * * * *
+    //  * * * * * * * * T H E   I S S U E * * * * * * * * 
+    //  * * * * * * * * * * * * * * * * * * * * * * * * *
+    //  * * * * * * * * * * * * * * * * * * * * * * * * *
+    
+    /%div{:class =>"issues_central",:style=>"width:1050px; margin:0 auto;"}
+
+    /.arrow-container
+    /  .arrow-carrier-left
+    /.blob-container    
+    /  .blob-carrier{:id=>"blob_super"}
+    /    %img{:src=>"/images/issues/supset.png", :height=>"28px"}
+    /    %br Supersets                
+    /  .blob-carrier{:id=>"blob_cause_inhibit", :style=>"display:none;"}
+    /    %img{:src=>"/images/issues/causal1.png", :height=>"28px"}
+    /    %br Causes 
+      
+    /.arrow-leftward
+           
+    %div{:class =>"issueblock", :style=>"float:left;width:1050px;"}
+              
+      // image link to wikipedia article using image retrived from there        
+      %div{:class=>"imgcontainer"}   
+        %a{:href => @issue.wiki_url, :target=>"_blank"}                      
+          %img{:src => @issue.short_url, :class=>"wikiimage"}
+ 
+        // Contents retrieved by calling the above method
+      %div{:class =>"wikicontent",:style=>"width:810px;"}
+                
+        %div{:class =>"title"}
+          = @issue.title
+        
+        // paragraph retrieved from wikipedia page
+        = @issue.description.to_s[0,400] + '...'
+        %img{:src=>"/images/system/linkout.png", :width=>"10px", :align=>"bottom"}
+        %a{:href=>@issue.wiki_url, :target => "_blank"} more on Wikipedia
+          
+        /.arrow-expand
+        /.img-expand{:title=>"view geotagged imagery"}
+        /%div{:style => "clear:both"}
+
+        /%div{:class=>"imgcontainer",:style=>"float:right;"}   
+      %div{:style=>"float:right"}
+        /%input{:type=>"button", :id=>"btn_preview", :class=>"preview_button", :value=>"Save"}        
+      %div{:style => "clear:both"}
+        /%div{:class=>"mapcontainer"}
+        /  #map_canvas{:style => "margin:10px;width:350px"}
+        /  .arrow-expand{:style => "margin:-30px 0px 0px 0px"}
+        /  .descr-expand{:title=>"view wikipedia description"}
+        /  %div{:style => "clear:both"}
+                  
+        /%img{:src=>"/images/system/spinnerblue.gif", :alt=>"spinner", :class=>"result-spinner"}
+
+        /%iframe{:id=>"panoramio_iframe", :frameborder => "0", :class=>"panoramioframe", :height => "70", :width => "318", :marginheight => "0", :marginwidth => "0", :scrolling => "no", :src => "http://www.panoramio.com/wapi/template/list.html?tag=*#{@issue.title}&width=318&height=70&columns=6&rows=1&orientation=horizontal&bgcolor=%2371C6E2"}
+
+        /.arrow-container{:style=>"float:right;"}
+        /  .arrow-carrier-right
+  
+  
+        /.blob-container{:style=>"float:right;"}    
+        /  .blob-carrier{:id=>"blob_sub"}
+        /    %img{:src=>"/images/issues/subset.png", :height=>"28px"}
+        /    %br Subsets                
+        /  .blob-carrier{:id=>"blob_effect_inhibit", :style=>"display:none;"}
+        /    %img{:src=>"/images/issues/causal2.png", :height=>"28px"}
+        /    %br Effects 
+  
+        /.arrow-leftward{:style=>"float:right;"}
+        
+      %div{:style => "clear:both"}
+
+    //  * * * * * * * * * * * * * * * * * * * * * * * * *
     //  * C A U S E S    A N D    I N H I B I T O R S * *
     //  * * * * * * * * * * * * * * * * * * * * * * * * *
         
@@ -448,80 +520,7 @@
 
     %div{:class=>"arrow-down"}
         
-    //  * * * * * * * * * * * * * * * * * * * * * * * * *
-    //  * * * * * * * * * * * * * * * * * * * * * * * * *
-    //  * * * * * * * * T H E   I S S U E * * * * * * * * 
-    //  * * * * * * * * * * * * * * * * * * * * * * * * *
-    //  * * * * * * * * * * * * * * * * * * * * * * * * *
-    
-    %div{:class =>"issues_central",:style=>"width:850px; margin:0 auto;"}
 
-      .arrow-container
-        .arrow-carrier-left
-      .blob-container    
-        .blob-carrier{:id=>"blob_super"}
-          %img{:src=>"/images/issues/supset.png", :height=>"28px"}
-          %br Supersets                
-        .blob-carrier{:id=>"blob_cause_inhibit", :style=>"display:none;"}
-          %img{:src=>"/images/issues/causal1.png", :height=>"28px"}
-          %br Causes 
-      
-      .arrow-leftward
-           
-      %div{:class =>"issueblock", :style=>"float:left;width:370px;"}
-                
-        // Title of the Issue
-        %div{:class =>"title"}
-
-          = @issue.title
- 
-        // Contents retrieved by calling the above method
-        %div{:class =>"wikicontent",:style=>"width:350px;"}
-                  
-          // image link to wikipedia article using image retrived from there
-                
-          %div{:class=>"imgcontainer"}   
-            %a{:href => @issue.wiki_url, :target=>"_blank"}                      
-              %img{:src => @issue.short_url, :class=>"wikiimage"}
-
-
-          
-          // paragraph retrieved from wikipedia page
-          = @issue.description.to_s[0,200] + '...'
-          %img{:src=>"/images/system/linkout.png", :width=>"10px", :align=>"bottom"}
-          %a{:href=>@issue.wiki_url, :target => "_blank"} more on Wikipedia
-
-          %div{:style => "clear:both"}
-            
-          .arrow-expand
-          .img-expand{:title=>"view geotagged imagery"}
-          %div{:style => "clear:both"}
-        
-        %div{:class=>"mapcontainer"}
-          #map_canvas{:style => "margin:10px;width:350px"}
-          .arrow-expand{:style => "margin:-30px 0px 0px 0px"}
-          .descr-expand{:title=>"view wikipedia description"}
-          %div{:style => "clear:both"}
-                    
-          /%img{:src=>"/images/system/spinnerblue.gif", :alt=>"spinner", :class=>"result-spinner"}
-
-          /%iframe{:id=>"panoramio_iframe", :frameborder => "0", :class=>"panoramioframe", :height => "70", :width => "318", :marginheight => "0", :marginwidth => "0", :scrolling => "no", :src => "http://www.panoramio.com/wapi/template/list.html?tag=*#{@issue.title}&width=318&height=70&columns=6&rows=1&orientation=horizontal&bgcolor=%2371C6E2"}
-
-      .arrow-container{:style=>"float:right;"}
-        .arrow-carrier-right
-
-
-      .blob-container{:style=>"float:right;"}    
-        .blob-carrier{:id=>"blob_sub"}
-          %img{:src=>"/images/issues/subset.png", :height=>"28px"}
-          %br Subsets                
-        .blob-carrier{:id=>"blob_effect_inhibit", :style=>"display:none;"}
-          %img{:src=>"/images/issues/causal2.png", :height=>"28px"}
-          %br Effects 
-
-      .arrow-leftward{:style=>"float:right;"}
-        
-      %div{:style => "clear:both"}
     
     %div.arrow-tail{:id=>"arrow_tail_after"}
     %div.arrow-down{:id=>"arrow_down_after", :style => "margin-bottom:-10px;display:none;"}
