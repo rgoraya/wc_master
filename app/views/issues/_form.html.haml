@@ -2,21 +2,26 @@
   = stylesheet_link_tag "styles"
   
 - content_for(:title, 'Create New Issue')
-      
+%div{:id=>"error_container"}
+  %div{:style=>"float:right;width:15px;"}
+    %a{:href=>'#', :class=>'closebutton'}
+      %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
+  %div{:id=>"error"}
+    -if @issue.errors.any?
+      = @issue.errors.full_messages.join("\n")
+  %div{:style=>"clear:both;"} 
+
+     
 #contentwrapper
 
   .contentmain
+   
+
     %div{:class=> "formheading"}    
       Create a new Issue
     %div{:class => "formcontentdiv"}
       %div{:class=>"centralized"}
-        -if @issue.errors.any?
-          #error_explanation
-            %div{:class=>"formerrorhead"}
-              = "#{pluralize(@issue.errors.count, "error")} prohibited this issue from being saved:"
-            %ul{:class=>"formerrordetails"}
-              - @issue.errors.full_messages.each do |msg|
-                %li= msg
+        
             
         %div{:class =>"issueblock_edit"}
             
@@ -93,6 +98,17 @@
    
   // Make sure the DOM is loaded
   $(document).ready(function(){
+
+  if ($('#error').html().trim()) {
+  $("#error_container").effect("bounce", { times:3 }, 200);
+  $('#error').css("display","block");
+  }
+  
+  $("#error_container a.closebutton").click(function(){
+  $("#error_container").slideUp(100);
+  });
+
+
 
   // A R R O W    K E Y    N A V I G A T I O N    F O R    T H E    M O D A L
   window.displayBoxIndex = -1;
@@ -254,7 +270,7 @@
   } else {
   
   //  populate the description text
-  text_preview = $(Jval).filter('p:first').text();
+  text_preview = $(Jval.replace(/<p><br \/><\/p>/,'')).filter('p:first').text();
   
   //  Throw error if no text was received
   if(text_preview == ''){

@@ -1352,6 +1352,30 @@ background: #ededed;
 	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;		
 }
 
+#error_container{
+	width:200px;
+	font: normal 14px "lucida grande",tahoma,verdana,arial,sans-serif;
+	display:none;
+	text-align:center;
+	color: #ffffff;
+	background-color:red;
+	padding:10px;
+	/*--CSS3 Rounded Corners--*/
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	/* Positioning */
+	position: absolute; 
+	top: 10px;
+	left:40%;
+	margin-left:auto;
+	margin-right:auto;
+	/* shadows */
+	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;		
+}
+
 #notice{
 	float:left;
 	width:180px;

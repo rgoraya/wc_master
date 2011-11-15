@@ -17,12 +17,17 @@ class FeedBacksController < ApplicationController
     @feed_back = FeedBack.new(params[:feed_back])
 
     respond_to do |format|
-      if @feed_back.save
-				ReportMailer.report(@feed_back).deliver
-        format.html { redirect_to( new_feed_back_path, :notice => 'Your feedback was successfully submitted. Thank you for your input.' )}
-      else
-        format.html {redirect_to(:back, :notice => @feed_back.errors.full_messages.push("Feedback submission failed").join("\n"))}
-      end
+			if verify_recaptcha
+      	if @feed_back.save
+					ReportMailer.report(@feed_back).deliver
+        	format.html { redirect_to( new_feed_back_path, :notice => 'Your feedback was successfully submitted. Thank you for your input.' )}
+      	else
+        	format.html {render :action=>"new"}
+      	end
+			else
+				@feed_back.errors.clear["Captcha:"] = "invalid code"
+				format.html {render :action=>"new"}
+			end
     end
   end
 

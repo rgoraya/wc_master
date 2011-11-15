@@ -1,6 +1,15 @@
 - content_for(:include_custom_stylesheet) do
 	= stylesheet_link_tag "styles"
 
+%div{:id=>"error_container"}
+	%div{:style=>"float:right;width:15px;"}
+		%a{:href=>'#', :class=>'closebutton'}
+			%img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
+	%div{:id=>"error"}
+		- if @feed_back.errors.any?
+			= @feed_back.errors.full_messages.push("Feedback submission failed").join("\n")
+	%div{:style=>"clear:both;"}
+
 #contentwrapper
 	.contentmain
 		%div{:id=>'feedback'}
@@ -21,5 +30,17 @@
 	$("#notice_container a.closebutton").click(function(){
 	$("#notice_container").slideUp(100);
 	});
+
+	if ($('#error').html().trim()) {
+	$("#error_container").effect("bounce", { times:3 }, 200);
+	$('#error').css("display","block");
+	}
+  
+	$("#error_container a.closebutton").click(function(){
+	$("#error_container").slideUp(100);
+	});
+
 	}); //E N DO FD O ML O A D 
+
+
 

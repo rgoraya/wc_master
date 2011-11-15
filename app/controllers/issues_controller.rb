@@ -154,6 +154,16 @@ class IssuesController < ApplicationController
       else
         if @issue.save
 
+					suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
+
+    			Suggestion.create(suggested_causes)
+    			Suggestion.create(suggested_effects)
+   				Suggestion.create(suggested_inhibitors)
+    			Suggestion.create(suggested_reduced)
+    			Suggestion.create(suggested_parents)
+    			Suggestion.create(suggested_subsets)
+
+
 					Reputation::Utils.reputation(:action=>:create, \
 																					:type=>:issue, \
 																					:me=>@issue.user_id, \
@@ -261,6 +271,16 @@ class IssuesController < ApplicationController
         # Define new Suggestions
         #@suggestion = Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url]) 
         #@suggestion.create
+
+					suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
+
+    			Suggestion.create(suggested_causes)
+    			Suggestion.create(suggested_effects)
+   				Suggestion.create(suggested_inhibitors)
+    			Suggestion.create(suggested_reduced)
+    			Suggestion.create(suggested_parents)
+    			Suggestion.create(suggested_subsets)
+
           
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
           format.xml  { render :xml => @issue, :status => :created, :location => @issue }
