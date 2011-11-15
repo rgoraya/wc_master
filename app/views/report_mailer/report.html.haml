@@ -1,0 +1,35 @@
+
+%div{:style=>"font-size:16px;border-left: 2px solid #BEBEBE;color:black;"}
+	- type = nil
+	- color = nil
+	- if @feedback.category == 0
+		- type = 'suggestion'
+		- color = '#669900'
+	- elsif @feedback.category == 1
+		- type = 'bug'
+		- color = '#E10C02'
+	- else
+		- type = 'feedback'
+		- color = '#4183C4'
+	%div{:style=>"margin:5px 5px 5px 5px;"}
+		New
+		%span{:style=>"color:#{color}"}
+			= type
+	%div{:style=>"width:370px;padding:5px 5px 5px 5px;background-color:#{color};color:white;margin:5px 5px 5px 5px;"}
+		= @feedback.subject
+	%div{:style=>"background-color:#BEBEBE;padding:5px 5px 5px 5px;width:370px;margin:5px 5px 5px 5px;max-height:400px;overflow:auto;"}
+		= @feedback.description
+	%div{:style=>"margin:5px 5px 5px 5px;"}
+		- user = nil
+		- if @feedback.user
+			- user = @feedback.user.username
+		- else
+			- user = "anonymous"
+		= "Submitted by: #{user}"
+		%br
+		- if @feedback.email
+			%span{:style=>"color:blue;"}
+				= @feedback.email
+%div
+	Please do not reply to this address. All incoming emails will be ignored.
+

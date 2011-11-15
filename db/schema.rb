@@ -10,12 +10,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110930102036) do
+ActiveRecord::Schema.define(:version => 20111102232424) do
 
-  create_table "hierarchies", :force => true do |t|
-    t.integer  "issue_id"
-    t.integer  "superclass_id"
+  create_table "feed_backs", :force => true do |t|
+    t.string   "subject"
+    t.string   "description"
+    t.string   "email"
     t.integer  "user_id"
+    t.integer  "category"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -48,6 +50,9 @@ ActiveRecord::Schema.define(:version => 20110930102036) do
     t.string   "relationship_type"
   end
 
+  add_index "relationships", ["cause_id"], :name => "index_relationships_on_cause_id"
+  add_index "relationships", ["issue_id"], :name => "index_relationships_on_issue_id"
+
   create_table "suggestions", :force => true do |t|
     t.string   "title"
     t.string   "wiki_url"
@@ -79,6 +84,8 @@ ActiveRecord::Schema.define(:version => 20110930102036) do
     t.integer  "reverted_from"
   end
 
+  add_index "versions", ["event"], :name => "index_versions_on_event"
   add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
+  add_index "versions", ["whodunnit"], :name => "index_versions_on_whodunnit"
 
 end

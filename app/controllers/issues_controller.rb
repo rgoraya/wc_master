@@ -8,6 +8,7 @@ class IssuesController < ApplicationController
       format.js {render :layout=>false}
       format.html # index.html.erb
       format.xml  { render :xml => @issues }
+			format.json { render :json => @issues }
     end
   end
   
@@ -56,7 +57,6 @@ class IssuesController < ApplicationController
     
     @issue = Issue.new(params[:issue])
  
-    
     # A D D    N E W    C A U S E / E F F E C T
     if params[:action_carrier]
 
@@ -137,7 +137,7 @@ class IssuesController < ApplicationController
             @suggestion.save
           end  
 
-					RepManagement::Utils.reputation(:action=>:create, \
+					Reputation::Utils.reputation(:action=>:create, \
 																					:type=>:relationship, \
 																					:id=>@relationship.id, \
 																					:me=>@relationship.user_id, \
@@ -154,7 +154,17 @@ class IssuesController < ApplicationController
       else
         if @issue.save
 
-					RepManagement::Utils.reputation(:action=>:create, \
+					suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
+
+    			Suggestion.create(suggested_causes)
+    			Suggestion.create(suggested_effects)
+   				Suggestion.create(suggested_inhibitors)
+    			Suggestion.create(suggested_reduced)
+    			Suggestion.create(suggested_parents)
+    			Suggestion.create(suggested_subsets)
+
+
+					Reputation::Utils.reputation(:action=>:create, \
 																					:type=>:issue, \
 																					:me=>@issue.user_id, \
 																					:undo=>false, \
@@ -225,7 +235,7 @@ class IssuesController < ApplicationController
               @suggestion.save
             end  
 
-						RepManagement::Utils.reputation(:action=>:create, \
+						Reputation::Utils.reputation(:action=>:create, \
 																					:type=>:relationship, \
 																					:id=>@relationship.id, \
 																					:me=>@relationship.user_id, \
@@ -261,6 +271,16 @@ class IssuesController < ApplicationController
         # Define new Suggestions
         #@suggestion = Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url]) 
         #@suggestion.create
+
+					suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
+
+    			Suggestion.create(suggested_causes)
+    			Suggestion.create(suggested_effects)
+   				Suggestion.create(suggested_inhibitors)
+    			Suggestion.create(suggested_reduced)
+    			Suggestion.create(suggested_parents)
+    			Suggestion.create(suggested_subsets)
+
           
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
           format.xml  { render :xml => @issue, :status => :created, :location => @issue }
@@ -317,7 +337,7 @@ class IssuesController < ApplicationController
     @issue = Issue.find(params[:id])
     @issue.destroy
 
-		RepManagement::Utils.reputation(:action=>:destroy, \
+		Reputation::Utils.reputation(:action=>:destroy, \
 																		:type=>:issue, \
 																		:id=>@issue.id, \
 																		:me=>current_user.id, \
@@ -345,7 +365,7 @@ class IssuesController < ApplicationController
 	def versions
 		@issue = Issue.find(params[:id])
 		@versions = []
-		Version.find(:all, :conditions => ["item_type = 'Relationship'"]).each do |version|
+		Version.find(:all, :conditions => ["item_type=?", 'Relationship']).each do |version|
 			relationship = version.get_object #should return a Relationshiop object here
 			if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
 				@versions << version

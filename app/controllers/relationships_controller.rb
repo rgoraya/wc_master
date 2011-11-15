@@ -77,7 +77,7 @@ class RelationshipsController < ApplicationController
     @relationship = Relationship.find(params[:id])
     @relationship.destroy
 
-		RepManagement::Utils.reputation(:action=>:destroy, \
+		Reputation::Utils.reputation(:action=>:destroy, \
 																		:type=>:relationship, \
 																		:id=>@relationship.id, \
 																		:me=>current_user.id, \

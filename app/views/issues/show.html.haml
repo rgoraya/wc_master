@@ -967,17 +967,7 @@
           History
 
       // Retrieve suggestions
-      %div{:style=>"float:right; margin-top:20px; margin-left:10px;text-align:center;font-size:12px;"} 
-        %div{:class=>"large_icon_box"}
-          - form_for Suggestion.new :id=>"suggestions_form" do |f|   
-            .field  
-              = f.hidden_field :issue_id, :class=>"formfield", :id=>"frm_suggestion_id", :value=>@issue.id
-            .field                   
-              = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_suggestion_url", :value=>@issue.wiki_url
-            .actions 
-              = f.submit 'Retrieve',:type => :image, :src => "/images/issues/sync.png", :name=>"save_suggestion_button", :id=>"suggestions_collector", :title=>"retrieve suggestions", :border=>0        
-        %div{:style=>"font-weight:normal;"}
-          Sync          
+              
                
 
     %div{:class=>"created_by"}

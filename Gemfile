@@ -46,6 +46,10 @@ gem "json"
 gem "lock"
 
 gem 'hirb'
+gem "query-analyzer", "~> 0.1.1"
+gem "recaptcha", :require => "recaptcha/rails"
+
+gem "exception_notification", :require => "exception_notifier"
 
 group :development do
 	gem "hpricot"
