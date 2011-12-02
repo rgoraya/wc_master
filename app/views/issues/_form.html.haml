@@ -270,7 +270,7 @@
   } else {
   
   //  populate the description text
-  text_preview = $(Jval.replace(/<p><br \/><\/p>/,'')).filter('p:first').text();
+  text_preview = $(Jval.replace(/<p><br \/><\/p>/gi,'')).filter('p:first').text().replace(/\[\d+\]/gi,'');
   
   //  Throw error if no text was received
   if(text_preview == ''){
