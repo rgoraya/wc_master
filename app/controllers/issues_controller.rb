@@ -79,51 +79,7 @@ class IssuesController < ApplicationController
             @relationship.user_id = @issue.user_id  
           end            
         
-        # It is a Cause
-        if @causality == "C"  
-          @relationship.cause_id = @issueid
-          @relationship.issue_id = @causality_id
-          @notice = 'New cause linked Successfully'
-        end
-
-        # It is an Inhibitor
-        if @causality == "I"  
-          @relationship.cause_id = @issueid
-          @relationship.issue_id = @causality_id
-          @relationship.relationship_type = 'I'
-          @notice = 'New reducing issue linked Successfully'
-        end        
-
-        # It is a Superset
-        if @causality == "P"  
-          @relationship.cause_id = @issueid
-          @relationship.issue_id = @causality_id
-          @relationship.relationship_type = 'H'
-          @notice = 'New superset linked Successfully'
-        end
-        
-        # It is an Effect
-        if @causality == "E"
-          @relationship.cause_id = @causality_id
-          @relationship.issue_id = @issueid      
-          @notice = 'New effect linked Successfully'
-        end
-
-        # It is an Inhibited
-        if @causality == "R"
-          @relationship.cause_id = @causality_id
-          @relationship.issue_id = @issueid      
-          @relationship.relationship_type = 'I'
-          @notice = 'New reduced issue linked Successfully'
-        end
-        
-        # It is a Subset
-        if @causality == "S"
-          @relationship.cause_id = @causality_id
-          @relationship.issue_id = @issueid
-          @relationship.relationship_type = 'H'          
-          @notice = 'New subset linked Successfully'
-        end        
+        set_type_of_relationship(true)       
         
         save_relationship
       
@@ -155,58 +111,13 @@ class IssuesController < ApplicationController
             @relationship.user_id = @issue.user_id  
           end
 
-          # It is a Cause
-          if @causality == "C"  
-            @relationship.cause_id = @issue.id
-            @relationship.issue_id = @causality_id          
-            @notice = 'New Issue was created and linked as a cause'
-          end
-
-          # It is an Inhibitor
-          if @causality == "I"  
-            @relationship.cause_id = @issue.id
-            @relationship.issue_id = @causality_id
-            @relationship.relationship_type = 'I'            
-            @notice = 'New Issue was created and linked as reducer'
-          end
-
-          # It is a Superset
-          if @causality == "P"  
-            @relationship.cause_id = @issue.id
-            @relationship.issue_id = @causality_id 
-            @relationship.relationship_type = 'H'
-            @notice = 'New Issue was created and linked as a superset'
-          end         
-
-          # It is an Effect
-          if @causality == "E"  
-            @relationship.cause_id = @causality_id
-            @relationship.issue_id = @issue.id
-            @notice = 'New Issue was created and linked as an effect'
-          end          
-
-          # It is an Inhibited
-          if @causality == "R"  
-            @relationship.cause_id = @causality_id
-            @relationship.issue_id = @issue.id
-            @relationship.relationship_type = 'I'
-            @notice = 'New Issue was created and linked as reduced'
-          end              
-
-          # It is a Subset
-          if @causality == "S"  
-            @relationship.cause_id = @causality_id
-            @relationship.issue_id = @issue.id
-            @relationship.relationship_type = 'H'
-            @notice = 'New Issue was created and linked as a subset'
-          end  
-
+          set_type_of_relationship(false)
           save_relationship
 
           # some problem occurred and the Issue could not be saved
         else
           @notice = @issue.errors.full_messages
-          redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
+          redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
 
         end
         
@@ -240,6 +151,76 @@ class IssuesController < ApplicationController
           format.xml  { render :xml => @issue.errors, :status => :unprocessable_entity }
         end
       end      
+    end
+  end
+
+  def set_type_of_relationship(already_exists)
+    if !already_exists
+      case @causality
+      when "C"       
+        @relationship.cause_id = @issue.id
+        @relationship.issue_id = @causality_id  
+        @notice = 'New Issue was created and linked as a cause'
+      when "I"
+        @relationship.cause_id = @issue.id
+        @relationship.issue_id = @causality_id  
+        @relationship.relationship_type = 'I'            
+        @notice = 'New Issue was created and linked as reducer'
+      when "P"
+        @relationship.cause_id = @issue.id
+        @relationship.issue_id = @causality_id  
+        @relationship.relationship_type = 'H'
+        @notice = 'New Issue was created and linked as a superset'
+      when "E"
+        @relationship.cause_id = @causality_id
+        @relationship.issue_id = @issue.id
+        @notice = 'New Issue was created and linked as an effect'
+      when "R"
+        @relationship.cause_id = @causality_id
+        @relationship.issue_id = @issue.id
+        @relationship.relationship_type = 'I'
+        @notice = 'New Issue was created and linked as reduced'
+      when "S"
+        @relationship.cause_id = @causality_id
+        @relationship.issue_id = @issue.id
+        @relationship.relationship_type = 'H'
+        @notice = 'New Issue was created and linked as a subset'
+      else 
+        @notice = 'Error creating and linking issue'
+      end
+    else #if already_exists
+      case @causality
+      when "C"       
+        @relationship.cause_id = @issueid
+        @relationship.issue_id = @causality_id
+        @notice = 'New cause linked Successfully'
+      when "I"
+        @relationship.cause_id = @issueid
+        @relationship.issue_id = @causality_id
+        @relationship.relationship_type = 'I'
+        @notice = 'New reducing issue linked Successfully'
+      when "P"
+        @relationship.cause_id = @issueid
+        @relationship.issue_id = @causality_id
+        @relationship.relationship_type = 'H'
+        @notice = 'New superset linked Successfully'
+      when "E"
+        @relationship.cause_id = @causality_id
+        @relationship.issue_id = @issueid      
+        @notice = 'New effect linked Successfully'
+      when "R"
+        @relationship.cause_id = @causality_id
+        @relationship.issue_id = @issueid      
+        @relationship.relationship_type = 'I'
+        @notice = 'New reduced issue linked Successfully'
+      when "S"
+        @relationship.cause_id = @causality_id
+        @relationship.issue_id = @issueid
+        @relationship.relationship_type = 'H'          
+        @notice = 'New subset linked Successfully'
+      else 
+        @notice = 'Error creating and linking issue'
+      end 
     end
   end
 
