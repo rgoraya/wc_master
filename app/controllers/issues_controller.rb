@@ -125,59 +125,36 @@ class IssuesController < ApplicationController
           @notice = 'New subset linked Successfully'
         end        
         
-        
-        # Save the Relationship     
-        if @relationship.save
-
-          # remove duplicate suggestions if any
-          if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
-            @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
-            @suggestion = Suggestion.find(@suggestion_id)
-            @suggestion.update_attributes('status' => 'A')
-            @suggestion.save
-          end  
-
-					Reputation::Utils.reputation(:action=>:create, \
-																					:type=>:relationship, \
-																					:id=>@relationship.id, \
-																					:me=>@relationship.user_id, \
-																					:undo=>false, \
-																					:calculate=>true)
-
-          redirect_to(:back, :notice => @notice)
-        else
-          @notice = @relationship.errors.full_messages
-          redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
-        end
+        save_relationship
       
       # * * * * The issue pointing to this wiki_url does not exist so create new issue before relation * * * *
       else
         if @issue.save
 
-					suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
+          suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
 
-    			Suggestion.create(suggested_causes)
-    			Suggestion.create(suggested_effects)
-   				Suggestion.create(suggested_inhibitors)
-    			Suggestion.create(suggested_reduced)
-    			Suggestion.create(suggested_parents)
-    			Suggestion.create(suggested_subsets)
+          Suggestion.create(suggested_causes)
+          Suggestion.create(suggested_effects)
+          Suggestion.create(suggested_inhibitors)
+          Suggestion.create(suggested_reduced)
+          Suggestion.create(suggested_parents)
+          Suggestion.create(suggested_subsets)
 
 
-					Reputation::Utils.reputation(:action=>:create, \
-																					:type=>:issue, \
-																					:me=>@issue.user_id, \
-																					:undo=>false, \
-																					:calculate=>true)
+          Reputation::Utils.reputation(:action=>:create, \
+                                       :type=>:issue, \
+                                       :me=>@issue.user_id, \
+                                       :undo=>false, \
+                                       :calculate=>true)
 
           # Define a new Relationship
           @relationship = Relationship.new
-          
+
           # Populate User_Id if relationship was created by a logged in User
           if @issue.user_id.to_s != ""
             @relationship.user_id = @issue.user_id  
           end
-          
+
           # It is a Cause
           if @causality == "C"  
             @relationship.cause_id = @issue.id
@@ -200,7 +177,7 @@ class IssuesController < ApplicationController
             @relationship.relationship_type = 'H'
             @notice = 'New Issue was created and linked as a superset'
           end         
-          
+
           # It is an Effect
           if @causality == "E"  
             @relationship.cause_id = @causality_id
@@ -215,7 +192,7 @@ class IssuesController < ApplicationController
             @relationship.relationship_type = 'I'
             @notice = 'New Issue was created and linked as reduced'
           end              
-            
+
           # It is a Subset
           if @causality == "S"  
             @relationship.cause_id = @causality_id
@@ -223,46 +200,20 @@ class IssuesController < ApplicationController
             @relationship.relationship_type = 'H'
             @notice = 'New Issue was created and linked as a subset'
           end  
-            
-          # Save the Relationship     
-          if @relationship.save
 
-            # remove duplicate suggestions if any
-            if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
-              @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
-              @suggestion = Suggestion.find(@suggestion_id)
-              @suggestion.update_attributes('status' => 'A')
-              @suggestion.save
-            end  
+          save_relationship
 
-						Reputation::Utils.reputation(:action=>:create, \
-																					:type=>:relationship, \
-																					:id=>@relationship.id, \
-																					:me=>@relationship.user_id, \
-																					:undo=>false, \
-																					:calculate=>true)
-
-            redirect_to(:back, :notice => @notice)
-          else
-            @notice = @relationship.errors.full_messages
-            redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
-          end
-        
-        # some problem occurred and the Issue could not be saved
+          # some problem occurred and the Issue could not be saved
         else
           @notice = @issue.errors.full_messages
           redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
-          
+
         end
         
-        #code to generate suggestions for the Newly created Issue
-        
-        # Define new Suggestions
+        # Define new Suggestions for the newly created issue
         Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])       
         
-        
       end
-      
          
     else
       
@@ -290,10 +241,36 @@ class IssuesController < ApplicationController
         end
       end      
     end
-    
-    
-    
-    
+  end
+
+  def save_relationship
+    if @relationship.save
+      remove_duplicate_suggestions 
+      Reputation::Utils.reputation(:action=>:create, \
+                                   :type=>:relationship, \
+                                   :id=>@relationship.id, \
+                                   :me=>@relationship.user_id, \
+                                   :undo=>false, \
+                                   :calculate=>true)
+
+      redirect_to(:back, :notice => @notice)
+    else
+      error_saving_causal_link
+    end   
+  end
+
+  def remove_duplicate_suggestions
+    if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
+      @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
+      @suggestion = Suggestion.find(@suggestion_id)
+      @suggestion.update_attributes('status' => 'A')
+      @suggestion.save
+    end 
+  end
+
+  def error_saving_causal_link
+    @notice = @relationship.errors.full_messages
+    redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
   end
 
   #protected
