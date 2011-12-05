@@ -1,6 +1,8 @@
 - content_for(:include_custom_stylesheet) do
 	= stylesheet_link_tag "styles"
 
+- content_for(:title, 'Feedback') 
+
 %div{:id=>"error_container"}
 	%div{:style=>"float:right;width:15px;"}
 		%a{:href=>'#', :class=>'closebutton'}
