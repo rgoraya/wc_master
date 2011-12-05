@@ -108,7 +108,7 @@ DEPENDENCIES
   jquery-rails
   json
   lock
-  paper_trail (~> 2)
+  paper_trail (~> 2.5.0)
   query-analyzer (~> 0.1.1)
   rails (= 3.0.7)
   rails3-jquery-autocomplete

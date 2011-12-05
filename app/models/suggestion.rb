@@ -41,7 +41,7 @@ belongs_to :issue
             # the url of the suggestion
             suggestion_url = 'http://en.wikipedia.org'+cause.attributes['href']
             # title of the suggestion
-            suggestion_title = URI.unescape(cause.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""))
+            suggestion_title = URI.unescape(cause.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
 
             # This suggestion does not exist already    
             if not current_suggested_causes.include?(suggestion_url)
@@ -63,7 +63,7 @@ belongs_to :issue
             # the url of the suggestion
             effect_suggestion_url = 'http://en.wikipedia.org'+effect.attributes['href']
             # title of suggestion
-            effect_suggestion_title = URI.unescape(effect.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""))
+            effect_suggestion_title = URI.unescape(effect.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
 
             # This suggestion does not exist already    
             if not current_suggested_effects.include?(effect_suggestion_url)
@@ -84,7 +84,7 @@ belongs_to :issue
             # the url of the suggestion
             inhibitor_suggestion_url = 'http://en.wikipedia.org'+inhibitor.attributes['href']
             # title of the suggestion
-            inhibitor_suggestion_title = URI.unescape(inhibitor.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""))
+            inhibitor_suggestion_title = URI.unescape(inhibitor.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
 
             # This suggestion does not exist already    
             if not current_suggested_inhibitors.include?(inhibitor_suggestion_url)
@@ -106,7 +106,7 @@ belongs_to :issue
             # the url of the suggestion
             reduced_suggestion_url = 'http://en.wikipedia.org'+reduced.attributes['href']
             # title of the suggestion
-            reduced_suggestion_title = URI.unescape(reduced.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""))
+            reduced_suggestion_title = URI.unescape(reduced.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
                 
             # This suggestion does not exist already    
             if not current_suggested_inhibited.include?(reduced_suggestion_url)
@@ -128,7 +128,7 @@ belongs_to :issue
             # the url of the suggestion
             parent_suggestion_url = 'http://en.wikipedia.org'+parent.attributes['href']
             # title of the suggestion
-            parent_suggestion_title = URI.unescape(parent.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""))
+            parent_suggestion_title = URI.unescape(parent.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
                 
             # This suggestion does not exist already    
             if not current_suggested_supersets.include?(parent_suggestion_url)
@@ -150,7 +150,7 @@ belongs_to :issue
             # the url of the suggestion
             subset_suggestion_url = 'http://en.wikipedia.org'+subset.attributes['href']
             # title of the suggestion
-            subset_suggestion_title = URI.unescape(subset.attributes['href'].gsub("_" , " ").gsub("\/wiki\/", ""))
+            subset_suggestion_title = URI.unescape(subset.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
                 
             # This suggestion does not exist already    
             if not current_suggested_subsets.include?(subset_suggestion_url)

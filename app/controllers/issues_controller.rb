@@ -127,12 +127,12 @@ class IssuesController < ApplicationController
 
   def set_type_of_relationship(already_exists)
     args = { 
-        C: [nil, 'a cause',    'cause'],
-        I: [:I,  'a reducer',  'reducer issue'],
-        P: [:H,  'a superset', 'superset'],
-        E: [nil, 'an effect',  'effect'],
-        R: [:I,  'reduced',    'reduced issue'],
-        S: [:H,  'a subset',   'subset'] 
+        :C => [nil, 'a cause',    'cause'],
+        :I => [:I,  'a reducer',  'reducer issue'],
+        :P => [:H,  'a superset', 'superset'],
+        :E => [nil, 'an effect',  'effect'],
+        :R => [:I,  'reduced',    'reduced issue'],
+       	:S => [:H,  'a subset',   'subset'] 
       }[@causality.to_sym]
 
     (@notice = 'Error creating and linking issue' and return) if args.nil?
