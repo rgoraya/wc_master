@@ -126,73 +126,44 @@ class IssuesController < ApplicationController
   end
 
   def set_type_of_relationship(already_exists)
-    if !already_exists
-      case @causality
-      when "C"       
-        @relationship.cause_id = @issue.id
-        @relationship.issue_id = @causality_id  
-        @notice = 'New Issue was created and linked as a cause'
-      when "I"
-        @relationship.cause_id = @issue.id
-        @relationship.issue_id = @causality_id  
-        @relationship.relationship_type = 'I'            
-        @notice = 'New Issue was created and linked as reducer'
-      when "P"
-        @relationship.cause_id = @issue.id
-        @relationship.issue_id = @causality_id  
-        @relationship.relationship_type = 'H'
-        @notice = 'New Issue was created and linked as a superset'
-      when "E"
-        @relationship.cause_id = @causality_id
-        @relationship.issue_id = @issue.id
-        @notice = 'New Issue was created and linked as an effect'
-      when "R"
-        @relationship.cause_id = @causality_id
-        @relationship.issue_id = @issue.id
-        @relationship.relationship_type = 'I'
-        @notice = 'New Issue was created and linked as reduced'
-      when "S"
-        @relationship.cause_id = @causality_id
-        @relationship.issue_id = @issue.id
-        @relationship.relationship_type = 'H'
-        @notice = 'New Issue was created and linked as a subset'
-      else 
-        @notice = 'Error creating and linking issue'
+    args = { 
+        C: [nil, 'a cause',    'cause'],
+        I: [:I,  'a reducer',  'reducer issue'],
+        P: [:H,  'a superset', 'superset'],
+        E: [nil, 'an effect',  'effect'],
+        R: [:I,  'reduced',    'reduced issue'],
+        S: [:H,  'a subset',   'subset'] 
+      }[@causality.to_sym]
+
+    (@notice = 'Error creating and linking issue' and return) if args.nil?
+
+    if already_exists
+      case @causality 
+      when "C", "I", "P"
+      @relationship.cause_id = @issueid
+      @relationship.issue_id = @causality_id 
+      when "E", "R", "S"
+      @relationship.cause_id = @causality_id
+      @relationship.issue_id = @issueid
+      end   
+      @relationship.relationship_type = args[0].try(:to_s)            
+    else
+      case @causality 
+      when "C", "I", "P"
+      @relationship.cause_id = @issue.id
+      @relationship.issue_id = @causality_id 
+      when "E", "R", "S"
+      @relationship.cause_id = @causality_id
+      @relationship.issue_id = @issue.id
       end
-    else #if already_exists
-      case @causality
-      when "C"       
-        @relationship.cause_id = @issueid
-        @relationship.issue_id = @causality_id
-        @notice = 'New cause linked Successfully'
-      when "I"
-        @relationship.cause_id = @issueid
-        @relationship.issue_id = @causality_id
-        @relationship.relationship_type = 'I'
-        @notice = 'New reducing issue linked Successfully'
-      when "P"
-        @relationship.cause_id = @issueid
-        @relationship.issue_id = @causality_id
-        @relationship.relationship_type = 'H'
-        @notice = 'New superset linked Successfully'
-      when "E"
-        @relationship.cause_id = @causality_id
-        @relationship.issue_id = @issueid      
-        @notice = 'New effect linked Successfully'
-      when "R"
-        @relationship.cause_id = @causality_id
-        @relationship.issue_id = @issueid      
-        @relationship.relationship_type = 'I'
-        @notice = 'New reduced issue linked Successfully'
-      when "S"
-        @relationship.cause_id = @causality_id
-        @relationship.issue_id = @issueid
-        @relationship.relationship_type = 'H'          
-        @notice = 'New subset linked Successfully'
-      else 
-        @notice = 'Error creating and linking issue'
-      end 
+      @relationship.relationship_type = args[0].try(:to_s)            
     end
+
+    @notice = if already_exists
+                "New #{args[2]} linked Successfully"
+              else
+                "New Issue was created and linked as #{args[1]}"
+              end
   end
 
   def save_relationship
