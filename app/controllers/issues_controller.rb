@@ -137,27 +137,11 @@ class IssuesController < ApplicationController
 
     (@notice = 'Error creating and linking issue' and return) if args.nil?
 
-    if already_exists
-      case @causality 
-      when "C", "I", "P"
-      @relationship.cause_id = @issueid
-      @relationship.issue_id = @causality_id 
-      when "E", "R", "S"
-      @relationship.cause_id = @causality_id
-      @relationship.issue_id = @issueid
-      end   
-      @relationship.relationship_type = args[0].try(:to_s)            
-    else
-      case @causality 
-      when "C", "I", "P"
-      @relationship.cause_id = @issue.id
-      @relationship.issue_id = @causality_id 
-      when "E", "R", "S"
-      @relationship.cause_id = @causality_id
-      @relationship.issue_id = @issue.id
-      end
-      @relationship.relationship_type = args[0].try(:to_s)            
-    end
+    issue_id = already_exists ? @issueid : @issue.id
+    ids = [issue_id, @causality_id]
+    ids = ids.rotate if %W[E R S].member? @causality
+    @relationship.cause_id, @relationship.issue_id = ids
+    @relationship.relationship_type = args[0].try(:to_s)   
 
     @notice = if already_exists
                 "New #{args[2]} linked Successfully"
