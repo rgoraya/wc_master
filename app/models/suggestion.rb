@@ -50,9 +50,7 @@ class Suggestion < ActiveRecord::Base
   end
 
   def search_type_of_relation_in_text(issueid, type_of_causality)
-
-    puts type_of_causality.to_sym
-
+    relation_ocurrences = Array.new
     keywords_list = { 
       :C => ['cause', 'causes'],
       :I => ['prevent', 'inhibitors'],
@@ -61,10 +59,6 @@ class Suggestion < ActiveRecord::Base
       :R => ['reduce', 'inhibited'],
       :S => ['example', 'subsets'] 
     }[type_of_causality.to_sym]  
-    
-    puts keywords_list.first
-
-    relation_ocurrences = Array.new
 
     @buffer.search('//p[text()*= "'+keywords_list.first+'"]/a').each { |relation|
       # the url of the suggestion
@@ -72,7 +66,6 @@ class Suggestion < ActiveRecord::Base
       # title of the suggestion
       relation_suggestion_title = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
 
-      puts keywords_list[1]
       # This suggestion does not exist already    
       if not @current_suggested[keywords_list[1]].include?(relation_suggestion_url)
 
@@ -90,6 +83,5 @@ class Suggestion < ActiveRecord::Base
     } 
     return relation_ocurrences
   end   
-
 
 end
