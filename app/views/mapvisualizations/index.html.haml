@@ -1,101 +1,11 @@
+-# specifies the data that we're going to be working with in javascript
 :javascript
-  //specifies the data that we're going to be working with
-
-  //Node {id, name, weight}
-  function Node(id, name, weight)
-  {
-      this._id = id;
-      this.name = name;
-      this.weight = weight;
-      this.toString = function() { return this.name; }
-      this.x //curr location
-      this.y
-      this.dx = 0;
-      this.dy = 0;
-  }
-
-  //Edge {id, a, b, weight, type}
-  function Edge(id, a, b, weight, type)
-  {
-    this._id = id; //may not be needed?
-    this.a = a; //these are probably id references to nodes
-    this.b = b;
-    this.weight = weight
-    this._type = type;
-    this.toString = function() { return "Edge"+this.a+"-"+this.b; }
-  }
- 
-  //Create some random nodes and edges!
-  //note that ruby vars won't color highlight correctly
-  var nodes = new Array(#{@my_var});
-  for(var i=0; i<nodes.length; i++)
-  {
-    nodes[i] = new Node(i, ("Node "+i), Math.random()*5);
-  }
-
-  //build adjacency matrix
-  var adjacency = new Array(nodes.length)
-  for(var i=0; i<adjacency.length; i++)
-  {
-    adjacency[i] = new Array(nodes.length)
-  }
-
-  var edges = new Array(0);
-  for(var i=0; i<nodes.length; i++)
-  {
-    for(var j=i+1; j<nodes.length; j++) //only one edge per pair, not self-joined
-    {
-      var chance = Math.random();
-      if(chance > .8)
-      {
-        edges.push(new Edge(edges.length, i, j, Math.random()*5, 0));
-        adjacency[i][j] = 1; adjacency[j][i] = 1; //should probably just put the edges in the matrix to save space *shrug*
-      }
-      else
-      {
-        adjacency[i][j] = 0; adjacency[j][i] = 0;
-      }
-    
-    }
-  }
-
-  //make adjacency graph at the same time
-
-
-  //returns distance between two nodes
-  function node_dist(a,b)
-  {
-    return Math.sqrt((b.x-a.x)*(b.x-a.x) + (b.y-a.y)*(b.y-a.y));
-  }
-
-  //returns normal vector from a to b
-  function normal_vect(a,b)
-  {
-    //  return [ (b.x-a.x)/node_dist(a,b) , (b.y-a.y)/node_dist(a,b) ]
-  }
-
-  //debug code: print data to debug div
-  $(document).ready(function()
-  {
-    // var out = "NODES: "+nodes.toString() +
-    //   "<br><br>" +
-    //   "EDGES: " + edges.toString() +
-    //   "<br>";
-    //   
-    // 
-    // $("#debug").html(out);
-  });
-
-
-  //code to convert ruby structs to javascript structs via insertion <% %>
-
-= javascript_include_tag "raphael-min.js"
-/ = javascript_include_tag "data.js"
-= javascript_include_tag "causemap_rjs.js"
+  #{javascript_graph(@nodes,@edges)} 
+= javascript_include_tag "raphael-min.js" #for drawing
+= javascript_include_tag "causemap_rjs.js" #the draw code itself
 
 
 #canvas_container
 #interaction
-  <button onclick="eadesLayout()">Arrange Nodes (Eades)</button>
+  = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
 #debug
-  / = local_var
