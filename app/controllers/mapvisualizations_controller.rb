@@ -4,7 +4,13 @@ class MapvisualizationsController < ApplicationController
   def index
     @mapvisualizations = Mapvisualization.all
 
-    # do method calls here
+    # do method calls / variable declarations here
+
+    @my_var = 12 #testing variable
+     
+
+
+
 
 
     respond_to do |format|

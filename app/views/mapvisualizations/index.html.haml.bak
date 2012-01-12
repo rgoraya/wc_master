@@ -1,0 +1,19 @@
+%table
+  %tr
+    %th Name
+    %th Node count
+    %th
+    %th
+    %th
+
+  - @mapvisualizations.each do |mapvisualization|
+    %tr
+      %td= mapvisualization.name
+      %td= mapvisualization.node_count
+      %td= link_to 'Show', mapvisualization
+      %td= link_to 'Edit', edit_mapvisualization_path(mapvisualization)
+      %td= link_to 'Destroy', mapvisualization, :confirm => 'Are you sure?', :method => :delete
+
+%br
+
+= link_to 'New Mapvisualization', new_mapvisualization_path
