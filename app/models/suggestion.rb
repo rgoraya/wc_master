@@ -4,13 +4,31 @@ class Suggestion < ActiveRecord::Base
 
   belongs_to :issue
 
+  KEYWORDS = {  #should be filled with several keywords related to each of the types
+    :C => ['cause'],
+    :I => ['prevent'],
+    :P => ['type'],
+    :E => ['effect'],
+    :R => ['reduce'],
+    :S => ['example'] 
+  }
+
+  CAUSALITY_TYPES = {
+    :C => 'causes',
+    :I => 'inhibitors',
+    :P => 'supersets',
+    :E => 'effects',
+    :R => 'inhibited',
+    :S => 'subsets'  
+  }
+
   def get_suggestions(url, issueid)
 
     if url.size > 10
 
-      this_issue = Issue.find(issueid)
-      @current_suggested = Hash.new
-      @accepted = Hash.new 
+      this_issue         = Issue.find(issueid)
+      @current_suggested = {}
+      @accepted          = {}
 
       retrieve_suggested_relations_for_issue(this_issue)
       retrieve_accepted_relations_for_issue(this_issue)
@@ -49,39 +67,45 @@ class Suggestion < ActiveRecord::Base
     @accepted['subsets']    = this_issue.subsets.collect{|x| x.wiki_url}
   end
 
-  def search_type_of_relation_in_text(issueid, type_of_causality)
-    relation_ocurrences = Array.new
-    keywords_list = { 
-      :C => ['cause', 'causes'],
-      :I => ['prevent', 'inhibitors'],
-      :P => ['type','supersets'],
-      :E => ['effect', 'effects'],
-      :R => ['reduce', 'inhibited'],
-      :S => ['example', 'subsets'] 
-    }[type_of_causality.to_sym]  
+  def search_type_of_relation_in_text(issue_id, type_of_causality)
+    KEYWORDS[type_of_causality.to_sym].collect do |keyword|
+      search_word(keyword, type_of_causality, issue_id)
+    end
+  end
 
-    @buffer.search('//p[text()*= "'+keywords_list.first+'"]/a').each { |relation|
-      # the url of the suggestion
-      relation_suggestion_url = 'http://en.wikipedia.org'+relation.attributes['href']
-      # title of the suggestion
+  def search_word(keyword, relation_type, issue_id)
+    relation_occurrences = [ ]
+    causality_type       = CAUSALITY_TYPES[relation_type.to_sym]
+    puts causality_type
+    puts causality_type
+    puts causality_type
+    puts causality_type
+    puts causality_type
+
+    @buffer.search(%Q{//p[text()*= "#{keyword}'"]/a}).each do |relation|
+      relation_suggestion_url   = "http://en.wikipedia.org#{relation.attributes['href']}"
       relation_suggestion_title = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
 
-      # This suggestion does not exist already    
-      if not @current_suggested[keywords_list[1]].include?(relation_suggestion_url)
+      if (!@current_suggested[causality_type].include?(relation_suggestion_url))
+        occurrence = {
+          :title     => relation_suggestion_title,
+          :wiki_url  => relation_suggestion_url,
+          :causality => relation_type,
+          :issue_id  => issue_id
+          }
 
-        # Is this a suggestion that has been accepted as a cause already? 
-        if @accepted[keywords_list[1]].include?(relation_suggestion_url)
-          relation_ocurrences << {:title => relation_suggestion_title, :wiki_url => relation_suggestion_url, :causality => type_of_causality, :status => "A", :issue_id => issueid}
+        occurrence[:status] =
+          if (@accepted[causality_type].include?(relation_suggestion_url))
+            'A'
+          else
+            'N'
+          end
 
-          # This suggestion has not been accepted
-        else
-          relation_ocurrences << {:title => relation_suggestion_title, :wiki_url => relation_suggestion_url, :causality => type_of_causality, :status => "N", :issue_id => issueid}
-        end
-
+        relation_occurrences << occurrence
       end
+    end 
 
-    } 
-    return relation_ocurrences
-  end   
+    relation_occurrences
+  end  
 
 end
