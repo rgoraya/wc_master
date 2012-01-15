@@ -5,16 +5,16 @@ class Suggestion < ActiveRecord::Base
   belongs_to :issue
 
   KEYWORDS = {  #should be filled with several keywords related to each of the types
-    :C => ['cause'],
-    :I => ['prevent'],
+    :C => ['cause', 'proposed'],
+    :I => ['prevent', 'reduced by'],
     :P => ['type'],
-    :E => ['effect'],
-    :R => ['reduce'],
-    :S => ['example'] 
+    :E => ['effect','maximizes'],
+    :R => ['reduce','minimizes'],
+    :S => ['example','forms of'] 
   }
 
   CAUSALITY_TYPES = {
-    :C => 'causes',
+    :C => 'causes',                                         
     :I => 'inhibitors',
     :P => 'supersets',
     :E => 'effects',
@@ -35,12 +35,12 @@ class Suggestion < ActiveRecord::Base
 
       # Get the page contents into a buffer
       @buffer = Hpricot(open(url, "UserAgent" => "reader"+rand(10000).to_s).read)
- 
+
       causes     = search_type_of_relation_in_text(issueid, 'C')
       effects    = search_type_of_relation_in_text(issueid, 'E')
       inhibitors = search_type_of_relation_in_text(issueid, 'I') 
       reduceds   = search_type_of_relation_in_text(issueid, 'R') 
-      parents    = search_type_of_relation_in_text(issueid, 'P') 
+      parents    = search_type_of_relation_in_text(issueid, 'P') + search_superset_in_table(issueid)
       subsets    = search_type_of_relation_in_text(issueid, 'S') 
 
     end
@@ -56,7 +56,7 @@ class Suggestion < ActiveRecord::Base
     @current_suggested['supersets']  = this_issue.suggestions.where(:causality => 'P').collect{|x| x.wiki_url}
     @current_suggested['inhibited']  = this_issue.suggestions.where(:causality => 'R').collect{|x| x.wiki_url}
     @current_suggested['subsets']    = this_issue.suggestions.where(:causality => 'S').collect{|x| x.wiki_url}
-  end                    
+    {:title=>"Renewable energy", :wiki_url=>"http://en.wikipedia.org/wiki/Renewable_energy", :causality=>"P", :issue_id=>3, :status=>"N"}  end                    
 
   def retrieve_accepted_relations_for_issue(this_issue)
     @accepted['causes']     = this_issue.causes.collect{|x| x.wiki_url}
@@ -67,6 +67,7 @@ class Suggestion < ActiveRecord::Base
     @accepted['subsets']    = this_issue.subsets.collect{|x| x.wiki_url}
   end
 
+
   def search_type_of_relation_in_text(issue_id, type_of_causality)
     KEYWORDS[type_of_causality.to_sym].collect do |keyword|
       search_word(keyword, type_of_causality, issue_id)
@@ -75,35 +76,45 @@ class Suggestion < ActiveRecord::Base
 
   def search_word(keyword, relation_type, issue_id)
     relation_occurrences = [ ]
-    causality_type       = CAUSALITY_TYPES[relation_type.to_sym]
-    puts causality_type
-    puts causality_type
-    puts causality_type
-    puts causality_type
-    puts causality_type
-
+                                                                        
     @buffer.search(%Q{//p[text()*= "#{keyword}'"]/a}).each do |relation|
-      relation_suggestion_url   = "http://en.wikipedia.org#{relation.attributes['href']}"
-      relation_suggestion_title = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
+      relation_suggestion_url            = "http://en.wikipedia.org#{relation.attributes['href']}"
+      relation_suggestion_title          = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
+      occurrence                         = create_relation_occurrence(relation_suggestion_title, relation_suggestion_url, relation_type, issue_id)
 
-      if (!@current_suggested[causality_type].include?(relation_suggestion_url))
-        occurrence = {
-          :title     => relation_suggestion_title,
-          :wiki_url  => relation_suggestion_url,
-          :causality => relation_type,
-          :issue_id  => issue_id
-          }
-
-        occurrence[:status] =
-          if (@accepted[causality_type].include?(relation_suggestion_url))
-            'A'
-          else
-            'N'
-          end
-
-        relation_occurrences << occurrence
-      end
+      relation_occurrences << occurrence
     end 
+
+    relation_occurrences
+  end  
+
+  def create_relation_occurrence(relation_suggestion_title, relation_suggestion_url, relation_type, issue_id)
+    causality_type = CAUSALITY_TYPES[relation_type.to_sym]
+
+    if (!@current_suggested[causality_type].include?(relation_suggestion_url))
+      occurrence = {
+        :title     => relation_suggestion_title,
+        :wiki_url  => relation_suggestion_url,
+        :causality => relation_type,
+        :issue_id  => issue_id
+      }
+      
+      @accepted[causality_type].include?(relation_suggestion_url) ? occurrence[:status] = 'A' : occurrence[:status] = 'N'
+    end
+   
+    occurrence
+  end                               
+
+  def search_superset_in_table(issue_id)
+    relation_occurrences = [ ]
+
+    @buffer.search('table.infobox').search('th').search('b').search('a') do |link|
+      relation_suggestion_url   = "http://en.wikipedia.org#{link.attributes['href']}"
+      relation_suggestion_title = link.attributes['title']
+      occurrence                = create_relation_occurrence(relation_suggestion_title, relation_suggestion_url, 'P', issue_id)
+
+      relation_occurrences << occurrence
+    end
 
     relation_occurrences
   end  
