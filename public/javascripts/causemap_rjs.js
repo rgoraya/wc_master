@@ -48,4 +48,3 @@ function drawNodes() //outside of onload so that we can redraw
 
 
 
-

@@ -1,11 +1,13 @@
 -# specifies the data that we're going to be working with in javascript
 :javascript
-  #{javascript_graph(@nodes,@edges)} 
+  #{javascript_graph(@vis.nodes,@vis.edges)} 
 = javascript_include_tag "raphael-min.js" #for drawing
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 
 
 #canvas_container
 #interaction
-  = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
+  / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
+  = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+
 #debug
