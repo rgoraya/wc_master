@@ -17,9 +17,14 @@ class MapvisualizationsController < ApplicationController
       format.js do #respond to ajax calls?
         @vis = flash[:graph] || Mapvisualization.new(node_count) #grab the old vis, or make a new one if needed
 
-        actions = %w[remove_edges foo bar]
+        actions = %w[remove_edges foo bar] #etc
         begin
-          @vis.send(params[:cmd]) #if ACTIONS.include?(params[:cmd])
+          puts "sending "+params[:cmd]
+          if params[:args]
+            @vis.send(params[:cmd], params[:args]) #if ACTIONS.include?(params[:cmd])
+          else
+            @vis.send(params[:cmd]) #if ACTIONS.include?(params[:cmd])
+          end
         rescue NoMethodError
           flash[:error] = 'No such layout command'
         end

@@ -8,6 +8,10 @@
 #canvas_container
 #interaction
   / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
+  = button_to "Reset Graph (10)", {:action => "index", :cmd => 'reset_graph', :args => {:node_count => 10}}, {:remote => true, :method => :get}
+  = button_to "Random Spread", {:action => "index", :cmd => 'place_randomly'}, {:remote => true, :method => :get}
+  = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
+  = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
   = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
 
 #debug
