@@ -1,4 +1,6 @@
 Wikicausality::Application.routes.draw do
+  resources :mapvisualizations
+
   resources :feed_backs
 
   resources :suggestions

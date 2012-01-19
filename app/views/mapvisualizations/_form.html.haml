@@ -1,0 +1,16 @@
+= form_for @mapvisualization do |f|
+  -if @mapvisualization.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@mapvisualization.errors.count, "error")} prohibited this mapvisualization from being saved:"
+      %ul
+        - @mapvisualization.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :name
+    = f.text_field :name
+  .field
+    = f.label :node_count
+    = f.text_field :node_count
+  .actions
+    = f.submit 'Save'
