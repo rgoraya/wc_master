@@ -8,7 +8,7 @@ class Mapvisualization #< ActiveRecord::Base
   ######## BEGIN SUBCLASS DEFINITIONS #########
   ## Data structures for easier use 
   class Node < Object
-    attr_accessor :id, :name, :weight, :location, :d
+    attr_accessor :id, :name, :weight, :location, :d, :a
 
     def initialize(id, name, weight)
       @id = id #needed? currently using index as an id; may need to tweak this as we start fetching from db
@@ -16,6 +16,7 @@ class Mapvisualization #< ActiveRecord::Base
       @weight = weight
       @location = Vector[0.0,0.0]
       @d = Vector[0.0,0.0] #delta variable
+      @a = Vector[0.0,0.0] #accelration variable
     end
 
     def to_s
@@ -66,22 +67,29 @@ class Mapvisualization #< ActiveRecord::Base
 
   attr_accessor :nodes, :edges, :width, :height
   
-  def initialize(width, height, num_nodes)
-    @width, @height = width, height
+  def initialize(args)
+    @width, @height = args[:width], args[:height]
+    
+    puts args
+    
+    @nodes = args[:nodes]
+    @edges = args[:edges]
+    
+    reset_graph(@width, @height, args) if @nodes.nil? #currently resets to random
 
-    random_graph(num_nodes) #init to random graph atm
+    # random_graph(args[:node_count]) #init to random graph atm
     #normally will init to pull out the nodes we want to see... or something. Will need to figure out how that works
-
-    circle_nodes(@width, @height)
   end
 
-  def random_graph(node_count)
+  
+
+  def random_graph(node_count, edge_ratio=0.8)
     @nodes = Array.new(node_count) {|i| Node.new(i, "Node "+i.to_s, rand()*5)} #make all the nodes (random)
     @edges = Array.new() #an array to hold edges
     @adjacency = Array.new(node_count) {|i| Array.new(node_count)} #an adjacency matrix of edges (for easy referencing)
     for i in (0..node_count-1)
       for j in (i+1..node_count-1)
-        if(rand() > 0.8) #make random edges
+        if(rand() > edge_ratio) #make random edges
           @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rand()*5))
           @adjacency[i][j] = @edges.last
           @adjacency[j][i] = @edges.last
@@ -109,7 +117,6 @@ class Mapvisualization #< ActiveRecord::Base
 
   # algorithm from fruchterman_reingold via Kobourov 2004
   def fruchterman_reingold(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)
-    puts "f_r called"
     iterations = 500
     area = width*height
     k = nodeset.length > 0 ? Math.sqrt(area/nodeset.length) : 1 #multiply this by .75 to slow it down?
@@ -153,7 +160,82 @@ class Mapvisualization #< ActiveRecord::Base
     end
   end
 
+  # adapted from https://github.com/dhotson/springy/blob/master/springy.js
+  def springy(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)
+    puts "springy called"
+    for n in nodeset
+      # convert to "close" coordinates (to within 4x4 bounding box, in this case)
+      n.location = Vector[4.0*n.location[0]/width - 2.0, 4.0*n.location[1]/height - 2.0]
+      n.d = Vector[0.0,0.0] #clear out previous movement before we begin... sure
+      n.a = Vector[0.0,0.0] 
+    end
+    stiffness = 400.0 #what exactly will these variables do?
+    repulsion = 400.0
+    damping = 0.5
+    timestep = 0.03
 
+    prevEnergy = 0.0
+    currEnergy = 1.0
+    iters = 0
+    until currEnergy < 0.01 or (currEnergy-prevEnergy).abs < 0.00001 or iters > 1000 do #energy threshold?
+      prevEnergy = currEnergy
+      #for n1 in nodeset #apply Coulomb's Law
+      nodeset.each_index do |i|
+        n1 = nodeset[i]
+        nodeset.each_index do |j|
+          n2 = nodeset[j]
+          if i != j
+            #puts "applying coulomb to " + n1.to_s + " and " + n2.to_s #should this be once per pair?
+            d = n1.location - n2.location
+            distance = d.r + 0.1 #avoid massive forces at small distances (and divide by zero)
+            direction = d/d.r #normalized
+            n1.a += direction*(repulsion/(distance*distance*0.5))/1.0 #divide by "mass" (currently 1)
+            n2.a += direction*(repulsion/(distance*distance*-0.5))/1.0 #divide by "mass" (currently 1)          
+          end
+        end
+      end      
+
+      for e in edgeset #apply Hooke's Law
+        #puts "applying hooke's law to "+e.to_s
+        d = e.b.location - e.a.location
+        displacement = 1.0 - d.r #spring "length" at rest?? - magnitude... either 0 or 1 or ?
+        direction = d/d.r #normalized
+        e.a.a += direction*(stiffness*displacement*-0.5)/1.0 #divide by the "mass" (currently 1)
+        e.b.a += direction*(stiffness*displacement*0.5)/1.0
+      end
+
+      # for n in nodeset
+      #   puts n.to_s + " accel: "+ n.a.to_s #seems large... but maybe because of how 
+      # end
+
+      for n in nodeset #finish moving nodes/etc
+        n.a += (n.location*-1)*(repulsion/50.0)/1.0 #attract to center
+        #puts n.to_s + " accel: "+ n.a.to_s
+        n.d += n.a*timestep*damping #update velocity
+        #puts n.to_s + " veloc: "+ n.d.to_s
+        n.a = Vector[0.0,0.0] #reset acceleration
+        n.location += n.d*timestep #update position        
+        #puts n.to_s + " loc: "+ n.location.to_s
+      end
+
+      scale = Vector[ 2.0/[nodeset.max_by{|n| n.location[0].abs}.location[0].abs,2.0].max , 
+                      2.0/[nodeset.max_by{|n| n.location[1].abs}.location[1].abs,2.0].max ] #biggest coords
+      currEnergy = 0.0
+      for n in nodeset
+        n.location = Vector[n.location[0]*scale[0], n.location[1]*scale[1]] ##rescale to stay within bounds!
+        n.d = Vector[n.d[0]*scale[0], n.d[1]*scale[1]]
+        # puts n.to_s + " loc: "+ n.location.to_s
+        currEnergy += 0.5*1.0*n.d.r**2 #calculate total energy; 1.0=mass
+      end
+            
+      # calc delta energy, and use that for stopping?
+      puts "end of loop "+iters.to_s+", energy=" + currEnergy.to_s
+      iters+=1
+    end
+    for n in nodeset # convert back to "screen" coordinates (from within 4x4 bounding box, in this case, with 50px border)
+      n.location = Vector[((n.location[0]+2)/4.0)*(width-100)+50,((n.location[1]+2)/4.0)*(height-100)+50]
+    end    
+  end
 
   def reset_graph(width=@width, height=@height, args)
     random_graph(args[:node_count].to_i)

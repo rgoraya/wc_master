@@ -1,26 +1,31 @@
 class MapvisualizationsController < ApplicationController
-  
+    
   # GET /mapvisualizations
   def index
+    width = 500 #defaults
+    height = 500
+    node_count = 10
     
     respond_to do |format|
       format.html do #on html calls
-        width = 500 #defaults
-        height = 500
-        node_count = 10
 
-        @vis = Mapvisualization.new(width, height, node_count) #on new html--generate graph
+        @vis = Mapvisualization.new(:width => width, :height => height, :node_count => node_count) #on new html--generate graph
 
-        flash[:graph]=@vis #keep the vis for next time (if needed)
+        session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us
+        #flash[:graph]={:width => @vis.width, :height => @vis.height, :nodes => @vis.nodes, :edges => @vis.edges} #@vis #keep the vis for next time (if needed)
         return
       end
       format.js do #respond to ajax calls?
-        @vis = flash[:graph] || Mapvisualization.new(node_count) #grab the old vis, or make a new one if needed
+        
+        #@vis = Mapvisualization.new(flash[:graph]) #grab the old vis, or make a new one if needed
+        @vis = session[:vis] || Mapvisualization.new(:width => width, :height => height, :node_count => node_count) #grab the old vis, or make a new one if needed
 
         actions = %w[remove_edges foo bar] #etc
         begin
+          puts params
           puts "sending "+params[:cmd]
           if params[:args]
+            puts "args exists"
             @vis.send(params[:cmd], params[:args]) #if ACTIONS.include?(params[:cmd])
           else
             @vis.send(params[:cmd]) #if ACTIONS.include?(params[:cmd])
@@ -35,7 +40,8 @@ class MapvisualizationsController < ApplicationController
           #   @vis.remove_edges #call the method we want!!
           # end
         
-        flash[:graph]=@vis #keep the vis for next time
+        #flash[:graph]={:width => @vis.width, :height => @vis.height, :nodes => @vis.nodes, :edges => @vis.edges}#@vis #keep the vis for next time
+        session[:vis] = @vis
         return
       end
     end
