@@ -1,19 +1,30 @@
-%table
-  %tr
-    %th Name
-    %th Node count
-    %th
-    %th
-    %th
+= stylesheet_link_tag "vis_style"
 
-  - @mapvisualizations.each do |mapvisualization|
-    %tr
-      %td= mapvisualization.name
-      %td= mapvisualization.node_count
-      %td= link_to 'Show', mapvisualization
-      %td= link_to 'Edit', edit_mapvisualization_path(mapvisualization)
-      %td= link_to 'Destroy', mapvisualization, :confirm => 'Are you sure?', :method => :delete
+-# specifies the data that we're going to be working with in javascript
+:javascript
+  #{javascript_graph(@vis.nodes,@vis.edges)} 
+= javascript_include_tag "raphael-min.js" #for drawing
+= javascript_include_tag "causemap_rjs.js" #the draw code itself
 
-%br
 
-= link_to 'New Mapvisualization', new_mapvisualization_path
+#canvas_container
+#interaction
+  / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
+  #reset_form
+    - form_tag({:action => "index", :cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
+      #inputs
+        = label_tag "Number of Nodes:"
+        = number_field_tag "args[node_count]", 10, :in => 1...100
+        %br
+        = label_tag "Ratio of Edges:"
+        = number_field_tag "args[edge_ratio]", 0.8, :min => 0.0, :max => 1.0, :step => 0.01
+      #reset
+        = submit_tag "Reset Graph"
+  #other_buttons
+    = button_to "Random Spread", {:action => "index", :cmd => 'place_randomly'}, {:remote => true, :method => :get}
+    = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
+    = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
+    = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
+    = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+
+#debug

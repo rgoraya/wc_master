@@ -1,0 +1,18 @@
+#reset_form {
+  width: 300px;
+}
+
+#inputs {
+  width: 200px; 
+  float: left;
+}
+
+#reset {
+  width: 90px; 
+  height: 45px;
+  float: right;
+}
+
+#other_buttons {
+  clear: both;
+}
