@@ -83,14 +83,16 @@ class Mapvisualization #< ActiveRecord::Base
 
   
 
-  def random_graph(node_count, edge_ratio=0.8)
+  def random_graph(node_count, edge_ratio)
+    puts "edge_ratio=" + edge_ratio.to_s
     @nodes = Array.new(node_count) {|i| Node.new(i, "Node "+i.to_s, rand()*5)} #make all the nodes (random)
     @edges = Array.new() #an array to hold edges
     @adjacency = Array.new(node_count) {|i| Array.new(node_count)} #an adjacency matrix of edges (for easy referencing)
     for i in (0..node_count-1)
       for j in (i+1..node_count-1)
-        if(rand() > edge_ratio) #make random edges
+        if(rand() < edge_ratio) #make random edges
           @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rand()*5))
+          puts "adding edges, length now equal to "+ @edges.length.to_s
           @adjacency[i][j] = @edges.last
           @adjacency[j][i] = @edges.last
         end
@@ -237,8 +239,12 @@ class Mapvisualization #< ActiveRecord::Base
     end    
   end
 
+  def kamada_kawai(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)
+
+  end
+
   def reset_graph(width=@width, height=@height, args)
-    random_graph(args[:node_count].to_i)
+    random_graph(args[:node_count].to_i, args[:edge_ratio].to_f) #default amount
     place_randomly
   end
   

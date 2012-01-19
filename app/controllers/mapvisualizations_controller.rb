@@ -2,14 +2,15 @@ class MapvisualizationsController < ApplicationController
     
   # GET /mapvisualizations
   def index
-    width = 500 #defaults
-    height = 500
-    node_count = 10
+    @default_width = 500 #defaults
+    @default_height = 500
+    @default_node_count = 10
+    @default_edge_ratio = 0.25
     
     respond_to do |format|
       format.html do #on html calls
 
-        @vis = Mapvisualization.new(:width => width, :height => height, :node_count => node_count) #on new html--generate graph
+        @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio) #on new html--generate graph
 
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us
         #flash[:graph]={:width => @vis.width, :height => @vis.height, :nodes => @vis.nodes, :edges => @vis.edges} #@vis #keep the vis for next time (if needed)
@@ -18,7 +19,7 @@ class MapvisualizationsController < ApplicationController
       format.js do #respond to ajax calls?
         
         #@vis = Mapvisualization.new(flash[:graph]) #grab the old vis, or make a new one if needed
-        @vis = session[:vis] || Mapvisualization.new(:width => width, :height => height, :node_count => node_count) #grab the old vis, or make a new one if needed
+        @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio) #grab the old vis, or make a new one if needed
 
         actions = %w[remove_edges foo bar] #etc
         begin
