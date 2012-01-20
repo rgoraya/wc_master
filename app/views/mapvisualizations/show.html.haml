@@ -1,0 +1,12 @@
+%p#notice= notice
+
+%p
+  %b Name:
+  = @mapvisualization.name
+%p
+  %b Node count:
+  = @mapvisualization.node_count
+
+= link_to 'Edit', edit_mapvisualization_path(@mapvisualization)
+\|
+= link_to 'Back', mapvisualizations_path
