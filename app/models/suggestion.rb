@@ -3,6 +3,9 @@ class Suggestion < ActiveRecord::Base
   has_paper_trail :on=>[:update], :only=>[:status] 
 
   belongs_to :issue
+  validates_presence_of  :title
+  validates_format_of :causality, :with => /\A[a-zA-Z]\z/
+  validates_format_of :wiki_url, :with => URI::regexp(%w(http https))
 
   KEYWORDS = {  #should be filled with several keywords related to each of the types
     :C => ['cause', 'proposed'],
