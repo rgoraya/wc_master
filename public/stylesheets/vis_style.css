@@ -2,6 +2,11 @@
   border: 1px solid #bebebe;
 }
 
+.centered_spinner {
+  position: relative;
+  top: -250px;
+}
+
 #reset_form {
   width: 300px;
 }

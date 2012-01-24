@@ -4,14 +4,30 @@
   #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
 = javascript_include_tag "raphael-min.js" #for drawing
+= javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"
+
 -# specifies the data that we're going to be working with in javascript
 :javascript
   #{javascript_graph(@vis.nodes,@vis.edges)}
   #{load_raphael}
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 
+-#to put a "loading" icon on ajax stuff
+:javascript
+  $(document).ready(function(){
+    $("#spinner").toggle()
+    $("form.button_to") //anything formed by the button_to tag apparently
+      .bind("ajax:beforeSend", function() {
+        $("#spinner").toggle()
+      })
+      .bind("ajax:complete", function() {
+        $("#spinner").toggle()
+      })
+  });
+
 
 #canvas_container
+  = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
 #interaction
   / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
   #reset_form

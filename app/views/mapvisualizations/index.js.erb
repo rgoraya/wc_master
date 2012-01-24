@@ -1,4 +1,41 @@
 <%#= puts "this is ruby code that gets called, if we need it" %>
 <%#= puts @vis.nodes, @vis.edges %>
-<%= javascript_graph(@vis.nodes, @vis.edges) %> //this loads the current node-sets it seems...
-drawNodes(currNodes, currEdges, myPaper);
+var old_nodes = currNodes
+var old_edges = currEdges
+<%= javascript_graph(@vis.nodes, @vis.edges) %> //load the new nodeset into currNodes & currEdges (default values)
+// drawNodes(old_nodes, old_edges, myPaper)
+// drawNodes(currNodes, currEdges, myPaper);
+
+//this is where we would figure out the relationship between old_nodes and currNodes
+//doing this in javascript because that's where we'll have both the old and the new nodes (unless we store things in ruby... which we could do...)
+/*
+//nodes that edges already point to their appropriate nodes; but do we want them to point to their original edges? that's a little more complicated... or maybe not
+//we'll start with arrays; if that seems to not be working we can convert to hashes. But why not use hashes?
+  edges would index by name rather than index. That might be cleaner and easier to understand, though will be more text to write out (with names and stuff)
+  looping through the object is possible, but slower. But could iterate over array of keys in addition (extra variables, but not necessarily problematic)--just store that thing inside the list as "__keys" or something
+  //then this process can be much faster, and whole thing may be cleaner?
+  
+
+go through each old_nodes
+  go through currNodes
+    if old_node also in currNode
+      set old_node's "new_i" to currNode's index
+      
+
+go through each currNode
+  go through the old_nodes and see if any have same Name (which is identifying feature)
+  if has
+    set currNode.di = old_nodes's index
+    old_node.di = currNode's index?
+
+then in animate:
+go through each old_node
+  if has di, then animate to that node
+  if doesn not have a di, then fade away
+go through each currNode
+  if does not have a di, then animate appear
+
+
+*/
+
+animateNodes(old_nodes, old_edges, currNodes, currEdges, myPaper)
