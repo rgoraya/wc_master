@@ -1,12 +1,5 @@
-//script that draws the data
-var paper; //so can draw in other methods
-window.onload = function(){
-	paper = new Raphael(document.getElementById('canvas_container'), document.getElementById("canvas_container").offsetWidth, document.getElementById("canvas_container").offsetHeight) //graphics context
-  drawNodes() //call draw on the nodes
-}
-
-
-function drawNodes() //outside of onload so that we can redraw
+//draw the given nodes and edges on the given paper (a Raphael object)
+function drawNodes(nodes, edges, paper)
 {
   paper.clear() //clear out old drawings
   //draw nodes

@@ -1,12 +1,13 @@
 = stylesheet_link_tag "vis_style"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
-  #canvas_container {width: #{@default_width}px; height: #{@default_height}px;}
+  #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
+= javascript_include_tag "raphael-min.js" #for drawing
 -# specifies the data that we're going to be working with in javascript
 :javascript
-  #{javascript_graph(@vis.nodes,@vis.edges)} 
-= javascript_include_tag "raphael-min.js" #for drawing
+  #{javascript_graph(@vis.nodes,@vis.edges)}
+  #{load_raphael}
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 
 
@@ -25,9 +26,13 @@
         = submit_tag "Reset Graph"
   #other_buttons
     = button_to "Random Spread", {:action => "index", :cmd => 'place_randomly'}, {:remote => true, :method => :get}
+    = button_to "Normalize Graph", {:action => "index", :cmd => 'normalize_graph'}, {:remote => true, :method => :get}
     = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
     = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
     = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
-    = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
-
+    = button_to "Kamada Layout", {:action => "index", :cmd => 'kamada_kawai'}, {:remote => true, :method => :get}
+    / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
 #debug
+  %b Some notes:
+  Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
+  Springy is good for disconnected graphs, but can be slow depending on initial layout (can also tweak speed parameters if needed).

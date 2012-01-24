@@ -1,3 +1,7 @@
+#canvas_container {
+  border: 1px solid #bebebe;
+}
+
 #reset_form {
   width: 300px;
 }
