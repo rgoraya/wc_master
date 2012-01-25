@@ -24,7 +24,7 @@ module MapvisualizationsHelper
     "var myPaper
       window.onload = function(){
     	myPaper = new Raphael(document.getElementById('canvas_container'), document.getElementById(\"canvas_container\").offsetWidth, document.getElementById(\"canvas_container\").offsetHeight) //graphics context
-      drawNodes(currNodes, currEdges, myPaper) //call draw on the nodes. These are the ones defined in the helper
+      drawElements(currNodes, currEdges, myPaper) //call draw on the nodes. These are the ones defined in the helper
     }"
   end
 
