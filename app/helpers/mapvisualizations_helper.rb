@@ -9,12 +9,14 @@ module MapvisualizationsHelper
 
   #helper method to print the nodes and edges as javascript arrays
   def javascript_graph(nodes, edges, nodes_name='currNodes', edges_name='currEdges')
-    "var "+nodes_name+"=new Array("+
-    nodes.map {|n| n.js(@default_border)} .join(',')+
-    ");" +
-    "var "+edges_name+"=new Array("+
-    edges.map {|n| n.js(nodes.index(n.a), nodes.index(n.b), nodes_name)} .join(',')+
-    ");"
+    "var "+nodes_name+"={"+
+    nodes.map {|n| n.js_k + ":" + n.js(@default_border)} .join(',')+
+    ",keys:["+ nodes.map {|n| n.js_k} .join(',') +"]"+
+    "};" +
+    "var "+edges_name+"={"+
+    edges.map {|e| e.js_k + ":" + e.js(nodes_name)} .join(',')+
+    ",keys:["+ edges.map {|e| e.js_k} .join(',') +"]"+
+    "};"
   end
 
   #the code to setup raphael; defined here so separate from the drawing .js file

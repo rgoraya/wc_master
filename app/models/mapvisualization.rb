@@ -25,12 +25,18 @@ class Mapvisualization #< ActiveRecord::Base
 
     #returns a javascript version of the object
     def js(offset=0)
-      "{name:'"+@name+"',"+
+      "{id:"+@id.to_s+","+
+      "name:'"+@name+"',"+
       "x:"+(@location[0]+offset).to_s+",y:"+(@location[1]+offset).to_s+","+
       "weight:"+@weight.to_s+"}" 
       #can add more fields as needed
     end
 
+    #returns a javascript key for the object
+    def js_k
+      @id.to_s
+    end
+      
   end  
 
   class Edge < Object
@@ -55,11 +61,17 @@ class Mapvisualization #< ActiveRecord::Base
     #returns a javascript version of the object 
     #ai and bi are the js indices for the connecting nodes (default to node's ID)
     #nodeset is the name of the js node array (default to "nodes")
-    def js(ai=@a.id, bi=@b.id, nodeset='nodes') 
+    def js(nodeset='nodes') 
+      #do we need to also include an id field inside the object?
       "{name:'"+name+"',"+
-      "a:"+nodeset+"["+ai.to_s+"],b:"+nodeset+"["+bi.to_s+"]"+","+
+      "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
       "weight:"+@weight.to_s+"}"
       #can add more fields as needed
+    end
+    
+    #gets a key for the edge
+    def js_k
+      "'"+@a.js_k+"-"+@b.js_k+"'"
     end
 
   end
