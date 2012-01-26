@@ -42,12 +42,12 @@ class Mapvisualization #< ActiveRecord::Base
   class Edge < Object
     attr_accessor :id, :a, :b, :weight, :type
 
-    def initialize(id, a, b, weight)
+    def initialize(id, a, b, conn_count=1)
       @id = id #needed?
       @a = a #reference to the node object (as opposed to just an index)
       @b = b
       @weight = weight
-      @type = 0
+      @number_connections = conn_count
     end
 
     def to_s
@@ -65,7 +65,7 @@ class Mapvisualization #< ActiveRecord::Base
       #do we need to also include an id field inside the object?
       "{name:'"+name+"',"+
       "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
-      "weight:"+@weight.to_s+"}"
+      "nc:"+@number_connections.to_s+"}"
       #can add more fields as needed
     end
     
@@ -103,7 +103,11 @@ class Mapvisualization #< ActiveRecord::Base
     for i in (0...node_count)
       for j in (i+1...node_count)
         if(rand() < edge_ratio) #make random edges
-          @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rand()*5))
+          if(rand() < 0.1)
+            @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 2))
+          else
+            @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 1))
+          end
           #puts "adding edges, length now equal to "+ @edges.length.to_s
           @adjacency[i][j] = @edges.last
           @adjacency[j][i] = @edges.last

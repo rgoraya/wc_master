@@ -2,9 +2,11 @@
 ** This file includes methods for drawing the graph on a Raphael.js canvas
 *****/
 
+var t_off = 5
+
 //details on drawing/laying out a node
 function drawNode(node, paper){
-  circ = paper.circle(node.x, node.y, 10+(node.weight*6))
+  circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
   .attr({
     fill: '#54b8dd', stroke: '#bebebe', 'stroke-width': 2
   })
@@ -12,7 +14,7 @@ function drawNode(node, paper){
   .click(function() { alert("You clicked on "+this.data("name"))})
   .mouseover(function() {this.node.style.cursor = 'pointer';})
 
-  txt = paper.text(node.x, node.y+25, node.name)
+  txt = paper.text(node.x, node.y+t_off, node.name)
   .data("name",node.name) //if needed
   .click(function() { alert("You clicked on "+this.data("name"))})
   .mouseover(function() {this.node.style.cursor='pointer';})  
@@ -30,7 +32,7 @@ function drawEdge(edge, paper){
 
   e = paper.path("M"+a.x+","+a.y+"L"+b.x+","+b.y+"z").toBack().attr({
     stroke: '#bd55dd',
-    'stroke-width': edge.weight
+    'stroke-width': edge.nc
   })
   .data("name",edge.name) //if needed
   .click(function() { alert("You clicked on "+this.data("name"))})
@@ -76,7 +78,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
       icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear') //disappear
     }
     else{
-      icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+25 }, 1000, easing)
+      icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+t_off }, 1000, easing)
     }
   }
   
