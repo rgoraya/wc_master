@@ -87,7 +87,7 @@ class Mapvisualization #< ActiveRecord::Base
     @nodes = args[:nodes]
     @edges = args[:edges]
     
-    reset_graph(@width, @height, args) if @nodes.nil? #currently resets to random
+    reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random
 
     # random_graph(args[:node_count]) #init to random graph atm
     #normally will init to pull out the nodes we want to see... or something. Will need to figure out how that works
@@ -395,7 +395,7 @@ class Mapvisualization #< ActiveRecord::Base
     return result
   end    
 
-  def reset_graph(width=@width, height=@height, args)
+  def reset_graph(args, width=@width, height=@height)
     random_graph(args[:node_count].to_i, args[:edge_ratio].to_f) #default amount
     place_randomly
   end
