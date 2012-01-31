@@ -1,0 +1,70 @@
+!!!
+%html
+  
+  %head
+    %link{:href => "http://code.google.com/apis/maps/documentation/javascript/examples/default.css", :rel => "stylesheet", :type => "text/css"}/
+    %link{:href => "/images/system/dominos_fav.png", :rel => "shortcut icon"}/
+    %title
+      = content_for?(:title) ? content_for(:title) : 'wikiCausality'
+    = stylesheet_link_tag "styles"
+    = yield :include_custom_stylesheet
+    = javascript_include_tag :defaults
+    = yield :include_custom_javascript_head
+    = csrf_meta_tag
+  
+  %body
+    
+    #container{:align => "center"}
+      .head
+        .headnav
+          .logocontainer
+            %a{:href=>"/", :title=>"Home"}
+              %img{:src=>"/images/system/thiscausesthat_logo.png", :style=>"margin-bottom:-6px; height:22px; "}
+              
+              
+          .navigation
+              
+             
+          .navigation{:style=>"float:right;"}
+            %span.login_button{:style=>"background-image:none;color:#b84030"}
+              Coming soon!         
+
+
+          
+          %div{:style=>"clear:both;"}  
+
+      #content
+        //.filler
+     
+        = yield
+        #footer
+          %img{:src=>"/images/system/thiscausesthat_logo.png", :style=>"margin-bottom:1px; height:17px;"}
+          is a research project by 
+          %a{:href=>"http://www.ics.uci.edu/~wmt/socialCodeGroup/", :title=>"Social code group website", :target=>"_blank"}
+            Social Code Group 
+          at 
+          %a{:href=>"http://www.uci.edu/", :title=>"UCI website", :target=>"_blank"}
+            UC, Irvine.
+          The Site uses 
+          /%img{:src=>"/images/system/mediawiki.png", :style=>"height:32px; margin-bottom:-12px"}
+          %a{:href=>"http://www.mediawiki.org/wiki/API:Main_page", :title=>"MediaWiki API website", :target=>"_blank"}
+            MediaWiki, 
+          /%img{:src=>"/images/system/google.png", :style=>"height:22px; margin-bottom:-7px"}
+          %a{:href=>"http://code.google.com/apis/maps/index.html", :title=>"Google Maps API website", :target=>"_blank"}  
+            Google Maps
+          and 
+          /%img{:src=>"/images/system/panoramio.png", :style=>"height:32px; margin-bottom:-12px"}
+          %a{:href=>"http://www.panoramio.com/api/widget/api.html", :title=>"Panoramio API website", :target=>"_blank"}
+            Panoramio APIs
+      
+           
+      // The Notice Div
+      %div{:id=>"notice_container"}
+        %div{:id=>"notice"}
+          = notice
+        %div{:style=>"float:left;width:15px;"}
+          %a{:href=>'#', :class=>'closebutton'}
+            %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
+        %div{:style=>"clear:both;"}
+       
+              

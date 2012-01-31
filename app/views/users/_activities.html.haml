@@ -15,11 +15,11 @@
 								- color='red'
 							- else  
 								- color='green'
-								%span{:id=>"type", :style=>"color:#{color};"}
-									= activity[:action] 
-								= activity[:type] +': '
-								%span{:id=>"type", :style=>"color:#4EB8DB;",:title=>"#{activity[:what].html_safe}"}
-									= activity[:what].html_safe
+							%span{:id=>"type", :style=>"color:#{color};"}
+								= activity[:action] 
+							= activity[:type] +': '
+							%span{:id=>"type", :style=>"color:#4EB8DB;",:title=>"#{activity[:what].html_safe}"}
+								= activity[:what].html_safe
 						%td{:sorttable_customkey=>DateTime.parse(activity[:time].to_s).strftime('%Y%m%d%H%M%S').to_s, :style=>"width:145px;border-right:1px solid whiteSmoke;"}
 							= DateTime.parse(activity[:time].to_s).strftime('%m/%d/%y-%R')
 						%td{:sorttable_customkey=>activity[:score].to_s, :style=>"width:50px;"}

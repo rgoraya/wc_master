@@ -2506,7 +2506,7 @@ img.btn_close {
 	text-decoration:underline;
 }
 
-.version{
+.version, #get_more{
 	background: white;
 	font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
 	padding: 5px 5px 5px 5px;
@@ -2524,7 +2524,7 @@ img.btn_close {
   border-radius: 5px;
 	margin:10px 0px 0px 0px;
 }
-.version:hover{
+.version:hover, #get_more:hover{
 color:#434343;
 background-color:whiteSmoke;
 }

@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
 			#action type what time owner score
 			activity[:type]=version.item_type
 			activity[:time]=version.created_at
-			(version.get_object.attributes.has_key?("user_id") && !version.get_object.user_id.nil?) ? activity[:owner]=version.get_object.user : activity[:owner]=nil
+			#(version.get_object.attributes.has_key?("user_id") && !version.get_object.user_id.nil?) ? activity[:owner]=version.get_object.user : activity[:owner]=nil
 
 			case version.item_type
 				when 'Issue'
@@ -57,7 +57,7 @@ class User < ActiveRecord::Base
 					case version.event
 						when 'create' then activity[:action]='linked'
 						when 'update' then activity[:action]='updated'
-						when 'destroy' then activity[:action]='removed'
+						when 'destroy' then activity[:action]='deleted'
 					end
 					cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first
 					issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first
