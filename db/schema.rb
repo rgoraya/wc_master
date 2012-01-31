@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111102232424) do
+ActiveRecord::Schema.define(:version => 20120111205530) do
 
   create_table "feed_backs", :force => true do |t|
     t.string   "subject"
@@ -18,6 +18,14 @@ ActiveRecord::Schema.define(:version => 20111102232424) do
     t.string   "email"
     t.integer  "user_id"
     t.integer  "category"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "hierarchies", :force => true do |t|
+    t.integer  "issue_id"
+    t.integer  "superclass_id"
+    t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -48,6 +56,7 @@ ActiveRecord::Schema.define(:version => 20111102232424) do
     t.datetime "updated_at"
     t.integer  "user_id"
     t.string   "relationship_type"
+    t.integer  "references_count",  :default => 0
   end
 
   add_index "relationships", ["cause_id"], :name => "index_relationships_on_cause_id"

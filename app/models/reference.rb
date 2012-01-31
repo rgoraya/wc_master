@@ -2,7 +2,7 @@ class Reference < ActiveRecord::Base
 
 has_paper_trail
 
-belongs_to :relationship
+belongs_to :relationship, :counter_cache => true 
 belongs_to :user
 
 validates_url_format_of :reference_content,

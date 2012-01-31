@@ -5,15 +5,17 @@
 #contentwrapper
   .contentmain
     
-
-    %div{:class=> "formheading"}
+    %div.pageheading
       - if params[:action] == "new" 
         Register as a new user
       - elsif params[:action] == "edit" 
         Edit profile information
       - else  
         Correct errors to proceed
+    %div{:style=>"clear:both;"}    
+
     %div{:class => "formcontentdiv"}
+
       %div{:class=>"centralized"}    
         = form_for @user do |f|
           -if @user.errors.any?

@@ -1,48 +1,40 @@
-#popup_name.popup_block
-  #modalhead.formheading_small
-    Add New Causal Link
-  .formcontentdiv_small{:style=>"padding-left:0px; padding-right:0px;"}
-    // Title of the Issue
-    %div{:class =>"title_edit", :style=>"padding-top:25px; margin-top:-25px;"}
-           
-      // Search text-field     
-      %div{:style=>"float:left"}  
-        %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px;" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
+
+
+// ** uncomment the following (and comment the subsequest line to get back to the Modal layout 
+
+//#popup_name.popup_block
+
+.add_new_relation_modal
+  .add_new_relation_arrow
+  .title_edit
+    // Search text-field     
+    %div{:style=>"float:left"}  
+      %input#query.searchfield_wiki{:style=>"" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
       
-      // Hidden div holding the reset button
-      %div{:id=>"searchfield_reset"}         
+    // Spinner
+    %div{:style=>"float:right; margin:2px 2px -10px -27px; position:relative; z-index:1;", :id=>"wait"}
 
-      // Spinner
-      %div{:style=>"float:left; margin:2px 10px -10px 25px;", :id=>"wait"}
-
-      // Preview Button
-      %div{:style=>"float:right"}
-        %input{:type=>"button", :id=>"btn_preview", :class=>"preview_button", :value=>"Preview"}          
-
-      %div{:style => "clear:both;"}
+    // Preview Button
+    %input{:type=>"button", :id=>"btn_preview", :class=>"discussion_submit", :value=>"Preview",:style=>"margin:0px; margin-left:3px; float:left;"}          
+    
+    .btn_close{:title => "Close Window"}
+    
+    %div{:style => "clear:both;"}
   
     %div{:id=>"results", :class=>"result-box"}            
     %div{:style => "clear:both"}
-    %div{:class =>"wikicontent_edit"}
+  %div{:class =>"wikicontent_edit"}
       
-      %div{:id=>"image_preview"}                     
-        %img{:src => "/images/issues/image.png", :style=>"background-color:transparent;opacity:0.1" }
+    %div#image_preview                     
+                        
+    %div#text_preview
+      %div#title_holder
+      %div#text_holder  
         
-        %div{:style=>"text-align:center;" }
-          Wikipedia image
-                
-  
-      %div{:id=>"text_preview"}
-        %div#title_holder
-        %div#text_holder  
-          %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
-          %div{:style=>"text-align:center;"}
-            Wikipedia text 
-        
-      %div{:style => "clear:both"}
+    %div{:style => "clear:both"}
         
     %div{:id=>"form_container"}
-      - form_for Issue.new :id=>"relationship_form" do |f|
+      = form_for Issue.new, :remote => true, :id=>"relationship_form" do |f|
         
         .field  
           = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_wiki_url"
@@ -70,13 +62,13 @@
               /%span Cause
               /%input#rad_effect{:type => "radio", :name=>"causality_rad", :value=>"Effect"} 
               /%span Effect
-          = f.submit 'Create', :class=>"save_button", :name=>"save_issue_rel_button", :id=>"val_collector"
+          = f.submit 'Create', :class=>"discussion_submit", :name=>"save_issue_rel_button", :id=>"val_collector"
           %div{:style => "clear:both"}
 
 
 %script{:src => "http://maps.google.com/maps/api/js?sensor=false&libraries=panoramio", :type => "text/javascript"}
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css", :type => "text/javascript"}
-%script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js", :type => "text/javascript"}
+%script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js", :type => "text/javascript"}
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js", :type => "text/javascript"}
 %script{:type => "text/javascript"}
   
@@ -86,35 +78,16 @@
 
   var hold_image_link = '';
   var hold_text_descr = '';
+  
+  var suggestion_parent_div;
+  var suggestion_preview;
    
   // Make sure the DOM is loaded
   $(document).ready(function(){
 
   $(".mapcontainer").hide();
 
-  // I N I T I A L    F O R M A T T I N G / P R O C E S S I N G
-  
-  // (0.) Align the blobs and arrows Correctly based on height of the Issueblock
-  $('img.wikiimage').ready(function(){
-  var block_height = $('.issueblock').height();
-  var arrow_height = $('.arrow-carrier-right').height();
-  var blob_height  = $('.blob-carrier').height();
-  var right_height = $('.arrow-leftward').height();
-  
-  var arrow_marg_top = (block_height - arrow_height)/2
-  var blob_marg_top  = (block_height - blob_height - 42)/2
-  var right_marg_top = (block_height - right_height - 40)/2
-  
-  $('.arrow-carrier-right, .arrow-carrier-left').animate({'margin-top': arrow_marg_top});
-  $('.blob-carrier').animate({'margin-top': blob_marg_top});
-  $('.arrow-leftward').animate({'margin-top': right_marg_top});
-  /$(".blue_banner").effect("highlight", {color: '#4DB8DB'}, 1000);
-  
-  // Ensure that the height of Map remains same as the rest of the content
-  var mapcontainer_height = $('.wikicontent').height();
-  $('#map_canvas').css({'height': mapcontainer_height});
-  });
-  
+
   // (1.) Ensure that Panoramio Has loaded the pictures
   //$("#panoramio_iframe").load(function(){
   // Function for Loading Maps 
@@ -125,91 +98,27 @@
   // (2.) D I S M I S S    T H E    F L A S H    N O T I C E
   if ($('#notice').html().trim()) {
   $("#notice_container").effect("bounce", { times:3 }, 200);
-  $('#notice').css({display : 'block'});
+  $('#notice').show;
   }
   
   $("#notice_container a.closebutton").click(function(){
   $("#notice_container").slideUp(100);
   });
   
-  // (3.) Show or Hide the Suggestion Scroll buttons if required
 
-  if ($(".cause_carousel").height() > 30){
-  $(".cause_scroller").css({display : 'inline'});
-  }
-
-  if ($(".effect_carousel").height() > 30){
-  $(".effect_scroller").css({display : 'inline'});
-  }
-
-  if ($(".inhibitor_carousel").height() > 30){
-  $(".inhibitor_scroller").css({display : 'inline'});
-  }
-  
-  if ($(".inhibited_carousel").height() > 30){
-  $(".inhibited_scroller").css({display : 'inline'});
-  }
-    
-
-  // (4.) Show or Hide the Accepted Scroll buttons if required
-  if ($(".accepted_causes").height() > 64){
-  $(".cause_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_effects").height() > 64){
-  $(".effect_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_inhibitors").height() > 64){
-  $(".inhibitor_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_inhibited").height() > 64){
-  $(".inhibited_scroll").css({display : 'block'});
-  }
   
 
       
-  // D E L E T E     C O N F I R M A T I O N
-  var href_carrier = '';
-  var bubble_to_remove = '';
-        
-  $(".del-relation").click(function() {
-  var title = $(this).data('title');
-  var msg = $(this).data('confirm');
-  href_carrier = $(this).attr('href');
-  bubble_to_remove = $(this).parents(".bubble");
-  showPopup(title, msg);
-  return false;      
-  });
 
-  $("#confirm_yes").click(function() {
-  /$("#confirm_popup").fadeOut('slow');
-  $("#confirm_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-  $.ajax({
-  type: "DELETE",
-  url: href_carrier,
-  cache: false,
-  success: function(){
-  bubble_to_remove.fadeOut('slow');
-  bubble_to_remove = '';
-  $("#confirm_msg").html('Causal Link Deleted!'); 
-  $("#confirm_buttons").hide(); 
-  $("#confirm_wait").empty();
-  $("#confirm_popup").delay(2000).fadeOut('slow', function(){
-  $('#fade').delay(2000).remove();
+  
+  // HOVER ON CAUSALITY SELECTION
+  $(".central_causality_container").mouseenter(function(){
+  $(".causality_options_container").css({display : 'block'});
   });
   
-  }
+  $(".causality_types").mouseleave(function(){
+  $(".causality_options_container").css({display : 'none'});
   });  
-  /location.href = href_carrier;
-  });
-    
-  $("#confirm_cancel").click(function() {
-  $('#fade').remove();
-  $("#confirm_popup").fadeOut('slow');    
-  href_carrier = '';
-  });
   
   // C L I C K    E V E N T    F O R    R E F E R E N C E S 
   $(".relationship_boost").click(function(){
@@ -267,7 +176,8 @@
   });
 
   // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
-
+  
+  
   var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
   var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
   var query;
@@ -336,37 +246,22 @@
 
   //  G E T    Q U E R Y    F R O M    S E A R C H - B O X
 
-  $('.suggestion').live("click", function(){
+  $('.suggestion').live('click',function(){
   $("#query").val($(this).html()); 
   $("#results").empty();
   displayBoxIndex = -1;
   });
 
-  // Enable Create button if user selects Caue/Effect
-  $("#rad_cause, #rad_effect").change(function(){
-  
-  $("#val_collector").removeAttr("disabled");  // enable the submit button
-  
-  if ($("#rad_cause").is(':checked')) {
-  $("#frm_action").val('C');                   // pass C if its a Cause
-  }
-
-  if ($("#rad_effect").is(':checked')) {
-  $("#frm_action").val('E');                   // pass E if its an Effect
-  }
-  
-  
-  });
 
   //  R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
   
   $("#btn_preview").click(function(){
   if ($("#query").val()){
   $("#results").empty();
-  /$("#searchfield_reset").css({'display' : 'block'});
-  /$("#query").attr("disabled", "disabled");
+  // $("#searchfield_reset").css({'display' : 'block'});
+  // $("#query").attr("disabled", "disabled");
   parseJSON();
-  $("#title_holder").html($("#query").val());
+  
   $("#results").empty();
   }
   });
@@ -375,7 +270,7 @@
 
   function parseJSON() {
   // initialize spinner
-  $("#wait").html('<img border="0" src="/images/system/spinnergray.gif"/>');    	
+  $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
   // create the json url
   jsonData = $.trim(url_img_name+encodeURIComponent($("#query").val())+'&callback=?');  
   // parse the json
@@ -412,18 +307,22 @@
   // hide the save button
   $('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
+  $('#text_holder ').html('');
+  $('#text_preview').removeAttr('style'); 
   // show dummy image for image
-  $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
+  $('#image_preview').removeAttr('style');
   
   //  If the search was successful - 
   } else {
-
+  
+  $("#title_holder").html($("#query").val());
+  
   // shorten if beyond limit
   if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 
   // replace HTML of target Div
-  $('#text_holder ').html(text_preview, 400);
+  $('#text_holder ').html(text_preview);
+  $('#text_preview').css({'background-image':'none','height':'auto'});   
   form_descr = $("#text_holder ").html();
   // show the form 
   $("#form_container").css("display", "block");
@@ -438,7 +337,7 @@
   $.getJSON(url_google_img+encodeURIComponent($("#query").val())+'&callback=?', function(data) {
   $.each(data.responseData.results, function(i,item){
   // replace HTML of target Div
-  $('#image_preview').html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" class="wikiimage_edit"/><br />Google image');
+  $('#image_preview').css({'background-image': 'url("'+item.tbUrl+'")'});
   form_image = $('#image_preview').html();
   if ( i == 0 ) return false;
   });  
@@ -447,7 +346,7 @@
   // if the image was found from WIKIPEDIA itself, then just go ahead and use that.
   } else {
   // replace HTML of target Div 
-  $('#image_preview').html('<img src="'+img_src+'" onError="this.src=\'/images/issues/image.png\';" class="wikiimage_edit"/><br />wikipedia image');
+  $('#image_preview').css({'background-image': 'url("'+img_src+'")'});
   form_image = $("#image_preview img:first").attr("src");
   
   }	  //        END of If structure (checking for Image Success from Wikipedia)	  
@@ -476,16 +375,32 @@
 
   function valueCollect() {
   $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_')); 
-  $("#frm_img_url").val($('#image_preview').find("img").attr("src"));
+  $("#frm_img_url").val(extractUrl($("#image_preview").css("background-image")));
   $("#frm_descr").val(form_descr);
   $("#frm_title").val($("#title_holder").html());
+  
+ 
+  $('#fade , .popup_block').fadeOut(function() {
+  $('#fade, a.close').remove();  //fade them both out
+  initialize_addNew()   
+  href_carrier = '';
+  
+  return false;
+  
+  });  
+  
+  }
+
+  function extractUrl(input)
+  {
+  // remove quotes and wrapping url()
+  return input.replace(/"/g,"").replace(/url\(|\)$/ig, "");
   }
 
   $("#val_collector").live('click', function(){
-  /if ($("#rad_cause").is(':checked') || $("#rad_effect").is(':checked'))
-  /{ 
+
   valueCollect();
-  /}
+
   });
 
 
@@ -510,78 +425,78 @@
   // CAUSE
   if (className.indexOf("cause") >= 0){
   $("#frm_action").val('C');
-  $("#modalhead").html('Add a Cause of ' + issueTitle);  
+  $("#title_modalhead").html('Add a Cause of ' + issueTitle);  
   }
   // EFFECT
   else if (className.indexOf("effect") >= 0){    
   $("#frm_action").val('E');
-  $("#modalhead").html('Add an Effect of ' + issueTitle);  
+  $("#title_modalhead").html('Add an Effect of ' + issueTitle);  
   }
   // INHIBITOR
   else if (className.indexOf("inhibitor") >= 0){ 
   $("#frm_action").val('I');
-  $("#modalhead").html('Add something that reduces ' + issueTitle);  
+  $("#title_modalhead").html('Add something that reduces ' + issueTitle);  
   }
   // INHIBITED
   else if (className.indexOf("inhibited") >= 0) {
   $("#frm_action").val('R');
-  $("#modalhead").html('Add something reduced by ' + issueTitle);  
+  $("#title_modalhead").html('Add something reduced by ' + issueTitle);  
   }
   // SUPERSET
   else if (className.indexOf("super") >= 0) {    
   $("#frm_action").val('P');
-  $("#modalhead").html('Add a Superset of ' + issueTitle);  
+  $("#title_modalhead").html('Add a Superset of ' + issueTitle);  
   }
   //SUBSET
   else if (className.indexOf("sub") >= 0){       
   $("#frm_action").val('S');
-  $("#modalhead").html('Add a Subset of ' + issueTitle);  
+  $("#title_modalhead").html('Add a Subset of ' + issueTitle);  
   }
   
   $("#query").val($(this).html().trim());
   $("#frm_type_id").val(#{@issue.id});
   });
 
-
-
-  $("#add_cause_btn, #add_effect_btn, #add_inhibitor_btn, #add_inhibited_btn, #add_super_btn, #add_sub_btn").click(function(){
+  $(".poplight").live('click', function(){
+  
+  
+    
   var idName = $(this).attr('id');
-  /alert(idName);
-  var issueTitle = '#{@issue.title.to_s}'
-  // CAUSE
-  if (idName == "add_cause_btn"){
-  $("#frm_action").val('C');
-  $("#modalhead").html('Add a Cause of ' + issueTitle);   
-  }
-  // EFFECT
-  else if (idName == "add_effect_btn"){    
-  $("#frm_action").val('E');
-  $("#modalhead").html('Add an Effect of ' + issueTitle);  
-  }
-  // INHIBITOR
-  else if (idName == "add_inhibitor_btn"){ 
-  $("#frm_action").val('I');
-  $("#modalhead").html('Add something that reduces ' + issueTitle);  
-  }
-  // INHIBITED
-  else if (idName == "add_inhibited_btn"){
-  $("#frm_action").val('R');
-  $("#modalhead").html('Add something reduced by ' + issueTitle);   
-  }
-  // SUPERSET
-  else if (idName == "add_super_btn"){    
-  $("#frm_action").val('P');
-  $("#modalhead").html('Add a Superset of ' + issueTitle);   
-  }
-  //SUBSET
-  else if (idName == "add_sub_btn"){       
-  $("#frm_action").val('S');
-  $("#modalhead").html('Add a Subset of ' + issueTitle);
-  }
+  var issueTitle = '#{@issue.title.to_s}';
 
+  switch (idName) { 
+  case 'add_cause_btn':
+  $("#frm_action").val('C');
+  $("#title_modalhead").html('Add a Cause of ' + issueTitle);  
+  break;
+  case 'add_effect_btn':
+  $("#frm_action").val('E');
+  $("#title_modalhead").html('Add an Effect of ' + issueTitle); 
+  break;
+  case 'add_inhibitor_btn':
+  $("#frm_action").val('I');
+  $("#title_modalhead").html('Add something that reduces ' + issueTitle); 
+  break;
+  case 'add_inhibited_btn':
+  $("#frm_action").val('R');
+  $("#title_modalhead").html('Add something reduced by ' + issueTitle); 
+  break;
+  case 'add_superset_btn':
+  $("#frm_action").val('P');
+  $("#title_modalhead").html('Add a Superset of ' + issueTitle);
+  break;
+  case 'add_subset_btn':
+  $("#frm_action").val('S');
+  $("#title_modalhead").html('Add a Subset of ' + issueTitle);
+  break;
+  }
+  
   $("#frm_type_id").val(#{@issue.id});
+    
   });
   
+
+
   // S A V E    R E F E R E N C E S
   $(".save_reference").click(function(){
   
@@ -626,83 +541,32 @@
   });
 
   // T O O L - T I P 
-  $(".effect_link, .cause_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").live('mouseover', function(){
+  $(".effect_link, .cause_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").mouseenter(function(){
   $('.txt-tooltip').empty();
-  $('.img-tooltip').empty();
-  var parent_div = ($(this).parents('.cause_effect_container'))
-  var sug_offset = parent_div.offset();
-  var sug_top    = sug_offset.top;
-  var sug_left   = sug_offset.left;
-  var sug_height = parent_div.height() + 2;
-  var calc_left  = sug_left - 154 + ((parent_div.width()+6)/2); 
   
-  tooltip_preview_text = $(this).text().trim();
+  suggestion_parent_div = ($(this).parents('.relationship_thumb_addnew'))
+  suggestion_preview    = $(this).children('.icon_holder');
   
-  var url_to_parse = $.trim(url_img_name+encodeURIComponent(tooltip_preview_text)+'&callback=?');
+  tooltip_preview_text  = $(this).children('.relationship_thumb_title_top').text().trim();
   
-
+  var url_to_parse      = $.trim(url_img_name+encodeURIComponent(tooltip_preview_text)+'&callback=?');
+  
   // call the function
   parseJSON_preview(url_to_parse);
-    
-  // Display the collected data in tooltip
-  $("#tool_tip").css({'display' : 'block', 'top' : sug_top + sug_height, 'left' : calc_left});
-   
+       
   });
 
-  $(".effect_link, .cause_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").live('mouseleave', function(){
+  $(".effect_link, .cause_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").mouseleave(function(){
   $('.txt-tooltip').empty();
-  $('.img-tooltip').empty();
+  $(suggestion_preview).html('<img class="add_relation" src="/images/issues/ques.png" />');
   $('.img-tooltip').css({'display' : 'none'});
   $("#tool_tip").css({'display' : 'none'});
+  suggestion_parent_div.children("a.poplight").children(".action_holder").css({'display' : 'none'});
   });
 
+  
 
 
-  // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
-
-  // Animates the dimensional changes resulting from altering element contents
-  // Usage examples: 
-  //    $("#myElement").showHtml("new HTML contents");
-  //    $("div").showHtml("new HTML contents", 400);
-  //    $(".className").showHtml("new HTML contents", 400, 
-  //                    function() {/* on completion */});
-  (function($)
-  {
-  $.fn.showHtml = function(html, speed, callback)
-  {
-  return this.each(function()
-  {
-  // The element to be modified
-  var el = $(this);
-
-  // Preserve the original values of width and height - they'll need 
-  // to be modified during the animation, but can be restored once
-  // the animation has completed.
-  var finish = {width: this.style.width, height: this.style.height};
-
-  // The original width and height represented as pixel values.
-  // These will only be the same as `finish` if this element had its
-  // dimensions specified explicitly and in pixels. Of course, if that 
-  // was done then this entire routine is pointless, as the dimensions 
-  // won't change when the content is changed.
-  var cur = {width: el.width()+'px', height: el.height()+'px'};
-
-  // Modify the element's contents. Element will resize.
-  el.html(html);
-
-  // Capture the final dimensions of the element 
-  // (with initial style settings still in effect)
-  var next = {width: el.width()+'px', height: el.height()+'px'};
-
-  el .css(cur) 
-  el .animate(next, speed, function()  // animate to final dimensions
-  {
-  el.css(finish); // restore initial style settings
-  if ( $.isFunction(callback) ) callback();
-  });
-  });
-  };
-  })(jQuery);
 
 
   // S C R O L L - D I V
@@ -875,7 +739,8 @@
   // M O D A L - D I V     S H O W / H I D E   
   
   //When you click on a link with class of poplight and the href starts with a # 
-  $('a.poplight[href^=#]').click(function() {
+  $('a.popup[href^=#]').live('click', function() {
+
   var popID = $(this).attr('rel'); //Get Popup Name
   var popURL = $(this).attr('href'); //Get Popup href to define size
 
@@ -885,7 +750,7 @@
   var popWidth = dim[0].split('=')[1]; //Gets the first query string value
 
   //Fade in the Popup and add close button
-  $('#' + popID).fadeIn().css({ 'width': Number( popWidth ) }).prepend('<a href="#" class="close"><img src="/images/system/close1.png" class="btn_close" title="Close Window" alt="Close" /></a>');
+  $('#' + popID).fadeIn().css({ 'width': Number( popWidth ) }).prepend('<a href="#" class="close"><div class="btn_close" title="Close Window"></div>');
 
   //Define margin for center alignment (vertical   horizontal) - we add 80px to the height/width to accomodate for the padding  and border width defined in the css
   var popMargTop = ($('#' + popID).height() + 80) / 2;
@@ -895,6 +760,7 @@
   $('#' + popID).css({
   'margin-top' : -popMargTop,
   'margin-left' : -popMargLeft
+
   });
 
   //Fade in Background
@@ -908,11 +774,12 @@
   $('a.close, #fade').live('click', function() {
   $('#fade , .popup_block').fadeOut(function() {
   $('#fade, a.close').remove();  //fade them both out
-  $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia image</div>');
-  $('#text_holder ').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
+  $('#image_preview').removeAttr('style');
+  $('#text_holder ').html('');
   $('#title_holder').html('');
-  /$("#query").attr("disabled", ""); 
-  /$("#searchfield_reset").css({'display' : 'none'}); 
+  $('#text_preview').removeAttr('style');
+  // $("#query").attr("disabled", ""); 
+  $("#wait").empty();
   $('#form_container').css("display", "none");
   $("#query").val(''); 
   $("#confirm_popup").fadeOut('slow');    
@@ -1171,8 +1038,9 @@
 
   //Show the spinner
   $('.txt-tooltip').css({'display' : 'block'});
-  $("#tool_tip .txt-tooltip").html('<img border="0" src="/images/system/spinner.gif" width="24px"/>'); 
-
+  $(suggestion_preview).html('<img border="0" src="/images/system/spinner_on43.gif" style="margin-top:25px";/>'); 
+  /$("#tool_tip .txt-tooltip").html('<img border="0" src="/images/system/spinner.gif" width="24px"/>');
+  
   // parse the json
   $.getJSON(url_to_parse, function (data_prev) {
   $.each(data_prev, function (key_prev, val_prev) {
@@ -1181,7 +1049,7 @@
   });    
 
   //$('.txt-tooltip').css({'display' : 'block'});
-  $('.img-tooltip').css({'display' : 'block'});
+  /$('.img-tooltip').css({'display' : 'block'});
 
   });}  
   
@@ -1224,16 +1092,17 @@
   $.getJSON(url_google_img_prev+encodeURIComponent(tooltip_preview_text)+'&callback=?', function(data) {
   $.each(data.responseData.results, function(i,item){
   // replace HTML of target Div
-  $('.img-tooltip').html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" width="62px" align="middle" />');
+  $(suggestion_preview).html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" /> ');
   if ( i == 0 ) return false;
   });  
+  preview_suggestion();
   });
   
   // if the image was found from WIKIPEDIA itself, then just go ahead and use that.
   } else {
   // replace HTML of target Div 
-  $('.img-tooltip').html('<img src="'+img_src_prev+'" onError="this.src=\'/images/issues/image.png\';" width="62px" align="middle"/>');
-
+  $(suggestion_preview).html('<img src="'+img_src_prev+'" onError="this.src=\'/images/issues/image.png\';" /> ');
+  preview_suggestion();
   
   }	  //        END of If structure (checking for Image Success from Wikipedia)	  
   
@@ -1244,5 +1113,20 @@
   }); //   END of Each loop
   
   }   // END of function   
+  
+  function preview_suggestion() {
+  var sug_offset = suggestion_parent_div.offset();
+  var sug_top    = sug_offset.top;
+  var sug_left   = sug_offset.left;
+  var sug_height = suggestion_parent_div.height()+ 10;
+  var calc_left  = sug_left - 150 + ((suggestion_parent_div.width()+6)/2); 
+  
+  // Display the collected data in tooltip
+  $("#tool_tip").css({'display' : 'block', 'top' : sug_top + sug_height, 'left' : calc_left});
+  
+  suggestion_parent_div.children("a.poplight").children(".action_holder").css({'display' : 'block'});
+  
+  }
+  
   
   

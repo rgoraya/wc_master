@@ -1,33 +1,68 @@
+
+
+    
+%div.pageheading
+  Let us know what you think.
+
+%div{:class=>"helper_text", :style=>"float:right; width:550px;"}
+  %ul
+    %li
+      Fields marked with * are required.
+    %li
+      Please be elaborate when reporting a bug. We value your feedback.
+            
+  
+%div{:style=>"clear:both;"}    
+
+%div{:class => "formcontentdiv"}
+
+  %div{:class=>"centralized", :style=>"width:900px;"}    
  
+    = form_for @feed_back do |f|
+          
+      .field
+        %div{:class=>"formlabel", :style=>"text-align:right;padding-top:10px; height:35px;"}
+          = f.label 'subject *'
+        
+        %div{:class=>"formlabel"}
+          = f.text_field :subject, :class=>"formfield", :autocomplete=>"off"
+          %div{:style=>"clear:both;"}
+      
+      .field
+        %div{:class=>"formlabel", :style=>"text-align:right;padding-top:10px; height:35px;"}
+          = f.label 'email'
+        %div{:class=>"formlabel"}
+          = f.text_field :email, :class=>"formfield", :autocomplete=>"off"
+        %div{:style=>"clear:both;"}
+          
+      .field
+        %div{:class=>"formlabel", :style=>"text-align:right;padding-top:10px; height:35px;"}
+          = f.label 'category *'
+        %div{:class=>"formlabel"}
+          = f.select :category, options_for_select([["choose one...",nil],["suggestion",0],["report bug",1]]), {}, {:style=>"height:40px; width:214px", :class=>"formfield"}
+        %div{:style=>"clear:both;"}
+          
+      .field
+        %div{:class=>"formlabel", :style=>"text-align:right;padding-top:10px; height:35px;"}
+          = f.label 'description *'
+        %div{:class=>"formlabel", :style=>"height:auto;"}
+          = f.text_area :description, :class=>"formfield",:style=>"width:500px;height:200px;"
+          %div{:style=>"clear:both;"}
+        %div{:style=>"clear:both;"}
 
+      .field
+        %div{:class=>"helper_text"}
+          = recaptcha_tags
+      
+      .field
+        = f.hidden_field :user_id, :value => ( current_user ? current_user.id : nil)
+      
+      .actions
+        %div{:class=>"form_button"}
+          = f.submit 'Submit', :class=>"save_button", :style=>"background-image:none; padding-left:5px;"
+        %div{:style=>"clear:both;"}
+               
+      %div{:style=>"clear:both;"}
+	
 
-%div{:id=>"feedback-form", :style=>"float:left;border-right:1px solid #EDEDED;padding-right:20px;color:#434343;"}
-	%div{:style=>"font-size:25px;max-width:500px;text-align:center;"} We value your suggestions. Please let us know what you think.
-	= form_for @feed_back do |f|
-		.field{:style=>"margin-bottom:15px;margin-top:15px;"}
-			= f.label 'Subject *'
-			%br
-			= f.text_field :subject, :style=>"border: 1px solid #EDEDED;width:400px;height:20px;"
-		.field{:style=>"margin-bottom:15px;margin-top:15px;"}
-			= f.label 'Email'
-			%br
-			= f.text_field :email, :style=>"border: 1px solid #EDEDED;width:400px;height:20px;"
-		.field{:style=>"margin-bottom:15px;margin-top:15px;"}
-			= f.label 'Category *'
-			= f.select :category, options_for_select([["Choose one...",nil],["Suggestion",0],["Report bug",1]]), {}, {:style=>"height:25px;color:#434343;font-size:16px;border: 1px solid #EDEDED;width:130px;margin-left:20px;"}
-		.field{:style=>"margin-bottom:10px;margin-top:15px;"}
-			= f.label 'Description *'
-			%br
-			= f.text_area :description, :style=>"border: 1px solid #EDEDED;min-width:500px;max-width:500px;height:300px;"
-			%br
-			Fields marked with * are required
-		.field
-			= recaptcha_tags
-		.field
-			= f.hidden_field :user_id, :value => ( current_user ? current_user.id : nil)
-		.actions{:style=>"float:right;"}
-			= f.submit 'Submit', :class=>"preview_button", :style=>"font-size:16px;background-image:none;min-width:0px;padding:5px 10px 5px 10px;margin:0px 10px 0px 0px;"
-		%div{:style=>"clear:both;"}
-	%div{:style=>"font-size: 14px;margin-top:20px;max-width:500px;text-align:center;"}
-		Note: when you report a bug, please specify in details when you found it, where you found it, and how you found it.
-%div{:style=>"clear:both;"}
+#clear{:style => "clear:left;"} 

@@ -1,6 +1,6 @@
 class Suggestion < ActiveRecord::Base
 
-has_paper_trail :on=>[:update], :only=>[:status]
+#has_paper_trail :on=>[:update], :only=>[:status]
 
 
 belongs_to :issue
@@ -30,7 +30,7 @@ belongs_to :issue
       accepted_effects = this_issue.effects.collect{|x| x.wiki_url}        
       accepted_inhibitors = this_issue.inhibitors.collect{|x| x.wiki_url}
       accepted_supersets = this_issue.supersets.collect{|x| x.wiki_url}
-      accepted_inhibited = this_issue.inhibited.collect{|x| x.wiki_url}
+      accepted_inhibited = this_issue.inhibiteds.collect{|x| x.wiki_url}
       accepted_subsets = this_issue.subsets.collect{|x| x.wiki_url}      
         
         begin
@@ -56,7 +56,7 @@ belongs_to :issue
               end
 
             end
-
+          
           }
 
           buffer.search('//p[text()*= "effect"]/a').each { |effect|
