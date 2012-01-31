@@ -1,0 +1,7 @@
+<%#= puts "this is ruby code that gets called, if we need it" %>
+<%#= puts @vis.nodes, @vis.edges %>
+var oldNodes = currNodes
+var oldEdges = currEdges
+<%= javascript_graph(@vis.nodes, @vis.edges) %> //load the new nodeset into currNodes & currEdges (default values)
+// drawNodes(currNodes, currEdges, myPaper);
+animateElements(oldNodes, oldEdges, currNodes, currEdges, myPaper)

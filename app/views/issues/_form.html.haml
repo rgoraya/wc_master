@@ -15,11 +15,14 @@
 #contentwrapper
 
   .contentmain
-   
 
-    %div{:class=> "formheading"}    
-      Create a new Issue
+    %div.pageheading
+      Create New Issue
+    %div{:style => "clear:both;"}     
+    
     %div{:class => "formcontentdiv"}
+
+
       %div{:class=>"centralized"}
         
             
@@ -98,6 +101,16 @@
    
   // Make sure the DOM is loaded
   $(document).ready(function(){
+
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+  if ($('#notice').html().trim()) {
+  $("#notice_container").effect("bounce", { times:3 }, 200);
+  $('#notice').css({display : 'block'});
+  }
+  
+  $("#notice_container a.closebutton").click(function(){
+  $("#notice_container").slideUp(100);
+  });
 
   if ($('#error').html().trim()) {
   $("#error_container").effect("bounce", { times:3 }, 200);

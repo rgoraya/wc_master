@@ -1,0 +1,37 @@
+%div.relationship_addnew_wait
+ 
+- if @issue_inhibiteds.length > 0
+
+  %div#inhibited_pagination
+    = will_paginate (@issue_inhibiteds), :page_links=>false, :param_name => 'inhibited_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
+  
+    %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"inhibiteds_wait"}
+  
+  - @issue_inhibiteds.each do |inhibited|
+    %div.relationship_thumb
+      - @inhibited_relationship_id = Relationship.where(:issue_id=>inhibited.id, :cause_id=>@issue.id, :relationship_type=>"I").select('id').first.id
+      
+      %div.relationship_thumb_title
+        = link_to inhibited.title, inhibited, :rel => "#{inhibited.description}"
+        
+      %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{inhibited.short_url})"}
+        = link_to inhibited.title, Issue.rel_references(params[:rel_id => @inhibited_relationship_id]), :rel => "#{inhibited.description}", :remote => true, :class=>"references_form", :method => 'get'
+      
+      %span.relationship_id_store{:style=>"display:none;", :id=>"rel_id_#{@inhibited_relationship_id})"}
+        = @inhibited_relationship_id
+      
+- else
+  .relationship_none_found
+    No inhibiteds have been identified yet. 
+
+%div.relationship_addnew
+  %div.relationship_addnew_title
+    %a#add_inhibited_btn.poplight{:href => "#?w=500", :rel => "popup_name",:title => "add new"}
+      Add New
+                
+  %div.relationship_thumb_addnew
+    %a#add_inhibited_btn.poplight{:href => "#?w=500", :rel => "popup_name", :title => "add new"} 
+  
+  
+        
+%div{:style => "clear:both"} 

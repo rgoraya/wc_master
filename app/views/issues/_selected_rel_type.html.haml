@@ -1,0 +1,37 @@
+// FORM to retrieve the relationship types based on User's selection
+= form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
+  = text_field_tag :rel_type, params[:rel_type],:align=>"top", :id=>"select_rel_type"
+  = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
+
+%div.relationship_addnew_wait
+
+- if !@issue_relations.nil?
+
+  %div#relation_pagination
+    = will_paginate (@issue_relations), :page_links=>false, :param_name => 'relationship_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
+  
+    %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"relations_wait"}
+  
+  - @issue_relations.each do |relation|
+    %div.relationship_thumb
+
+      %div.relationship_thumb_title
+        = link_to relation.title, relation, :rel => "#{relation.description}"
+      %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
+        = link_to relation.title, relation, :rel => "#{relation.description}"
+      %span.relationship_id_store
+        //= relation.rel_id       
+
+- else
+  .relationship_none_found
+    No such causal links have been identified yet. 
+
+%div.relationship_addnew
+  %div.relationship_addnew_title
+    %a#add_relation_btn.poplight{:href => "#?w=500", :rel => "popup_name",:title => "add new"}
+      Add New
+                
+  %div.relationship_thumb_addnew
+    %a#add_relation_btn.poplight{:href => "#?w=500", :rel => "popup_name", :title => "add new"} 
+        
+%div{:style => "clear:both"} 

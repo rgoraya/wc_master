@@ -1,0 +1,13 @@
+$("#rel_references").html("<%= escape_javascript(render('rel_references'))%>")
+$("#selected_rel_type").html("<%= escape_javascript(render('selected_rel_type'))%>")
+
+// Display Notice if Ajax
+$("#notice").html("<%= escape_javascript(flash[:notice]) %>");
+if ($('#notice').html().trim()) {
+	$("#notice_container").show();
+	$("#notice_container").effect("bounce", { times:3 }, 200);
+}
+
+$('.relationship_thumb').hide();
+$('.relationship_thumb').fadeIn();
+$(".relationship_thumb_title, .central_causality_container").effect("highlight", {color: '#4DB8DB'}, 500);

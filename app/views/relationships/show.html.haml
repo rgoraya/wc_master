@@ -1,0 +1,56 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+
+- content_for(:title, @rel_issue.title + "&#9658;".html_safe + @rel_cause.title)
+= javascript_include_tag "issue_show.js"
+ 
+#contentwrapper
+
+  .contentmain
+
+    %div.white_space
+    %div.issue_thumbs_container
+      
+      // *-*-*-*-*
+      // The Issue
+      // *-*-*-*-*
+      .issue_thumb_blanket
+        %div.issue_thumb_container
+            
+          %div.main_thumb_title
+            = link_to @rel_issue.title, @rel_issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+        
+          %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@rel_issue.short_url})"}
+            = link_to "", @rel_issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+
+      .issue_thumb_blanket{:style=>"float:right;"}
+        %div.issue_thumb_container
+            
+          %div.main_thumb_title
+            = link_to @rel_cause.title, @rel_cause.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+        
+          %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@rel_cause.short_url})"}
+            = link_to "", @rel_cause.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+
+
+      %div{:style => "clear:both"}
+      
+      
+    %p
+      %b 
+        Issue:
+      = @rel_issue.title
+
+    %p
+      %b 
+        Issue:
+      = @rel_cause.title
+
+    - @rel_references.each do |reference|
+      %p
+        = reference.reference_content  
+
+    = link_to 'Edit', edit_relationship_path(@relationship)
+    = link_to 'Back', relationships_path
+
+#clear{:style => "clear:left;"}
