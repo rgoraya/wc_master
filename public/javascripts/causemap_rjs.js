@@ -111,14 +111,11 @@ function getCurves(edge, numofedges)
 }
 
 
-//a kind of specific function that animates each element in an icon set to the attributes specified.
-//attributes given as an array of objects, corresponding to the ordering in the set 
-//(so toAttrArray[0] corresponds to the first element in the set)
-//can also take in an individual element
-function animateMultiEdge(edgeArray, toAttrArray)
+//a kind of specific function that animates each element in a set of edges to a certain path (can be generalized to certain attribute if needed)
+//can use either arrays of objects (easier) of Raphael sets (a little harder), depending on what we want to do.
+function animateMultiEdge(edgeArray, curveArray)
 {
-
-	fromIcon.animate(toIcon.attr('path'));
+  //FILL ME IN AS A LOOP
 }
 
 
