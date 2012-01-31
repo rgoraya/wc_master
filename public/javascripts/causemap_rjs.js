@@ -66,10 +66,9 @@ function drawEdge(edge, paper){
   .click(function() { alert("You clicked on "+this.data("name")+"\n"+"M"+a.x+","+a.y+"\n Q " + ctrlx + ","+ctrly+" \n"+b.x+","+b.y)})
   .mouseover(function() {this.node.style.cursor='pointer';})
 
-  //icon = paper.set();
-  //icon.push(e, e2);
-  //return icon;  
-  return e;
+  icon = paper.set();
+  icon.push(e); //.push(e,e2,e3)
+  return icon;
 }
 
 //returns an array of curve paths
@@ -108,14 +107,6 @@ function getCurves(edge, numofedges)
   } 
 
   return curvePaths
-}
-
-
-//a kind of specific function that animates each element in a set of edges to a certain path (can be generalized to certain attribute if needed)
-//can use either arrays of objects (easier) of Raphael sets (a little harder), depending on what we want to do.
-function animateMultiEdge(edgeArray, curveArray)
-{
-  //FILL ME IN AS A LOOP
 }
 
 
@@ -186,8 +177,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
     }
     else{
       toCurves = getCurves(toEdge,1) //spec how many edges we need? if >1 will need to loop
-	    icon.animate({'path':toCurves[0]},1000,easing);
-      //edgeIcon.animate() call could replace this for multiple edges if in a set/array/something	
+	    icon[0].animate({'path':toCurves[0]},1000,easing); //do the first edge
     }
   }  
   
