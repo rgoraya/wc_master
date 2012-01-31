@@ -8,7 +8,7 @@ var t_off = 5
 function drawNode(node, paper){
   circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
   .attr({
-    fill: '#54b8dd', stroke: '#bebebe', 'stroke-width': 2
+    fill: '#CA0000', stroke: '#CA0000i', 'stroke-width': 2
   })
   .data("name",node.name)
   .click(function() { alert("You clicked on "+this.data("name"))})
@@ -26,20 +26,84 @@ function drawNode(node, paper){
 }
 
 //details on drawing/layint out an edge
-function drawEdge(edge, paper){
+function drawEdge(edge, paper){    
   a = edge.a //for quick access
   b = edge.b
+  
+  // random number of edge/curve between two nodes 
+  var numofedges = Math.floor(Math.random()*11) % 3 + 1
 
-  e = paper.path("M"+a.x+","+a.y+"L"+b.x+","+b.y+"z").toBack().attr({
-    stroke: '#bd55dd',
+
+
+
+   //-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
+  var pivotPoint = (b.x > a.x) ? a : b
+
+  var dx = b.x - a.x
+  var dy = b.y - a.y 
+
+  var lengthAB = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+  var angleAB = Math.atan(dy/dx)
+
+  // Curve 1
+  var ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
+  var ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
+
+  e = paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
+    stroke: '#408EB8',
     'stroke-width': edge.nc
   })
+  
+  // Curve 2
+  if (numofedges > 1) {
+    ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
+  ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y 
+  paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
+    stroke: '#40A500',
+    'stroke-width': edge.nc
+  })
+  } 
+
+  // Curve 3
+  if (numofedges > 2) {
+    ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
+  ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y 
+  paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
+    stroke: '#BBBBBB',
+    'stroke-width': edge.nc
+  })
+  } 
+
+
+  e2 = paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
+    stroke: '#408EB8',
+    'stroke-width': edge.nc
+  })
+  
+
+
   .data("name",edge.name) //if needed
-  .click(function() { alert("You clicked on "+this.data("name"))})
+  .click(function() { alert("You clicked on "+this.data("name")+"\n"+"M"+a.x+","+a.y+"\n Q " + ctrlx + ","+ctrly+" \n"+b.x+","+b.y)})
   .mouseover(function() {this.node.style.cursor='pointer';})
 
-  return e; //can put this in a set if needed
+  //icon = paper.set();
+  //icon.push(e, e2);
+  //return icon;  
+  return e;
 }
+
+function getCurve(edge)
+{
+	//calculate the curve for "edge"
+	//return edge
+}
+
+
+function animateEdgeMove(fromIcon, toIcon)
+{
+	fromIcon.animate(toIcon.attr('path'));
+}
+
 
 //a basic draw function
 //draw the given nodes and edges on the given paper (a Raphael object)
@@ -107,7 +171,11 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
       icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear') //disappear
     }
     else{
-      icon.animate({ path: "M"+toEdge.a.x+","+toEdge.a.y+"L"+toEdge.b.x+","+toEdge.b.y+"z" }, 1000, easing)
+	icon.animate(toEdge.attr('path'),1000,easing);
+
+//icon.animate({ path: "M"+toEdge.a.x+","+toEdge.a.y+"L"+toEdge.b.x+","+toEdge.b.y+"z" }, 1000, easing)
+//	icon.animate({ path: "M"+toEdge.a.x+","+toEdge.a.y+"L"+toEdge.b.x+","+toEdge.b.y+"z" }, 1000, easing)
+	
     }
   }  
   
