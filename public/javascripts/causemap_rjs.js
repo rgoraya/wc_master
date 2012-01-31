@@ -31,34 +31,18 @@ function drawEdge(edge, paper){
   b = edge.b
   
   // random number of edge/curve between two nodes 
-  var numofedges = Math.floor(Math.random()*11) % 3 + 1
+  numofedges = 1 // Math.floor(Math.random()*11) % 3 + 1 //problem is that this can't be randomly determined on each draw, needs to be based on a static edge value!
 
+  curvePaths = getCurves(edge, numofedges) //get the curve paths
 
-
-
-   //-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
-  var pivotPoint = (b.x > a.x) ? a : b
-
-  var dx = b.x - a.x
-  var dy = b.y - a.y 
-
-  var lengthAB = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
-  var angleAB = Math.atan(dy/dx)
-
-  // Curve 1
-  var ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
-  var ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
-
-  e = paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
+  e = paper.path(curvePaths[0]).toBack().attr({
     stroke: '#408EB8',
     'stroke-width': edge.nc
   })
   
   // Curve 2
   if (numofedges > 1) {
-    ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
-  ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y 
-  paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
+    paper.path(curvePaths[1]).toBack().attr({
     stroke: '#40A500',
     'stroke-width': edge.nc
   })
@@ -66,23 +50,19 @@ function drawEdge(edge, paper){
 
   // Curve 3
   if (numofedges > 2) {
-    ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
-  ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y 
-  paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
+    paper.path(curvePaths[2]).toBack().attr({
     stroke: '#BBBBBB',
     'stroke-width': edge.nc
   })
   } 
 
 
-  e2 = paper.path("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y).toBack().attr({
-    stroke: '#408EB8',
-    'stroke-width': edge.nc
-  })
-  
+  // e2 = paper.path(curvePaths[2]).toBack().attr({
+  //   stroke: '#408EB8',
+  //   'stroke-width': edge.nc
+  // })
 
-
-  .data("name",edge.name) //if needed
+  e.data("name",edge.name) //if needed
   .click(function() { alert("You clicked on "+this.data("name")+"\n"+"M"+a.x+","+a.y+"\n Q " + ctrlx + ","+ctrly+" \n"+b.x+","+b.y)})
   .mouseover(function() {this.node.style.cursor='pointer';})
 
@@ -92,15 +72,52 @@ function drawEdge(edge, paper){
   return e;
 }
 
-function getCurve(edge)
+//returns an array of curve paths
+function getCurves(edge, numofedges)
 {
-	//calculate the curve for "edge"
-	//return edge
+  a = edge.a //for quick access
+  b = edge.b
+    
+  //-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
+  pivotPoint = (b.x > a.x) ? a : b
+
+  dx = b.x - a.x
+  dy = b.y - a.y 
+
+  lengthAB = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+  angleAB = Math.atan(dy/dx)
+
+  // Curve 1
+  ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
+  ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
+  
+  curvePaths = ["M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y]
+
+  // Curve 2
+  if (numofedges > 1) {
+    ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
+    ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y 
+    curvePaths.push("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y)
+  }
+
+  // Curve 3
+  if (numofedges > 2) {
+    ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
+    ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y 
+    curvePaths.push("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y)
+  } 
+
+  return curvePaths
 }
 
 
-function animateEdgeMove(fromIcon, toIcon)
+//a kind of specific function that animates each element in an icon set to the attributes specified.
+//attributes given as an array of objects, corresponding to the ordering in the set 
+//(so toAttrArray[0] corresponds to the first element in the set)
+//can also take in an individual element
+function animateMultiEdge(edgeArray, toAttrArray)
 {
+
 	fromIcon.animate(toIcon.attr('path'));
 }
 
@@ -171,11 +188,9 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
       icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear') //disappear
     }
     else{
-	icon.animate(toEdge.attr('path'),1000,easing);
-
-//icon.animate({ path: "M"+toEdge.a.x+","+toEdge.a.y+"L"+toEdge.b.x+","+toEdge.b.y+"z" }, 1000, easing)
-//	icon.animate({ path: "M"+toEdge.a.x+","+toEdge.a.y+"L"+toEdge.b.x+","+toEdge.b.y+"z" }, 1000, easing)
-	
+      toCurves = getCurves(toEdge,1) //spec how many edges we need? if >1 will need to loop
+	    icon.animate({'path':toCurves[0]},1000,easing);
+      //edgeIcon.animate() call could replace this for multiple edges if in a set/array/something	
     }
   }  
   
