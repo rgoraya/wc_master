@@ -33,7 +33,7 @@ gem 'sqlite3-ruby', '1.3.2', :require => 'sqlite3'
 gem "hpricot"
 gem "haml-rails"
 
-gem 'paper_trail', '~> 2'
+gem 'paper_trail', '~> 2.5.0'
 gem 'will_paginate', '3.0.pre2'
 gem 'jquery-rails'
 

@@ -26,12 +26,18 @@ module Reputation
 																																								(!options[:me].nil? && options[:me].integer?))
 
 						degree = 3
-					  return false unless !(v = Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', options[:id]]).first).nil? 
-					  relationship = v.get_object 
+					  return false unless !(v = Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', options[:id]]).first).nil? || !(v = Relationship.find(options[:id]))
+					  if v.class.to_s.eql?("Version")
+							relationship = v.get_object
+						elsif v.class.to_s.eql?("Relationship")
+							relationship = v
+						end
 					  [relationship.issue_id, relationship.cause_id].each do |issue_id|
-						  return false unless !(v = Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Issue', issue_id]).first).nil? 
-						  if ((user_id = v.get_object.user_id) == options[:me])
+						  return false unless !(v = Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Issue', issue_id]).first).nil? || !(v = Issue.find(issue_id))
+						  if v.class.to_s.eql?("Version") && (user_id = v.get_object.user_id) == options[:me]
 							  degree -= 1
+							elsif v.class.to_s.eql?("Issue") && (user_id = v.user_id) == options[:me]
+								degree -= 1
 						  else
 							  ids << user_id
 						  end
@@ -96,7 +102,7 @@ module Reputation
 						raise ArgumentError, "Missing or invalid argument :id :me" unless ((!options[:id].nil? && options[:id].integer?) && 
 																																								(!options[:me].nil? && options[:me].integer?))
 						return false unless !(v = Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Suggestion', options[:id]]).first).nil?
-						if v.reify.status.eql?('N') && v.get_object.status.eql?('D')
+						if v.reify.status.eql?('N') && v.get_object.status.eql?('D') #reject only
 							score = [1,0]
 						end
 			  end
@@ -202,6 +208,18 @@ module Maintenance
 				end
 			end
 		end
+
+		def self.make_consistent2
+      Issue.all.each do |issue|
+        if issue.suggestions.count == 0
+          arr = Suggestion.new.get_suggestions(issue.wiki_url, issue.id)
+          arr.each do |s|
+            Suggestion.create(s)
+          end
+        end
+      end
+    end
+
 
 	end
 end

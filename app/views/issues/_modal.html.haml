@@ -298,7 +298,7 @@
   } else {
   
   //  populate the description text
-  text_preview = $(Jval).filter('p:first').text();
+  text_preview = $(Jval.replace(/<p><br \/><\/p>/gi,'')).filter('p:first').text().replace(/\[\d+\]/gi,'');
   
   //  Throw error if no text was received
   if(text_preview == ''){
@@ -1113,20 +1113,4 @@
   }); //   END of Each loop
   
   }   // END of function   
-  
-  function preview_suggestion() {
-  var sug_offset = suggestion_parent_div.offset();
-  var sug_top    = sug_offset.top;
-  var sug_left   = sug_offset.left;
-  var sug_height = suggestion_parent_div.height()+ 10;
-  var calc_left  = sug_left - 150 + ((suggestion_parent_div.width()+6)/2); 
-  
-  // Display the collected data in tooltip
-  $("#tool_tip").css({'display' : 'block', 'top' : sug_top + sug_height, 'left' : calc_left});
-  
-  suggestion_parent_div.children("a.poplight").children(".action_holder").css({'display' : 'block'});
-  
-  }
-  
-  
   
