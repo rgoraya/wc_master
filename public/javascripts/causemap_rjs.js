@@ -10,18 +10,16 @@ function drawNode(node, paper){
   .attr({
     fill: '#CA0000', stroke: '#CA0000i', 'stroke-width': 2
   })
-  .data("name",node.name)
-  .click(function() { alert("You clicked on "+this.data("name"))})
-  .mouseover(function() {this.node.style.cursor = 'pointer';})
 
   txt = paper.text(node.x, node.y+t_off, node.name)
+  
+  //put them into set and return set!!
+  icon = paper.set()
+  icon.push(circ, txt)
   .data("name",node.name) //if needed
   .click(function() { alert("You clicked on "+this.data("name"))})
   .mouseover(function() {this.node.style.cursor='pointer';})  
   
-  //put them into set and return set!!
-  icon = paper.set();
-  icon.push(circ, txt);
   return icon;  
 }
 
@@ -64,10 +62,10 @@ function drawEdge(edge, paper){
 
   e.data("name",edge.name) //if needed
   .click(function() { alert("You clicked on "+this.data("name")+"\n"+"M"+a.x+","+a.y+"\n Q " + ctrlx + ","+ctrly+" \n"+b.x+","+b.y)})
-  .mouseover(function() {this.node.style.cursor='pointer';})
 
-  icon = paper.set();
-  icon.push(e); //.push(e,e2,e3)
+  icon = paper.set()
+  icon.push(e) //.push(e,e2,e3)  
+  .mouseover(function() {this.node.style.cursor='pointer';})
   return icon;
 }
 
