@@ -1,8 +1,16 @@
 class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
+  before_filter :set_rel_type
+  
+  def set_rel_type
+    @rel_type ||= 'causes'
+    # or @a_entity = Entity.find(params['a_entity'])
+  end
+
+  
   def index
-    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 10, :page => params[:page])
+    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
 
     respond_to do |format|
       format.js {render :layout=>false}
@@ -16,6 +24,90 @@ class IssuesController < ApplicationController
   # GET /issues/1.xml
   def show
     @issue = Issue.find(params[:id])
+
+
+    # Default params to "causes" for initial load
+    if params[:rel_type]
+      @rel_type = params[:rel_type];
+    else
+      @rel_type = "causes"
+    end
+    
+    case @rel_type
+
+    when "causes"
+      # get the causes
+      @issue_relations = @issue.causes.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      #@issue_relations.each do |cause|
+      #  @rel_id = @issue.relationships.where(:cause_id=>cause.id, :relationship_type=>nil).select('id').first.id
+      #  cause = cause.to_a << {rel_id => @rel_id} 
+      #end
+      # return this
+      #return @issue_relations
+    
+    when "effects"
+      # get the causes
+      @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      #@issue_effects.each do |effect|
+      #  @rel_id = Relationship.where(:issue_id=>effect.id, :cause_id=>@issue.id, :relationship_type=>nil).select('id').first.id
+      #  effect << {:rel_id => @rel_id} 
+      #end
+      # return this
+      #return @issue_effects
+    
+    when "inhibitors"
+      # get the causes
+      @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      #@issue_inhibitors.each do |inhibitor|
+      #  @rel_id = @issue.relationships.where(:cause_id=>inhibitor.id, :relationship_type=>nil).select('id').first.id
+      #  inhibitor << {:rel_id => @rel_id} 
+      #end
+      # return this
+      #return @issue_inhibitors
+          
+    when "inhibiteds"
+      # get the inhibiteds
+      @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      #@issue_inhibiteds.each do |inhibited|
+      #  @rel_id = Relationship.where(:issue_id=>inhibited.id, :cause_id=>@issue.id, :relationship_type=>'I').select('id').first.id
+      #  inhibited << {:rel_id => @rel_id} 
+      #end
+      # return this
+      #return @issue_inhibiteds
+    
+    when "supersets"
+      # get the causes
+      @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      #@issue_supersets.each do |superset|
+      #  @rel_id = @issue.relationships.where(:cause_id=>superset.id, :relationship_type=>'H').select('id').first.id
+      #  superset << {:rel_id => @rel_id} 
+      #end
+      # return this
+      #return @issue_supersets
+    
+    when "subsets"
+      # get the subsets
+      @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      #@issue_subsets.each do |subset|
+      #  @rel_id = Relationship.where(:issue_id=>subset.id, :cause_id=>@issue.id, :relationship_type=>'H').select('id').first.id
+      #  subset << {:rel_id => @rel_id} 
+      #end
+      # return this
+      #return @issue_subsets
+      
+   end
+
+
+
+
+
+
     @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
     @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
     @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
@@ -23,9 +115,21 @@ class IssuesController < ApplicationController
     @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
     @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
 
+    #@issue_causes     = @issue.causes.paginate(:per_page => 6, :page => params[:cause_page])
+    #@issue_effects    = @issue.effects.paginate(:per_page => 6, :page => params[:effect_page])
+    #@issue_inhibitors = @issue.inhibitors.paginate(:per_page => 6, :page => params[:inhibitor_page])
+    #@issue_supersets  = @issue.supersets.paginate(:per_page => 6, :page => params[:superset_page])
+    #@issue_subsets    = @issue.subsets.paginate(:per_page => 6, :page => params[:subset_page])
+    #@issue_inhibiteds = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:inhibited_page])
+
+    @references = Issue.rel_references(params[:rel_id])
+    
+
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @issue }
+      format.js   { render :layout=>false }
+     
     end
   end
 
@@ -68,9 +172,11 @@ class IssuesController < ApplicationController
           initialize_suggestion_object
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
           format.xml  { render :xml => @issue, :status => :created, :location => @issue }
+          format.js {render :layout=>"layouts/notice_partial"}
         else
           format.html { render :action => "new" }
           format.xml  { render :xml => @issue.errors, :status => :unprocessable_entity }
+          format.js {render :layout=>"layouts/notice_partial"}
         end
       end      
     end

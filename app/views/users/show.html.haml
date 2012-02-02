@@ -8,29 +8,30 @@
 #contentwrapper
 
   .contentmain
-    .profile_stats_container
-      %div{:class=>"formheading", :style=>"background:#f5f5f5; margin-bottom:-25px; z-index:400; position:relative;"}
-        %div{:class => "username"} 
-          = @user.username
-      
-      %div{:style=>"float:right; margin:15px 0px -25px 0px;"}
-        - form_tag user_path, :id=>"search_form", :method => 'get' do 
-          %div{:class=>"search_button"}
-            %div{:style=>"float:left;display:table-cell; vertical-align:middle"}
-              = text_field_tag :search, params[:search], :align=>"top", :placeholder => "#{@user.username}'s issues. . .", :autocomplete=>"off", :class=>"searchfield_small"
-            %div{:style=>"float:left;"}
-              
-              = submit_tag "Search", :name => nil, :class=>"srch_button"
-            %div{:style=>"clear:both"} 
-              
     
-      %div{:class=>"formcontentdiv", :style=>"border-color:#f5f5f5; float:left; padding-left:10px; width:366px;"}
+    .pageheading
+      %span{:style=>"color:#4DB8DB;"}>= @user.username 
+      //%span> 's contribution
+
+    %div{:style=>"clear:both;"}
+      
+      
+    .profile_stats_container.formcontentdiv
+      
+      %div{:style=>"float:left; width:360px;"}
+        
+        %div.pageheading{:style=>"font-size:18px;margin:5px 0px 0px 0px;"}
+          Contribution
+        %div{:style=>"clear:both;"}    
         %div{:style=>"float:left;"}
           - @hash = Digest::MD5.hexdigest(@user.email).to_s
-          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=128&d=mm", :class=>"gravatar", :style=>"margin-top:5px;"}
+  
+          %a{:href=>"/users/#{@user.id}"}
+            %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=128&d=mm", :class=>"gravatar"}
+  
           %div{:class => "reputation_block"}
             = @user.reputation
-          %div{:class => "reputation_block", :style=>"color:#bebebe;font-size:18px;margin-top:-15px;"}
+          %div{:class => "reputation_block", :style=>"color:#bebebe;font-size:18px;margin-top:5px;"}
             reputation   
     
         %div{:style=>"float:left;padding-top:10px"}
@@ -64,32 +65,33 @@
             = @user.references.count  
         %div{:style=>"clear:both;"}
       
-      %div{:style=>"float:right; margin-top:40px; width:660px;"}    
-        %div{:class => "formheading_small", :style=>"margin-left:0px;background:#f5f5f5;color:#858585;"}
-          Contribution
-          %span{:id=>"wait_for_more"}
-        %div{:id=>"activities"}
+         
+      - if @activities.count > 0
+        %div{:id=>"activities", :style=>"float:right;"}         
           = render 'activities'
-        - if @activities.count > 0
-          %div{:id=>"more", :style=>"height:15px;font-size:12px;text-align:center;border-bottom: 1px solid whiteSmoke;border-left: 1px solid whiteSmoke;border-right: 1px solid whiteSmoke;font-weight:bold;", :title=>"More contributions"} More... 
-    
+        /%div{:id=>"more", :style=>"padding:5px 10px; border:1px solid #f5f5f5; font-size:12px; text-align:center; background:#f5f5f5; font-weight:bold;float:right;width:640px;", :title=>"More contributions"} More... 
+      
+      -else
+        %div{:style=>"text-align:center;padding:25px 10px;color:#bebebe; font-weight:bold; width:500px; float:right"}
+          No activity log to display.  
+  
       %div{:style=>"clear:both;"}
 
     
-    %div{:id=>"issues"}
-      = render 'issues'
+    %div{:id=>"userissues"}
+      = render 'userissues'
 
         
 #clear{:style => "clear:left;"}
 
 #confirm_popup
-  #confirm_title{:class=>"formheading_small"}
-  .formcontentdiv_small
+  #confirm_title{:class=>"formheading", :style=>"text-align:left;color:#434343;"}
+  .formcontentdiv
     #confirm_wait{:style=>"margin:-42px 0px 0px 0px;float:right;background-color:#ffffff;"}  
     #confirm_msg
     #confirm_buttons{:style=>"margin-top:10px; text-align:center"}
-      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}
-      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}
+      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"wiki_button", :style=>"padding:5px;background-image:none;"}
+      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"wiki_button", :style=>"padding:5px;background-image:none;"}
 
 
 
@@ -101,7 +103,7 @@
   // Make sure the DOM is loaded
   $(document).ready(function(){
   
-  window.confirm = false;
+  
 
   // D I S M I S S    T H E    F L A S H    N O T I C E
   if ($('#notice').html().trim()) {
@@ -157,20 +159,20 @@
 
   
 
-  $("div#more").attr("segment",2);
-  $("div#more").click(function(){
+  /$("div#more").attr("segment",2);
+  /$("div#more").click(function(){
+
+  /$("#wait_for_more").html('<img src="/images/system/spinner.gif"/>');
+
+  /$.ajax({url: document.location.href, data: {segment: $(this).attr("segment")},success: function(data){
+  /$("div#more").attr("segment", parseInt($("div#more").attr("segment"))+1);
   
-  $(this).hide();
-  $("#wait_for_more").html('<img src="/images/system/spinner.gif" style="max-height:14px;"/>');
+  /$("#wait_for_more").empty();
+  /$("div#more").show();
+  /}});
 
-  $.ajax({url: document.location.href, data: {segment: $(this).attr("segment")},success: function(data){
-  $("div#more").attr("segment", parseInt($("div#more").attr("segment"))+1);
-  $("div#more").show();
-  $("#wait_for_more").empty();
-  }});
-
-  return false;
-  });
+  /return false;
+  /});
 
   });   //  E N D    O F    D O M    L O A D 
 

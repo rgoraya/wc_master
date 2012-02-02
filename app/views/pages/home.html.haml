@@ -6,13 +6,12 @@
 #contentwrapper
   .contentmain
     
-    %div{:class=> "formheading"}
-      
-      
-        
+    %div.pageheading
       Welcome to ThisCausesThat
+    %div{:style=>"clear:both;"}
       
     %div{:class => "formcontentdiv"}
+
       %div{:class=>"centralized"}
         %div{:id=>"home_txt"}            
           %div{:id => "wc_logo"} 
@@ -22,13 +21,16 @@
             aims to provide the users with a participatory environment where they can identify Environmental issues and attach causal links to these issues.
           %p
             Users can access the Wikipedia information and geo-tagged media associated with these issues and locate geographic instances of these problems on Google Maps.
-          %p
-            We welcome you to learn about the complex webs of causality that underlie various environmental issues and collaborate to document the likely chains of causality underlying them.
+          %p{:style=>"color:#b84030"}
+            %b The content is not yet public.
+          %p  
+            %b Once we release the website to public, 
+            we would welcome you to learn about the complex webs of causality that underlie various environmental issues and collaborate towards documenting the likely chains of causality underlying them.
           
             
           %div{:style=>"clear:both;"}
           
           %div{:style=>"text-align:center; margin-top:40px; width:100%"}
-            = link_to "View Issues", :issues, :class=>"issues_button", :title=>"view all issues"
+            /= link_to "View Issues", :issues, :class=>"issues_button", :title=>"view all issues"
           
 #clear{:style => "clear:left;"}        

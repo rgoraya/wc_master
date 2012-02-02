@@ -22,6 +22,7 @@ class Suggestion < ActiveRecord::Base
     :S => 'subsets'  
   }
 
+
   def get_suggestions(url, issueid)
 
     if url.size > 10
@@ -101,6 +102,7 @@ class Suggestion < ActiveRecord::Base
       
       @accepted[causality_type].include?(relation_suggestion_url) ? occurrence[:status] = 'A' : occurrence[:status] = 'N'
     end
+
    
     occurrence
   end                               

@@ -1,0 +1,33 @@
+- if @issue_effects.length > 0
+
+  %div#effect_pagination
+    = will_paginate (@issue_effects), :page_links=>false, :param_name => 'effect_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
+  
+    %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"effects_wait"}
+  
+  %div{:style=>"clear:both;"}  
+  %div.relationship_addnew_wait
+  - @issue_effects.each do |effect|
+    %div.relationship_thumb
+  
+      %div.relationship_thumb_title
+        = link_to effect.title, effect, :rel => "#{effect.description}"
+        
+      %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{effect.short_url})"}
+        = link_to effect.title, effect, :rel => "#{effect.description}"
+
+- else
+  .relationship_none_found
+    No effects have been identified yet. 
+
+%div.relationship_addnew
+  %div.relationship_addnew_title
+    %a#add_effect_btn.poplight{:href => "#?w=500", :rel => "popup_name", :title => "add new"}
+      Add New
+                
+  %div.relationship_thumb_addnew
+    %a#add_effect_btn.poplight{:href => "#?w=500", :rel => "popup_name", :title => "add new"} 
+  
+  
+        
+%div{:style => "clear:both"} 

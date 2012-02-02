@@ -1,0 +1,19 @@
+%div.relation_descr
+        
+  .rationale_headers
+    References  
+  %div{:style => "clear:both"}  
+  
+  - form_tag rel_references, :id=>"references_form", :remote => true, :method => 'get' do               
+    = text_field_tag :rel_id, params[:rel_id], :id=>"reference_form_rel_id", :class=>"submittable"
+    = submit_tag "Get references", :id => "referencesubmit", :title=>"search"
+
+  
+  - if @references.nil?
+    %p
+      there were No references
+  - else
+    %p
+      - @references.each do |reference|
+        %p
+          = reference.reference_content  
