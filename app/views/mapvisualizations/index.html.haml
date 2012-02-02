@@ -29,7 +29,6 @@
 #canvas_container
   = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
 #interaction
-  / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
   #reset_form
     = form_tag({:action => "index", :cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
       #inputs
@@ -48,6 +47,7 @@
     = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
     = button_to "Kamada Layout", {:action => "index", :cmd => 'kamada_kawai'}, {:remote => true, :method => :get}
     / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+
 #debug
   %b Some notes:
   Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
