@@ -32,6 +32,7 @@ GEM
     authlogic (3.1.0)
       activerecord (>= 3.0.7)
       activerecord (>= 3.0.7)
+    backports (2.3.0)
     bcrypt-ruby (3.0.1)
     bcrypt-ruby (3.0.1-x86-mingw32)
     builder (2.1.2)
@@ -101,6 +102,7 @@ PLATFORMS
 
 DEPENDENCIES
   authlogic
+  backports
   exception_notification
   haml-rails
   hirb

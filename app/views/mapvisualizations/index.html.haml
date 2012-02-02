@@ -25,30 +25,33 @@
       })
   });
 
+#contentwrapper
+  .contentmain
+    #canvas_container
+      = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
+    #interaction
+      / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
+      #reset_form
+        = form_tag({:action => "index", :cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
+          #inputs
+            = label_tag "Number of Nodes:"
+            = number_field_tag "args[node_count]", @default_node_count, :in => 1...100
+            %br
+            = label_tag "Ratio of Edges:"
+            = number_field_tag "args[edge_ratio]", @default_edge_ratio, :min => 0.0, :max => 1.0, :step => 0.01
+          #reset
+            = submit_tag "Reset Graph"
+      #other_buttons
+        = button_to "Random Spread", {:action => "index", :cmd => 'place_randomly'}, {:remote => true, :method => :get}
+        = button_to "Normalize Graph", {:action => "index", :cmd => 'normalize_graph'}, {:remote => true, :method => :get}
+        = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
+        = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
+        = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
+        = button_to "Kamada Layout", {:action => "index", :cmd => 'kamada_kawai'}, {:remote => true, :method => :get}
+        / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+    #debug
+      %b Some notes:
+      Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
+      Springy is good for disconnected graphs, but can be slow depending on initial layout (can also tweak speed parameters if needed).
 
-#canvas_container
-  = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
-#interaction
-  / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
-  #reset_form
-    = form_tag({:action => "index", :cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
-      #inputs
-        = label_tag "Number of Nodes:"
-        = number_field_tag "args[node_count]", @default_node_count, :in => 1...100
-        %br
-        = label_tag "Ratio of Edges:"
-        = number_field_tag "args[edge_ratio]", @default_edge_ratio, :min => 0.0, :max => 1.0, :step => 0.01
-      #reset
-        = submit_tag "Reset Graph"
-  #other_buttons
-    = button_to "Random Spread", {:action => "index", :cmd => 'place_randomly'}, {:remote => true, :method => :get}
-    = button_to "Normalize Graph", {:action => "index", :cmd => 'normalize_graph'}, {:remote => true, :method => :get}
-    = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
-    = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
-    = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
-    = button_to "Kamada Layout", {:action => "index", :cmd => 'kamada_kawai'}, {:remote => true, :method => :get}
-    / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
-#debug
-  %b Some notes:
-  Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
-  Springy is good for disconnected graphs, but can be slow depending on initial layout (can also tweak speed parameters if needed).
+#clear{:style => "clear:left;"}

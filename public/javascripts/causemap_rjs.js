@@ -28,30 +28,35 @@ function drawEdge(edge, paper){
   a = edge.a //for quick access
   b = edge.b
   
-  // random number of edge/curve between two nodes 
-  numofedges = 1 // Math.floor(Math.random()*11) % 3 + 1 //problem is that this can't be randomly determined on each draw, needs to be based on a static edge value!
+  numofedges = edge.nc
 
-  curvePaths = getCurves(edge, numofedges) //get the curve paths
+  curvePaths = getCurves(edge) //get the curve paths
+
+  icon = paper.set()
 
   e = paper.path(curvePaths[0]).toBack().attr({
     stroke: '#408EB8',
     'stroke-width': edge.nc
   })
+  icon.push(e) //.push(e,e2,e3)  
+  
   
   // Curve 2
   if (numofedges > 1) {
-    paper.path(curvePaths[1]).toBack().attr({
-    stroke: '#40A500',
+    e2 = paper.path(curvePaths[1]).toBack().attr({
+    stroke: '#BBBBBB',
     'stroke-width': edge.nc
   })
+  icon.push(e2)
   } 
 
   // Curve 3
   if (numofedges > 2) {
-    paper.path(curvePaths[2]).toBack().attr({
+    e3 = paper.path(curvePaths[2]).toBack().attr({
     stroke: '#BBBBBB',
     'stroke-width': edge.nc
   })
+  icon.push(e3)
   } 
 
 
@@ -60,20 +65,19 @@ function drawEdge(edge, paper){
   //   'stroke-width': edge.nc
   // })
 
-  e.data("name",edge.name) //if needed
+  icon.data("name",edge.name) //if needed
   .click(function() { alert("You clicked on "+this.data("name")+"\n"+"M"+a.x+","+a.y+"\n Q " + ctrlx + ","+ctrly+" \n"+b.x+","+b.y)})
 
-  icon = paper.set()
-  icon.push(e) //.push(e,e2,e3)  
-  .mouseover(function() {this.node.style.cursor='pointer';})
+  icon.mouseover(function() {this.node.style.cursor='pointer';})
   return icon;
 }
 
 //returns an array of curve paths
-function getCurves(edge, numofedges)
+function getCurves(edge)
 {
   a = edge.a //for quick access
   b = edge.b
+  numofedges = edge.nc
     
   //-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
   pivotPoint = (b.x > a.x) ? a : b
@@ -175,7 +179,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
     }
     else{
       toCurves = getCurves(toEdge,1) //spec how many edges we need? if >1 will need to loop
-	    icon[0].animate({'path':toCurves[0]},1000,easing); //do the first edge
+      for(var j=0, clen=toCurves.length; j<clen; j++)
+	      icon[j].animate({'path':toCurves[j]},1000,easing); //do the first edge
     }
   }  
   

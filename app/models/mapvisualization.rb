@@ -47,7 +47,7 @@ class Mapvisualization #< ActiveRecord::Base
       @a = a #reference to the node object (as opposed to just an index)
       @b = b
       @weight = weight
-      @number_connections = conn_count
+      @number_connections = conn_count  #specified edge.nc
     end
 
     def to_s
@@ -87,6 +87,17 @@ class Mapvisualization #< ActiveRecord::Base
     @nodes = args[:nodes]
     @edges = args[:edges]
     
+    # fetch_data()
+    # {
+    #   @lor = Relationships.find(whatever)
+    #   
+    # }
+    # @lor.each |r|
+    #   "edge.type=" r.relationship_type
+    # @nodes = build_nodes(Issues.find(what_nodes_to_get))
+    # @edges = build_edges(Relationships.find(what_nodes_to_get))
+    
+    
     reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random
 
     # random_graph(args[:node_count]) #init to random graph atm
@@ -103,7 +114,8 @@ class Mapvisualization #< ActiveRecord::Base
     for i in (0...node_count)
       for j in (i+1...node_count)
         if(rand() < edge_ratio) #make random edges
-          if(rand() < 0.1)
+          #want random number between 1 and 3
+          if(true)#rand() < 1.0)
             @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 2))
           else
             @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 1))

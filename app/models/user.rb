@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  require 'backports'
   
   # following code makes the user model to work as AUTHLOGIC authentication class
   acts_as_authentic
@@ -199,7 +200,7 @@ class User < ActiveRecord::Base
           relationship_version=Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first
           if relationship_version.nil?
             activity[:what]='? <data untraceable>'
-            break
+            #break
           end
           cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.cause_id]).first
           issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.issue_id]).first

@@ -11,6 +11,8 @@ class MapvisualizationsController < ApplicationController
     respond_to do |format|
       format.html do #on html calls
 
+        # @vis = Mapvisualization.new(width, height, Relationships.find(:what_nodes_to_get))
+
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio) #on new html--generate graph
 
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us
