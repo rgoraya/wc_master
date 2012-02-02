@@ -29,7 +29,6 @@ function drawEdge(edge, paper){
   b = edge.b
   
   numofedges = edge.nc
-
   curvePaths = getCurves(edge) //get the curve paths
 
   icon = paper.set()
@@ -67,8 +66,7 @@ function drawEdge(edge, paper){
 
   icon.data("name",edge.name) //if needed
   .click(function() { alert("You clicked on "+this.data("name")+"\n"+"M"+a.x+","+a.y+"\n Q " + ctrlx + ","+ctrly+" \n"+b.x+","+b.y)})
-
-  icon.mouseover(function() {this.node.style.cursor='pointer';})
+  .mouseover(function() {this.node.style.cursor='pointer';})
   return icon;
 }
 

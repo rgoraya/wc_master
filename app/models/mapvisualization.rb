@@ -115,12 +115,13 @@ class Mapvisualization #< ActiveRecord::Base
       for j in (i+1...node_count)
         if(rand() < edge_ratio) #make random edges
           #want random number between 1 and 3
-          if(true)#rand() < 1.0)
-            @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 2))
-          else
-            @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 1))
-          end
-          #puts "adding edges, length now equal to "+ @edges.length.to_s
+          num_edges = (rand()*3).ceil
+          @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], num_edges))          
+          # if(true)#rand() < 1.0)
+          #   @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 2))
+          # else
+          #   @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 1))
+          # end
           @adjacency[i][j] = @edges.last
           @adjacency[j][i] = @edges.last
         end
