@@ -50,7 +50,7 @@
               - if current_user
 
                 - @hash = Digest::MD5.hexdigest(current_user.email).to_s
-                = link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=17&d=mm', :border =>0),current_user, :title=>"view your issues", :class=>"nav_gravatar"
+                = link_to image_tag("http://www.gravatar.com/avatar/"+ @hash + "?s=17&d=mm", :border =>0),current_user, :title=>"view your issues", :class=>"nav_gravatar"
                 = link_to current_user.username + "\'s issues", current_user, :title=>"view your issues", :class=>"login_button", :style=>"padding-left:0px;margin-left:0px; padding-right:6px;"
 
                                 
