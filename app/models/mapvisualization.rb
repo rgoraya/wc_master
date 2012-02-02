@@ -24,24 +24,30 @@ class Mapvisualization #< ActiveRecord::Base
     end
 
     #returns a javascript version of the object
-    def js
-      "{name:'"+@name+"',"+
-      "x:"+@location[0].to_s+",y:"+@location[1].to_s+","+
+    def js(offset=0)
+      "{id:"+@id.to_s+","+
+      "name:'"+@name+"',"+
+      "x:"+(@location[0]+offset).to_s+",y:"+(@location[1]+offset).to_s+","+
       "weight:"+@weight.to_s+"}" 
       #can add more fields as needed
     end
 
+    #returns a javascript key for the object
+    def js_k
+      @id.to_s
+    end
+      
   end  
 
   class Edge < Object
     attr_accessor :id, :a, :b, :weight, :type
 
-    def initialize(id, a, b, weight)
+    def initialize(id, a, b, conn_count=1)
       @id = id #needed?
       @a = a #reference to the node object (as opposed to just an index)
       @b = b
       @weight = weight
-      @type = 0
+      @number_connections = conn_count
     end
 
     def to_s
@@ -55,11 +61,17 @@ class Mapvisualization #< ActiveRecord::Base
     #returns a javascript version of the object 
     #ai and bi are the js indices for the connecting nodes (default to node's ID)
     #nodeset is the name of the js node array (default to "nodes")
-    def js(ai=@a.id, bi=@b.id, nodeset='nodes') 
+    def js(nodeset='nodes') 
+      #do we need to also include an id field inside the object?
       "{name:'"+name+"',"+
-      "a:"+nodeset+"["+ai.to_s+"],b:"+nodeset+"["+bi.to_s+"]"+","+
-      "weight:"+@weight.to_s+"}"
+      "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
+      "nc:"+@number_connections.to_s+"}"
       #can add more fields as needed
+    end
+    
+    #gets a key for the edge
+    def js_k
+      "'"+@a.js_k+"-"+@b.js_k+"'"
     end
 
   end
@@ -75,7 +87,7 @@ class Mapvisualization #< ActiveRecord::Base
     @nodes = args[:nodes]
     @edges = args[:edges]
     
-    reset_graph(@width, @height, args) if @nodes.nil? #currently resets to random
+    reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random
 
     # random_graph(args[:node_count]) #init to random graph atm
     #normally will init to pull out the nodes we want to see... or something. Will need to figure out how that works
@@ -88,11 +100,15 @@ class Mapvisualization #< ActiveRecord::Base
     @nodes = Array.new(node_count) {|i| Node.new(i, "Node "+i.to_s, rand()*5)} #make all the nodes (random)
     @edges = Array.new() #an array to hold edges
     @adjacency = Array.new(node_count) {|i| Array.new(node_count)} #an adjacency matrix of edges (for easy referencing)
-    for i in (0..node_count-1)
-      for j in (i+1..node_count-1)
+    for i in (0...node_count)
+      for j in (i+1...node_count)
         if(rand() < edge_ratio) #make random edges
-          @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rand()*5))
-          puts "adding edges, length now equal to "+ @edges.length.to_s
+          if(rand() < 0.1)
+            @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 2))
+          else
+            @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 1))
+          end
+          #puts "adding edges, length now equal to "+ @edges.length.to_s
           @adjacency[i][j] = @edges.last
           @adjacency[j][i] = @edges.last
         end
@@ -103,7 +119,7 @@ class Mapvisualization #< ActiveRecord::Base
   # put the nodes into a circle that will (mostly) fit in the given canvas
   def circle_nodes(width=@width, height=@height, nodeset=@nodes)
     center = Vector[width/2, height/2]
-    radius = 0.375*[width,height].min
+    radius = [width,height].min/2
     nodeset.each_index{|i| nodeset[i].location = Vector[
       center[0] + (radius * Math.cos(2*Math::PI*i/nodeset.length)), 
       center[1] + (radius * Math.sin(2*Math::PI*i/nodeset.length))]}
@@ -113,7 +129,7 @@ class Mapvisualization #< ActiveRecord::Base
 
   def place_randomly(width=@width, height=@height, nodeset=@nodes)
     for node in nodeset
-      node.location = Vector[50+rand(width-100), 50+rand(height-100)]
+      node.location = Vector[rand(width), rand(height)]
     end
   end
 
@@ -153,8 +169,8 @@ class Mapvisualization #< ActiveRecord::Base
         dlen = v.d.r.to_f
         if dlen > 0.0 #if we have a distance to move
           v.location += (v.d/dlen)*[dlen,temperature].min
-          nx = [[v.location[0],50].max, width-50].min #don't let outside of bounds (50px border)
-          ny = [[v.location[1],50].max, height-50].min
+          nx = [[v.location[0],0].max, width].min #don't let outside of bounds (50px border)
+          ny = [[v.location[1],0].max, height].min
           v.location = Vector[nx,ny]
         end
       end
@@ -179,7 +195,7 @@ class Mapvisualization #< ActiveRecord::Base
     prevEnergy = 0.0
     currEnergy = 1.0
     iters = 0
-    until currEnergy < 0.01 or (currEnergy-prevEnergy).abs < 0.00001 or iters > 1000 do #energy threshold?
+    until currEnergy < 0.01 or (currEnergy-prevEnergy).abs < 0.0001 or iters > 5000 do #energy threshold?
       prevEnergy = currEnergy
       #for n1 in nodeset #apply Coulomb's Law
       nodeset.each_index do |i|
@@ -231,21 +247,178 @@ class Mapvisualization #< ActiveRecord::Base
       end
             
       # calc delta energy, and use that for stopping?
-      puts "end of loop "+iters.to_s+", energy=" + currEnergy.to_s
+      #puts "end of loop "+iters.to_s+", energy=" + currEnergy.to_s
       iters+=1
     end
     for n in nodeset # convert back to "screen" coordinates (from within 4x4 bounding box, in this case, with 50px border)
-      n.location = Vector[((n.location[0]+2)/4.0)*(width-100)+50,((n.location[1]+2)/4.0)*(height-100)+50]
+      n.location = Vector[((n.location[0]+2)/4.0)*width,((n.location[1]+2)/4.0)*height]
     end    
+    puts "springy stopped; energy="+currEnergy.to_s+", iters="+(iters-1).to_s
   end
 
-  def kamada_kawai(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)
+  # adapted from http://code.google.com/p/foograph/source/browse/trunk/lib/vlayouts/kamadakawai.js?r=64
+  # this seems to work best for connected graphs; may need to do something to adjust that 
+  def kamada_kawai(width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjacency=@adjacency)
+    #calculate shortest path distance (Floyd-Warshall); could be sped up using Johnson's Algorithm (if needed)
+    @path_distance = Array.new(nodeset.length) {|i| Array.new(nodeset.length) {|j| if !adjacency[i][j].nil? then 1.0 else 0.0 end}}
+    for k in (0...nodeset.length)
+      for i in (0...nodeset.length)
+        for j in (0...nodeset.length)
+          # if not same node AND subpaths exist AND (not yet ij path OR ikj path is shorter)
+          if (i!=j) and (@path_distance[i][k]*@path_distance[k][j] != 0) and 
+            (@path_distance[i][j]==0 or @path_distance[i][k]+@path_distance[k][j] < @path_distance[i][j])
+            @path_distance[i][j] = @path_distance[i][k]+@path_distance[k][j]
+          end
+        end
+      end
+    end
+    
+    k = 1.0 #spring constant
+    tolerance = 0.001 #epsilon for energy
+    l0 = [width,height].min/@path_distance.max.max
+    ideal_length = @path_distance.map {|i| i.map {|j| l0*j}}
+    spring_strength = @path_distance.map {|i| i.map {|j| if j!=0.0 then k/(j*j) else 0 end}} #0 if undefined
+    
+    # puts compute_partial_derivatives(1, nodeset, spring_strength, ideal_length) #test call
 
+    delta_p = p = 0
+    partial_derivatives = Array.new(nodeset.length)
+    partial_derivatives.each_index do |i|
+      deriv = compute_partial_derivatives(i, nodeset, spring_strength, ideal_length)
+      partial_derivatives[i] = deriv
+      delta = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
+      p, delta_p = i, delta if delta > delta_p
+    end
+    
+    last_energy = 1.0/0  
+    begin #computing movement based on a particular node p
+      p_partials = Array.new(nodeset.length).each_index.map {|i| 
+        compute_partial_derivative(i, p, nodeset, spring_strength, ideal_length)}
+
+      last_local_energy = 1.0/0
+      begin
+        # compute jacobian; copied code basically
+        dE_dx_dx = dE_dx_dy = dE_dy_dx = dE_dy_dy = 0
+        nodeset.each_index do |i|
+          if i!=p
+            dx = nodeset[p].location[0] - nodeset[i].location[0]
+            dy = nodeset[p].location[1] - nodeset[i].location[1]
+            dist = Math.sqrt(dx*dx+dy*dy)
+            dist_cubed = dist**3
+            k_mi = spring_strength[p][i]
+            l_mi = ideal_length[p][i]
+            dE_dx_dx += k_mi * (1 - (l_mi * dy * dy) / dist_cubed)
+            dE_dx_dy += k_mi * l_mi * dy * dx / dist_cubed
+            dE_dy_dx += k_mi * l_mi * dy * dx / dist_cubed
+            dE_dy_dy += k_mi * (1 - (l_mi * dx * dx) / dist_cubed)
+          end
+        end
+        
+        # calculate dv (amount we should move)
+        dE_dx = partial_derivatives[p][0]
+        dE_dy = partial_derivatives[p][1]
+        dv = Vector[(dE_dx_dy * dE_dy - dE_dy_dy * dE_dx) / (dE_dx_dx * dE_dy_dy - dE_dx_dy * dE_dy_dx),
+                       (dE_dx_dx * dE_dy - dE_dy_dx * dE_dx) / (dE_dy_dx * dE_dx_dy - dE_dx_dx * dE_dy_dy)]
+
+        # move vertex
+        nodeset[p].location += dv
+        
+        # recompute partial derivates and delta_p based on new location
+        deriv = compute_partial_derivatives(p, nodeset, spring_strength, ideal_length)
+        partial_derivatives[p] = deriv
+        delta_p = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
+
+        #check local energy if we should be done--I feel like this could be done with a cleaner conditional
+        #repeat until delta is 0 or energy change falls bellow tolerance    
+        local_done = false
+        if last_local_energy == 1.0/0 #round 1
+          local_done = (delta_p == 0)
+        else
+          local_done = (delta_p == 0) || ((last_local_energy - delta_p)/last_local_energy < tolerance)
+        end
+        last_local_energy = delta_p #in either case, set our local energy to the last change
+        #puts "local energy="+last_local_energy.to_s
+      end while !local_done #local energy is still too high
+      
+      #update partial derivatives and select new p
+      old_p = p
+      nodeset.each_index do |i|
+        old_deriv_p = p_partials[i]
+        old_p_partial = compute_partial_derivative(i,old_p, nodeset, spring_strength, ideal_length) #don't we have this already?
+        deriv = partial_derivatives[i]
+        deriv[0] += old_p_partial[0] - old_deriv_p[0]
+        deriv[1] += old_p_partial[1] - old_deriv_p[1]
+        partial_derivatives[i] = deriv
+        
+        delta = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
+        if delta > delta_p
+          p = i
+          delta_p = delta
+        end
+      end
+
+      #calc global energy to see if we're done
+      #repeat until delta is 0 or energy change falls bellow tolerance 
+      global_done = false
+      if last_energy != 1.0/0 #make sure we have a value to divide
+        global_done = (delta_p == 0) || ((last_energy - delta_p).abs/last_energy < tolerance)
+      end
+      last_energy = delta_p
+      puts "global energy="+last_energy.to_s
+    end while !global_done #global energy is still too high
+    puts "end of kamada"
   end
 
-  def reset_graph(width=@width, height=@height, args)
+  #compute partial derivatives for given nodes (for kmada_kawai)
+  #compute contribution of vertex index n to the first partial derivates (dE/dx_m, de/dy_m) (for vertex index m)
+  def compute_partial_derivative(m, n, nodeset, spring, ideal)
+    if m != n
+      dx = nodeset[m].location[0] - nodeset[n].location[0]
+      dy = nodeset[m].location[1] - nodeset[n].location[1]
+      dist = Math.sqrt(dx*dx+dy*dy)
+      result = [spring[m][n]*(dx - ideal[m][n]*dx/dist), spring[m][n]*(dy - ideal[m][n]*dy/dist)]
+      #I have almost no way to debug this, since I'm not quite sure of the math
+    else
+      result = [0.0, 0.0]
+    end
+  end
+  
+  #compute partial derivatives for given nodes (for kmada_kawai)
+  #compute partial derivatives dE/dx_m and dE/dy_m for node index m
+  def compute_partial_derivatives(m, nodeset, spring, ideal)
+    result = [0.0, 0.0]
+    nodeset.each_index do |n| #so basically it sums up the partial_derivatives?
+      deriv = compute_partial_derivative(m, n, nodeset, spring, ideal)
+      result[0] += deriv[0]
+      result[1] += deriv[1]
+    end
+    return result
+  end    
+
+  def reset_graph(args, width=@width, height=@height)
     random_graph(args[:node_count].to_i, args[:edge_ratio].to_f) #default amount
     place_randomly
+  end
+
+  #squeezes the graph to fit inside the window (without border), then centers the nodes within the graph
+  def normalize_graph(width=@width, height=@height, nodeset=@nodes)
+    puts "normalizing graph"
+    center = [width/2, height/2]
+    far_x = nodeset.max_by{|n| (n.location[0]-center[0]).abs}.location[0] #node with max x
+    far_y = nodeset.max_by{|n| (n.location[1]-center[1]).abs}.location[1] #node with max y
+    # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
+    #          [center[1]/(far_y-center[1]).abs, 1.0].min]
+    scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
+             center[1]/(far_y-center[1]).abs]
+    nodeset.each {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
+                                          scale[1]*(n.location[1]-center[1])+center[1]]}
+
+    max_x = nodeset.max_by{|n| n.location[0]}.location[0]
+    max_y = nodeset.max_by{|n| n.location[1]}.location[1]
+    min_x = nodeset.min_by{|n| n.location[0]}.location[0]
+    min_y = nodeset.min_by{|n| n.location[1]}.location[1]
+    center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
+    nodeset.each {|n| n.location = n.location-center_offset}
   end
   
   def remove_edges(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)

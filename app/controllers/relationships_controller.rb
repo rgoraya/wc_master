@@ -16,7 +16,13 @@ class RelationshipsController < ApplicationController
   # GET /relationships/1.xml
   def show
     @relationship = Relationship.find(params[:id])
-
+    
+    @rel_references = @relationship.references
+    
+    @rel_issue = Issue.find(@relationship.issue_id)
+    
+    @rel_cause = Issue.find(@relationship.cause_id)
+    
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @relationship }

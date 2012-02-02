@@ -15,4 +15,7 @@ class ApplicationController < ActionController::Base
     @current_user = current_user_session && current_user_session.user
   end
 
+
+  
+
 end

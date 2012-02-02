@@ -14,13 +14,13 @@
 #clear{:style => "clear:left;"}
 
 #confirm_popup
-  #confirm_title{:class=>"formheading_small"}
-  .formcontentdiv_small
-    #confirm_wait{:style=>"margin:-42px 0px 0px 0px;float:right;background-color:#ffffff;"}  
+  .formheading#confirm_title{:style=>"text-align:left;color:#434343;padding-top:0px;"}
+  .formcontentdiv
+    #confirm_wait{:style=>"margin:-42px 0px 0px 0px;float:right;"}  
     #confirm_msg
     #confirm_buttons{:style=>"margin-top:10px; text-align:center"}
-      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}
-      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"wiki_button", :style=>"padding-left:5px;background-image:none;"}
+      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"discussion_submit", :style=>"float:none;"}
+      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"discussion_submit", :style=>"float:none;"}
 
 
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css", :type => "text/javascript"}
@@ -30,7 +30,7 @@
 
   // Make sure the DOM is loaded
   $(document).ready(function(){
-  
+
   window.confirm = false;
   
   // D I S M I S S    T H E    F L A S H    N O T I C E
@@ -43,14 +43,6 @@
   $("#notice_container").slideUp(100);
   });
 
-  if ($('#error').html().trim()) {
-  $("#error_container").effect("bounce", { times:3 }, 200);
-  $('#error').css({display : 'block'});
-  }
-  
-  $("#error_container a.closebutton").click(function(){
-  $("#error_container").slideUp(100);
-  });
 
   // D E L E T E     C O N F I R M A T I O N
   var href_carrier = '';
@@ -93,6 +85,16 @@
   $("#confirm_popup").fadeOut('slow');    
   href_carrier = '';
   });
+
+  if ($('#error').html().trim()) {
+  $("#error_container").effect("bounce", { times:3 }, 200);
+  $('#error').css({display : 'block'});
+  }
+  
+  $("#error_container a.closebutton").click(function(){
+  $("#error_container").slideUp(100);
+  });
+
  
   });   //  E N D    O F    D O M    L O A D 
 
@@ -105,4 +107,7 @@
   $("#confirm_popup").fadeIn('slow');
   }   
  
- 
+  
+
+  
+   

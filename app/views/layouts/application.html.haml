@@ -3,7 +3,7 @@
   
   %head
     %link{:href => "http://code.google.com/apis/maps/documentation/javascript/examples/default.css", :rel => "stylesheet", :type => "text/css"}/
-    %link{:href => "/images/system/favicon.png", :rel => "shortcut icon"}/
+    %link{:href => "/images/system/dominos_fav.png", :rel => "shortcut icon"}/
     %title
       = content_for?(:title) ? content_for(:title) : 'wikiCausality'
     = stylesheet_link_tag "styles"
@@ -19,53 +19,98 @@
         .headnav
           .logocontainer
             %a{:href=>"/", :title=>"Home"}
-              %img{:src=>"/images/system/thiscausesthat_logo.png", :style=>"margin-bottom:-12px"}
+              %img{:src=>"/images/system/thiscausesthat_logo.png", :style=>"height:24px;"}
+          
               
-              
+          .navigation{:style=>"float:left;"}
+            %div{:class=>"search_container_appl"}
+              - form_tag issues_path, :id=>"search_form", :style=>"display:none;", :method => 'get' do               
+                = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_invisible_input"
+                = submit_tag "", :name => nil, :class=>"search_appl_submit", :title=>"search"
+
+              - form_tag issues_path, :id=>"issue_search_form", :method => 'get' do               
+                = text_field_tag :query, params["def"], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_visible_input"
+                %input{:type=>"button", :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"search_submit_btn"}
+
+                %div{:style=>"clear:both"}
+                                    
+              %div{:id=>"issue_search"}
+                = render 'issues/issue_search'
+            
           .navigation
             %div{:id=>"quickaccess"}
-              
-              /= link_to "Home", :root, :title=>"go to homepage", :class=>"login_button", :style=>"background-image:url('/images/system/home.png');"
-               
-              
-              = link_to "Issues", :issues, :title=>"view all issues", :class=>"login_button", :style=>"background-image:url('/images/system/goto.png');"
-  
-              /-if current_user                    
-              = link_to 'New Issue', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');background-size:17px 17px;" 
-                      
+
               /= link_to "About", :about, :title=>"about wikiCausality", :class=>"login_button"
-              
-   
-              %div{:style=>"clear:both;"}
-              
-          .navigation{:style=>"float:right;"}
-            %div{:id=>"authentication"}
-              - if current_user
-                  
-                // retrieve gravatar image
-                - @hash = Digest::MD5.hexdigest(current_user.email).to_s
-                  
-                // say hello!
-                %div{:class=>"navigation_txt"}
-                  Hello
-                  = link_to current_user.username, edit_user_path(current_user.id), :title=>"edit profile"
-                  
-                -#= link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=25&d=mm', :border =>0),current_user, :title=>"view your issues", :style=>"float:left;margin:-5px 3px -10px 10px; border:0px;"
 
-                = link_to 'My Issues', current_user, :title=>"view your issues", :class=>"login_button", :style=>"background-image:none; padding-left:0px;margin-left:0px;"
-                               
-                = link_to "Logout", :logout, :title=>"logout", :class=>"login_button", :style=>"background-image:url('/images/system/logout.png');"
+              = link_to "Issues", :issues, :title=>"view all issues", :class=>"login_button", :style=>"background-image:url('/images/system/goto.png');"
                 
-              - else
-                  
-                = link_to "Login", :login, :title=>"login", :class=>"login_button"
+              = link_to 'New Issue', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');" 
+
+
+              - if current_user
+
+                - @hash = Digest::MD5.hexdigest(current_user.email).to_s
+                = link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=17&d=mm', :border =>0),current_user, :title=>"view your issues", :class=>"nav_gravatar"
+                = link_to current_user.username + "\'s issues", current_user, :title=>"view your issues", :class=>"login_button", :style=>"padding-left:0px;margin-left:0px; padding-right:6px;"
+
+                                
+                %div.nav_more
+                
+                  %div.nav_more_click
+                    &#x25BC;
+                
+                  %div.nav_more_expansion
                     
-                = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button", :style=>"background-image:url('/images/system/register.png');"
-              = link_to "Feedback", new_feed_back_path, :title=>"contact", :class=>"login_button", :style=>"background-image:url('/images/issues/default_text.png');background-size:17px 17px;"
+                    // filler
+                    %div.white_filler
+                    %div{:style=>"clear:both;"} 
+                      
+                    = link_to "Edit profile", edit_user_path(current_user.id)
+                    = link_to "Logout", :logout
+                    = link_to "Feedback", new_feed_back_path
+                
+                %div{:style=>"clear:both;"}      
+
+              - else
+                
+                .login_button_seperator{:style=>"background-image:none; padding-left:0px;"}
+                  = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button",:style=>"background-image:url('/images/system/user.png');margin:-2px 0px 0px 6px;"
+                
+                
+                %div.login_main_container{:style=>"float:left;"}
+                  .login_form_opener 
+                    Login &#x25BC;
+                  
+                  %div{:style=>"clear:both;"}
+                  %div.login_form_container
+                    .white_filler_big
+                    %div{:style=>"clear:both;"} 
+                    = form_for UserSession.new do |f|
+                      #form_elements{:style=>"margin:10px;"}
+                      
+                        .field
+                          %div{:class=>"formlabel_small"}
+                            = f.label :username                        
+                         
+                          = f.text_field :username, :class=>"formfield_small", :autocomplete=>"off"
+
+                        .field
+                          %div{:class=>"formlabel_small",:style=>"margin-top:5px;"}
+                            = f.label :password  
+                          
+                          = f.password_field :password, :class=>"formfield_small", :autocomplete=>"off"
+                          
+                        .actions
+                          = f.submit 'Login', :class=>"discussion_submit", :style=>"float:left; margin-top:10px"
+                        
+                          %div{:style=>"clear:both;"}
+
+
+                  %div{:style=>"clear:both;"}
+        
+               
               %div{:style=>"clear:both;"}
-            %div{:style=>"clear:both;"}           
-
-
+              
           
           %div{:style=>"clear:both;"}  
 
@@ -73,35 +118,26 @@
         //.filler
      
         = yield
-        #footer
-          %span{:style => "color:#BEBEBE;font-size:18px;", :class=>"logo_txt"}> Wiki 
-          %span{:style => "font-size:18px;", :class=>"logo_txt" } Causality
-          is a research project by 
-          %a{:href=>"http://www.ics.uci.edu/~wmt/socialCodeGroup/", :title=>"Social code group website", :target=>"_blank"}
-            Social Code Group 
-          at 
-          %a{:href=>"http://www.uci.edu/", :title=>"UCI website", :target=>"_blank"}
-            UC, Irvine.
-          The Site uses 
-          /%img{:src=>"/images/system/mediawiki.png", :style=>"height:32px; margin-bottom:-12px"}
-          %a{:href=>"http://www.mediawiki.org/wiki/API:Main_page", :title=>"MediaWiki API website", :target=>"_blank"}
-            MediaWiki, 
-          /%img{:src=>"/images/system/google.png", :style=>"height:22px; margin-bottom:-7px"}
-          %a{:href=>"http://code.google.com/apis/maps/index.html", :title=>"Google Maps API website", :target=>"_blank"}  
-            Google Maps
-          and 
-          /%img{:src=>"/images/system/panoramio.png", :style=>"height:32px; margin-bottom:-12px"}
-          %a{:href=>"http://www.panoramio.com/api/widget/api.html", :title=>"Panoramio API website", :target=>"_blank"}
-            Panoramio APIs
+      %div{:id=>"footer"}
+        %img{:src=>"/images/system/thiscausesthat_logo_old.png", :style=>"margin-bottom:-0.9px; height:20px;"}
+        is a research project by 
+        %a{:href=>"http://www.ics.uci.edu/~wmt/socialCodeGroup/", :title=>"Social code group website", :target=>"_blank"}
+          Social Code Group 
+        at 
+        %a{:href=>"http://www.uci.edu/", :title=>"UCI website", :target=>"_blank"}
+          UC, Irvine.
+        The Site uses 
+        /%img{:src=>"/images/system/mediawiki.png", :style=>"height:32px; margin-bottom:-12px"}
+        %a{:href=>"http://www.mediawiki.org/wiki/API:Main_page", :title=>"MediaWiki API website", :target=>"_blank"}
+          MediaWiki, 
+        /%img{:src=>"/images/system/google.png", :style=>"height:22px; margin-bottom:-7px"}
+        %a{:href=>"http://code.google.com/apis/maps/index.html", :title=>"Google Maps API website", :target=>"_blank"}  
+          Google Maps
+        and 
+        /%img{:src=>"/images/system/panoramio.png", :style=>"height:32px; margin-bottom:-12px"}
+        %a{:href=>"http://www.panoramio.com/api/widget/api.html", :title=>"Panoramio API website", :target=>"_blank"}
+          Panoramio APIs
       
-           
-      // The Notice Div
-      %div{:id=>"notice_container"}
-        %div{:id=>"notice"}
-          = notice
-        %div{:style=>"float:left;width:15px;"}
-          %a{:href=>'#', :class=>'closebutton'}
-            %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
-        %div{:style=>"clear:both;"}
+      %div{:id=>"notice_partial"}
+        = render 'layouts/notice_partial'
        
-              

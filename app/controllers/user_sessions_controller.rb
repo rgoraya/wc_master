@@ -44,11 +44,12 @@ class UserSessionsController < ApplicationController
 
     respond_to do |format|
       if @user_session.save
-        format.html { redirect_to(:issues, :notice => 'Login successful') }
+        format.html { redirect_to(:back, :notice => 'Login successful') }
         format.xml  { render :xml => @user_session, :status => :created, :location => @user_session }
       else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @user_session.errors, :status => :unprocessable_entity }
+        #format.html { render :action => "new" }
+        format.html { redirect_to(:back, :notice => @user_session.errors.full_messages) }
+        #format.xml  { render :xml => @user_session.errors, :status => :unprocessable_entity }
       end
     end
   end

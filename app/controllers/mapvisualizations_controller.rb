@@ -2,18 +2,12 @@ class MapvisualizationsController < ApplicationController
 
   # GET /mapvisualizations
   def index
-<<<<<<< HEAD
-    width = 500 #defaults
-    height = 500
-    node_count = 10
+    @default_width = 600 #defaults
+    @default_height = 400
+    @default_border = 50
+    @default_node_count = 40
+    @default_edge_ratio = 0.08
 
-=======
-    @default_width = 500 #defaults
-    @default_height = 500
-    @default_node_count = 10
-    @default_edge_ratio = 0.25
-    
->>>>>>> 6a8a6f8c7c745b2845530b4c89b7f8ffe22a6679
     respond_to do |format|
       format.html do #on html calls
 
