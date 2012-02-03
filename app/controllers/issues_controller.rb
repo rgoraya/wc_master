@@ -376,17 +376,36 @@ require 'backports'
   def versions
     @issue = Issue.find(params[:id])
     @versions = []
-    Version.find(:all, :conditions => ["item_type=?", 'Relationship']).each do |version|
+		count = 10
+		if params[:segment]
+			count = params[:segment].to_i*10
+		end
+    Version.find(:all, :conditions => ["item_type=?", 'Relationship'], :order=>"created_at DESC").each do |version|
+
       relationship = version.get_object #should return a Relationshiop object here
       if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
         @versions << version
       end
-    end 
-    @versions.sort!{|a,b| b.created_at <=> a.created_at}
-    @versions = @versions.paginate(:page => params[:page], :per_page => 10)
+
+			if @versions.length >= count
+				break
+			end
+			
+    end
+ 
+    #@versions.sort!{|a,b| b.created_at <=> a.created_at}
+		#if params[:segment]
+		#	if (params[:segment].to_i-1)*10 <= (@versions.length-1)
+		#		@versions = @versions[((params[:segment].to_i-1)*10)..(@versions.length-1)]
+		#	else
+		#		@versions = []
+		#	end
+		#end
+		#@versions = @versions.paginate(:per_page => 10, :page => params[:page])
 
     respond_to do |format|
-      format.html
+			format.js {render :layout=>false}
+      format.html 
       format.xml 
     end
   end

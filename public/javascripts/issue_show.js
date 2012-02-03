@@ -23,7 +23,7 @@ $(function() {
          });
          
         $('.relationship_thumb').not(opaqueDiv.parents('.relationship_thumb')).animate({'opacity': '0.3'}); 
-         
+         	
          
 	}
 	

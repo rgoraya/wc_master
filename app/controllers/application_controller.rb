@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
 
   #lock
- 
+  
   private
   
   def current_user_session

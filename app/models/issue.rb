@@ -1,6 +1,6 @@
 class Issue < ActiveRecord::Base
 
-	has_paper_trail
+	has_paper_trail :on=>[:create, :destroy]
 
   # --------------------
   # Issues have an owner

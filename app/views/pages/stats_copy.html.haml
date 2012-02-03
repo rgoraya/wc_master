@@ -1,0 +1,252 @@
+%div.to_f{:id=>"easter-egg", :style=>"border:1px solid green;padding:5px 5px 5px 5px;font-weight:bold;font-size:16px;text-align:center;"}
+	Secret page found!
+%br
+%div.to_f{:id=>"stats", :style=>"border:1px solid green;text-align:left;padding:5px 5px 5px 5px;"}
+	%div.to_f{:id=>"issue"}
+		Total number of issues:
+		%span
+			= Issue.all.count
+
+	%br
+	%div.to_f{:id=>"relationships",}
+		Total number of relationships:
+		%span
+			= Relationship.all.count
+		%br
+		Total number of causal relationships:
+		%span
+			= Relationship.find(:all,:conditions=>["relationship_type IS ?", nil]).count
+		%br
+		Total number of inhibitory relationships:
+		%span
+			= Relationship.find(:all,:conditions=>["relationship_type = ?", "I"]).count
+		%br
+		Total number of set relationships:
+		%span
+			= Relationship.find(:all,:conditions=>["relationship_type = ?", "H"]).count
+
+	%br
+	%div.to_f{:id=>"references"}
+		Total number of references:
+		%span
+			= Reference.all.count
+	
+	%br
+	%div.to_f{:id=>"reputations"}
+		Max reputation:
+		%span
+			= User.all.map(&:reputation).max
+		%br
+		Min reputation:
+		%span
+			= User.all.map(&:reputation).min
+	%div.to_f{:id=>"users"}
+		Total number of users:
+		%span
+			= User.all.count
+
+	%br
+	%div.to_f{:id=>"suggestions"}
+		- all = Suggestion.all.count
+		All suggestions:
+		%span
+			= all
+		%span	
+			Rejected:
+		%span
+			- v =  Suggestion.find(:all,:conditions=>["status = ?", "D"]).count
+			= (v.to_s)
+			= (v.to_f/all*100).round(2).to_s 
+		%span
+			Neutral (not rejected nor accecpted):
+		%span
+			- v = Suggestion.find(:all,:conditions=>["status = ?", "N"]).count
+			= v.to_s
+			= (v.to_f/all*100).round(2).to_s 
+		%span
+			Accepted:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["status = ?", "A"]).count
+			= v.to_s 
+			= (v.to_f/all*100).round(2).to_s
+
+		%br
+		All type 'C' suggestions:
+		- c = Suggestion.find(:all,:conditions=>["causality = ?","C"]).count
+		%span
+			= c
+		%span
+			Rejected:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","C","D"]).count
+			= v.to_s
+			= (v.to_f/c*100).round(2).to_s 
+		%span
+			Neutral:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","C","N"]).count
+			= v.to_s
+			= (v.to_f/c*100).round(2).to_s
+		%span
+			Accecpted:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","C","A"]).count
+			= v.to_s 
+			= (v.to_f/c*100).round(2).to_s		
+
+		%br
+		All type 'E' suggestions:
+		- e = Suggestion.find(:all,:conditions=>["causality = ?","E"]).count
+		%span
+			= e	
+		%span
+			Rejected:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","E","D"]).count
+			= v.to_s
+			= (v.to_f/e*100).round(2).to_s 
+		%span
+			Neutral:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","E","N"]).count
+			= v.to_s
+			= (v.to_f/e*100).round(2).to_s
+		%span
+			Accecpted:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","E","A"]).count
+			= v.to_s
+			= (v.to_f/e*100).round(2).to_s
+		
+		%br
+		All type 'I' suggestions:
+		- i = Suggestion.find(:all,:conditions=>["causality = ?","I"]).count
+		%span
+			= i
+		%span
+			Rejected:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","I","D"]).count
+			= v.to_s
+			= (v.to_f/i*100).round(2).to_s
+		%span
+			Neutral:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","I","N"]).count
+			= v.to_s
+			= (v.to_f/i*100).round(2).to_s
+		%span
+			Accecpted:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","I","A"]).count
+			= v.to_s
+			= (v.to_f/i*100).round(2).to_s
+	
+		%br
+		All type 'P' suggestions:
+		- p = Suggestion.find(:all,:conditions=>["causality = ?","P"]).count
+		%span
+			= p
+		%span
+			Rejected:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","P","D"]).count
+			= v.to_s
+			= (v.to_f/p*100).round(2).to_s
+		%span
+			Neutral:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","P","N"]).count
+			= v.to_s
+			= (v.to_f/p*100).round(2).to_s
+		%span
+			Accecpted:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","P","A"]).count
+			= v.to_s
+			= (v.to_f/p*100).round(2).to_s
+
+
+		
+		%br
+		All type 'R' suggestions:
+		- r = Suggestion.find(:all,:conditions=>["causality = ?","R"]).count
+		%span
+			= r
+		%span
+			Rejected:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","R","D"]).count
+			= v.to_s
+			= (v.to_f/r*100).round(2).to_s
+		%span
+			Neutral:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","R","N"]).count
+			= v.to_s
+			= (v.to_f/r*100).round(2).to_s
+		%span
+			Accecpted:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","R","A"]).count
+			= v.to_s
+			= (v.to_f/r*100).round(2).to_s
+	
+
+		%br
+		All type 'S' suggestions:
+		- s = Suggestion.find(:all,:conditions=>["causality = ?","S"]).count
+		%span
+			= s
+		%span
+			Rejected:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","S","D"]).count
+			= v.to_s
+			= (v.to_f/s*100).round(2).to_s
+		%span
+			Neutral:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","S","N"]).count
+			= v.to_s
+			= (v.to_f/s*100).round(2).to_s
+		%span
+			Accecpted:
+		%span
+			- v = Suggestion.find(:all,:conditions=>["causality = ? AND status = ?","S","A"]).count
+			= v.to_s
+			= (v.to_f/s*100).round(2).to_s
+
+	%br
+	%div{:id=>"topics-with-no-neutral-suggestions"}
+		- issues = []
+		- Issue.all.each do |i|
+			- if i.suggestions.count > 0 && i.suggestions.where("status = ?","N").count == 0
+				- issues << i
+		%span
+			Issues with no neutral suggestions:
+		%span
+			= issues.count
+		%br
+		- issues.each do |i|
+			%span
+				= "#{i.title}: "
+			%span
+				Total suggestions:
+			%span
+				= i.suggestions.count
+			%span
+				Accepted:
+			%span
+				= i.suggestions.where("status = ?","A").count
+			%span
+				Rejected:
+			%span
+				= i.suggestions.where("status = ?","D").count
+			%span
+				Link:
+			%span
+				= "www.thiscausesthat.org/issues/#{i.id}"
+			%br
+%br
+%div.to_f{:style=>"clear:both;"}
