@@ -3,6 +3,9 @@
 *****/
 
 var t_off = 5
+var INCREASES = 1 //type constants
+var EXPANDABLE = 4
+var HIGHLIGHTED = 8
 
 //details on drawing/laying out a node
 function drawNode(node, paper){

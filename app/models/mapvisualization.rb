@@ -5,15 +5,15 @@ class Mapvisualization #< ActiveRecord::Base
   # include ActiveModel::Conversion
   # extend ActiveModel::Naming
 
-  ######## BEGIN SUBCLASS DEFINITIONS #########
+######## BEGIN SUBCLASS DEFINITIONS #########
   ## Data structures for easier use 
   class Node < Object
-    attr_accessor :id, :name, :weight, :location, :d, :a
+    attr_accessor :id, :name, :url, :location, :d, :a
 
-    def initialize(id, name, weight)
-      @id = id #needed? currently using index as an id; may need to tweak this as we start fetching from db
+    def initialize(id, name, url)
+      @id = id #db-level index
       @name = name
-      @weight = weight
+      @url = url
       @location = Vector[0.0,0.0]
       @d = Vector[0.0,0.0] #delta variable
       @a = Vector[0.0,0.0] #accelration variable
@@ -28,11 +28,11 @@ class Mapvisualization #< ActiveRecord::Base
       "{id:"+@id.to_s+","+
       "name:'"+@name+"',"+
       "x:"+(@location[0]+offset).to_s+",y:"+(@location[1]+offset).to_s+","+
-      "weight:"+@weight.to_s+"}" 
+      "url:'"+@url+"'}"
       #can add more fields as needed
     end
 
-    #returns a javascript key for the object
+    #returns a unique javascript key for the node object
     def js_k
       @id.to_s
     end
@@ -40,14 +40,30 @@ class Mapvisualization #< ActiveRecord::Base
   end  
 
   class Edge < Object
-    attr_accessor :id, :a, :b, :weight, :type
+    attr_accessor :id, :a, :b, :rel_type
 
-    def initialize(id, a, b, conn_count=1)
+    # NOTES ON FORM:
+    #   Each "edge" object consists of a single line (relationship)
+    #   edges also have parameters describing what they do (pointers for drawing)
+    #   -- when drawing will have to determine if we need to "arc" or not (only if >1 relationship between nodes), and don't do the neural net thing
+    #       - solvable problem; can calc and pass in the adjacency matrix as a counter for example
+    #       - which is fine because we're probably constructing this anyway, and would let the "curve" functionality be isolated for later
+    #   ++ each javascript object can have a different interaction associated with it easily
+    
+
+    ## IF these change, remember to alter in javascript!
+    INCREASES = 1 #constants for relationship type
+    #DECREASE = 2 #if we wanted to have this be not mutually inclusive
+    EXPANDABLE = 4
+    HIGHLIGHTED = 8
+    
+    #dimensions: A->B or B->A; incr or decr; expand or not; highlighted or not
+
+    def initialize(id, a, b, rel_type=1)
       @id = id #needed?
       @a = a #reference to the node object (as opposed to just an index)
       @b = b
-      @weight = weight
-      @number_connections = conn_count  #specified edge.nc
+      @rel_type = rel_type  #specified edge.reltype
     end
 
     def to_s
@@ -59,25 +75,27 @@ class Mapvisualization #< ActiveRecord::Base
     end
 
     #returns a javascript version of the object 
-    #ai and bi are the js indices for the connecting nodes (default to node's ID)
     #nodeset is the name of the js node array (default to "nodes")
+    #(a and b are references into the nodeset array)
     def js(nodeset='nodes') 
       #do we need to also include an id field inside the object?
       "{name:'"+name+"',"+
       "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
-      "nc:"+@number_connections.to_s+"}"
+      "reltype:"+@rel_type.to_s+"}"
       #can add more fields as needed
     end
     
-    #gets a key for the edge
+    #gets a unique key for the edge (A-B) => (AiehB) / (AdB)
     def js_k
-      "'"+@a.js_k+"-"+@b.js_k+"'"
+      conn = @rel_type & INCREASES != 0 ? 'i' : 'd'
+      conn += 'e'*[(@rel_type&EXPANDABLE),1].min + 'h'*[(@rel_type&HIGHLIGHTED),1].min
+      "'"+@a.js_k+conn+@b.js_k+"'"
     end
-
   end
-  ######## END CLASS DEFINITIONS #########  
 
-  attr_accessor :nodes, :edges, :width, :height
+######## END SUBCLASS DEFINITIONS #########  
+
+  attr_accessor :nodes, :edges, :adjacency, :width, :height
   
   def initialize(args)
     @width, @height = args[:width], args[:height]
@@ -86,44 +104,71 @@ class Mapvisualization #< ActiveRecord::Base
     
     @nodes = args[:nodes]
     @edges = args[:edges]
-    
-    # fetch_data()
-    # {
-    #   @lor = Relationships.find(whatever)
-    #   
-    # }
-    # @lor.each |r|
-    #   "edge.type=" r.relationship_type
-    # @nodes = build_nodes(Issues.find(what_nodes_to_get))
-    # @edges = build_edges(Relationships.find(what_nodes_to_get))
-    
-    
+        
     reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random
 
-    # random_graph(args[:node_count]) #init to random graph atm
     #normally will init to pull out the nodes we want to see... or something. Will need to figure out how that works
+  end
+
+
+  # method fetches the Issues and Relationships from the database, dependent on the arguments
+  # args is probably a hash of something
+  def get_data(args)
+    @nodes = Array.new()
+    @edges = Array.new()
+
+    
+    ### TOP 40 ###
+    #get 40 most recent issues
+    issues = Issue.order("updated_at DESC").limit(40)
+    puts issues    
+    
+    relationships = Relationship.where("relationships.issue_id IN (?)", Issue.order("updated_at DESC").limit(40).select("id").to_sql) #???
+
+    #get all relationships between those nodes
+    #relationships = Relationship.find()
+    #query = User.where("users.account_id IN (#{subquery.to_sql})") #this seems messy; may just use same command
+
+
+
+    #now that we have our issues and relationships; convert them!
+    issues.each {|issue| @nodes.push(Node.new(issue.id, issue.title, issue.wiki_url))}
+    relationships.each do |rel| 
+      node_a = #<<get node a>>
+      node_b = #<<get node b>>
+      type = #get type/numcount/something
+      @edges.push(Edge.new(rel.id, node_a, node_b    ))
+    end
+    
+
+    ## ALT: get 40 Issues that have the most relationships
+    ## Issue.find().relationships.length + Issue.find().inverse_relationships.length
+
+    #With our list of issues, get all the relationships between them (a relationship that has a and b in the list)
+    
+    
+    ### ALT: get 20-30 relationships with the most cites
+    ### get the issues that are part of those relationships (unique)
+    
+    
+    #### ALT: do Bill's algorithm for what to get
+
   end
 
   
 
   def random_graph(node_count, edge_ratio)
     puts "edge_ratio=" + edge_ratio.to_s
-    @nodes = Array.new(node_count) {|i| Node.new(i, "Node "+i.to_s, rand()*5)} #make all the nodes (random)
+    @nodes = Array.new(node_count) {|i| Node.new(i, "Node "+i.to_s, "myurl")} #make all the nodes
     @edges = Array.new() #an array to hold edges
     @adjacency = Array.new(node_count) {|i| Array.new(node_count)} #an adjacency matrix of edges (for easy referencing)
     for i in (0...node_count)
-      for j in (i+1...node_count)
-        if(rand() < edge_ratio) #make random edges
+      for j in (0...node_count) #edges in both directions
+        if(i!=j and rand() < edge_ratio) #make random edges
           #want random number between 1 and 3
-          num_edges = (rand()*3).ceil
-          @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], num_edges))          
-          # if(true)#rand() < 1.0)
-          #   @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 2))
-          # else
-          #   @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], 1))
-          # end
-          @adjacency[i][j] = @edges.last
-          @adjacency[j][i] = @edges.last
+          rel_type = (rand()*15).ceil #get a random set of attributes (rel_type) for that edge
+          @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type))
+          @adjacency[i][j] = @edges.last #assuming we only have 1 edge in each direction
         end
       end
     end
@@ -139,11 +184,15 @@ class Mapvisualization #< ActiveRecord::Base
   end
 
   #put the nodes in random locations
-
   def place_randomly(width=@width, height=@height, nodeset=@nodes)
     for node in nodeset
       node.location = Vector[rand(width), rand(height)]
     end
+  end
+
+  def reset_graph(args, width=@width, height=@height)
+    random_graph(args[:node_count].to_i, args[:edge_ratio].to_f) #default amount
+    place_randomly
   end
 
   # algorithm from fruchterman_reingold via Kobourov 2004
@@ -407,11 +456,6 @@ class Mapvisualization #< ActiveRecord::Base
     end
     return result
   end    
-
-  def reset_graph(args, width=@width, height=@height)
-    random_graph(args[:node_count].to_i, args[:edge_ratio].to_f) #default amount
-    place_randomly
-  end
 
   #squeezes the graph to fit inside the window (without border), then centers the nodes within the graph
   def normalize_graph(width=@width, height=@height, nodeset=@nodes)

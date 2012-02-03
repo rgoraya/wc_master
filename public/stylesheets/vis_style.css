@@ -1,11 +1,14 @@
 #canvas_container {
   border: 1px solid #bebebe;
   margin-top: 10px;
+/*  margin-left: auto;
+  margin-right: auto;*/
 }
 
 .centered_spinner {
   position: relative;
-  top: -250px;
+  left:300px; /*forced position*/
+  top:-300px;
 }
 
 #reset_form {
