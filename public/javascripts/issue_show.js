@@ -1,80 +1,87 @@
 /* Javascript for Issue Show page */
 $(function() {
+
+// -------------------------------------------------------------------------------
+// STUFF TO BE DONE ON LOAD OF THE PAGE
+// -------------------------------------------------------------------------------
+	
+	$(".relationship_partial_toggle:contains(" + $(".central_causality_container").text() + ")").filter(function(){
+	    $(this).hide()
+	 })
+
+	$(".relationship_partial_toggle:not(:contains(" + $(".central_causality_container").text() + "))").filter(function(){
+	    $(this).show()
+	 })
+
+	if (!$("#title_dynamic_text").text().trim().length) {
+	    $("#title_filler_text").show();}
+
+
+	if ($("#title_relationship").text().trim().length) {
+		var opaqueDiv = $(".relationship_thumb_title").filter(function() {
+			return $(this).text().trim() == $("#title_relationship").text().trim();
+         });
+         
+        $('.relationship_thumb').not(opaqueDiv.parents('.relationship_thumb')).animate({'opacity': '0.3'}); 
+         
+         
+	}
 	
 	window.confirm = false;
 // -------------------------------------------------------------------------------
 // FUNCTION TO CYCLE THROUGH THE VARIOUS RELATIONSHIP TYPES BASED ON USER CLLICK 
 // -------------------------------------------------------------------------------
-$(".relationship_partial_toggle").click(function(){
+$(".relationship_partial_toggle").live('click',function(){
 	
-	// Show hidden Div
-	$(".relationship_partial_toggle").css({'display' : 'block'})
-	
-	// Hide this Div
-	$(this).hide()
 	
 	// Hide the currently displayed relationships
-	$(".relationship_thumb, .relationship_none_found").hide();
+	$(".relationship_thumb, .relationship_none_found, #get_relationships, #title_dynamic_text, .rationale_container").hide();
 	// Show spinner
 	$(".relationship_addnew_wait").show();
-	// Ensure that the relationship thimbs are back to opacity = 1
-	//$('.relationship_thumb').css({'opacity': '1'});	
+
+        	$("#select_rel_type").val($(this).text().trim())
+        	$("#select_rel_submit").trigger('click');
 	
 	//  get the ID name 
-	var idName = $(this).attr('id');
+	//var idName = $(this).attr('id');
 	
-	switch (idName) { 
-        case 'toggle_causes':
-        	//$("#causes").show();
-        	$("#title_filler_causality").html('Causes')
-        	$("#select_rel_type").val('causes')
-        	$("#select_rel_submit").trigger('click');
+	
+	
+	
+	//switch (idName) { 
+    //    case 'toggle_causes':
+
+      //  	$("#select_rel_type").val('causes')
+      //  	$("#select_rel_submit").trigger('click');
         	
-        	break;
-		case 'toggle_effects':
-			//$("#effects").show();
-			$("#title_filler_causality").html('Effects')
-        	$("#select_rel_type").val('effects')
-        	$("#select_rel_submit").trigger('click');			
+      //  	break;
+		//case 'toggle_effects':
+
+//        	$("#select_rel_type").val('effects')
+  //      	$("#select_rel_submit").trigger('click');			
 			
-			break;
-		case 'toggle_inhibitors':
-			//$("#inhibitors").show();
-			$("#title_filler_causality").html('Inhibitors')
-        	$("#select_rel_type").val('inhibitors')
-        	$("#select_rel_submit").trigger('click');			
-			break;
-		case 'toggle_inhibiteds':
-			//$("#inhibiteds").show();
-			$("#title_filler_causality").html('Inhibiteds')
-        	$("#select_rel_type").val('inhibiteds')
-        	$("#select_rel_submit").trigger('click');
-			break;
-		case 'toggle_supersets':
-			//$("#supersets").show();
-			$("#title_filler_causality").html('Supersets')
-        	$("#select_rel_type").val('supersets')
-        	$("#select_rel_submit").trigger('click');
-			break;
-		case 'toggle_subsets':
-			//$("#subsets").show();
-			$("#title_filler_causality").html('Subsets')
-        	$("#select_rel_type").val('subsets')
-        	$("#select_rel_submit").trigger('click');
-			break;
-	}
-	
-	//  get the inner HTML of the top bar and the one clicked
-	var central_htmlstr = $(".central_causality_container").html().trim();
-	var htmlstr = $(this).html().trim();
-	
-	//  replace the HTML of the top bar with the one clicked and highlight it!
-	$(".central_causality_container").html(htmlstr);
-	//$(".relationship_thumb_title").effect("highlight", {color: '#4DB8DB'}, 500);
-	
-	$('#title_filler_text').show();
-	$('#title_dynamic_text').hide()
-	$('.rationale_container').fadeOut();
+	//		break;
+		//case 'toggle_inhibitors':
+
+        //	$("#select_rel_type").val('inhibitors')
+        	//$("#select_rel_submit").trigger('click');			
+	//		break;
+//		case 'toggle_inhibiteds':
+
+  //      	$("#select_rel_type").val('inhibiteds')
+    //    	$("#select_rel_submit").trigger('click');
+		//	break;
+//		case 'toggle_supersets':
+//
+  //      	$("#select_rel_type").val('supersets')
+    //    	$("#select_rel_submit").trigger('click');
+		//	break;
+//		case 'toggle_subsets':
+//
+  //      	$("#select_rel_type").val('subsets')
+    //    	$("#select_rel_submit").trigger('click');
+		//	break;
+	//}
 	
 });	
 
@@ -83,41 +90,15 @@ $(".relationship_partial_toggle").click(function(){
 // -------------------------------------------------------------------------------	
 
   $("#relation_pagination .pagination a").live("click", function() {
-	$("#relations_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
+	$("#relations_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
 	$.getScript(this.href);	
 	return false;
   });
 
-  $("#effect_pagination .pagination a").live("click", function() {
-	$("#effects_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-	$.getScript(this.href);	
-	return false;
-  });
 
-  $("#inhibitor_pagination .pagination a").live("click", function() {
-	$("#inhibitors_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-	$.getScript(this.href);	
-	return false;
-  });
-
-  $("#inhibited_pagination .pagination a").live("click", function() {
-	$("#inhibiteds_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-	$.getScript(this.href);	
-	return false;
-  });	
-
-  $("#subset_pagination .pagination a").live("click", function() {
-	$("#subsets_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-	$.getScript(this.href);
-	return false;
-  });
-
-  $("#superset_pagination .pagination a").live("click", function() {
-	$("#supersets_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-	$.getScript(this.href);	
-	return false;
-  });
-
+	$("#new_issue").bind('ajaxSuccess', function(){
+		
+	});
 
 // -------------------------------------------------------------------------------
 // FUNCTION TO SHOW SPINNNER WHEN THE NEW RELATIONSHIP IS CREATED
@@ -138,31 +119,32 @@ $(".relationship_partial_toggle").click(function(){
 		$(this).parents('.relationship_thumb').animate({'opacity': '1'});
 		$('.relationship_thumb').not($(this).parents('.relationship_thumb')).animate({'opacity': '0.3'});
 					
-		
-		var issue_descr = $(".main_thumb_title a").attr('rel');
-		var issue_title = $(".main_thumb_title a").text();
-		var relationship_descr = $(this).attr('rel');
-		var relationship_title = $(this).text();
+		$("#relationship_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+  		
   		var relationship_id = $(this).parents('.relationship_thumb').children('.relationship_id_store').html().trim();
 		
+		$("#title_filler_text").hide();
 		
+		close_addNew();
 		$('.del-relation').attr('href', "../relationships/" + relationship_id);
-			
-		$('#title_modalhead').hide()
-		$('#title_filler_text').hide();
-		$('#title_dynamic_text').hide()
-		$('#title_dynamic_text').show()
-		$('#title_issue').html(issue_title);
-		$('#title_causality').html($('.central_causality_container').html())
-		$('#title_relationship').html(relationship_title);
-		$('#permalink_display').html(document.location.hostname + "/relationships/" + relationship_id + "-" +  $('#title_dynamic_text').text().trim().replace(/\s+/g, '-').toLowerCase());
-		$('#relation_title_dynamic').html(relationship_title);
-		$('#relation_descr_dynamic').html(relationship_descr);
-		$('.rationale_container').hide();
-		$('.rationale_container').fadeIn();
-		$('#reference_form_rel_id').val(relationship_id);
 		
-		$('#referencesubmit').trigger('click');
+		opaqueDiv = $(this);
+			
+		//$('#title_modalhead').hide()
+		//$('#title_filler_text').hide();
+		//$('#title_dynamic_text').hide()
+		//$('#title_dynamic_text').show()
+		//$('#title_issue').html(issue_title);
+		//$('#title_causality').html($('.central_causality_container').html())
+		//$('#title_relationship').html(relationship_title);
+		//$('#permalink_display').html(document.location.hostname + "/relationships/" + relationship_id + "-" +  $('#title_dynamic_text').text().trim().replace(/\s+/g, '-').toLowerCase());
+		//$('#relation_title_dynamic').html(relationship_title);
+		//$('#relation_descr_dynamic').html(relationship_descr);
+		//$('.rationale_container').hide();
+		//$('.rationale_container').fadeIn();
+		//$('#relationship_form_id').val(relationship_id);
+		
+		//$('#relationship_submit').trigger('click');
 		
 		return false;
 		
@@ -170,29 +152,20 @@ $(".relationship_partial_toggle").click(function(){
 	
 
 	$(".relationship_addnew a").live('click',function(){
-		
 		initialize_addNew();
-		
-		$('.rationale_container').fadeOut();
-		$('.relationship_thumb').animate({'opacity': '0.3'});
-		
-		$("#modal_form").toggle();
-		
-		$('#title_dynamic_text').hide();
-		$('#title_filler_text').hide();
-		$('#title_modalhead').show();
-		
+		//$('.relationship_thumb').animate({'opacity': '0.3'});
+		//$('#get_relationship').animate({'opacity': '0.3'});
+		$("#modal_form").toggle();		
 	});
 	
-	$('.btn_close, #val_collector, .relationship_partial_toggle, .relationship_thumb a').click(function(){
+	$('.btn_close, #val_collector, .relationship_partial_toggle').click(function(){
 		close_addNew();
-		
+		//$('#get_relationship').animate({'opacity': '1'});
 	});
 
 	function close_addNew() {
 		  $("#modal_form").removeAttr('style');
-		  //$('.relationship_thumb').removeAttr('style');
-		  $('#title_filler_text').show();
+		  //$('#title_filler_text').show();
 		  $('#title_modalhead').hide();			
 	}
 	
@@ -213,7 +186,7 @@ $(".relationship_partial_toggle").click(function(){
   $(".del-relation").live('click', function(e) {
   e.preventDefault();
   var title = $(this).data('title');
-  var msg = "Are you sure you want to remove the causal link " + $('#relation_title_dynamic').html(); + "?"
+  var msg = "Are you sure you want to remove the causal link?"
   href_carrier = $(this).attr('href');
   bubble_to_remove = $(this).parents(".bubble");
   showPopup(title, msg);
@@ -228,17 +201,17 @@ $(".relationship_partial_toggle").click(function(){
   url: href_carrier,
   cache: false,
   success: function(){
-  $.getScript(href_carrier);
+  $("#select_rel_submit").trigger('click');
   $("#confirm_msg").html('Causal Link Deleted!'); 
   $("#confirm_buttons").hide(); 
   $("#confirm_wait").empty();
   $("#confirm_popup").delay(2000).fadeOut('slow', function(){
   $('#fade').delay(2000).remove();
+  $("#get_relationship .title,#get_relationship .rationale_container").empty();
   });
   
   }
   });  
-  //location.href = href_carrier;
   });
     
   $("#confirm_cancel").click(function() {

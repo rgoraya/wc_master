@@ -24,7 +24,7 @@
     %div{:id=>"results", :class=>"result-box"}            
     %div{:style => "clear:both"}
   %div{:class =>"wikicontent_edit"}
-      
+    #title_modalhead  
     %div#image_preview                     
                         
     %div#text_preview
@@ -170,10 +170,10 @@
   oBoxCollection.removeClass(elem_class).eq(displayBoxIndex).addClass(elem_class);  
   });  
 
-  $("#relationship_form").submit(function(){
-  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_'));
-  alert($("#frm_wiki_url").val()); 
-  });
+  //$("#relationship_form").submit(function(){
+  //$("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_'));
+  //alert($("#frm_wiki_url").val()); 
+  //});
 
   // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
   
@@ -467,27 +467,27 @@
   switch (idName) { 
   case 'add_cause_btn':
   $("#frm_action").val('C');
-  $("#title_modalhead").html('Add a Cause of ' + issueTitle);  
+  $("#query").attr('placeholder', 'Add a Cause of ' + issueTitle)
   break;
   case 'add_effect_btn':
   $("#frm_action").val('E');
-  $("#title_modalhead").html('Add an Effect of ' + issueTitle); 
+  $("#query").attr('placeholder', 'Add an Effect of ' + issueTitle); 
   break;
   case 'add_inhibitor_btn':
   $("#frm_action").val('I');
-  $("#title_modalhead").html('Add something that reduces ' + issueTitle); 
+  $("#query").attr('placeholder', 'Add something that reduces ' + issueTitle); 
   break;
   case 'add_inhibited_btn':
   $("#frm_action").val('R');
-  $("#title_modalhead").html('Add something reduced by ' + issueTitle); 
+  $("#query").attr('placeholder', 'Add something reduced by ' + issueTitle); 
   break;
   case 'add_superset_btn':
   $("#frm_action").val('P');
-  $("#title_modalhead").html('Add a Superset of ' + issueTitle);
+  $("#query").attr('placeholder', 'Add a Superset of ' + issueTitle);
   break;
   case 'add_subset_btn':
   $("#frm_action").val('S');
-  $("#title_modalhead").html('Add a Subset of ' + issueTitle);
+  $("#query").attr('placeholder', 'Add a Subset of ' + issueTitle);
   break;
   }
   

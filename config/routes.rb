@@ -29,9 +29,10 @@ Wikicausality::Application.routes.draw do
   resources :relationships
   
   resources :issues do
-    post :causality, :on => :member
+    get :get_relationship, :on => :member
+    post :create_reference, :on => :member
   end
-
+  
   get "issues/:id/versions" => "issues#versions", :as => "issue_versions"
   get "versions/:id/restore" => "versions#restore", :as => "restore_version"
   get "issues/:id/snapshot/:at" => "issues#snapshot", :as => "issue_snapshot"

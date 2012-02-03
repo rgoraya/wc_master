@@ -957,15 +957,17 @@ z-index:0;
 .title {
 	/*background-color:#4DB8DB;*/
 	font:bold 26px "lucida grande",tahoma,verdana,arial,sans-serif;
-	padding:0px 15px;
-	margin:18px -15px 15px -15px ;
+	padding:0px 15px 15px;
+	margin:10px 0px 15px 0px ;
 	text-align:left;
 	text-shadow:0px 1px 1px #fff;
 	color: #434343; 
 	text-transform:uppercase;
+	min-height:31px;
 }
 
 #title_filler_text{
+	display:none;
 	text-align:center;
 	text-shadow:0px 1px 1px #fff;
 	color: #ddd; 	
@@ -2308,7 +2310,7 @@ a.issue-user:hover{
 	-moz-border-radius-bottomleft:3px;
 	-moz-border-radius-bottomright: 3px;
 	/* shadows */
-	box-shadow: 0 3px 2px 0px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.3);
 	z-index: 2;
 	position:absolute;
 	border-bottom:1px solid #434343;		
@@ -2395,7 +2397,7 @@ a.issue-user:hover{
 	border-right:2px groove #6a6a6a;
 	background-color:#FCFCFC;
 	padding:5px;
-	width:200px;
+	width:195px;
 	margin:0px;
 	float:left;
 	color:#434343;
@@ -2416,7 +2418,7 @@ a.issue-user:hover{
 	position:absolute;
 	z-index:999999;
 	float:left;
-	width: 210px; 
+	width: 205px; 
 	margin:-2px 0px -200px 1px; 
 	text-align:left; 
 	background-color:#fcfcfc;
@@ -3028,7 +3030,6 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
 	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;	
-	
 }
 
 .gravatar:hover{
@@ -3037,6 +3038,15 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	box-shadow: rgba(0, 0, 0, 0.5) 0 1px 4px;	
 }
 
+.gravatar_text{
+	float:right; margin:2px 5px -5px 0px; text-align:right;
+}
+
+.reference_gravatar{
+	float:left;
+	border:1px solid #bebebe;
+	margin-right:-1px;
+}
 
 .created_by{
 	margin-top:15px;
@@ -3157,13 +3167,13 @@ cursor:default;
 }
 
 .white_space{
-	height:45px; background:#fff;margin:-11px -15px 0px -15px;
+	height:45px; background:#fcfcfc;margin:-11px -15px 0px -15px;
 }
 
 .issue_thumbs_container{
 	background:#fcfcfc;
 	margin:0px -15px 0px -15px; 
-	box-shadow: rgba(0, 0, 0, 0.5) 0 3px 8px;
+	
 	}
 
 .issue_thumb_blanket{
@@ -3223,7 +3233,7 @@ cursor:default;
 .causality_types{
 	font: bold 11px "lucida grande",tahoma,verdana,arial,sans-serif;		
 	float:left;
-	padding:10px 0px 1px 0px;
+	padding:10px 0px 10px 0px;
 	background-color:#434343;
 }	
 
@@ -3243,15 +3253,17 @@ cursor:default;
 
 .causality_toggle_container{
 	border:5px solid #2f2f2f;
+	padding-bottom:1px;
 }
 
 .relationship_partial_toggle{
 	width: 102px;
 	color: #6A6A6A;
 	cursor: pointer;
-	padding: 1px 4px 1px 4px;
+	padding: 0px 4px 0px 4px;
 	text-align: center;
-	background: #f5f5f5
+	background: #f5f5f5;
+	display:none;
 }
 
 
@@ -3397,7 +3409,7 @@ cursor:default;
 .add_new_relation_modal{
 	width: 320px;
 	float: right;
-	margin: 0px 15px -400px 0px;
+	margin: -81px 15px -400px 0px;
 	position:relative;
 	z-index: 1;
 }
@@ -3534,10 +3546,6 @@ cursor:default;
 	text-decoration:none;
 }
 
-.rationale_container a:hover{
-	text-decoration:underline;
-}
-
 .relation_descr{
 	border: 1px solid #f5f5f5;
 	width: 837px;
@@ -3545,6 +3553,10 @@ cursor:default;
 	padding: 10px;
 	background-color: #FCFCFC;
 	}
+
+.relation_descr a:hover{
+	text-decoration:underline;
+}
 
 .relation_discussion{
 	border:1px solid #ededed;
@@ -3567,15 +3579,15 @@ cursor:default;
 }
 
 .discussion_input{
-	width:405px;
+	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	float:left;
+	width:650px;
 	padding:5px; 
-	height:60px;
+	height:16px;
 	border:1px solid #bebebe;	
 	resize:none;
-	background-color:#FCFCFC;
+	background-color:#fefefe;
 	outline:none;
-	margin-top:10px;
-	margin-bottom:5px;
 }
 
 .discussion_input:hover{
@@ -3624,7 +3636,6 @@ cursor:default;
 	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#B84030, endColorstr=#B80000);
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#B84030', endColorstr='#B80000')";
 	cursor:pointer;	
-	padding:5px;
 	font:bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	color: #f1f1f1;
 	/* Shadows */
@@ -3640,8 +3651,6 @@ cursor:default;
 	-moz-border-left-colors: #000 #CD796E;
 	-moz-border-top-colors: #000 #CD796E;
 	-moz-border-bottom-colors: #000 #B80000;
-	margin-bottom:5px;	
-	width:140px;
 }
 
 .relationship_delete:hover{
@@ -3660,33 +3669,88 @@ cursor:default;
 .del-relation{
 	background:url("/images/issues/delete.png") no-repeat left;
 	background-size:12px;
-	padding-left:12px;	
+	background-position: 5px center;
+	padding:5px;
+	padding-left:17px;	
 	width:128px;
 	text-align: center;		
 	display: list-item;
-	list-style-type: none;	
+	list-style-type: none;
+	color:#fcfcfc;
+	text-decoration:none;		
 }
 
 .med-relation{
 	background:url("/images/issues/intermediate.png") no-repeat left;
 	background-size:12px;
-	padding-left:12px;
+	background-position: 5px center;
+	padding:5px;
+	padding-left:17px;	
 	width:128px;
 	text-align: center;	
 	display: list-item;
 	list-style-type: none;
 }
 
-.perm-relation{
+.perm-relation, a.perm-relation{
 	background:url("/images/issues/permalink.png") no-repeat left;
 	background-size:12px;
-	padding-left:12px;
+	background-position: 5px center;
+	padding:5px;
+	padding-left:17px;	
 	width:128px;
 	text-align: center;	
 	display: list-item;
 	list-style-type: none;
+	color:#fcfcfc;
+	text-decoration:none;
 }	
+
+#relation_owner{
+	color:#434343;
+	font-size:12px;
+}
+
+#relation_owner a{
+	color:#4DB8DB;
+	text-decoration:none;
+}
+
+#relation_owner a:hover{
+	color:#4DB8DB;
+	text-decoration:underline;
+}
 
 #permalink_display{
 	word-wrap:break-word; width:142px; padding:5px; margin-bottom:10px; border:1px solid #434343; border-top:none;	
 }
+
+.reference_container{
+	padding:7px 5px;
+	background-color:#f5f5f5;
+	border-bottom:1px solid #ddd;
+	margin-bottom:1px;
+}
+
+.reference_container a{
+	color:#434343;
+}
+
+.reference_owner{
+	color:#bebebe;
+}
+
+.reference_owner a{
+	color:#4DB8DB;
+}
+
+.reference_error{
+	float:left;
+	background:url("/images/system/error.png") no-repeat center center;
+	background-size:24px;
+	height:24px;
+	width:24px;
+	margin:0px 2px;
+}
+
+.reference_error_text{float:left;margin:5px}

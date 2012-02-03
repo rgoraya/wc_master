@@ -24,11 +24,11 @@
               
           .navigation{:style=>"float:left;"}
             %div{:class=>"search_container_appl"}
-              - form_tag issues_path, :id=>"search_form", :style=>"display:none;", :method => 'get' do               
+              = form_tag issues_path, :id=>"search_form", :style=>"display:none;", :method => 'get' do               
                 = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_invisible_input"
                 = submit_tag "", :name => nil, :class=>"search_appl_submit", :title=>"search"
 
-              - form_tag issues_path, :id=>"issue_search_form", :method => 'get' do               
+              = form_tag issues_path, :id=>"issue_search_form", :method => 'get' do               
                 = text_field_tag :query, params["def"], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_visible_input"
                 %input{:type=>"button", :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"search_submit_btn"}
 
@@ -50,7 +50,7 @@
               - if current_user
 
                 - @hash = Digest::MD5.hexdigest(current_user.email).to_s
-                = link_to image_tag ('http://www.gravatar.com/avatar/'+ @hash + '?s=17&d=mm', :border =>0),current_user, :title=>"view your issues", :class=>"nav_gravatar"
+                = link_to image_tag ("http://www.gravatar.com/avatar/"+ @hash + "?s=17&d=mm"),current_user, :title=>"view your issues", :class=>"nav_gravatar"
                 = link_to current_user.username + "\'s issues", current_user, :title=>"view your issues", :class=>"login_button", :style=>"padding-left:0px;margin-left:0px; padding-right:6px;"
 
                                 
