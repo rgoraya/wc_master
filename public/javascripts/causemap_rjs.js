@@ -26,90 +26,71 @@ function drawNode(node, paper){
   return icon;  
 }
 
-//details on drawing/layint out an edge
+
+//details on drawing/laying out an edge (a single line/relationship)
 function drawEdge(edge, paper){    
-  a = edge.a //for quick access
-  b = edge.b
+  curve = getPath(edge) //get the curve's path
+
+  e = paper.path(curve).toBack() //base to draw
   
-  numofedges = edge.nc
-  curvePaths = getCurves(edge) //get the curve paths
-
-  icon = paper.set()
-
-  e = paper.path(curvePaths[0]).toBack().attr({
-    stroke: '#408EB8',
-    'stroke-width': edge.nc
-  })
-  icon.push(e) //.push(e,e2,e3)  
-  
-  
-  // Curve 2
-  if (numofedges > 1) {
-    e2 = paper.path(curvePaths[1]).toBack().attr({
-    stroke: '#BBBBBB',
-    'stroke-width': edge.nc
-  })
-  icon.push(e2)
-  } 
-
-  // Curve 3
-  if (numofedges > 2) {
-    e3 = paper.path(curvePaths[2]).toBack().attr({
-    stroke: '#BBBBBB',
-    'stroke-width': edge.nc
-  })
-  icon.push(e3)
-  } 
-
-
-  // e2 = paper.path(curvePaths[2]).toBack().attr({
-  //   stroke: '#408EB8',
-  //   'stroke-width': edge.nc
-  // })
-
+  //set attributes based on relationship type (bitcheck with constants)
+  if(edge.reltype&INCREASES)
+    e.attr({stroke:'#408EB8'})
+  else //if decreases
+    e.attr({stroke:'#BBBBBB'})
+  // if(edge.reltype&HIGHLIGHTED)
+  //   e.glow({width:3,fill:false,color:'#FFFF00'}) //would have to animate this as well it seems...
+    
+  icon = paper.set() //for storing pieces of the line as needed
+  icon.push(e)
   icon.data("name",edge.name) //if needed
-  .click(function() { alert("You clicked on "+this.data("name")+"\n"+"M"+a.x+","+a.y+"\n Q " + ctrlx + ","+ctrly+" \n"+b.x+","+b.y)})
+  .click(function() { alert("You clicked on "+this.data("name")+"\n"+curve)})
   .mouseover(function() {this.node.style.cursor='pointer';})
+
   return icon;
 }
 
-//returns an array of curve paths
-function getCurves(edge)
+
+//returns an a curved path for an edge, curving based on which number edge this is
+//so for example: the 0th edge could be straight, 1st could curve up, 2nd could curve down, etc
+function getPath(edge)
 {
   a = edge.a //for quick access
   b = edge.b
-  numofedges = edge.nc
-    
+
   //-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
   pivotPoint = (b.x > a.x) ? a : b
-
   dx = b.x - a.x
   dy = b.y - a.y 
-
   lengthAB = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
   angleAB = Math.atan(dy/dx)
 
-  // Curve 1
-  ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
-  ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
-  
-  curvePaths = ["M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y]
-
-  // Curve 2
-  if (numofedges > 1) {
-    ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
-    ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y 
-    curvePaths.push("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y)
+  if(edge.n == 0){ //Curve "0" -- straight line if we want it
+    return "M"+a.x+","+a.y+"L"+b.x+","+b.y+"z"
   }
 
-  // Curve 3
-  if (numofedges > 2) {
+  if(edge.n == 1){ //Curve "1"
+    ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
+    ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
+
+    return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+  }
+
+  if(edge.n == 2){ //Curve "2"
+    ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
+    ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y 
+
+    return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+  }
+
+  if(edge.n == 3) {//Curve "3"
     ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
     ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y 
-    curvePaths.push("M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y)
-  } 
 
-  return curvePaths
+    return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+  }
+  
+  return "" //in case we didn't get anything?
 }
 
 
@@ -179,9 +160,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
       icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear') //disappear
     }
     else{
-      toCurves = getCurves(toEdge,1) //spec how many edges we need? if >1 will need to loop
-      for(var j=0, clen=toCurves.length; j<clen; j++)
-	      icon[j].animate({'path':toCurves[j]},1000,easing); //do the first edge
+	    icon.animate({'path':getPath(toEdge)},1000,easing); //pass the new path
     }
   }  
   

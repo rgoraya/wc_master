@@ -77,11 +77,12 @@ class Mapvisualization #< ActiveRecord::Base
     #returns a javascript version of the object 
     #nodeset is the name of the js node array (default to "nodes")
     #(a and b are references into the nodeset array)
-    def js(nodeset='nodes') 
+    def js(nodeset='nodes', count=0)
       #do we need to also include an id field inside the object?
       "{name:'"+name+"',"+
       "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
-      "reltype:"+@rel_type.to_s+"}"
+      "reltype:"+@rel_type.to_s+","+
+      "n:"+count.to_s+"}"
       #can add more fields as needed
     end
     
@@ -113,6 +114,7 @@ class Mapvisualization #< ActiveRecord::Base
 
   # method fetches the Issues and Relationships from the database, dependent on the arguments
   # args is probably a hash of something
+  # WORK IN PROGRESS
   def get_data(args)
     @nodes = Array.new()
     @edges = Array.new()
@@ -123,7 +125,9 @@ class Mapvisualization #< ActiveRecord::Base
     issues = Issue.order("updated_at DESC").limit(40)
     puts issues    
     
-    relationships = Relationship.where("relationships.issue_id IN (?)", Issue.order("updated_at DESC").limit(40).select("id").to_sql) #???
+    
+    subquerylist = Issue.order("updated_at DESC").limit(40).select("issues.id").map {|i| i.id}
+    relationships = Relationship.where("relationships.issue_id IN (?)", subquerylist) #This works (needs other half)
 
     #get all relationships between those nodes
     #relationships = Relationship.find()
