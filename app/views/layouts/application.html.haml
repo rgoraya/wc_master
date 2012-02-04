@@ -5,7 +5,7 @@
     %link{:href => "http://code.google.com/apis/maps/documentation/javascript/examples/default.css", :rel => "stylesheet", :type => "text/css"}/
     %link{:href => "/images/system/dominos_fav.png", :rel => "shortcut icon"}/
     %title
-      = content_for?(:title) ? content_for(:title) : 'wikiCausality'
+      = content_for?(:title) ? content_for(:title) : 'Causality Project'
     = stylesheet_link_tag "styles"
     = yield :include_custom_stylesheet
     = javascript_include_tag :defaults
@@ -40,7 +40,7 @@
           .navigation
             %div{:id=>"quickaccess"}
 
-              /= link_to "About", :about, :title=>"about wikiCausality", :class=>"login_button"
+              /= link_to "About", :about, :title=>"about Causality Project", :class=>"login_button"
 
               = link_to "Issues", :issues, :title=>"view all issues", :class=>"login_button", :style=>"background-image:url('/images/system/goto.png');"
                 

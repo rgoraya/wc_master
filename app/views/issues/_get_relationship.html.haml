@@ -23,7 +23,7 @@
             %span#issue_title_dynamic
               = @rel_issue.title + ':'
           %span#issue_descr_dynamic
-            = @rel_issue.description
+            = @rel_issue.description.html_safe
           %img.linkout{:src=>"/images/system/linkout.png"}
           %a{:href=>@rel_issue.wiki_url, :target => "_blank"} more on Wikipedia
     
@@ -32,7 +32,7 @@
             %span#issue_title_dynamic
               = @rel_cause.title + ':'
           %span#issue_descr_dynamic
-            = @rel_cause.description
+            = @rel_cause.description.html_safe
           %img.linkout{:src=>"/images/system/linkout.png"}
           %a{:href=>@rel_cause.wiki_url, :target => "_blank"} more on Wikipedia
 
