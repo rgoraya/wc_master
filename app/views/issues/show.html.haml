@@ -25,144 +25,19 @@
           %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@issue.short_url})"}
             = link_to "", @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
 
-      // *-*-*-*-*-*-*-*-*-*-*-*-*
-      // Relationship type Choices
-      // *-*-*-*-*-*-*-*-*-*-*-*-*
-      %div.causality_types
-        %div.causality_toggle_container
-          %div.central_causality_container
-            is caused by 
-        
-          %div.relationship_partial_toggle#toggle_causes{:style=>"display:none;"}
-            is caused by
-                     
-          %div.relationship_partial_toggle#toggle_effects
-            causes
-             
-          %div.relationship_partial_toggle#toggle_inhibitors
-            is reduced by
-            
-          %div.relationship_partial_toggle#toggle_inhibiteds
-            reduces
-             
-          %div.relationship_partial_toggle#toggle_subsets
-            is a superset of                 
-            
-          %div.relationship_partial_toggle#toggle_supersets
-            is a subset of  
-
       // *-*-*-*-*-*-*-*-*-*-*-
-      // Relationship container
+      // Relationship Partial
       // *-*-*-*-*-*-*-*-*-*-*-
-      %div.issue_relationships_container
-        
-        %div.relationship_partial#selected_rel_type
-          = render 'selected_rel_type' 
-
-        
-        //%div.relationship_partial#causes
-        //  = render 'causes'                  
-        //%div.relationship_partial#effects
-        //  = render 'effects'         
-        //%div.relationship_partial#inhibitors
-        //  = render 'inhibitors' 
-        //%div.relationship_partial#inhibiteds
-        //  = render 'inhibiteds'                 
-        //%div.relationship_partial#subsets
-        //  = render 'subsets' 
-        //%div.relationship_partial#supersets
-        //  = render 'supersets'           
-        // 
-      
-        
-      %div{:style => "clear:both"}
-
+      %div.relationship_partial#selected_rel_type
+        = render 'selected_rel_type' 
+      // *-*-*-*-*-*-*-*-*-*-*-
+      // Modal Form for Add New
+      // *-*-*-*-*-*-*-*-*-*-*-        
       %div{:id=>"modal_form"}      
         = render :partial => "modal"
     
-
-    %div{:class =>"title"}
-      #title_filler_text
-        Please select one of the
-        %span#title_filler_causality
-          Causes
-        above to learn more   
-      #title_dynamic_text
-        %span#title_issue
-        %span#title_causality{:style=>"font-size:16px;"}
-        %span#title_relationship
-      #title_modalhead
-
-
-    %div.rationale_container{:style=>"display:none;"}
-      
-      %div{:style=>"float:left;"}
-        %div.relation_descr
-          
-          .rationale_headers
-            Relationship
-          %div{:style => "clear:both"}
-          // paragraph retrieved from wikipedia page
-          %p
-            %b
-              %span#issue_title_dynamic
-                = @issue.title + ':'
-            %span#issue_descr_dynamic
-              = @issue.description
-            %img.linkout{:src=>"/images/system/linkout.png"}
-            %a{:href=>@issue.wiki_url, :target => "_blank"} more on Wikipedia
-  
-  
-          %p  
-            %b
-              %span#relation_title_dynamic
-            %span#relation_descr_dynamic
-  
-        %div#rel_references
-          = render 'rel_references'
-          
-      %div.relation_controls{:style=>"float:left; width:154px; border:1px solid #f5f5f5; padding:10px; background:#fcfcfc"} 
-
-        %div.discussion_submit{:style=>"margin-bottom:10px;float:none;"}
-          .med-relation
-            Add Intermediate
-        
-        
-
-        %div.discussion_submit{:style=>"float:none;"}
-          .perm-relation
-            Go to Permalink
-        #permalink_display
-        
-
-        - if current_user
-          %div{:class=>"relationship_delete"}
-            %a{"data-confirm" => "are you sure?", "data-title"=>"Delete Causal Link", "data-remote"=>"true", "data-method" => "delete", :href => "", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
-              Delete Relationship       
-      
-  
-          
-                  
-      
-
-      
-      %div{:style => "clear:both"}
-    
-      
-      
-      %div.relation_discussion{:style=>"display:none;"}
-        .rationale_headers
-          Discussion
-        %div{:style => "clear:both"}  
-        
-        %textarea.discussion_input
-        
-        %div.discussion_submit
-          Submit
-        %div{:style => "clear:both"}
-            
-      %div{:style => "clear:both"}
-      
+    %div#get_relationship{:style=>"margin-top:-61px;"}
+      = render 'get_relationship'      
       
     %div{:class =>"issueblock", :style=>"float:left;width:1050px;"}
     
@@ -211,8 +86,6 @@
 
 #clear{:style => "clear:left;"}
         
-    
-
 
 #confirm_popup
   #confirm_title.formheading{:style=>"text-align:left;color:#434343;padding-top:0px;"}

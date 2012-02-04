@@ -51,6 +51,8 @@ gem "recaptcha", :require => "recaptcha/rails"
 
 gem "exception_notification", :require => "exception_notifier"
 
+gem 'backports'
+
 group :development do
   gem "hpricot"
 end

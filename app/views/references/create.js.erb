@@ -1,0 +1,9 @@
+$("#get_references").html("<%= escape_javascript(render('issues/get_references'))%>")
+$('.reference_container').first().effect("highlight", {color: '#4DB8DB'}, 1000);
+
+// Display Notice if Ajax
+$("#notice").html("<%= escape_javascript(flash[:notice]) %>");
+if ($('#notice').html().trim()) {
+	$("#notice_container").show();
+	$("#notice_container").effect("bounce", { times:3 }, 200);
+}

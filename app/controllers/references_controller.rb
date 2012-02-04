@@ -43,7 +43,9 @@ class ReferencesController < ApplicationController
   # POST /references.xml
   def create
     @reference = Reference.new(params[:reference])
-
+    
+    @relationship = Relationship.find(@reference.relationship_id)
+    
     respond_to do |format|
       if @reference.save
 
@@ -56,9 +58,12 @@ class ReferencesController < ApplicationController
 
         format.html { redirect_to(:back, :notice => 'Reference was successfully added.') }
         format.xml  { render :xml => @reference, :status => :created, :location => @reference }
+        format.js
       else
+        @notice = @reference.errors
         format.html { redirect_to(:back, :notice => @reference.errors) }
         format.xml  { render :xml => @reference.errors, :status => :unprocessable_entity }
+        format.js
       end
     end
   end
