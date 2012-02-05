@@ -4,8 +4,9 @@
 
 var t_off = 5
 var INCREASES = 1 //type constants
-var EXPANDABLE = 4
-var HIGHLIGHTED = 8
+var SUPERSET = 4
+var EXPANDABLE = 8
+var HIGHLIGHTED = 16
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
@@ -37,9 +38,12 @@ function drawEdge(edge, paper){
   if(edge.reltype&INCREASES)
     e.attr({stroke:'#408EB8'})
   else //if decreases
-    e.attr({stroke:'#BBBBBB'})
+    e.attr({stroke:'#BA717F'})
+  if(edge.reltype&SUPERSET)
+    e.attr({stroke:'#BBBBBB'}) //change for superset
   // if(edge.reltype&HIGHLIGHTED)
   //   e.glow({width:3,fill:false,color:'#FFFF00'}) //would have to animate this as well it seems...
+  e.attr({'stroke-width':2})
     
   icon = paper.set() //for storing pieces of the line as needed
   icon.push(e)
@@ -149,6 +153,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
   }
 
   //move old edges into the new
+//DOUBLE CHECK THAT WE'RE ACTUALLY REPLACING EDGES WHEN WE GET NEW GRAPH
   for(var i=0, len=fromEdges['keys'].length; i<len; i++)
   {
     fromEdge = fromEdges[fromEdges['keys'][i]]
