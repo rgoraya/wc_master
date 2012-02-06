@@ -47,7 +47,7 @@
         = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
         = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
         = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
-        = button_to "Kamada Layout", {:action => "index", :cmd => 'kamada_kawai'}, {:remote => true, :method => :get}
+        = button_to "Kamada Layout", {:action => "index", :cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
         / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
     #debug
       %b Some notes:

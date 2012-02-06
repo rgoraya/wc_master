@@ -5,23 +5,21 @@ class MapvisualizationsController < ApplicationController
     @default_width = 900*0.8 #defaults
     @default_height = 675*0.8
     @default_border = 50
-    @default_node_count = 10 #40
-    @default_edge_ratio = 0.2 #0.08
-    
+    @default_node_count = 20 #40
+    @default_edge_ratio = 0.1 #0.08
+        
     respond_to do |format|
       format.html do #on html calls
 
-        # @vis = Mapvisualization.new(width, height, Relationships.find(:what_nodes_to_get))
+        @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, :data_query => params[:q]) #on new html--generate graph
 
-        @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio) #on new html--generate graph
-
-        session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us
+        session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
 
       format.js do #respond to ajax calls?
         
-        @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio) #grab the old vis, or make a new one if needed
+        @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, :data_query => params[:q]) #grab the old vis, or make a new one if needed
 
         actions = %w[remove_edges foo bar] #etc
         begin

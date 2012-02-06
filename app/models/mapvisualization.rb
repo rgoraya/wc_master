@@ -97,13 +97,20 @@ class Mapvisualization #< ActiveRecord::Base
   def initialize(args)    
     #puts args
     @width, @height = args[:width], args[:height]        
-    @nodes = args[:nodes]
-    @edges = args[:edges]
-    @adjacency = args[:adjancecy] || Hash.new(0)
-           
-    graph_from_data(nil)
-    #reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random IF NOT DEFINED
-    place_randomly
+
+    # check if we have been passed in variables to use
+    if args[:nodes]
+      @nodes = args[:nodes] || Hash.new()
+      @edges = args[:edges] || Array.new()
+      @adjacency = args[:adjancecy] || Hash.new(0)
+    elsif args[:data_query]
+      graph_from_data(:query => args[:data_query].downcase)
+      place_randomly #how to organize?
+    else
+      #default to random nodes for testing, etc
+      #can instead load top40 default or something
+      reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random IF NOT DEFINED
+    end
   end
 
 
@@ -114,28 +121,37 @@ class Mapvisualization #< ActiveRecord::Base
     @nodes = Hash.new()
     @edges = Array.new()
     @adjacency = Hash.new(0)
-
-    # if args[:query == 'Top40']
     
-    ### TOP 40 ###
-    #get 40 most recent issues
-    issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(50)
-    #get all relationships between those nodes
-    subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(50).map {|i| i.id}
-    relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
+    puts args[:query]
+    
+    if args[:query] == 'top40' ### TOP 40 ###
+      #get 40 most recent issues
+      limit = 40
+      issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit)
+      #get all relationships between those nodes
+      subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
+      relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
+    
+    #can add extra elses here
+    else
+      #default to top 50? or to what?
+      limit = 50
+      issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit)
+      #get all relationships between those nodes
+      subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
+      relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
+    end
 
 
-    #now that we have our issues and relationships; convert them!    
-    issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))}
+    #once we have our issues and relationships; convert them!
+    issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
     relationships.each do |rel| 
       node_a = @nodes[rel.cause_id] #note these are the opposite of what I expected
       node_b = @nodes[rel.issue_id]      
       type = Edge::RELTYPE_TO_BITMASK[rel.relationship_type]
       @edges.push(Edge.new(rel.id, node_a, node_b, type))
       @adjacency[ [node_a.id, node_b.id] ] += 1 #count the edges between those nodes
-    end
-    puts @adjacency
-    
+    end if !relationships.nil?
 
     ## ALT: get 40 Issues that have the most relationships
     ## Issue.find().relationships.length + Issue.find().inverse_relationships.length
@@ -462,6 +478,12 @@ class Mapvisualization #< ActiveRecord::Base
     end
     return result
   end    
+
+  #run kamada then normalize (to save button presses :p)
+  def do_kamada_kawai
+    kamada_kawai
+    normalize_graph
+  end
 
   #centers the nodes within the graph, then squeezes the graph to fit inside the window (without border)
   def normalize_graph(width=@width, height=@height, nodeset=@nodes)

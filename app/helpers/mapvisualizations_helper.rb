@@ -7,23 +7,34 @@ module MapvisualizationsHelper
     paper_name = 'myPaper'
   end
 
-  #helper method to print the nodes and edges as javascript arrays
+  #helper method to print the nodes and edges as javascript arrays, now with empty-set handling!
   def javascript_graph(nodes, edges, adjacency, nodes_name='currNodes', edges_name='currEdges')
-    multi_edge = Hash.new(0)
-    edges.each {|e| multi_edge[[e.a.id,e.b.id].sort] += 1} #will give us total number of edges per nodeset
+    out = ""
+    if nodes.length > 0
+      out += "var "+nodes_name+"={"+
+        nodes.map {|k,n| n.js_k + ":" + n.js(@default_border)} .join(',')+
+        ",keys:["+ nodes.map {|k,n| n.js_k} .join(',') +"]"+
+        "};"
+    else
+      out += "var "+nodes_name+"={keys:[]};"
+    end
+      
+    if edges.length > 0
+      multi_edge = Hash.new(0)
+      edges.each {|e| multi_edge[[e.a.id,e.b.id].sort] += 1} #will give us total number of edges per nodeset
 
-    counters = Hash.new(0)
-    out = "var "+nodes_name+"={"+
-    nodes.map {|k,n| n.js_k + ":" + n.js(@default_border)} .join(',')+
-    ",keys:["+ nodes.map {|k,n| n.js_k} .join(',') +"]"+
-    "};" +
-    "var "+edges_name+"={"+
-      edges.map {|e| e.js_k + ":" + e.js(nodes_name, 
-        multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : counters[ [e.a.id,e.b.id].sort ] += 1)
-        }.join(',')+
-    ",keys:["+ edges.map {|e| e.js_k} .join(',') +"]"+
-    "};"
-    return out
+      counters = Hash.new(0)
+      out += "var "+edges_name+"={"+
+        edges.map {|e| e.js_k + ":" + e.js(nodes_name, 
+          multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : counters[ [e.a.id,e.b.id].sort ] += 1)
+          }.join(',')+
+        ",keys:["+ edges.map {|e| e.js_k} .join(',') +"]"+
+        "};"
+    else
+      out += "var "+edges_name+"={keys:[]};"
+    end
+    
+    return out      
   end
 
   #the code to setup raphael; defined here so separate from the drawing .js file
