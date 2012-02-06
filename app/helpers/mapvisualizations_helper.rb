@@ -15,7 +15,7 @@ module MapvisualizationsHelper
     ",keys:["+ nodes.map {|k,n| n.js_k} .join(',') +"]"+
     "};" +
     "var "+edges_name+"={"+
-      edges.map {|e| e.js_k + ":" + e.js(nodes_name,counts[ [e.a.id,e.b.id].sort.join('-') ] += 1)} .join(',')+
+      edges.map {|e| e.js_k + ":" + e.js(nodes_name,counts[ [e.a.id,e.b.id].sort ] += 1)} .join(',')+
     ",keys:["+ edges.map {|e| e.js_k} .join(',') +"]"+
     "};"
   end

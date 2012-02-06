@@ -2,8 +2,8 @@ class MapvisualizationsController < ApplicationController
     
   # GET /mapvisualizations
   def index
-    @default_width = 600 #defaults
-    @default_height = 400
+    @default_width = 900*0.8 #defaults
+    @default_height = 675*0.8
     @default_border = 50
     @default_node_count = 10 #40
     @default_edge_ratio = 0.2 #0.08
@@ -18,6 +18,7 @@ class MapvisualizationsController < ApplicationController
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us
         return
       end
+
       format.js do #respond to ajax calls?
         
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio) #grab the old vis, or make a new one if needed

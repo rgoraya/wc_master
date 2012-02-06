@@ -20,13 +20,11 @@ function drawNode(node, paper){
   //put them into set and return set!!
   icon = paper.set()
   icon.push(circ, txt)
-  .data("name",node.name) //if needed
-  .click(function() { alert("You clicked on "+this.data("name"))})
+  .click(function() { clickNode(node)})
   .mouseover(function() {this.node.style.cursor='pointer';})  
   
   return icon;  
 }
-
 
 //details on drawing/laying out an edge (a single line/relationship)
 function drawEdge(edge, paper){    
@@ -37,18 +35,17 @@ function drawEdge(edge, paper){
   //set attributes based on relationship type (bitcheck with constants)
   if(edge.reltype&INCREASES)
     e.attr({stroke:'#408EB8'})
+  else if(edge.reltype&SUPERSET)
+    e.attr({stroke:'#BBBBBB'}) //change for superset
   else //if decreases
     e.attr({stroke:'#BA717F'})
-  if(edge.reltype&SUPERSET)
-    e.attr({stroke:'#BBBBBB'}) //change for superset
   // if(edge.reltype&HIGHLIGHTED)
   //   e.glow({width:3,fill:false,color:'#FFFF00'}) //would have to animate this as well it seems...
   e.attr({'stroke-width':2})
     
   icon = paper.set() //for storing pieces of the line as needed
   icon.push(e)
-  icon.data("name",edge.name) //if needed
-  .click(function() { alert("You clicked on "+this.data("name")+"\n"+curve)})
+  .click(function() { clickEdge(edge, curve)})
   .mouseover(function() {this.node.style.cursor='pointer';})
 
   return icon;
@@ -98,6 +95,16 @@ function getPath(edge)
 }
 
 
+//Interaction functions, for when we click on things. Variables passed are things we're going to use
+function clickNode(node){
+  alert("You clicked on "+node.name);
+}
+
+function clickEdge(edge, curve){
+  alert("You clicked on "+edge.name+"\n"+curve);
+}
+
+
 //a basic draw function
 //draw the given nodes and edges on the given paper (a Raphael object)
 //nodes and edges are objects of objects; includes 'keys' as an array of the keys for iterating
@@ -132,7 +139,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
     icon = drawNode(fromNode, paper)
 
     if(typeof toNode === 'undefined'){ //if no toNode
-      icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear') //disappear
+      icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear', function(){this.remove()}) //disappear
     }
     else{
       icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+t_off }, 1000, easing)
@@ -153,16 +160,15 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
   }
 
   //move old edges into the new
-//DOUBLE CHECK THAT WE'RE ACTUALLY REPLACING EDGES WHEN WE GET NEW GRAPH
   for(var i=0, len=fromEdges['keys'].length; i<len; i++)
   {
-    fromEdge = fromEdges[fromEdges['keys'][i]]
-    toEdge = toEdges[toEdges['keys'][i]]
+    fromEdge = fromEdges[fromEdges['keys'][i]] //old edge
+    toEdge = toEdges[fromEdges['keys'][i]] //see if we have an edge with the same key
 
     icon = drawEdge(fromEdge, paper)
 
     if(typeof toEdge === 'undefined'){ //if no toEdge
-      icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear') //disappear
+      icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear', function(){this.remove()}) //disappear
     }
     else{
 	    icon.animate({'path':getPath(toEdge)},1000,easing); //pass the new path
@@ -171,8 +177,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
   
   for(var i=0, len=toEdges['keys'].length; i<len; i++)
   {
-    fromEdge = fromEdges[fromEdges['keys'][i]]
     toEdge = toEdges[toEdges['keys'][i]]
+    fromEdge = fromEdges[toEdges['keys'][i]] //see if there used to be an edge with the same key
 
     if(typeof fromEdge === 'undefined'){ //if no fromEdge
       drawEdge(toEdge, paper)

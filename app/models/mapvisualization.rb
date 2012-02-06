@@ -62,11 +62,13 @@ class Mapvisualization #< ActiveRecord::Base
     end
 
     def to_s
-      @id.to_s+": Edge "+@a.to_s+" - "+@b.to_s
+      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'is type of')
+      "Edge "+@id.to_s+": "+@a.to_s+" "+conn+" "+@b.to_s
     end
 
     def name
-      "Edge "+@a.name+" - "+@b.name
+      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'is type of')
+      @a.name+" "+conn+" "+@b.name
     end
 
     #returns a javascript version of the object 
@@ -117,17 +119,17 @@ class Mapvisualization #< ActiveRecord::Base
     
     ### TOP 40 ###
     #get 40 most recent issues
-    issues = Issue.order("updated_at DESC").limit(40)
+    issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(50)
     #get all relationships between those nodes
-    subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(40).map {|i| i.id}
-    relationships = Relationship.where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
+    subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(50).map {|i| i.id}
+    relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
 
 
     #now that we have our issues and relationships; convert them!    
     issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))}
     relationships.each do |rel| 
-      node_a = @nodes[rel.issue_id]
-      node_b = @nodes[rel.cause_id]      
+      node_a = @nodes[rel.cause_id] #note these are the opposite of what I expected
+      node_b = @nodes[rel.issue_id]      
       type = Edge::RELTYPE_TO_BITMASK[rel.relationship_type]
       @edges.push(Edge.new(rel.id, node_a, node_b, type))
       @adjacency[ [node_a.id, node_b.id] ] += 1 #count the edges between those nodes
@@ -461,10 +463,19 @@ class Mapvisualization #< ActiveRecord::Base
     return result
   end    
 
-  #squeezes the graph to fit inside the window (without border), then centers the nodes within the graph
-  ## SHOULD DO THE OPPOSITE: CENTER THEN SQUEEZE
+  #centers the nodes within the graph, then squeezes the graph to fit inside the window (without border)
   def normalize_graph(width=@width, height=@height, nodeset=@nodes)
     puts "normalizing graph"
+
+    #center the nodes
+    max_x = nodeset.max_by{|k,n| n.location[0]}[1].location[0]
+    max_y = nodeset.max_by{|k,n| n.location[1]}[1].location[1]
+    min_x = nodeset.min_by{|k,n| n.location[0]}[1].location[0]
+    min_y = nodeset.min_by{|k,n| n.location[1]}[1].location[1]
+    center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
+    nodeset.each_value {|n| n.location = n.location-center_offset}
+
+    #scale to fit
     center = [width/2, height/2]
     far_x = nodeset.max_by{|k,n| (n.location[0]-center[0]).abs}[1].location[0] #node with max x
     far_y = nodeset.max_by{|k,n| (n.location[1]-center[1]).abs}[1].location[1] #node with max y
@@ -474,13 +485,6 @@ class Mapvisualization #< ActiveRecord::Base
              center[1]/(far_y-center[1]).abs]
     nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
                                                 scale[1]*(n.location[1]-center[1])+center[1]]}
-
-    max_x = nodeset.max_by{|k,n| n.location[0]}[1].location[0]
-    max_y = nodeset.max_by{|k,n| n.location[1]}[1].location[1]
-    min_x = nodeset.min_by{|k,n| n.location[0]}[1].location[0]
-    min_y = nodeset.min_by{|k,n| n.location[1]}[1].location[1]
-    center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
-    nodeset.each_value {|n| n.location = n.location-center_offset}
   end
   
   def remove_edges(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)
