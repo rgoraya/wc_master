@@ -54,6 +54,7 @@ module Reputation
 																																										(!options[:me].nil? && options[:me].integer?) && 
 																																										(!options[:you].nil? && options[:you].integer?))
 					  ids << options[:you]
+						score = [-2,0]
 
 				  when [:create, :issue]
 					  raise ArgumentError, "Missing or invalid argument :me" unless (!options[:me].nil? && options[:me].integer?)
@@ -63,7 +64,8 @@ module Reputation
 					  raise ArgumentError, "Missing or invalid argument :id :me :you" unless ((!options[:me].nil? && options[:me].integer?) && 
 																																										(!options[:you].nil? && options[:you].integer?) && 
 																																										(!options[:id].nil? && options[:id].integer?))
-					  ids << options[:you]			
+					  ids << options[:you]
+						score = [-1,0]			
 
 				  when [:create, :reference]
 					  raise ArgumentError, "Missing or invalid argument :id :me" unless ((!options[:id].nil? && options[:id].integer?) && 

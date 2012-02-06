@@ -129,7 +129,7 @@
   %div{:style=>"clear:both"}  
 
 %div{:style=>"margin:20px 0px 5px 0px; float:right;"}
-  = will_paginate (@userissues), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
+  = will_paginate (@userissues) , :param_name => 'user_page', :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
 %div{:style=>"float:right; margin:22px 15px -22px 0px;", :id=>"issues_wait"}
 
 %div{:style=>"clear:both"}

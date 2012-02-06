@@ -64,7 +64,7 @@ class Suggestion < ActiveRecord::Base
     @accepted['effects']    = this_issue.effects.collect{|x| x.wiki_url}
     @accepted['inhibitors'] = this_issue.inhibitors.collect{|x| x.wiki_url}
     @accepted['supersets']  = this_issue.supersets.collect{|x| x.wiki_url}
-    @accepted['inhibited']  = this_issue.inhibited.collect{|x| x.wiki_url}
+    @accepted['inhibited']  = this_issue.inhibiteds.collect{|x| x.wiki_url}
     @accepted['subsets']    = this_issue.subsets.collect{|x| x.wiki_url}
   end
 

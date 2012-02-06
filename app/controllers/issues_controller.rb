@@ -2,7 +2,8 @@ class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
   before_filter :set_rel_type
-  
+
+
   def set_rel_type
     @rel_type ||= 'causes'
     # or @a_entity = Entity.find(params['a_entity'])
@@ -333,7 +334,7 @@ class IssuesController < ApplicationController
                                  :me=>current_user.id, \
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
-                                 :calculate=>false)
+                                 :calculate=>true)
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
@@ -354,33 +355,25 @@ class IssuesController < ApplicationController
   #issues/:id/versions
   def versions
     @issue = Issue.find(params[:id])
-    @versions = []
-		count = 10
-		if params[:segment]
-			count = params[:segment].to_i*10
+		@versions = []
+		if Version.last.id - params[:more].to_i >= 0
+
+			#@versions = Version.order("created_at DESC").all.select{|version| version.id < (Version.last.id - params[:more].to_i)  && version.item_type.eql?("Relationship") && ((obj = version.get_object).issue_id == @issue.id || obj.cause_id == @issue.id)}.take(10) #.paginate(:per_page => 10, :page => params[:version_page])
+
+			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id - params[:more].to_i, "Relationship"]).each do |version|
+				relationship = version.get_object
+				if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
+					@versions << version
+				end
+				@versions.count == 10 ? break : next	
+			end 
+			#if !@versions.empty?
+			#	@last_id = Version.last.id - @versions.last.id + 1
+			#else
+			#	@last_id = Version.last.id + 1
+			#end
 		end
-    Version.find(:all, :conditions => ["item_type=?", 'Relationship'], :order=>"created_at DESC").each do |version|
 
-      relationship = version.get_object #should return a Relationshiop object here
-      if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
-        @versions << version
-      end
-
-			if @versions.length >= count
-				break
-			end
-			
-    end
- 
-    #@versions.sort!{|a,b| b.created_at <=> a.created_at}
-		#if params[:segment]
-		#	if (params[:segment].to_i-1)*10 <= (@versions.length-1)
-		#		@versions = @versions[((params[:segment].to_i-1)*10)..(@versions.length-1)]
-		#	else
-		#		@versions = []
-		#	end
-		#end
-		#@versions = @versions.paginate(:per_page => 10, :page => params[:page])
 
     respond_to do |format|
 			format.js {render :layout=>false}

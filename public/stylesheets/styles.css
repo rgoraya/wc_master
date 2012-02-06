@@ -3010,7 +3010,8 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	padding:4px 0px; 
 	font-size:13px; 
 	float:right;
-	width:350px; margin-right:10px;
+	width:400px;
+	margin-right:10px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;	
@@ -3053,7 +3054,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	text-decoration:underline;
 }
 
-.version, #get_more{
+.version, #more{
 	background: white;
 	font-family:"lucida grande",tahoma,verdana,arial,sans-serif;
 	padding: 5px 5px 5px 5px;
@@ -3071,7 +3072,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
   border-radius: 5px;
 	margin:10px 0px 0px 0px;
 }
-.version:hover, #get_more:hover{
+.version:hover, #more:hover{
 color:#434343;
 background-color:whiteSmoke;
 }

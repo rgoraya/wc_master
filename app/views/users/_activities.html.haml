@@ -10,14 +10,17 @@
     
   %div{:style=>"clear:both"}
 
-%div{:style=>"margin-top:10px"}
+%div{:style=>"margin-top:10px;"}
   - @activities.each do |activity|
     - @activity = @user.formatted(activity)
 
     %div.activity_time
-      = time_ago_in_words(@activity[:time]) + ' ago'
+      = time_ago_in_words(@activity[:time]) + ' ago' 
 
-    %div.activity_sentence
+    %div.activity_score{:style=>"float:right;color:#BEBEBE;text-align:right;"}
+      = @activity[:score]
+
+    %div.activity_sentence{:title=>(@activity[:action]+" "+@activity[:type]+" "+@activity[:what])}
       %span
         = @activity[:action]
       %span
