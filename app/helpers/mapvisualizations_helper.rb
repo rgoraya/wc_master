@@ -37,9 +37,17 @@ module MapvisualizationsHelper
     return out      
   end
 
-  #the code to setup raphael; defined here so separate from the drawing .js file
-  def load_raphael
-    "var myPaper
+  #the code to setup raphael; defined here so separate from the drawing .js file (and can be dynamically generated)
+  #also includes top-level processing used by the drawing code
+  def load_raphael(compact=false)
+    "var INCREASES = #{Mapvisualization::Edge::INCREASES} //type constants
+    var SUPERSET = #{Mapvisualization::Edge::SUPERSET}
+    var EXPANDABLE = #{Mapvisualization::Edge::EXPANDABLE}
+    var HIGHLIGHTED = #{Mapvisualization::Edge::HIGHLIGHTED}
+
+    var compact = #{compact.to_s} //for compact drawing; can also pass as a variable if we want
+    
+    var myPaper
       window.onload = function(){
     	myPaper = new Raphael(document.getElementById('canvas_container'), document.getElementById(\"canvas_container\").offsetWidth, document.getElementById(\"canvas_container\").offsetHeight) //graphics context
       drawElements(currNodes, currEdges, myPaper) //call draw on the nodes. These are the ones defined in the helper

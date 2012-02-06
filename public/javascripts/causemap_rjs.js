@@ -2,53 +2,65 @@
 ** This file includes methods for drawing the graph on a Raphael.js canvas
 *****/
 
-var t_off = 5
-var INCREASES = 1 //type constants
-var SUPERSET = 4
-var EXPANDABLE = 8
-var HIGHLIGHTED = 16
+var t_off = 5 //txt offset
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
-  circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
-  .attr({
-    fill: '#CA0000', stroke: '#CA0000i', 'stroke-width': 2
-  })
+  if(!compact){
+    circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
+    .attr({
+      fill: '#CA0000', 'stroke-width': 0
+    })
 
-  txt = paper.text(node.x, node.y+t_off, node.name)
-  
-  //put them into set and return set!!
-  icon = paper.set()
-  icon.push(circ, txt)
-  .click(function() { clickNode(node)})
-  .mouseover(function() {this.node.style.cursor='pointer';})  
-  
-  return icon;  
+    txt = paper.text(node.x, node.y+t_off, node.name)
+
+    icon = paper.set()
+    .push(circ,txt)
+    .click(function() { clickNode(node)})
+    .mouseover(function() {this.node.style.cursor='pointer';})  
+
+    return icon;  
+  }
+  else{
+    circ = paper.circle(node.x, node.y, 2)//+(node.weight*6))
+    .attr({fill: '#CA0000', 'stroke-width': 0})
+
+    icon = paper.set()
+    .push(circ)
+    .click(function() { clickNode(node)})
+    .mouseover(function() {this.node.style.cursor='pointer';})  
+
+    return icon;  
+  }
 }
 
 //details on drawing/laying out an edge (a single line/relationship)
-function drawEdge(edge, paper){    
-  curve = getPath(edge) //get the curve's path
+function drawEdge(edge, paper){
+    curve = getPath(edge) //get the curve's path
 
-  e = paper.path(curve).toBack() //base to draw
+    e = paper.path(curve).toBack() //base to draw
   
-  //set attributes based on relationship type (bitcheck with constants)
-  if(edge.reltype&INCREASES)
-    e.attr({stroke:'#408EB8'})
-  else if(edge.reltype&SUPERSET)
-    e.attr({stroke:'#BBBBBB'}) //change for superset
-  else //if decreases
-    e.attr({stroke:'#BA717F'})
-  // if(edge.reltype&HIGHLIGHTED)
-  //   e.glow({width:3,fill:false,color:'#FFFF00'}) //would have to animate this as well it seems...
-  e.attr({'stroke-width':2})
-    
-  icon = paper.set() //for storing pieces of the line as needed
-  icon.push(e)
-  .click(function() { clickEdge(edge, curve)})
-  .mouseover(function() {this.node.style.cursor='pointer';})
+    //set attributes based on relationship type (bitcheck with constants)
+    if(edge.reltype&INCREASES)
+      e.attr({stroke:'#408EB8'})
+    else if(edge.reltype&SUPERSET)
+      e.attr({stroke:'#BBBBBB'}) //change for superset
+    else //if decreases
+      e.attr({stroke:'#BA717F'})
+    // if(edge.reltype&HIGHLIGHTED)
+    //   e.glow({width:3,fill:false,color:'#FFFF00'}) //would have to animate this as well it seems...
 
-  return icon;
+    if(!compact)
+      e.attr({'stroke-width':2})
+    else
+      e.attr({'stroke-width':1})
+    
+    icon = paper.set() //for storing pieces of the line as needed
+    icon.push(e)
+    .click(function() { clickEdge(edge, curve)})
+    .mouseover(function() {this.node.style.cursor='pointer';})
+
+    return icon;
 }
 
 
@@ -97,11 +109,11 @@ function getPath(edge)
 
 //Interaction functions, for when we click on things. Variables passed are things we're going to use
 function clickNode(node){
-  alert("You clicked on "+node.name);
+  alert(node.name);
 }
 
 function clickEdge(edge, curve){
-  alert("You clicked on "+edge.name+"\n"+curve);
+  alert(edge.name+"\n"+curve);
 }
 
 

@@ -92,19 +92,20 @@ class Mapvisualization #< ActiveRecord::Base
 
 ######## END SUBCLASS DEFINITIONS #########  
 
-  attr_accessor :nodes, :edges, :adjacency, :width, :height
+  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display
   
   def initialize(args)    
     #puts args
-    @width, @height = args[:width], args[:height]        
+    @width, @height = args[:width], args[:height]
+    @compact_display = false
 
     # check if we have been passed in variables to use
     if args[:nodes]
       @nodes = args[:nodes] || Hash.new()
       @edges = args[:edges] || Array.new()
       @adjacency = args[:adjancecy] || Hash.new(0)
-    elsif args[:data_query]
-      graph_from_data(:query => args[:data_query].downcase)
+    elsif args[:params][:data_query] #did we have a query to use?
+      graph_from_data(args[:params])
       place_randomly #how to organize?
     else
       #default to random nodes for testing, etc
@@ -116,23 +117,43 @@ class Mapvisualization #< ActiveRecord::Base
 
   # method fetches the Issues and Relationships from the database, dependent on the arguments, and constructs graph
   # args is probably a hash of something
-  # WORK IN PROGRESS
+  # how much of this should instead be in the controller
   def graph_from_data(args)
     @nodes = Hash.new()
     @edges = Array.new()
     @adjacency = Hash.new(0)
     
-    puts args[:query]
+    puts "===graph_from_data args==="
+    puts args
+
+    query = args[:data_query].downcase
     
-    if args[:query] == 'top40' ### TOP 40 ###
+    if query == 'top40' ### TOP 40 ###
       #get 40 most recent issues
       limit = 40
       issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit)
       #get all relationships between those nodes
       subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
       relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
-    
-    #can add extra elses here
+
+    elsif query == 'mostcited' ### TOP RELATIONSHIPS AND THEIR NODES
+      ## FILL ME IN
+
+    elsif query == 'show' ### SHOW ONLY THE LIST OF NODES
+      #should check for args[:data_list], otherwise error
+      #.class == Array 
+      ## FILL ME IN
+
+    elsif query == 'fill' ### FILL IN THE LIST OF NODES (to 40?)
+      ## FILL ME IN
+
+    elsif query == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
+      @compact_display = true #use compact display
+      issues = Issue.select("id,title,wiki_url")
+      relationships = Relationship.select("id,cause_id,issue_id,relationship_type")
+
+    #can add extra elsifs here
+
     else
       #default to top 50? or to what?
       limit = 50

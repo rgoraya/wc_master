@@ -11,7 +11,12 @@ class MapvisualizationsController < ApplicationController
     respond_to do |format|
       format.html do #on html calls
 
-        @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, :data_query => params[:q]) #on new html--generate graph
+        puts "===Controller Params==="
+        puts params
+
+        @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
+          :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
+          :params => {:data_query => params[:q],:data_list => params[:l]}) #on new html--generate graph
 
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
@@ -19,7 +24,9 @@ class MapvisualizationsController < ApplicationController
 
       format.js do #respond to ajax calls?
         
-        @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, :data_query => params[:q]) #grab the old vis, or make a new one if needed
+        @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
+          :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
+          :params => {:data_query => params[:q],:data_list => params[:l]}) #grab the old vis, or make a new one if needed
 
         actions = %w[remove_edges foo bar] #etc
         begin

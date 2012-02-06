@@ -9,7 +9,7 @@
 -# specifies the data that we're going to be working with in javascript
 :javascript
   #{javascript_graph(@vis.nodes,@vis.edges,@vis.adjacency)}
-  #{load_raphael}
+  #{load_raphael(@vis.compact_display)}
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 
 -#to put a "loading" icon on ajax stuff
