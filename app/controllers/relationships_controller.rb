@@ -1,6 +1,5 @@
 class RelationshipsController < ApplicationController
 
-
   # GET /relationships
   # GET /relationships.xml
   def index
@@ -25,7 +24,8 @@ class RelationshipsController < ApplicationController
     
     respond_to do |format|
       format.html # show.html.erb
-      format.xml  { render :xml => @relationship }
+      format.xml  { render :xml    => @relationship }
+      format.js
     end
   end
 

@@ -5,4 +5,9 @@ class ReportMailer < ActionMailer::Base
 		return mail(:to=>"randomemailaddress", :subject=>"New feedback submitted on ThisCausesThat")
 	end
 
+	def notify(exception) #for reputation system
+		@exception = exception
+		return mail(:to=>"randomemailaddress", :subject=>"Reputation system -- Ignore this")
+	end
+
 end

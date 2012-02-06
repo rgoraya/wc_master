@@ -62,9 +62,9 @@
       - @description = slice[0].description
       - if @description.length > 200
         - @description = @description[0, 200] + "..."
-        = @description
+        = @description.html_safe
       - else
-        = @description
+        = @description.html_safe
       %br
       %a{:href=> slice[0].wiki_url, :target=>"_blank"}
         Read more on Wikipedia
@@ -117,9 +117,9 @@
         - @description = slice[1].description
         - if @description.length > 200
           - @description = @description[0, 200] + "..."
-          = @description
+          = @description.html_safe
         - else
-          = @description
+          = @description.html_safe
         %br
         %a{:href=> slice[1].wiki_url, :target=>"_blank"}
           Read more on Wikipedia

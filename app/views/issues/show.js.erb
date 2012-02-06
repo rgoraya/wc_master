@@ -1,5 +1,5 @@
-$("#rel_references").html("<%= escape_javascript(render('rel_references'))%>")
 $("#selected_rel_type").html("<%= escape_javascript(render('selected_rel_type'))%>")
+
 
 // Display Notice if Ajax
 $("#notice").html("<%= escape_javascript(flash[:notice]) %>");
@@ -9,5 +9,15 @@ if ($('#notice').html().trim()) {
 }
 
 $('.relationship_thumb').hide();
-$('.relationship_thumb').fadeIn();
-$(".relationship_thumb_title, .central_causality_container").effect("highlight", {color: '#4DB8DB'}, 500);
+$('.relationship_thumb, relation_pagination').fadeIn();
+$(".relationship_thumb_title").effect("highlight", {color: '#4DB8DB'}, 500);
+$("#title_filler_text").show();
+
+
+$(".relationship_partial_toggle:contains(" + $(".central_causality_container").text() + ")").filter(function(){
+  $(this).hide()
+})
+
+$(".relationship_partial_toggle:not(:contains(" + $(".central_causality_container").text() + "))").filter(function(){
+	$(this).show()
+})
