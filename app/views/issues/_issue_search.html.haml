@@ -8,5 +8,5 @@
           %div{:class=>"search_result_title"}
             = issue.title
           %div{:class=>"search_result_descr"}
-            = issue.description  
+            = issue.description.html_safe  
         %div{:style=>"clear:both;"}

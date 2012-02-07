@@ -5,19 +5,22 @@
 
   %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"activities_wait"}
   
-  %div.pageheading{:style=>"font-size:18px;margin:0px;"}
+  %div.formheading{:style=>"font-size:18px;"}
     = @user.username + "\'s activity log"
     
   %div{:style=>"clear:both"}
 
-%div{:style=>"margin-top:10px"}
+%div{:style=>"margin-top:10px;"}
   - @activities.each do |activity|
     - @activity = @user.formatted(activity)
 
     %div.activity_time
-      = time_ago_in_words(@activity[:time]) + ' ago'
+      = time_ago_in_words(@activity[:time]) + ' ago' 
 
-    %div.activity_sentence
+    %div.activity_score{:style=>"float:right;color:#BEBEBE;text-align:right;"}
+      = @activity[:score]
+
+    %div.activity_sentence{:title=>(@activity[:action]+" "+@activity[:type]+" "+@activity[:what])}
       %span
         = @activity[:action]
       %span

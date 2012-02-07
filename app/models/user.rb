@@ -174,7 +174,7 @@ class User < ActiveRecord::Base
           cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first
           issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first
           if cause_version.nil? || issue_version.nil?
-            activity[:what]='? <data untraceable>'
+            activity[:what]='? (data untraceable)'
           else
             activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
           end
@@ -199,16 +199,16 @@ class User < ActiveRecord::Base
           end
           relationship_version=Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first
           if relationship_version.nil?
-            activity[:what]='? <data untraceable>'
-            #break
-          end
-          cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.cause_id]).first
-          issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.issue_id]).first
-          if cause_version.nil? || issue_version.nil?
-            activity[:what]='? <data untraceable>'
+            activity[:what]='? (data untraceable)'
           else
-            activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
-          end
+          	cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.cause_id]).first
+          	issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.issue_id]).first
+          	if cause_version.nil? || issue_version.nil?
+            	activity[:what]='? (data untraceable)'
+          	else
+            	activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+          	end
+					end
 
           case relationship_version.get_object.relationship_type
             when 'I' then activity[:what] += ' (Inhibitory)'

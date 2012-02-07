@@ -5,7 +5,7 @@ module Reputation
 		@@mutex = Mutex.new
 
 		def self.reputation(options={})
-		  begin
+			begin
 			  unless (!options.empty? &&
 					  (options.keys - [:action, :type, :id, :me, :you, :calculate, :undo, :vid]).empty? &&
 					  [:create, :destroy, :update, :up, :down].include?(options[:action].to_sym) && 
@@ -54,6 +54,7 @@ module Reputation
 																																										(!options[:me].nil? && options[:me].integer?) && 
 																																										(!options[:you].nil? && options[:you].integer?))
 					  ids << options[:you]
+						score = [-2,0]
 
 				  when [:create, :issue]
 					  raise ArgumentError, "Missing or invalid argument :me" unless (!options[:me].nil? && options[:me].integer?)
@@ -63,7 +64,8 @@ module Reputation
 					  raise ArgumentError, "Missing or invalid argument :id :me :you" unless ((!options[:me].nil? && options[:me].integer?) && 
 																																										(!options[:you].nil? && options[:you].integer?) && 
 																																										(!options[:id].nil? && options[:id].integer?))
-					  ids << options[:you]			
+					  ids << options[:you]
+						score = [-1,0]			
 
 				  when [:create, :reference]
 					  raise ArgumentError, "Missing or invalid argument :id :me" unless ((!options[:id].nil? && options[:id].integer?) && 
@@ -114,11 +116,11 @@ module Reputation
 
 			  if options[:calculate]
 				  @@mutex.synchronize{
-					  mine = ((me = User.find(options[:me])).reputation += score[0])
+					  mine = ((me = User.find(options[:me])).reputation + score[0])
 					  (mine < 1) ? me.update_attributes(:reputation=>1) : me.update_attributes(:reputation=>mine)
 				  
 					  ids.each do |id|
-						  yours = ((you = User.find(id)).reputation += score[1])
+						  yours = ((you = User.find(id)).reputation + score[1])
 					  	(yours < 1) ? you.update_attributes(:reputation=>1) : you.update_attributes(:reputation=>yours)
 					  end
 					  return true
@@ -126,7 +128,12 @@ module Reputation
 			  else
 				  return score
 			  end
-		  rescue
+		  rescue Exception => exception
+				case exception
+					when ArgumentError #ignore
+					else
+						ReportMailer.notify(exception).deliver #just for rep system
+				end 
 		    return false
 		  end
 		end
