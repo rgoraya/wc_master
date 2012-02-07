@@ -66,6 +66,7 @@
       - else
         = @description.html_safe
       %br
+      %img.linkout{:src=>"/images/system/linkout.png"}
       %a{:href=> slice[0].wiki_url, :target=>"_blank"}
         Read more on Wikipedia
     
@@ -121,6 +122,7 @@
         - else
           = @description.html_safe
         %br
+        %img.linkout{:src=>"/images/system/linkout.png"}
         %a{:href=> slice[1].wiki_url, :target=>"_blank"}
           Read more on Wikipedia
       

@@ -1,7 +1,3 @@
-/%div#activity_pagination{:style=>"margin:5px 0px 0px 0px;"}
-/	= will_paginate (@versions), :page_links=>false,:param_name => 'version_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
-/	%div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"activities_wait"}
-/%div{:style=>"clear:both;"}
 - last_id = nil
 - if @versions.empty?
 	- last_id = Version.last.id + 1
@@ -66,9 +62,5 @@
 					= link_to "Rollback", restore_version_path(version), :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :title=>"Reset to this change", :style=>"background-image:none;color:#4EB8DB;text-decoration:none;font-weight:bold;margin:0px 5px 0px 5px;font-size:16;"
 			%div{:style=>"clear:both"}
 
-
-/%div#activity_pagination{:style=>"margin:5px 0px 0px 0px;"}
-/	= will_paginate (@versions), :page_links=>false,:param_name => 'version_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
-/%div{:style=>"clear:both"}
 
 

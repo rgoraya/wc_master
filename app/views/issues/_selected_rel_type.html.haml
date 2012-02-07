@@ -2,7 +2,7 @@
 // FORM to retrieve the relationship types based on User's selection
 // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
 = form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
-  = text_field_tag :rel_type, params[:rel_type],:align=>"top", :id=>"select_rel_type", :value=>@rel_type
+  = text_field_tag :rel_type,@rel_type,:align=>"top", :id=>"select_rel_type"
   = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
 
 // *-*-*-*-*-*-*-*-*-*-*-*-*
@@ -61,10 +61,11 @@
 %div{:style => "clear:both"} 
 
 %div{:class =>"title"}
-  #title_filler_text
-    Please select one of the
-    %span#title_filler_causality
-      = @causal_sentence.capitalize
-    above to learn more
+  - if @issue_relations.length > 0
+    #title_filler_text
+      Please select one of the
+      %span#title_filler_causality
+        = @causal_sentence.capitalize
+      above to learn more
   
   

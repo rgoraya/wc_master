@@ -1,5 +1,9 @@
 $("#selected_rel_type").html("<%= escape_javascript(render('selected_rel_type'))%>")
 
+$('.relationship_thumb').hide();
+$('.relationship_thumb, relation_pagination').fadeIn();
+$(".relationship_thumb_title").effect("highlight", {color: '#4DB8DB'}, 500);
+$("#title_filler_text").show();
 
 // Display Notice if Ajax
 $("#notice").html("<%= escape_javascript(flash[:notice]) %>");
@@ -7,11 +11,6 @@ if ($('#notice').html().trim()) {
 	$("#notice_container").show();
 	$("#notice_container").effect("bounce", { times:3 }, 200);
 }
-
-$('.relationship_thumb').hide();
-$('.relationship_thumb, relation_pagination').fadeIn();
-$(".relationship_thumb_title").effect("highlight", {color: '#4DB8DB'}, 500);
-$("#title_filler_text").show();
 
 
 $(".relationship_partial_toggle:contains(" + $(".central_causality_container").text() + ")").filter(function(){

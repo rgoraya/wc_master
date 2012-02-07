@@ -25,11 +25,15 @@
 	$("div#more").click(function(){
 	$("div#more").hide();
 	$("#wait_for_more").html('<img src="/images/system/spinner.gif" style="margin-top:10px;" height=30/>');
+	
+	var lastId = parseInt($("div#data").filter(":last").attr("more"));
 
 	$.ajax({url: document.location.href, data: {more: parseInt($("div#data").filter(":last").attr("more"))},success: function(data){
-  
+
 	$("#wait_for_more").empty();
+	if (lastId >= parseInt($("div#data").filter(":last").attr("more"))){
 	$("div#more").show();
+	}
 	}});
 
 	return false;

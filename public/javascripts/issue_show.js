@@ -33,7 +33,6 @@ $(function() {
 // -------------------------------------------------------------------------------
 $(".relationship_partial_toggle").live('click',function(){
 	
-	
 	// Hide the currently displayed relationships
 	$(".relationship_thumb, .relationship_none_found, #get_relationships, #title_dynamic_text, .rationale_container").hide();
 	// Show spinner
@@ -41,48 +40,7 @@ $(".relationship_partial_toggle").live('click',function(){
 
         	$("#select_rel_type").val($(this).text().trim())
         	$("#select_rel_submit").trigger('click');
-	
-	//  get the ID name 
-	//var idName = $(this).attr('id');
-	
-	
-	
-	
-	//switch (idName) { 
-    //    case 'toggle_causes':
 
-      //  	$("#select_rel_type").val('causes')
-      //  	$("#select_rel_submit").trigger('click');
-        	
-      //  	break;
-		//case 'toggle_effects':
-
-//        	$("#select_rel_type").val('effects')
-  //      	$("#select_rel_submit").trigger('click');			
-			
-	//		break;
-		//case 'toggle_inhibitors':
-
-        //	$("#select_rel_type").val('inhibitors')
-        	//$("#select_rel_submit").trigger('click');			
-	//		break;
-//		case 'toggle_inhibiteds':
-
-  //      	$("#select_rel_type").val('inhibiteds')
-    //    	$("#select_rel_submit").trigger('click');
-		//	break;
-//		case 'toggle_supersets':
-//
-  //      	$("#select_rel_type").val('supersets')
-    //    	$("#select_rel_submit").trigger('click');
-		//	break;
-//		case 'toggle_subsets':
-//
-  //      	$("#select_rel_type").val('subsets')
-    //    	$("#select_rel_submit").trigger('click');
-		//	break;
-	//}
-	
 });	
 
 // -------------------------------------------------------------------------------
@@ -96,16 +54,13 @@ $(".relationship_partial_toggle").live('click',function(){
   });
 
 
-	$("#new_issue").bind('ajaxSuccess', function(){
-		
-	});
-
 // -------------------------------------------------------------------------------
 // FUNCTION TO SHOW SPINNNER WHEN THE NEW RELATIONSHIP IS CREATED
 // -------------------------------------------------------------------------------	
 	$("#val_collector").click(function(){
 		$('.relationship_addnew_wait').show();
 		
+		$('.relationship_none_found').hide();
 		
 		if ($('.relationship_thumb:visible').length > 5){
      		$('.relationship_thumb:visible').last().hide();	
@@ -128,7 +83,7 @@ $(".relationship_partial_toggle").live('click',function(){
 		close_addNew();
 		$('.del-relation').attr('href', "../relationships/" + relationship_id);
 		
-		opaqueDiv = $(this);
+		//opaqueDiv = $(this);
 			
 		//$('#title_modalhead').hide()
 		//$('#title_filler_text').hide();
@@ -220,6 +175,11 @@ $(".relationship_partial_toggle").live('click',function(){
   href_carrier = '';
   });
 
+
+  $('#reference_collector').live('click', function(){
+  	$("#references_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+  });	
+	
 	
 });
 
