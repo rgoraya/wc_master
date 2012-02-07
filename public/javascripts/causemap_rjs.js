@@ -129,6 +129,8 @@ function getPath(edge)
 
 //Interaction functions, for when we click on things. Variables passed are things we're going to use
 function clickNode(node){
+  //populate the "toDo form"
+  //call form.submitbutton.trigger("click")
   alert(node.name);
 }
 

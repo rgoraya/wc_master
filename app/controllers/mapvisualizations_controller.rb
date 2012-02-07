@@ -11,7 +11,7 @@ class MapvisualizationsController < ApplicationController
 
     # puts "===Controller Params==="
     # puts params
-        
+    
     respond_to do |format|
       format.html do #on html calls
 
@@ -25,7 +25,12 @@ class MapvisualizationsController < ApplicationController
 
 
       format.js do #respond to ajax calls
+
+        # handle form params
+        # @issue of note = Issue.find(id)
+        # render _some_partial
         
+                
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
           :params => {:data_query => params[:q],:data_list => params[:l]}) #grab the old vis, or make a new one if needed

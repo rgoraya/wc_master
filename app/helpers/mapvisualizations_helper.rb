@@ -32,7 +32,7 @@ module MapvisualizationsHelper
     else
       out += "var "+edges_name+"={keys:[]};"
     end
-    puts out
+    #puts out
     return out      
   end
 
