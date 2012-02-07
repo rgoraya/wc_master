@@ -984,6 +984,10 @@ z-index:0;
 	text-align: left;	
 }
 
+#issue_title_dynamic{
+	text-transform:uppercase;
+}
+
 .map_toggle{
 	background-image:url("/images/issues/maptoggle.png");
 	background-repeat: no-repeat;
@@ -1317,18 +1321,18 @@ word-wrap:break-word;
 	border: 2px solid #C4C4C4;  
 	padding:5px;
 	width:200px;
-	height:25px;
+	height:22px;
 	text-shadow: rgba(0,0,0,.2) 0 1px 0;
 	-webkit-text-stroke: 1px transparent;
 	color:#434343;
-	font: normal 18px "lucida grande",tahoma,verdana,arial,sans-serif;
+	font: normal 16px "lucida grande",tahoma,verdana,arial,sans-serif;
 	outline: none; 
 
     /* Curved Borders */
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -khtml-border-radius: 5px;
-    border-radius: 5px; 
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px; 
 
 	/* transitions */
 	transition:border 0.6s;
@@ -1384,7 +1388,7 @@ word-wrap:break-word;
 	text-shadow: rgba(0,0,0,.1) 0 1px 0;
 	-webkit-text-stroke: 1px transparent;
 	color:#434343;
-	font: bold 18px "lucida grande",tahoma,verdana,arial,sans-serif;
+	font: bold 16px "lucida grande",tahoma,verdana,arial,sans-serif;
 	}
 
 .formlabel_small {
@@ -2156,7 +2160,7 @@ a.issue-user:hover{
 
 .login_form_container{
 	width:146px; 
-	margin:11px -5px -250px -62px; 
+	margin:11px -5px -250px -61px; 
 	background:#ffffff;
 	float:right;
 	border:1px solid #434343;
@@ -2247,6 +2251,7 @@ a.issue-user:hover{
 	background-color:#FCFCFC;
 	padding:5px;
 	width:230px;
+	height:15px;
 	margin:0px;
 	float:left;
 	color:#434343;
@@ -2262,11 +2267,11 @@ a.issue-user:hover{
 }
 
 .search_appl_submit{
-	background:url("/images/issues/search_appl.png") no-repeat 3px 3px;
+	background:url("/images/issues/search_appl.png") no-repeat 5px 4px;
 	background-size:17px;
 	background-color:#FCFCFC;
-	width:26px;
-	height:28px;
+	width:29px;
+	height:29px;
 	padding:2px;
 	margin:0px;
 	margin-left:-1px;
@@ -2283,7 +2288,7 @@ a.issue-user:hover{
 }
 
 .search_appl_submit:hover{	
-	background:url("/images/issues/search_appl.png") no-repeat 3px -17px;
+	background:url("/images/issues/search_appl.png") no-repeat 5px -16px;
 	background-color:#4DB8DB;
 	background-size:17px;
 }
@@ -2294,8 +2299,9 @@ a.issue-user:hover{
 
 #userissues .search_appl_submit{
 	border:1px solid #f5f5f5;
-	height:26px;
+	height:27px;
 	margin-left:-3px;
+	border-left:none;
 }
 
 
@@ -3019,13 +3025,13 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 }
 
 .activity_time{
-	padding:4px 0px; font-size:12px; color:#bebebe; float:right; width:130px; text-align:right;
+	padding:4px 0px; font-size:11px; color:#bebebe; float:right; width:130px; text-align:right;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
 .gravatar {
-	margin:15px 0px; 
+	margin:10px 0px 5px 0px;
 	border:5px solid #fcfcfc;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
@@ -3253,7 +3259,6 @@ cursor:default;
 
 .causality_toggle_container{
 	border:5px solid #2f2f2f;
-	padding-bottom:1px;
 }
 
 .relationship_partial_toggle{
@@ -3365,7 +3370,7 @@ cursor:default;
 	font-size: 24px;
 	font-weight: bold;
 	float: left;
-	margin: 45px 0px 0px 15px;
+	margin: 40px 0px 0px 15px;
 	color: #2C2C2C;
 	text-align: center;
 	width: 645px;

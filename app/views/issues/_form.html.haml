@@ -26,48 +26,33 @@
       %div{:class=>"centralized"}
         
             
-        %div{:class =>"issueblock_edit"}
+        .title_edit
+          // Search text-field     
+          %div{:style=>"float:left"}  
+            %input#query.searchfield_wiki{:style=>"" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
             
-          // Title of the Issue
-          %div{:class =>"title_edit"}
-            
-               
-            %div{:style=>"float:left"}  
-              %input{:id=>"query", :class=>"searchfield",:style=>"width:250px; margin:0px" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
-            /%div{:style=>"float:right"}
-            /  = submit_tag "Prev", :name => nil, :id=>"preview_button_half"          
-            // Hidden div holding the reset button
-            %div{:id=>"searchfield_reset"}  
-            
-            %div{:style=>"float:left; margin:2px 10px 0px 25px;", :id=>"wait"}
-            
-            %div{:style=>"float:right"}
-              %input{:type=>"button", :id=>"btn_preview", :class=>"preview_button", :value=>"Preview"}          
-            %div{:style => "clear:both;"}
+          // Spinner
+          %div{:style=>"float:right; margin:2px 2px -10px -27px; position:relative; z-index:1;", :id=>"wait"}
+      
+          // Preview Button
+          %input{:type=>"button", :id=>"btn_preview", :class=>"discussion_submit", :value=>"Preview",:style=>"margin:0px; margin-left:3px; float:left;"}          
           
+          .btn_close{:title => "Close Window"}
+          
+          %div{:style => "clear:both;"}
+        
           %div{:id=>"results", :class=>"result-box"}            
           %div{:style => "clear:both"}
-          %div{:class =>"wikicontent_edit"}
-            
-            
-                  
-            %div{:id=>"image_preview"}                     
-              %img{:src => "/images/issues/image.png", :style=>"background-color:transparent;opacity:0.1" }
-                
-              %div{:style=>"text-align:center;" }
-                Wikipedia image
-                  
-    
-            %div{:id=>"text_preview"}
-              %div#title_holder
-              %div#text_holder  
-                %img{:src => "/images/issues/text.png", :style=>"background-color:transparent;opacity:0.1" }
-                %div{:style=>"text-align:center;"}
-                  Wikipedia text 
+        %div{:class =>"wikicontent_edit"}
+          #title_modalhead  
+          %div#image_preview                     
+                              
+          %div#text_preview
+            %div#title_holder
+            %div#text_holder  
+          %div{:style => "clear:both"}
               
-            %div{:style => "clear:both"}
-            
-          %div{:id=>"form_container", :style=>"display:none; margin-bottom:10px; text-align:center;"}
+          %div{:id=>"form_container"}
             = form_for @issue, :id=>"new_issue_form" do |f|
                     
                    
@@ -87,7 +72,8 @@
                 - if current_user
                   = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id     
               .action
-                = f.submit "Save", :class=>"save_button", :name=>"save_button", :id=>"val_collector"
+                = f.submit 'Create', :class=>"discussion_submit", :name=>"save_issue_rel_button", :id=>"val_collector"
+                %div{:style => "clear:both"}
               
 
 #clear{:style => "clear:left;"}

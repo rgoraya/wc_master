@@ -21,7 +21,8 @@
         %p
           %b
             %span#issue_title_dynamic
-              = @rel_issue.title + ':'
+              = link_to @rel_issue.title + ':', @rel_issue, :title=>"View this Issue"
+           
           %span#issue_descr_dynamic
             = @rel_issue.description.html_safe
           %img.linkout{:src=>"/images/system/linkout.png"}
@@ -30,7 +31,8 @@
         %p  
           %b
             %span#issue_title_dynamic
-              = @rel_cause.title + ':'
+              = link_to @rel_cause.title + ':', @rel_cause, :title=>"View this Issue"
+               
           %span#issue_descr_dynamic
             = @rel_cause.description.html_safe
           %img.linkout{:src=>"/images/system/linkout.png"}

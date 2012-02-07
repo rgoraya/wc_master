@@ -18,8 +18,8 @@ require 'backports'
   # GET /issues/1
   # GET /issues/1.xml
   def show
-    @issue = Issue.find(params[:id])
-
+    @issue = Issue.find(params[:id]) 
+    
 
     # Default params to "causes" for initial load
     if params[:rel_type]
@@ -27,6 +27,8 @@ require 'backports'
     else
       @rel_type = "is caused by"
     end
+    
+    
     
     case @rel_type
 
@@ -193,11 +195,11 @@ require 'backports'
           initialize_suggestion_object
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
           format.xml  { render :xml => @issue, :status => :created, :location => @issue }
-          #format.js {render :layout=>"layouts/notice_partial"}
+          format.js
         else
           format.html { render :action => "new" }
           format.xml  { render :xml => @issue.errors, :status => :unprocessable_entity }
-          #format.js {render :layout=>"layouts/notice_partial"}
+          format.js
         end
       end      
     end
