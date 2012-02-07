@@ -40,7 +40,7 @@ end
 
 describe "When I show an issue" do
   before(:each) do 
-    issue = Issue.find(:title => 'Sex')
+    issue = Issue.find(:title => 'Deforestation')
   end
 
   it "should show its causes" do
