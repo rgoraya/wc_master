@@ -25,14 +25,14 @@ module MapvisualizationsHelper
       counters = Hash.new(0)
       out += "var "+edges_name+"={"+
         edges.map {|e| e.js_k + ":" + e.js(nodes_name, 
-          multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : counters[ [e.a.id,e.b.id].sort ] += 1)
+          multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : (e.a.id < e.b.id ? 1 : -1)*(counters[ [e.a.id,e.b.id].sort ] += 1))
           }.join(',')+
         ",keys:["+ edges.map {|e| e.js_k} .join(',') +"]"+
         "};"
     else
       out += "var "+edges_name+"={keys:[]};"
     end
-    
+    puts out
     return out      
   end
 
