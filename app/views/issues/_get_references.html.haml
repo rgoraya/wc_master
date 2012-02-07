@@ -12,6 +12,7 @@
       - else
         %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar?s=26&d=mm"}              
       = f.text_field :reference_content, {:class=>"discussion_input", :placeholder=>"Please enter a valid URL &#8230;".html_safe}              
+      %div{:style=>"float:left;margin:2px -24px -24px 2px;", :id=>"references_wait"}
     .actions
       = f.submit 'Add Reference', :class=>"discussion_submit", :id=>"reference_collector", :style=>"margin:0px;"
           

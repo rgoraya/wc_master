@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120118172502) do
+ActiveRecord::Schema.define(:version => 20120204012035) do
 
   create_table "feed_backs", :force => true do |t|
     t.string   "subject"
@@ -53,9 +53,15 @@ ActiveRecord::Schema.define(:version => 20120118172502) do
     t.integer  "cause_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+<<<<<<< HEAD
     t.integer  "user_id"
     t.string   "relationship_type"
     t.integer  "references_count",  :default => 0
+=======
+    t.string   "relationship_type"
+    t.integer  "references_count",  :default => 0
+    t.integer  "user_id"
+>>>>>>> 684784195a0b63093ccfac0aa95c9dd9efb76730
   end
 
   add_index "relationships", ["cause_id"], :name => "index_relationships_on_cause_id"

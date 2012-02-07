@@ -1,8 +1,6 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
 
-
-
 - content_for(:title, @user.username+"'s "+"Issues")
 
 #contentwrapper
@@ -10,8 +8,7 @@
   .contentmain
     
     .pageheading
-      %span{:style=>"color:#4DB8DB;"}>= @user.username 
-      //%span> 's contribution
+      %span{:style=>"color:#4DB8DB;"}>= @user.username
 
     %div{:style=>"clear:both;"}
       
@@ -20,7 +17,7 @@
       
       %div{:style=>"float:left; width:360px;"}
         
-        %div.pageheading{:style=>"font-size:18px;margin:5px 0px 0px 0px;"}
+        %div.formheading{:style=>"font-size:18px;"}
           Contribution
         %div{:style=>"clear:both;"}    
         %div{:style=>"float:left;"}
@@ -85,13 +82,13 @@
 #clear{:style => "clear:left;"}
 
 #confirm_popup
-  #confirm_title{:class=>"formheading", :style=>"text-align:left;color:#434343;"}
+  .formheading#confirm_title{:style=>"text-align:left;color:#434343;padding-top:0px;"}
   .formcontentdiv
-    #confirm_wait{:style=>"margin:-42px 0px 0px 0px;float:right;background-color:#ffffff;"}  
+    #confirm_wait{:style=>"margin:-42px 0px 0px 0px;float:right;"}  
     #confirm_msg
     #confirm_buttons{:style=>"margin-top:10px; text-align:center"}
-      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"wiki_button", :style=>"padding:5px;background-image:none;"}
-      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"wiki_button", :style=>"padding:5px;background-image:none;"}
+      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"discussion_submit", :style=>"float:none;"}
+      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"discussion_submit", :style=>"float:none;"}
 
 
 
@@ -102,9 +99,9 @@
 
   // Make sure the DOM is loaded
   $(document).ready(function(){
-  
-  
 
+  window.confirm = false;
+  
   // D I S M I S S    T H E    F L A S H    N O T I C E
   if ($('#notice').html().trim()) {
   $("#notice_container").effect("bounce", { times:3 }, 200);
@@ -114,6 +111,7 @@
   $("#notice_container a.closebutton").click(function(){
   $("#notice_container").slideUp(100);
   });
+
 
   // D E L E T E     C O N F I R M A T I O N
   var href_carrier = '';
@@ -157,23 +155,16 @@
   href_carrier = '';
   });
 
+  if ($('#error').html().trim()) {
+  $("#error_container").effect("bounce", { times:3 }, 200);
+  $('#error').css({display : 'block'});
+  }
   
+  $("#error_container a.closebutton").click(function(){
+  $("#error_container").slideUp(100);
+  });
 
-  /$("div#more").attr("segment",2);
-  /$("div#more").click(function(){
-
-  /$("#wait_for_more").html('<img src="/images/system/spinner.gif"/>');
-
-  /$.ajax({url: document.location.href, data: {segment: $(this).attr("segment")},success: function(data){
-  /$("div#more").attr("segment", parseInt($("div#more").attr("segment"))+1);
-  
-  /$("#wait_for_more").empty();
-  /$("div#more").show();
-  /}});
-
-  /return false;
-  /});
-
+ 
   });   //  E N D    O F    D O M    L O A D 
 
   function showPopup(title, msg) {
@@ -184,4 +175,3 @@
   $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies   
   $("#confirm_popup").fadeIn('slow');
   }   
- 
