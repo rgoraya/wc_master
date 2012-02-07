@@ -54,10 +54,6 @@ $(".relationship_partial_toggle").live('click',function(){
   });
 
 
-	$("#new_issue").bind('ajaxSuccess', function(){
-		
-	});
-
 // -------------------------------------------------------------------------------
 // FUNCTION TO SHOW SPINNNER WHEN THE NEW RELATIONSHIP IS CREATED
 // -------------------------------------------------------------------------------	
@@ -87,7 +83,7 @@ $(".relationship_partial_toggle").live('click',function(){
 		close_addNew();
 		$('.del-relation').attr('href', "../relationships/" + relationship_id);
 		
-		opaqueDiv = $(this);
+		//opaqueDiv = $(this);
 			
 		//$('#title_modalhead').hide()
 		//$('#title_filler_text').hide();
@@ -179,6 +175,11 @@ $(".relationship_partial_toggle").live('click',function(){
   href_carrier = '';
   });
 
+
+  $('#reference_collector').live('click', function(){
+  	$("#references_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+  });	
+	
 	
 });
 

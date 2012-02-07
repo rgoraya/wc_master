@@ -61,10 +61,11 @@
 %div{:style => "clear:both"} 
 
 %div{:class =>"title"}
-  #title_filler_text
-    Please select one of the
-    %span#title_filler_causality
-      = @causal_sentence.capitalize
-    above to learn more
+  - if @issue_relations.length > 0
+    #title_filler_text
+      Please select one of the
+      %span#title_filler_causality
+        = @causal_sentence.capitalize
+      above to learn more
   
   
