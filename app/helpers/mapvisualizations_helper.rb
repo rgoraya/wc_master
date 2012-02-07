@@ -20,8 +20,7 @@ module MapvisualizationsHelper
     end
       
     if edges.length > 0
-      multi_edge = Hash.new(0)
-      edges.each {|e| multi_edge[[e.a.id,e.b.id].sort] += 1} #will give us total number of edges per nodeset
+      multi_edge = Hash[edges.group_by {|e| [e.a.id,e.b.id].sort}.map {|k,v| [k,v.count]}] #number edges per nodeset
 
       counters = Hash.new(0)
       out += "var "+edges_name+"={"+

@@ -117,7 +117,7 @@ class Mapvisualization #< ActiveRecord::Base
 
   # method fetches the Issues and Relationships from the database, dependent on the arguments, and constructs graph
   # args is probably a hash of something
-  # how much of this should instead be in the controller
+  # how much of this should instead be in the controller?
   def graph_from_data(args)
     @nodes = Hash.new()
     @edges = Array.new()
@@ -129,15 +129,21 @@ class Mapvisualization #< ActiveRecord::Base
     query = args[:data_query].downcase
     
     if query == 'top40' ### TOP 40 ###
-      #get 40 most recent issues
       limit = 40
-      issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit)
+      issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit) #get 40 most recent issues
       #get all relationships between those nodes
       subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
       relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
 
     elsif query == 'mostcited' ### TOP RELATIONSHIPS AND THEIR NODES
-      ## FILL ME IN
+      limit = 40
+      relationships = Relationship.select("id,cause_id,issue_id,relationship_type").order("references_count DESC,updated_at DESC").limit(limit) #get top rated/most recent relationships
+      #get all nodes linked by those relationships
+      subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit)
+        .flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
+      puts "===NUMBER OF ISSUES"
+      puts subquery_list.length
+      issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
 
     elsif query == 'show' ### SHOW ONLY THE LIST OF NODES
       #should check for args[:data_list], otherwise error
@@ -232,6 +238,7 @@ class Mapvisualization #< ActiveRecord::Base
 
   # algorithm from fruchterman_reingold via Kobourov 2004
   def fruchterman_reingold(width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjacency=@adjacency)
+    puts "beginning fruchterman_reingold @ "+Time.now.to_s
     iterations = 500
     area = width*height
     k = nodeset.length > 0 ? Math.sqrt(area/nodeset.length) : 1 #multiply this by .75 to slow it down?
@@ -274,12 +281,14 @@ class Mapvisualization #< ActiveRecord::Base
         end
       end
       temperature *= (1 - i/iterations.to_f) #cooling function from http://goo.gl/xcbXR
+      puts "finished iter "+i.to_s+" @ "+Time.now.to_s
     end
+    puts "finished fruchterman_reingold @ "+Time.now.to_s
   end
 
   # adapted from https://github.com/dhotson/springy/blob/master/springy.js
   def springy(width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjancency=@adjacency)
-    puts "springy called"
+    puts "beginning springy @ "+Time.now.to_s
     nodeset.each_value do |n|
       # convert to "close" coordinates (to within 4x4 bounding box, in this case)
       n.location = Vector[4.0*n.location[0]/width - 2.0, 4.0*n.location[1]/height - 2.0]
@@ -344,18 +353,21 @@ class Mapvisualization #< ActiveRecord::Base
       end
             
       # calc delta energy, and use that for stopping?
-      puts "end of loop "+iters.to_s+", energy=" + currEnergy.to_s if iters % 50 == 0
+      #puts "end of loop "+iters.to_s+", energy=" + currEnergy.to_s if iters % 50 == 0
       iters+=1
     end
     for k,n in nodeset # convert back to "screen" coordinates (from within 4x4 bounding box)
       n.location = Vector[((n.location[0]+2)/4.0)*width,((n.location[1]+2)/4.0)*height]
     end
     puts "springy stopped; energy="+currEnergy.to_s+", iters="+(iters-1).to_s
+    puts "finished springy @ "+Time.now.to_s
   end
 
   # adapted from http://code.google.com/p/foograph/source/browse/trunk/lib/vlayouts/kamadakawai.js?r=64
   # this seems to work best for connected graphs; may need to do something to adjust that 
   def kamada_kawai(width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjacency=@adjacency)
+    puts "beginning kamada_kawai @ "+Time.now.to_s
+
     #calculate shortest path distance (Floyd-Warshall); could be sped up using Johnson's Algorithm (if needed)
     @path_distance = Hash.new(0)
     edgeset.each {|e| @path_distance[[e.a.id,e.b.id]] = @path_distance[[e.b.id,e.a.id]] = 1} #fill with L1 dist (non-directional)
@@ -365,11 +377,14 @@ class Mapvisualization #< ActiveRecord::Base
           # if not same node AND subpaths exist AND (not yet ij path OR ikj path is shorter)
           if (i!=j) and (@path_distance[[i,k]]*@path_distance[[k,j]] != 0) and 
             (@path_distance[[i,j]]==0 or @path_distance[[i,k]]+@path_distance[[k,j]] < @path_distance[[i,j]])
-            @path_distance[[i,j]] = @path_distance[[i,k]]+@path_distance[[k,j]]
+              @path_distance[[i,j]] = @path_distance[[i,k]]+@path_distance[[k,j]]
           end
         end
       end
+      #puts k.to_s + " "+Time.now.to_s
     end
+    
+    puts "(found path distances) @ "+Time.now.to_s
     
     k = 1.0 #spring constant
     tolerance = 0.001 #epsilon for energy
@@ -393,9 +408,6 @@ class Mapvisualization #< ActiveRecord::Base
     last_energy = 1.0/0  
     begin #computing movement based on a particular node p
 
-      
-      #this is an array where each index points to the partial deriv for tat index against p
-      #so should convert to a hash with 1dim key, that otherwise works the same way!
       p_partials = Hash.new(0)
       nodeset.each_key {|i| p_partials[i] = compute_partial_derivative(i, p, nodeset, spring_strength, ideal_length)}
 
@@ -403,7 +415,7 @@ class Mapvisualization #< ActiveRecord::Base
       begin
         
         # compute jacobian; copied code basically
-        dE_dx_dx = dE_dx_dy = dE_dy_dx = dE_dy_dy = 0
+        dE_dx_dx = dE_dx_dy = dE_dy_dx = dE_dy_dy = 0.0
         nodeset.each_key do |i|
           if i!=p
             dx = nodeset[p].location[0] - nodeset[i].location[0]
@@ -422,12 +434,17 @@ class Mapvisualization #< ActiveRecord::Base
         # calculate dv (amount we should move)
         dE_dx = partial_derivatives[p][0]
         dE_dy = partial_derivatives[p][1]
+        
         dv = Vector[(dE_dx_dy * dE_dy - dE_dy_dy * dE_dx) / (dE_dx_dx * dE_dy_dy - dE_dx_dy * dE_dy_dx),
                        (dE_dx_dx * dE_dy - dE_dy_dx * dE_dx) / (dE_dy_dx * dE_dx_dy - dE_dx_dx * dE_dy_dy)]
 
+        # if for some reason our dv ends up being infinite (divide by 0), just set to 0??
+        # and why in gods name is assignment a private function?! And why doesn't rails say so?!
+        dv = Vector[0.0,dv[1]] if dv[0].infinite?
+        dv = Vector[dv[0],0.0] if dv[1].infinite?
+
         # move vertex
         nodeset[p].location += dv
-        
         # recompute partial derivates and delta_p based on new location
         deriv = compute_partial_derivatives(p, nodeset, spring_strength, ideal_length)
         partial_derivatives[p] = deriv
@@ -469,8 +486,9 @@ class Mapvisualization #< ActiveRecord::Base
         global_done = (delta_p == 0) || ((last_energy - delta_p).abs/last_energy < tolerance)
       end
       last_energy = delta_p
-      puts "global energy="+last_energy.to_s
+      #puts "global energy="+last_energy.to_s
     end while !global_done #global energy is still too high
+    puts "finished kamada_kawai @ "+Time.now.to_s
     puts "end of kamada"
   end
 

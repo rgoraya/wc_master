@@ -2,17 +2,17 @@ class MapvisualizationsController < ApplicationController
     
   # GET /mapvisualizations
   def index
-    @default_width = 900*0.8 #defaults
-    @default_height = 675*0.8
+    @default_width = 900#*0.8 #defaults
+    @default_height = 900#675*0.8
     @default_border = 50
     @default_node_count = 20 #40
     @default_edge_ratio = 0.1 #0.08
+
+    # puts "===Controller Params==="
+    # puts params
         
     respond_to do |format|
       format.html do #on html calls
-
-        puts "===Controller Params==="
-        puts params
 
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
@@ -22,7 +22,8 @@ class MapvisualizationsController < ApplicationController
         return
       end
 
-      format.js do #respond to ajax calls?
+
+      format.js do #respond to ajax calls
         
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
@@ -30,10 +31,8 @@ class MapvisualizationsController < ApplicationController
 
         actions = %w[remove_edges foo bar] #etc
         begin
-          puts params
           puts "sending "+params[:cmd]
           if params[:args]
-            puts "args exists"
             @vis.send(params[:cmd], params[:args]) #if ACTIONS.include?(params[:cmd])
           else
             @vis.send(params[:cmd]) #if ACTIONS.include?(params[:cmd])
@@ -42,7 +41,7 @@ class MapvisualizationsController < ApplicationController
           flash[:error] = 'No such layout command'
         end
         
-        session[:vis] = @vis
+        session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
     end
