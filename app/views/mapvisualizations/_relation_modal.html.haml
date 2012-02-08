@@ -1,0 +1,7 @@
+= puts "relation_modal loaded for relation #{relation.id}"
+
+#relation_modal
+  -# this involves multiple db calls, and should probably not stick around ?
+  %b You clicked on #{relation.issue.title} #{relation.relationship_type.nil? ? 'increases' : (relation.relationship_type == 'I' ? 'decreases' : 'is type of')} #{relation.cause.title}
+  %br
+  %b Curve: #{curve}

@@ -5,4 +5,5 @@ config/deploy.rb
 config/database.yml
 Capfile
 tmp/
+tmp/server.pid
 .DS_Store

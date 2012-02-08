@@ -12,7 +12,7 @@
   #{load_raphael(@vis.compact_display)}
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 
--#to put a "loading" icon on ajax stuff
+-#for dynamically appearing objects in response to ajax
 :javascript
   $(document).ready(function(){
     $("#spinner").toggle()
@@ -23,16 +23,21 @@
       .bind("ajax:complete", function() {
         $("#spinner").toggle()
       })
+    $("#clickForm").live('ajax:complete', function(evt, data) {
+      $('#modal_container').html(data.responseText);
+      $('#clickForm').children().not('#do').remove();
+    });
   });
 
 #contentwrapper
   .contentmain
     #canvas_container
       = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
+      #modal_container
     #interaction
       / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
       #reset_form
-        = form_tag({:action => "index", :cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
+        = form_tag({:action => "index", :layout_cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
           #inputs
             = label_tag "Number of Nodes:"
             = number_field_tag "args[node_count]", @default_node_count, :in => 1...100
@@ -42,13 +47,16 @@
           #reset
             = submit_tag "Reset Graph"
       #other_buttons
-        = button_to "Random Spread", {:action => "index", :cmd => 'place_randomly'}, {:remote => true, :method => :get}
-        = button_to "Normalize Graph", {:action => "index", :cmd => 'normalize_graph'}, {:remote => true, :method => :get}
-        = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
-        = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
-        = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
-        = button_to "Kamada Layout", {:action => "index", :cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
+        = button_to "Random Spread", {:action => "index", :layout_cmd => 'place_randomly'}, {:remote => true, :method => :get}
+        = button_to "Normalize Graph", {:action => "index", :layout_cmd => 'normalize_graph'}, {:remote => true, :method => :get}
+        = button_to "Circle Nodes", {:action => "index", :layout_cmd => 'circle_nodes'}, {:remote => true, :method => :get}
+        = button_to "Fruchterman Layout", {:action => "index", :layout_cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
+        = button_to "Springy Layout", {:action => "index", :layout_cmd => 'springy'}, {:remote => true, :method => :get}
+        = button_to "Kamada Layout", {:action => "index", :layout_cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
         / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+      #interact_form
+        = form_tag({:action => "index"}, {:id => "clickForm", :remote => true, :method => :get}) do
+          = text_field_tag "do"
     #debug
       %b Some notes:
       Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).

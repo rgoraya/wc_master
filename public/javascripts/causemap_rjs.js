@@ -129,13 +129,21 @@ function getPath(edge)
 
 //Interaction functions, for when we click on things. Variables passed are things we're going to use
 function clickNode(node){
-  //populate the "toDo form"
-  //call form.submitbutton.trigger("click")
-  alert(node.name);
+  $('#clickForm').children('#do').attr({value:'show_issue'});
+  //$('#clickForm').append('<input name="do" value="show_issue">')
+  $('#clickForm').append('<input name="id" value='+node.id+'>');
+  $('#clickForm').submit();//button.trigger("click");
+  
+  console.log(node.name);
 }
 
-function clickEdge(edge, curve){
-  alert(edge.name+"\n"+curve);
+function clickEdge(edge){
+  $('#clickForm').children('#do').attr({value:'show_relation'});
+  $('#clickForm').append('<input name="id" value='+edge.id+'>');
+  $('#clickForm').append('<input name="curve" value='+getPath(edge)+'>');
+  $('#clickForm').submit();//button.trigger("click");
+
+  console.log(edge.name+"\n"+curve);
 }
 
 

@@ -26,32 +26,45 @@ class MapvisualizationsController < ApplicationController
 
       format.js do #respond to ajax calls
 
-        # handle form params
-        # @issue of note = Issue.find(id)
-        # render _some_partial
-        
-                
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
           :params => {:data_query => params[:q],:data_list => params[:l]}) #grab the old vis, or make a new one if needed
 
-        actions = %w[remove_edges foo bar] #etc
-        begin
-          puts "sending "+params[:cmd]
-          if params[:args]
-            @vis.send(params[:cmd], params[:args]) #if ACTIONS.include?(params[:cmd])
-          else
-            @vis.send(params[:cmd]) #if ACTIONS.include?(params[:cmd])
-          end
-        rescue NoMethodError
-          flash[:error] = 'No such layout command'
-        end
+        puts "===format.js params===",params
         
+        if params[:do] == 'show_issue'
+          issue_to_show = Issue.find(params[:id])
+          # @popup_pos = "some position"
+          render :partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => issue_to_show}
+
+        elsif params[:do] == 'show_relation'
+          relation_to_show = Relationship.find(params[:id])
+          render :partial => "relation_modal", :content_type => 'text/html', :locals => {:relation => relation_to_show, :curve => params[:curve]}
+
+                
+        elsif params[:layout_cmd]
+          actions = %w[remove_edges foo bar] #etc
+          begin
+            puts "sending "+params[:layout_cmd]
+            if params[:args]
+              @vis.send(params[:layout_cmd], params[:args]) #if ACTIONS.include?(params[:layout_cmd])
+            else
+              @vis.send(params[:layout_cmd]) #if ACTIONS.include?(params[:layout_cmd])
+            end
+          rescue NoMethodError
+            flash[:error] = 'No such layout command'
+          end
+        end
+
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
     end
   
+  end
+
+  def do_interaction(params)
+    #do we want to move this into separate method?
   end
 
 

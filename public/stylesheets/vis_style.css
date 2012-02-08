@@ -11,6 +11,30 @@
   top:-60%;
 }
 
+#modal_container {
+  /* div for determining where we want to put the popup window. */
+  position: relative;
+  top:-101%; /*puts at the top*/
+}
+
+#issue_modal {
+  /*border: 1px solid red;*/
+  color: black;  
+}
+
+#relation_modal {
+  color: black;
+}
+
+#interact_form {
+  display: none;
+}
+
+
+/*** 
+ *** LAYOUT BUTTONS 
+ ***/
+ 
 #reset_form {
   width: 300px;
 }

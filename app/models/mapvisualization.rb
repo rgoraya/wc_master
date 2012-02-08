@@ -38,7 +38,6 @@ class Mapvisualization #< ActiveRecord::Base
     def js_k
       @id.to_s
     end
-      
   end  
 
   class Edge < Object
@@ -75,7 +74,8 @@ class Mapvisualization #< ActiveRecord::Base
     #nodeset is the name of the js node array (default to "nodes"), (a and b are references into the nodeset array)
     def js(nodeset='nodes', count=0)
       #do we need to also include an id field inside the object?
-      "{name:'"+escape_javascript(name)+"',"+
+      "{id:"+@id.to_s+","+
+      "name:'"+escape_javascript(name)+"',"+
       "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
       "reltype:"+@rel_type.to_s+","+
       "n:"+count.to_s+"}"

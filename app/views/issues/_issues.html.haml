@@ -10,10 +10,12 @@
     = will_paginate (@issues),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 
 
   %div{:style=>"float:right; margin:13px 15px -17px 0px;", :id=>"issues_wait"}
+
   
   %div{:style=>"clear:both"}
 
   
+
 
 %div{:style=>"margin-top:0px"}
 - @issues.each_slice(2) do |slice|
@@ -62,11 +64,10 @@
       - @description = slice[0].description
       - if @description.length > 200
         - @description = @description[0, 200] + "..."
-        = @description.html_safe
+        = @description
       - else
-        = @description.html_safe
+        = @description
       %br
-      %img.linkout{:src=>"/images/system/linkout.png"}
       %a{:href=> slice[0].wiki_url, :target=>"_blank"}
         Read more on Wikipedia
     
@@ -119,11 +120,10 @@
         - @description = slice[1].description
         - if @description.length > 200
           - @description = @description[0, 200] + "..."
-          = @description.html_safe
+          = @description
         - else
-          = @description.html_safe
+          = @description
         %br
-        %img.linkout{:src=>"/images/system/linkout.png"}
         %a{:href=> slice[1].wiki_url, :target=>"_blank"}
           Read more on Wikipedia
       
