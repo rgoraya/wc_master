@@ -419,48 +419,46 @@
   });
   
   // CHECK THE CORRECT RADIO BUTTON DEPENDING ON SELECTION
-  $(".cause_link, .effect_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").click(function(){
-  var className = $(this).attr('class');
-  var issueTitle = '#{@issue.title.to_s}'
+  /$(".cause_link, .effect_link, .inhibitor_link, .inhibited_link, .super_link, .sub_link").click(function(){
+  /var className = $(this).attr('class');
+  /var issueTitle = '#{@issue.title.to_s}'
   // CAUSE
-  if (className.indexOf("cause") >= 0){
-  $("#frm_action").val('C');
-  $("#title_modalhead").html('Add a Cause of ' + issueTitle);  
-  }
+  /if (className.indexOf("cause") >= 0){
+  /$("#frm_action").val('C');
+  /$("#title_modalhead").html('Add a Cause of ' + issueTitle);  
+  /}
   // EFFECT
-  else if (className.indexOf("effect") >= 0){    
-  $("#frm_action").val('E');
-  $("#title_modalhead").html('Add an Effect of ' + issueTitle);  
-  }
+  /else if (className.indexOf("effect") >= 0){    
+  /$("#frm_action").val('E');
+  /$("#title_modalhead").html('Add an Effect of ' + issueTitle);  
+  /}
   // INHIBITOR
-  else if (className.indexOf("inhibitor") >= 0){ 
-  $("#frm_action").val('I');
-  $("#title_modalhead").html('Add something that reduces ' + issueTitle);  
-  }
+  /else if (className.indexOf("inhibitor") >= 0){ 
+  /$("#frm_action").val('I');
+  /$("#title_modalhead").html('Add something that reduces ' + issueTitle);  
+  /}
   // INHIBITED
-  else if (className.indexOf("inhibited") >= 0) {
-  $("#frm_action").val('R');
-  $("#title_modalhead").html('Add something reduced by ' + issueTitle);  
-  }
+  /else if (className.indexOf("inhibited") >= 0) {
+  /$("#frm_action").val('R');
+  /$("#title_modalhead").html('Add something reduced by ' + issueTitle);  
+  /}
   // SUPERSET
-  else if (className.indexOf("super") >= 0) {    
-  $("#frm_action").val('P');
-  $("#title_modalhead").html('Add a Superset of ' + issueTitle);  
-  }
+  /else if (className.indexOf("super") >= 0) {    
+  /$("#frm_action").val('P');
+  /$("#title_modalhead").html('Add a Superset of ' + issueTitle);  
+  /}
   //SUBSET
-  else if (className.indexOf("sub") >= 0){       
-  $("#frm_action").val('S');
-  $("#title_modalhead").html('Add a Subset of ' + issueTitle);  
-  }
+  /else if (className.indexOf("sub") >= 0){       
+  /$("#frm_action").val('S');
+  /$("#title_modalhead").html('Add a Subset of ' + issueTitle);  
+  /}
   
-  $("#query").val($(this).html().trim());
-  $("#frm_type_id").val(#{@issue.id});
-  });
+  /$("#query").val($(this).html().trim());
+  /$("#frm_type_id").val(#{@issue.id});
+  /});
 
   $(".poplight").live('click', function(){
   
-  
-    
   var idName = $(this).attr('id');
   var issueTitle = '#{@issue.title.to_s}';
 
@@ -789,45 +787,45 @@
   });
 
   // O N E    T O U C H    A C C E P T    C A U S E    A N D    E F F E C T     
-  $('a.accept_cause, a.accept_effect, a.accept_inhibitor, a.accept_inhibited, a.accept_super, a.accept_sub').click(function(){
+  //$('a.accept_cause, a.accept_effect, a.accept_inhibitor, a.accept_inhibited, a.accept_super, a.accept_sub').click(function(){
 
-  var className = $(this).attr('class');
+  //var className = $(this).attr('class');
   
   // CAUSE
-  if (className.indexOf("cause") >= 0){
-  $("#frm_action").val('C'); 
-  }
+  //if (className.indexOf("cause") >= 0){
+  //$("#frm_action").val('C'); 
+  //}
   // EFFECT
-  else if (className.indexOf("effect") >= 0){    
-  $("#frm_action").val('E');  
-  }
+  //else if (className.indexOf("effect") >= 0){    
+  //$("#frm_action").val('E');  
+  //}
   // INHIBITOR
-  else if (className.indexOf("inhibitor") >= 0){ 
-  $("#frm_action").val('I');  
-  }
+  //else if (className.indexOf("inhibitor") >= 0){ 
+  //$("#frm_action").val('I');  
+  //}
   // INHIBITED
-  else if (className.indexOf("inhibited") >= 0) {
-  $("#frm_action").val('R'); 
-  }
+  /else if (className.indexOf("inhibited") >= 0) {
+  /$("#frm_action").val('R'); 
+  /}
   // SUPERSET
-  else if (className.indexOf("super") >= 0) {    
-  $("#frm_action").val('P'); 
-  }
+  /else if (className.indexOf("super") >= 0) {    
+  /$("#frm_action").val('P'); 
+  /}
   //SUBSET
-  else if (className.indexOf("sub") >= 0){       
-  $("#frm_action").val('S'); 
-  }
+  /else if (className.indexOf("sub") >= 0){       
+  /$("#frm_action").val('S'); 
+  /}
 
-  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + (accept_link_text).split(' ').join('_')); 
-  $("#frm_img_url").val($('#onetouch_image').find("img").attr("src"));
-  $("#frm_descr").val($('#onetouch_text').html());
-  $("#frm_title").val(accept_link_text);
-  $("#frm_type_id").val(#{@issue.id});
+  /$("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + (accept_link_text).split(' ').join('_')); 
+  /$("#frm_img_url").val($('#onetouch_image').find("img").attr("src"));
+  /$("#frm_descr").val($('#onetouch_text').html());
+  /$("#frm_title").val(accept_link_text);
+  /$("#frm_type_id").val(#{@issue.id});
 
-  $("#new_issue").submit();
+  /$("#new_issue").submit();
 
-  return false;
-  });
+  /return false;
+  /});
 
 
   $('.accept_cause, a.accept_effect, a.accept_inhibitor, a.accept_inhibited, a.accept_super, a.accept_sub').mouseover(function(){

@@ -11,9 +11,7 @@
       = @issue.errors.full_messages.join("\n")
   .clearboth 
 
-     
 #contentwrapper
-
   .contentmain
 
     %div.pageheading
@@ -27,16 +25,13 @@
         .title_edit
           // Search text-field     
           %div{:style=>"float:left"}  
-            %input#query.searchfield_wiki{:style=>"" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
-            
+            %input#query.searchfield_wiki{:style=>"" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}            
           // Spinner
-          %div{:style=>"float:right; margin:2px 2px -10px -27px; position:relative; z-index:1;", :id=>"wait"}
-      
+          %div{:style=>"float:right; margin:2px 2px -10px -27px; position:relative; z-index:1;", :id=>"wait"}      
           // Preview Button
-          %input{:type=>"button", :id=>"btn_preview", :class=>"discussion_submit", :value=>"Preview",:style=>"margin:0px; margin-left:3px; float:left;"}          
-          
+          %input{:type=>"button", :id=>"btn_preview", :class=>"discussion_submit", :value=>"Preview",:style=>"margin:0px; margin-left:3px; float:left;"}                    
           .clearboth
-        
+          
           %div{:id=>"results", :class=>"result-box"}            
           .clearboth
 
@@ -52,19 +47,15 @@
               
           %div{:id=>"form_container"}
             = form_for Issue.new, :id=>"new_issue_form" do |f|
-                   
+
               .field  
                 = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr"
-                               
               .field  
                 = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_wiki_url"
-                    
               .field
                 = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_img_url"
-        
               .field
                 = f.hidden_field :title, :class=>"formfield", :id=>"frm_title"
-
               .field
                 - if current_user
                   = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id     
@@ -101,8 +92,6 @@
   $("#error_container a.closebutton").click(function(){
   $("#error_container").slideUp(100);
   });
-
-
 
   // A R R O W    K E Y    N A V I G A T I O N    F O R    T H E    M O D A L
   window.displayBoxIndex = -1;
@@ -224,7 +213,7 @@
   /$("#searchfield_reset").css({'display' : 'block'});
   /$("#query").attr("disabled", "disabled");
   parseJSON();
-  $("#title_holder").html($("#query").val());  
+
   $("#results").empty();
   }
   });
@@ -274,12 +263,14 @@
   
   //  If the search was successful - 
   } else {
-
+  
+  $("#title_holder").html($("#query").val());  
   // shorten if beyond limit
   if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 
   // replace HTML of target Div
   $('#text_holder').html(text_preview, 400);
+  $('#text_preview').css({'background-image':'none','height':'auto'});   
   form_descr = $("#text_holder").html();
   // show the form 
   $("#form_container").css("display", "block");
@@ -325,6 +316,10 @@
   $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_'));
   $("#new_issue_form").submit();
   }
+
+  function extractUrl(input){
+  // remove quotes and wrapping url()
+  return input.replace(/"/g,"").replace(/url\(|\)$/ig, "");}
 
   $("#val_collector").click(function(){
   valueCollect();
