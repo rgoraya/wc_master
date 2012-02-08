@@ -102,8 +102,8 @@ function getPath(edge)
     } 
     else{
       //change to flip the curve
-      ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
-      ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
+      ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
+      ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
     }
     return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
   }

@@ -161,11 +161,11 @@ class Mapvisualization #< ActiveRecord::Base
     #can add extra elsifs here
 
     else
-      #default to top 50? or to what?
-      limit = 50
-      issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit)
+      #default to first 50 (cause they are connected)? or to what?
+      limit = 40
+      issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
       #get all relationships between those nodes
-      subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
+      subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
       relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
     end
 
