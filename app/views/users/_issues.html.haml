@@ -7,7 +7,7 @@
     = will_paginate (@userissues), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
   %div{:style=>"float:left; margin:18px 0px -15px 10px;", :id=>"issues_wait"}
              
-  %div{:style=>"clear:both;"}
+  .clearboth
 
 - @userissues.each_slice(2) do |slice|
   %div{:class=>"issue_container"}
@@ -41,7 +41,7 @@
       %div{:style=>"float:right; margin:-35px 15px -30px 0px;"}
         %span{:class=>"date_time"}
           = time_ago_in_words(slice[0].created_at) + ' ago'      
-      %div{:style=>"clear:both;"}      
+      .clearboth      
       
       // Image  
       %div{:class=>"index_img_box", :style=>"float:left;"}
@@ -56,7 +56,7 @@
         %a{:href=> slice[0].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"head_link",:style=>"padding-left:0px; margin-left:0px; background-image:none;"}
           Read more on Wikipedia
         
-      %div{:style=>"clear:both"}
+      .clearboth
 
 
 
@@ -89,7 +89,7 @@
         %div{:style=>"float:right; margin:-35px 15px -30px 0px;"}
           %span{:class=>"date_time"}
             = time_ago_in_words(slice[1].created_at) + ' ago'
-        %div{:style=>"clear:both;"}
+        .clearboth
   
         // Image
         %div{:class=>"index_img_box", :style=>"float:right;"}
@@ -103,12 +103,12 @@
           %a{:href=> slice[1].wiki_url, :title=>"View the Wikipedia article", :target=>"_blank", :class=>"head_link",:style=>"padding-left:0px; margin-left:0px; background-image:none;"}
             Read more on Wikipedia
   
-        %div{:style=>"clear:both"}
+        .clearboth
 
 %div{:style=>"margin:25px 0px 15px -10px; float:left;"}
   = will_paginate (@userissues), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
 %div{:style=>"float:left; margin:18px 0px -15px 10px;", :id=>"issues_wait"}
 
-%div{:style=>"clear:both"}
+.clearboth
 
          

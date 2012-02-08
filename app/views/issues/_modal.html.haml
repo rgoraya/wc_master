@@ -19,10 +19,10 @@
     
     .btn_close{:title => "Close Window"}
     
-    %div{:style => "clear:both;"}
+    .clearboth
   
     %div{:id=>"results", :class=>"result-box"}            
-    %div{:style => "clear:both"}
+    .clearboth
   %div{:class =>"wikicontent_edit"}
     #title_modalhead  
     %div#image_preview                     
@@ -31,7 +31,7 @@
       %div#title_holder
       %div#text_holder  
         
-    %div{:style => "clear:both"}
+    .clearboth
         
     %div{:id=>"form_container"}
       = form_for Issue.new, :remote => true, :id=>"relationship_form" do |f|
@@ -63,7 +63,7 @@
               /%input#rad_effect{:type => "radio", :name=>"causality_rad", :value=>"Effect"} 
               /%span Effect
           = f.submit 'Create', :class=>"discussion_submit", :name=>"save_issue_rel_button", :id=>"val_collector"
-          %div{:style => "clear:both"}
+          .clearboth
 
 
 %script{:src => "http://maps.google.com/maps/api/js?sensor=false&libraries=panoramio", :type => "text/javascript"}

@@ -45,7 +45,6 @@ ActiveRecord::Schema.define(:version => 20120118172502) do
     t.string   "reference_content"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id"
   end
 
   create_table "relationships", :force => true do |t|
@@ -53,7 +52,6 @@ ActiveRecord::Schema.define(:version => 20120118172502) do
     t.integer  "cause_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id"
     t.string   "relationship_type"
     t.integer  "references_count",  :default => 0
   end

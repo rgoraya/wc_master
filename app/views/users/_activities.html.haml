@@ -8,7 +8,7 @@
   %div.formheading{:style=>"font-size:18px;"}
     = @user.username + "\'s activity log"
     
-  %div{:style=>"clear:both"}
+  .clearboth
 
 %div{:style=>"margin-top:10px;"}
   - @activities.each do |activity|
@@ -32,7 +32,7 @@
     %div.activity_icon{:style=>"background-position:#{@activity[:icon_position]}"}
       // will display icon according to the action.
       
-    %div{:style=>"clear:both"}		
+    .clearboth		
 		
   
   //%table{:class=>"sortable", :id=>"activities", :style=>"height:100%;width:100%;border:none;"}

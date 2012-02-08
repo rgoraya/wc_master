@@ -10,7 +10,7 @@
       Please be elaborate when reporting a bug. We value your feedback.
             
   
-%div{:style=>"clear:both;"}    
+.clearboth    
 
 %div{:class => "formcontentdiv"}
 
@@ -24,29 +24,29 @@
         
         %div{:class=>"formlabel"}
           = f.text_field :subject, :class=>"formfield", :autocomplete=>"off"
-          %div{:style=>"clear:both;"}
+          .clearboth
       
       .field
         %div{:class=>"formlabel", :style=>"text-align:right;padding-top:10px; height:35px;"}
           = f.label 'email'
         %div{:class=>"formlabel"}
           = f.text_field :email, :class=>"formfield", :autocomplete=>"off"
-        %div{:style=>"clear:both;"}
+        .clearboth
           
       .field
         %div{:class=>"formlabel", :style=>"text-align:right;padding-top:10px; height:35px;"}
           = f.label 'category *'
         %div{:class=>"formlabel"}
           = f.select :category, options_for_select([["choose one...",nil],["suggestion",0],["report bug",1]]), {}, {:style=>"height:40px; width:214px", :class=>"formfield"}
-        %div{:style=>"clear:both;"}
+        .clearboth
           
       .field
         %div{:class=>"formlabel", :style=>"text-align:right;padding-top:10px; height:35px;"}
           = f.label 'description *'
         %div{:class=>"formlabel", :style=>"height:auto;"}
           = f.text_area :description, :class=>"formfield",:style=>"width:500px;height:200px;"
-          %div{:style=>"clear:both;"}
-        %div{:style=>"clear:both;"}
+          .clearboth
+        .clearboth
 
       .field
         %div{:class=>"helper_text"}
@@ -57,10 +57,10 @@
       
       .actions
         %div{:class=>"form_button"}
-          = f.submit 'Submit', :class=>"save_button", :style=>"background-image:none; padding-left:5px;"
-        %div{:style=>"clear:both;"}
+          = f.submit 'Submit feedback', :class=>"save_button"
+        .clearboth
                
-      %div{:style=>"clear:both;"}
+      .clearboth
 
 #clear{:style => "clear:left;"} 
 

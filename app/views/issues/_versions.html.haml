@@ -60,7 +60,7 @@
 			%div{:style=>"float:right;margin:2px 1px 2px 1px;"}
 				- if current_user
 					= link_to "Rollback", restore_version_path(version), :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :title=>"Reset to this change", :style=>"background-image:none;color:#4EB8DB;text-decoration:none;font-weight:bold;margin:0px 5px 0px 5px;font-size:16;"
-			%div{:style=>"clear:both"}
+			.clearboth
 
 
 

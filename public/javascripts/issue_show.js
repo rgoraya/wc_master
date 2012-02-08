@@ -2,7 +2,7 @@
 $(function() {
 
 // -------------------------------------------------------------------------------
-// STUFF TO BE DONE ON LOAD OF THE PAGE
+// STUFF TO BE DONE ON THE INITIAL LOAD OF THE PAGE
 // -------------------------------------------------------------------------------
 	
 	$(".relationship_partial_toggle:contains(" + $(".central_causality_container").text() + ")").filter(function(){
@@ -59,9 +59,9 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------	
 	$("#val_collector").click(function(){
 		$('.relationship_addnew_wait').show();
-		
 		$('.relationship_none_found').hide();
 		
+		// if more than 5 relationships are displayed then hide the last one to make space!!
 		if ($('.relationship_thumb:visible').length > 5){
      		$('.relationship_thumb:visible').last().hide();	
 		}  
@@ -83,44 +83,25 @@ $(".relationship_partial_toggle").live('click',function(){
 		close_addNew();
 		$('.del-relation').attr('href', "../relationships/" + relationship_id);
 		
-		//opaqueDiv = $(this);
-			
-		//$('#title_modalhead').hide()
-		//$('#title_filler_text').hide();
-		//$('#title_dynamic_text').hide()
-		//$('#title_dynamic_text').show()
-		//$('#title_issue').html(issue_title);
-		//$('#title_causality').html($('.central_causality_container').html())
-		//$('#title_relationship').html(relationship_title);
-		//$('#permalink_display').html(document.location.hostname + "/relationships/" + relationship_id + "-" +  $('#title_dynamic_text').text().trim().replace(/\s+/g, '-').toLowerCase());
-		//$('#relation_title_dynamic').html(relationship_title);
-		//$('#relation_descr_dynamic').html(relationship_descr);
-		//$('.rationale_container').hide();
-		//$('.rationale_container').fadeIn();
-		//$('#relationship_form_id').val(relationship_id);
-		
-		//$('#relationship_submit').trigger('click');
-		
+	
 		return false;
-		
 	});
 	
 
 	$(".relationship_addnew a").live('click',function(){
 		initialize_addNew();
-		//$('.relationship_thumb').animate({'opacity': '0.3'});
-		//$('#get_relationship').animate({'opacity': '0.3'});
 		$("#modal_form").toggle();		
 	});
 	
 	$('.btn_close, #val_collector, .relationship_partial_toggle').click(function(){
 		close_addNew();
-		//$('#get_relationship').animate({'opacity': '1'});
 	});
 
+// -------------------------------------------------------------------------------
+// FUNCTIONS TO INITIALIZE AND TOGGLE ADD_NEW MODAL
+// -------------------------------------------------------------------------------	
 	function close_addNew() {
 		  $("#modal_form").removeAttr('style');
-		  //$('#title_filler_text').show();
 		  $('#title_modalhead').hide();			
 	}
 	
@@ -134,54 +115,74 @@ $(".relationship_partial_toggle").live('click',function(){
 		  $("#query").val(''); 		
 	}
 
-  // D E L E T E     C O N F I R M A T I O N
+// -------------------------------------------------------------------------------
+// RELATIONSHIP DELETE FUNCTIONS
+// -------------------------------------------------------------------------------
   var href_carrier = '';
   var bubble_to_remove = '';
         
   $(".del-relation").live('click', function(e) {
   e.preventDefault();
   var title = $(this).data('title');
-  var msg = "Are you sure you want to remove the causal link?"
+  var msg = "Are you sure you want to remove this causal link?"
   href_carrier = $(this).attr('href');
   bubble_to_remove = $(this).parents(".bubble");
   showPopup(title, msg);
   return false;      
   });
 
+
+// -------------------------------------------------------------------------------
+// FUNCTION TO DELETE RELATIONSHIP IF YES WAS CLICKED
+// -------------------------------------------------------------------------------	
   $("#confirm_yes").live('click', function() {
-  
-  $("#confirm_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
-  $.ajax({
-  type: "DELETE",
-  url: href_carrier,
-  cache: false,
-  success: function(){
-  $("#select_rel_submit").trigger('click');
-  $("#confirm_msg").html('Causal Link Deleted!'); 
-  $("#confirm_buttons").hide(); 
-  $("#confirm_wait").empty();
-  $("#confirm_popup").delay(2000).fadeOut('slow', function(){
-  $('#fade').delay(2000).remove();
-  $("#get_relationship .title,#get_relationship .rationale_container").empty();
+  	// Show the spinner
+  	$("#confirm_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+  	
+  	// Make Ajax Call
+  	$.ajax({
+  		type: "DELETE",
+  		url: href_carrier,
+	    cache: false,
+	    // If Ajax call is succesful
+	    success: function(){
+		    // Reload partial
+		    $("#select_rel_submit").trigger('click');
+		    // Do stuff
+		    $("#confirm_msg").html('Causal Link Deleted!'); 
+		    $("#confirm_buttons").hide(); 
+		    $("#confirm_wait").empty();
+		    // Remove the modal
+		    $("#confirm_popup").delay(2000).fadeOut('slow', function(){
+			    $('#fade').delay(2000).remove();
+	    		$("#get_relationship .title,#get_relationship .rationale_container").empty();
+	  		});
+  		   }
+  		});  
   });
-  
-  }
-  });  
-  });
-    
+
+// -------------------------------------------------------------------------------
+// FUNCTION TO REMOVE MODAL IF USER CANCELED DELETION
+// -------------------------------------------------------------------------------	
   $("#confirm_cancel").click(function() {
-  $('#fade').remove();
-  $("#confirm_popup").fadeOut('slow');    
-  href_carrier = '';
+	  $('#fade').remove();
+  	  $("#confirm_popup").fadeOut('slow');    
+  	  href_carrier = '';
   });
 
-
+// -------------------------------------------------------------------------------
+// SHOW SPINNER ON REFERENCE FORM SUBMISSION
+// -------------------------------------------------------------------------------	
   $('#reference_collector').live('click', function(){
   	$("#references_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
   });	
 	
 	
+// -------------------------------------------------------------------------------  
+//******************   E N D    O F    D O M    L O A D   ************************
 });
+// *******************************************************************************
+// ------------------------------------------------------------------------------- 
 
   // I N I T I A L    F O R M A T T I N G / P R O C E S S I N G
   

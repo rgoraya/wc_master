@@ -9,7 +9,7 @@
   %div{:id=>"error"}
     -if @issue.errors.any?
       = @issue.errors.full_messages.join("\n")
-  %div{:style=>"clear:both;"} 
+  .clearboth 
 
      
 #contentwrapper
@@ -18,13 +18,11 @@
 
     %div.pageheading
       Create New Issue
-    %div{:style => "clear:both;"}     
+    .clearboth     
     
     %div{:class => "formcontentdiv"}
 
-
-      %div{:class=>"centralized"}
-        
+      %div.add_new_issue_modal{:style=>"width:320px;margin:0 auto;"}
             
         .title_edit
           // Search text-field     
@@ -37,24 +35,23 @@
           // Preview Button
           %input{:type=>"button", :id=>"btn_preview", :class=>"discussion_submit", :value=>"Preview",:style=>"margin:0px; margin-left:3px; float:left;"}          
           
-          .btn_close{:title => "Close Window"}
-          
-          %div{:style => "clear:both;"}
+          .clearboth
         
           %div{:id=>"results", :class=>"result-box"}            
-          %div{:style => "clear:both"}
-        %div{:class =>"wikicontent_edit"}
+          .clearboth
+
+        .wikicontent_edit
           #title_modalhead  
           %div#image_preview                     
                               
           %div#text_preview
             %div#title_holder
             %div#text_holder  
-          %div{:style => "clear:both"}
+          
+          .clearboth
               
           %div{:id=>"form_container"}
-            = form_for @issue, :id=>"new_issue_form" do |f|
-                    
+            = form_for Issue.new, :id=>"new_issue_form" do |f|
                    
               .field  
                 = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr"
@@ -73,11 +70,9 @@
                   = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id     
               .action
                 = f.submit 'Create', :class=>"discussion_submit", :name=>"save_issue_rel_button", :id=>"val_collector"
-                %div{:style => "clear:both"}
-              
+                .clearboth
 
 #clear{:style => "clear:left;"}
-    
 
 %script{:src => "http://maps.google.com/maps/api/js?sensor=false&libraries=panoramio", :type => "text/javascript"}
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css", :type => "text/javascript"}
@@ -146,7 +141,6 @@
   });  
 
 
-  
   // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
 
   window.displayBoxIndex = -1;
@@ -217,7 +211,6 @@
 
 
   //  G E T    Q U E R Y    F R O M    S E A R C H - B O X
-
   $('.suggestion').live("click", function(){
   $("#query").val($(this).html()); 
   $("#results").empty();
@@ -225,7 +218,6 @@
   });
 
   //  R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
-
   $("#btn_preview").click(function(){
   if ($("#query").val()){
   $("#results").empty();
@@ -238,10 +230,9 @@
   });
 
   //  P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
-
   function parseJSON() {
   // initialize spinner
-  $("#wait").html('<img border="0" src="/images/system/spinnergray.gif"/>');    	
+  $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
   // create the json url
   jsonData = $.trim(url_img_name+encodeURIComponent($("#query").val())+'&callback=?');  
   // parse the json
@@ -253,14 +244,11 @@
   
   // remove spinner
   $("#wait").empty();
-  // highlight
-  //$("div#text_preview").effect("highlight", {color: '#AADDEE'}, 3000); 
   });}
   
   
   //  R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T					
   function getJson(JData) {
-   
   $.each(JData, function (Jkey, Jval) {
   if (Jval && typeof Jval == "object") {
   
@@ -279,9 +267,10 @@
   // hide the save button
   $('#form_container').css("display", "none");
   // replace HTML of target Div
-  $('#text_holder').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">'+text_preview+'</div>', 400);  
+  $('#text_holder ').html('');
+  $('#text_preview').removeAttr('style');
   // show dummy image for image
-  $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center; color:#CC0000">Not found!</div>', 400);
+  $('#image_preview').removeAttr('style');
   
   //  If the search was successful - 
   } else {
@@ -305,7 +294,8 @@
   $.getJSON(url_google_img+encodeURIComponent($("#query").val())+'&callback=?', function(data) {
   $.each(data.responseData.results, function(i,item){
   // replace HTML of target Div
-  $('#image_preview').html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" class="wikiimage_edit"/><br />Google image');
+  $('#image_preview').css({'background-image': 'url("'+item.tbUrl+'")'});
+  //$('#image_preview').html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" class="wikiimage_edit"/><br />Google image');
   form_image = $('#image_preview').html();
   if ( i == 0 ) return false;
   });  
@@ -314,7 +304,8 @@
   // if the image was found from WIKIPEDIA itself, then just go ahead and use that.
   } else {
   // replace HTML of target Div 
-  $('#image_preview').html('<img src="'+img_src+'" onError="this.src=\'/images/issues/image.png\';" class="wikiimage_edit"/><br />wikipedia image');
+  $('#image_preview').css({'background-image': 'url("'+img_src+'")'});
+  //$('#image_preview').html('<img src="'+img_src+'" onError="this.src=\'/images/issues/image.png\';" class="wikiimage_edit"/><br />wikipedia image');
   form_image = $("#image_preview img:first").attr("src");
   
   }	  //        END of If structure (checking for Image Success from Wikipedia)	  
@@ -327,21 +318,8 @@
   
   }   // END of function  
 
-  // R E S E T    M O D A L
-  /$("#searchfield_reset").click(function(){
-  /$("#query").attr("disabled", "");
-  /$("#query").val("");
-  //hide save button
-  /$('#form_container').css("display", "none");
-  // replace HTML of target Div
-  /$('#text_holder').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia image</div>');  
-  // show dummy image for image
-  /$('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center;">Wikipedia text</div>');
-  /$("#searchfield_reset").css({'display' : 'none'});
-  /});
-
   function valueCollect() {
-  $("#frm_img_url").val($('#image_preview').find("img").attr("src"));
+  $("#frm_img_url").val(extractUrl($("#image_preview").css("background-image")));
   $("#frm_descr").val(form_descr);
   $("#frm_title").val($("#title_holder").html());
   $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_'));
@@ -351,7 +329,6 @@
   $("#val_collector").click(function(){
   valueCollect();
   });
-
 
   //   Close suggestions if clicked elsewhere
   $('#results, #query').hover(function(){ 
@@ -367,59 +344,8 @@
   displayBoxIndex = -1;}
   });
   
-  // F A D E - I N    T H E    I S S U E    B L O C K
 
-  $('.issueblock').hide().fadeIn('slow');
-  
-  // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
-
-  // Animates the dimensional changes resulting from altering element contents
-  // Usage examples: 
-  //    $("#myElement").showHtml("new HTML contents");
-  //    $("div").showHtml("new HTML contents", 400);
-  //    $(".className").showHtml("new HTML contents", 400, 
-  //                    function() {/* on completion */});
-  (function($)
-  {
-  $.fn.showHtml = function(html, speed, callback)
-  {
-  return this.each(function()
-  {
-  // The element to be modified
-  var el = $(this);
-
-  // Preserve the original values of width and height - they'll need 
-  // to be modified during the animation, but can be restored once
-  // the animation has completed.
-  var finish = {width: this.style.width, height: this.style.height};
-
-  // The original width and height represented as pixel values.
-  // These will only be the same as `finish` if this element had its
-  // dimensions specified explicitly and in pixels. Of course, if that 
-  // was done then this entire routine is pointless, as the dimensions 
-  // won't change when the content is changed.
-  var cur = {width: el.width()+'px', height: el.height()+'px'};
-
-  // Modify the element's contents. Element will resize.
-  el.html(html);
-
-  // Capture the final dimensions of the element 
-  // (with initial style settings still in effect)
-  var next = {width: el.width()+'px', height: el.height()+'px'};
-
-  el .css(cur) 
-  el .animate(next, speed, function()  // animate to final dimensions
-  {
-  el.css(finish); // restore initial style settings
-  if ( $.isFunction(callback) ) callback();
-  });
-  });
-  };
-  })(jQuery);
-
-  // S C R O L L - D I V
   // D I S M I S S    T H E    F L A S H    N O T I C E
-
   var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='18' height='18' style='float:right' /></a>";
   if ($('.formerrorhead').html().trim()) {
   $('.formerrorhead').append(close);
@@ -429,53 +355,4 @@
   $("#error_explanation").slideUp(300);
   });
 
-
-  // M O D A L - D I V     S H O W / H I D E   
-  
-  //When you click on a link with class of poplight and the href starts with a # 
-  $('a.poplight[href^=#]').click(function() {
-  var popID = $(this).attr('rel'); //Get Popup Name
-  var popURL = $(this).attr('href'); //Get Popup href to define size
-
-  //Pull Query & Variables from href URL
-  var query= popURL.split('?');
-  var dim= query[1].split('&');
-  var popWidth = dim[0].split('=')[1]; //Gets the first query string value
-
-  //Fade in the Popup and add close button
-  $('#' + popID).fadeIn().css({ 'width': Number( popWidth ) }).prepend('<a href="#" class="close"><img src="/images/system/close.png" class="btn_close" title="Close Window" alt="Close" /></a>');
-
-  //Define margin for center alignment (vertical   horizontal) - we add 80px to the height/width to accomodate for the padding  and border width defined in the css
-  var popMargTop = ($('#' + popID).height() + 80) / 2;
-  var popMargLeft = ($('#' + popID).width() + 80) / 2;
-
-  //Apply Margin to Popup
-  $('#' + popID).css({
-  'margin-top' : -popMargTop,
-  'margin-left' : -popMargLeft
-  });
-
-  //Fade in Background
-  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
-  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies 
-
-  return false;
-  });
-
-  //Close Popups and Fade Layer When clicking on the close or fade layer...
-  $('a.close, #fade').live('click', function() {
-  $('#fade , .popup_block').fadeOut(function() {
-  $('#fade, a.close').remove();  //fade them both out
-  $('#image_preview').html('<img src = "/images/issues/image.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia image</div>');
-  $('#text_holder').html('<img src = "/images/issues/text.png" style="background-color:transparent;opacity:0.1" /><div style="text-align:center">Wikipedia text </div>');
-  $('#title_holder').html('');
-  $('#form_container').css("display", "none");
-  $("#query").val(''); 
-  
-  
-  });
-  return false;
-  });
-  
-  
   });
