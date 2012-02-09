@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120118172502) do
+ActiveRecord::Schema.define(:version => 20120207190644) do
 
   create_table "feed_backs", :force => true do |t|
     t.string   "subject"
@@ -18,14 +18,6 @@ ActiveRecord::Schema.define(:version => 20120118172502) do
     t.string   "email"
     t.integer  "user_id"
     t.integer  "category"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  create_table "hierarchies", :force => true do |t|
-    t.integer  "issue_id"
-    t.integer  "superclass_id"
-    t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -61,9 +53,9 @@ ActiveRecord::Schema.define(:version => 20120118172502) do
     t.integer  "cause_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id"
     t.string   "relationship_type"
     t.integer  "references_count",  :default => 0
+    t.integer  "user_id"
   end
 
   add_index "relationships", ["cause_id"], :name => "index_relationships_on_cause_id"
@@ -98,7 +90,11 @@ ActiveRecord::Schema.define(:version => 20120118172502) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "reputation",        :default => 1
+    t.string   "perishable_token",  :default => "", :null => false
   end
+
+  add_index "users", ["email"], :name => "index_users_on_email"
+  add_index "users", ["perishable_token"], :name => "index_users_on_perishable_token"
 
   create_table "versions", :force => true do |t|
     t.string   "item_type",     :null => false

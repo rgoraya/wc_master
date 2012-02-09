@@ -69,7 +69,7 @@ $(".relationship_partial_toggle").live('click',function(){
 	});
 
 
-	$(".relationship_thumb a").live('click',function(){
+	$(".relationship_thumb_title a, .relationship_thumb_main a").live('click',function(){
 		
 		$(this).parents('.relationship_thumb').animate({'opacity': '1'});
 		$('.relationship_thumb').not($(this).parents('.relationship_thumb')).animate({'opacity': '0.3'});
@@ -83,6 +83,8 @@ $(".relationship_partial_toggle").live('click',function(){
 		close_addNew();
 		$('.del-relation').attr('href', "../relationships/" + relationship_id);
 		
+		$(".issue_linkout").removeAttr('style');
+		$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
 	
 		return false;
 	});
