@@ -13,17 +13,53 @@
 
 #modal_container {
   /* div for determining where we want to put the popup window. */
+  display:none; /*to start*/
   position: relative;
-  top:-101%; /*puts at the top*/
+  top:-100%; /*puts at the top*/
+  left: 1%;
+
+  /* basic border */
+  background-color: #FCFCFC;
+  border: 1px solid #2F2F2F;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  
+  width:400px;
 }
 
-#issue_modal {
-  /*border: 1px solid red;*/
-  color: black;  
+#issue_modal {}
+
+#issue_modal .formcontentdiv { /*overwrite base form*/
+  border:0px; 
+  padding: 5px 10px;
+	font-size: 12px;
 }
 
-#relation_modal {
-  color: black;
+#relation_modal {}
+
+#relation_modal .rationale_container {
+  margin:0px;
+  padding:0px;
+}
+
+#relation_modal .rationale_headers {
+  /* adapted from .formheading */
+  padding:0px 0px 0px 0px;
+	margin:0px;
+	margin-top:-1px;
+	width:auto;
+	background-color:#FFFFFF;
+	font:bold 16px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	color: #434343;
+	text-decoration:none;
+	text-shadow:0 0px 1px rgba(0,0,0,0.2);
+}
+
+#relation_modal .relation_descr {
+  border:0px;
+  margin:0px;
+  width:auto;
+  font-size:12px;
 }
 
 #interact_form {

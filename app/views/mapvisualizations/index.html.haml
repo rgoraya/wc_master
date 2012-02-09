@@ -12,7 +12,7 @@
   #{load_raphael(@vis.compact_display)}
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 
--#for dynamically appearing objects in response to ajax
+-#for dynamically appearing/disappearing objects in response to ajax
 :javascript
   $(document).ready(function(){
     $("#spinner").toggle()
@@ -24,9 +24,14 @@
         $("#spinner").toggle()
       })
     $("#clickForm").live('ajax:complete', function(evt, data) {
-      $('#modal_container').html(data.responseText);
+      $('#modal_fill').html(data.responseText);
+      $('#modal_container').toggle(true);
       $('#clickForm').children().not('#do').remove();
     });
+    $('#modal_container .btn_close').click(function(){
+      $('#modal_container').toggle(false);
+  	});
+
   });
 
 #contentwrapper
@@ -34,8 +39,9 @@
     #canvas_container
       = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
       #modal_container
+        #modal_fill
+        .btn_close{:title => "Close Window", :style => "margin-top:-25px;margin-right:-3px"}
     #interaction
-      / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
       #reset_form
         = form_tag({:action => "index", :layout_cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
           #inputs

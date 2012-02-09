@@ -1,7 +1,33 @@
 = puts "relation_modal loaded for relation #{relation.id}"
 
 #relation_modal
-  -# this involves multiple db calls, and should probably not stick around ?
-  %b You clicked on #{relation.issue.title} #{relation.relationship_type.nil? ? 'increases' : (relation.relationship_type == 'I' ? 'decreases' : 'is type of')} #{relation.cause.title}
-  %br
-  %b Curve: #{curve}
+  -#I would like to be able to just = render "issues/get_relationship_descr", but would need to split that into a partial
+  .rationale_container
+    .relation_descr        
+      .rationale_headers
+        = relation.cause.title + " " + (relation.relationship_type.nil? ? 'increases' : (relation.relationship_type == 'I' ? 'decreases' : 'is type of')) + " "+ relation.issue.title
+      .clear_both
+      %p
+        %b
+          %span#issue_title_dynamic
+            = link_to relation.issue.title + ':', relation.issue, :title=>"View this Issue"
+
+        %span#issue_descr_dynamic
+          = relation.issue.description.html_safe
+        %img.linkout{:src=>"/images/system/linkout.png"}
+        %a{:href=>relation.issue.wiki_url, :target => "_blank"} more on Wikipedia
+
+      %p  
+        %b
+          %span#issue_title_dynamic
+            = link_to relation.cause.title + ':', relation.cause, :title=>"View this Issue"
+   
+        %span#issue_descr_dynamic
+          = relation.cause.description.html_safe
+        %img.linkout{:src=>"/images/system/linkout.png"}
+        %a{:href=>relation.cause.wiki_url, :target => "_blank"} more on Wikipedia
+      -# printing curve for debugging
+      %p
+        %b Curve: #{curve}
+
+      .clear_both

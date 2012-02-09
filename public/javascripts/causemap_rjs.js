@@ -2,14 +2,14 @@
 ** This file includes methods for drawing the graph on a Raphael.js canvas
 *****/
 
-var t_off = 5 //txt offset
+var t_off = 8 //txt offset
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
   if(!compact){
     circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
     .attr({
-      fill: '#CA0000', 'stroke-width': 0
+      fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
     })
 
     txt = paper.text(node.x, node.y+t_off, node.name)
@@ -23,7 +23,7 @@ function drawNode(node, paper){
   }
   else{
     circ = paper.circle(node.x, node.y, 2)//+(node.weight*6))
-    .attr({fill: '#CA0000', 'stroke-width': 0})
+    .attr({fill: '#FFD673', 'stroke': '#434343', 'stroke-width': .5})
 
     icon = paper.set()
     .push(circ)
@@ -42,22 +42,24 @@ function drawEdge(edge, paper){
   
     //set attributes based on relationship type (bitcheck with constants)
     if(edge.reltype&INCREASES)
-      e.attr({stroke:'#408EB8'})
+      e.attr({stroke:'#C06B82'}) //BA717F
     else if(edge.reltype&SUPERSET)
-      e.attr({stroke:'#BBBBBB'}) //change for superset
+      e.attr({stroke:'#BEBEBE'}) //BBBBBB change for superset
     else //if decreases
-      e.attr({stroke:'#BA717F'})
-    // if(edge.reltype&HIGHLIGHTED)
-    //   e.glow({width:3,fill:false,color:'#FFFF00'}) //would have to animate this as well it seems...
+      e.attr({stroke:'#008FBD'}) //408EB8, 54B9D9
+    //if(edge.reltype&HIGHLIGHTED)
+    //e.glow({width:4,fill:false,color:'#FFFF00',opacity:1}) //would have to animate this as well it seems...
 
     if(!compact)
       e.attr({'stroke-width':2})
     else
       e.attr({'stroke-width':1})
     
+    //e.attr({'arrow-end':'classic'})
+    
     icon = paper.set() //for storing pieces of the line as needed
     icon.push(e)
-    .click(function() { clickEdge(edge, curve)})
+    .click(function() { clickEdge(edge)})
     .mouseover(function() {this.node.style.cursor='pointer';})
 
     return icon;
@@ -138,9 +140,10 @@ function clickNode(node){
 }
 
 function clickEdge(edge){
+  curve = getPath(edge);
   $('#clickForm').children('#do').attr({value:'show_relation'});
   $('#clickForm').append('<input name="id" value='+edge.id+'>');
-  $('#clickForm').append('<input name="curve" value='+getPath(edge)+'>');
+  $('#clickForm').append('<input name="curve" value="'+curve+'">');
   $('#clickForm').submit();//button.trigger("click");
 
   console.log(edge.name+"\n"+curve);
