@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120207190644) do
+ActiveRecord::Schema.define(:version => 20120118172502) do
 
   create_table "feed_backs", :force => true do |t|
     t.string   "subject"
@@ -45,7 +45,6 @@ ActiveRecord::Schema.define(:version => 20120207190644) do
     t.string   "reference_content"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id"
   end
 
   create_table "relationships", :force => true do |t|
@@ -55,7 +54,6 @@ ActiveRecord::Schema.define(:version => 20120207190644) do
     t.datetime "updated_at"
     t.string   "relationship_type"
     t.integer  "references_count",  :default => 0
-    t.integer  "user_id"
   end
 
   add_index "relationships", ["cause_id"], :name => "index_relationships_on_cause_id"
@@ -90,11 +88,7 @@ ActiveRecord::Schema.define(:version => 20120207190644) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "reputation",        :default => 1
-    t.string   "perishable_token",  :default => "", :null => false
   end
-
-  add_index "users", ["email"], :name => "index_users_on_email"
-  add_index "users", ["perishable_token"], :name => "index_users_on_perishable_token"
 
   create_table "versions", :force => true do |t|
     t.string   "item_type",     :null => false

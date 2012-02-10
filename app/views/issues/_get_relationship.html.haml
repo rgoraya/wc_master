@@ -82,10 +82,10 @@
         = @permalink
       
       - if current_user
-        %div{:class=>"relationship_delete"}
+        /%div{:class=>"relationship_delete"}
           
-          %a{"data-confirm" => "are you sure?", "data-title"=>"Delete Causal Link", "data-remote"=>"true", "data-method" => "delete", :href => "../relationships/#{@relationship.id}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
-            Delete Relationship       
+        /  %a{"data-confirm" => "are you sure?", "data-title"=>"Delete Causal Link", "data-remote"=>"true", "data-method" => "delete", :href => "../relationships/#{@relationship.id}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
+        /    Delete Relationship       
 
 
             
