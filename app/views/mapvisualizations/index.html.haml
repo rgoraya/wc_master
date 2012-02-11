@@ -11,36 +11,19 @@
   #{javascript_graph(@vis.nodes,@vis.edges,@vis.adjacency)}
   #{load_raphael(@vis.compact_display)}
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
-
--#for dynamically appearing/disappearing objects in response to ajax
-:javascript
-  $(document).ready(function(){
-    $("#spinner").toggle()
-    $("form.button_to") //anything formed by the button_to tag apparently
-      .bind("ajax:beforeSend", function() {
-        $("#spinner").toggle()
-      })
-      .bind("ajax:complete", function() {
-        $("#spinner").toggle()
-      })
-    $("#clickForm").live('ajax:complete', function(evt, data) {
-      $('#modal_fill').html(data.responseText);
-      $('#modal_container').toggle(true);
-      $('#clickForm').children().not('#do').remove();
-    });
-    $('#modal_container .btn_close').click(function(){
-      $('#modal_container').toggle(false);
-  	});
-
-  });
+= javascript_include_tag "mapvisualization_index.js" #for interaction/ajax stuff
 
 #contentwrapper
   .contentmain
-    #canvas_container
-      = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
+    #vis_container{:style => "margin-top:10px"}
+      #spinner
+        = image_tag "system/spinner.gif", :size => "64x64"
+      #canvas_container
       #modal_container
+        .up_pointer_arrow
         #modal_fill
-        .btn_close{:title => "Close Window", :style => "margin-top:-25px;margin-right:-3px"}
+        .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
+        .down_pointer_arrow
     #interaction
       #reset_form
         = form_tag({:action => "index", :layout_cmd => 'reset_graph'}, {:remote => true, :method => :get}) do

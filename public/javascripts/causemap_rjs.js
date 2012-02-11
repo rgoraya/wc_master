@@ -55,8 +55,6 @@ function drawEdge(edge, paper){
     else
       e.attr({'stroke-width':1})
     
-    //e.attr({'arrow-end':'classic'})
-    
     icon = paper.set() //for storing pieces of the line as needed
     icon.push(e)
     .click(function() { clickEdge(edge)})
@@ -128,25 +126,47 @@ function getPath(edge)
   return "" //in case we didn't get anything?
 }
 
+function getEdgeCenter(edge)
+{
+  //midpoint is (average?) of midpoints between each segment
+  //can I parse out the points from a curve, to save time? Or calc midpoint at same time?
+  //direction is  < http://www.cs.helsinki.fi/group/goa/mallinnus/curves/curves.html >
+  
+}
 
 //Interaction functions, for when we click on things. Variables passed are things we're going to use
 function clickNode(node){
-  $('#clickForm').children('#do').attr({value:'show_issue'});
-  //$('#clickForm').append('<input name="do" value="show_issue">')
-  $('#clickForm').append('<input name="id" value='+node.id+'>');
-  $('#clickForm').submit();//button.trigger("click");
-  
+  //do form submit without needing to make the form!
+  $.ajax({
+    url: '/mapvisualizations',
+    data: {do:'get_issue',id:node.id, x:node.x, y:node.y},
+    complete: function(data) {show_modal(data);},
+    dataType: 'script'
+  });
+
   console.log(node.name);
+  // $('#clickForm').children('#do').attr({value:'show_issue'});
+  // $('#clickForm').append('<input name="id" value='+node.id+'>');
+  // $('#clickForm').submit();//button.trigger("click");
 }
 
 function clickEdge(edge){
   curve = getPath(edge);
-  $('#clickForm').children('#do').attr({value:'show_relation'});
-  $('#clickForm').append('<input name="id" value='+edge.id+'>');
-  $('#clickForm').append('<input name="curve" value="'+curve+'">');
-  $('#clickForm').submit();//button.trigger("click");
+  x = (edge.a.x+edge.b.x)/2 //just estimate center of straight line for now
+  y = (edge.a.y+edge.b.y)/2
+
+  $.ajax({
+    url: '/mapvisualizations',
+    data: {do:'get_relation',id:edge.id, curve:curve, x:x, y:y},
+    complete: function(data) {show_modal(data);},
+    dataType: 'script'
+  });
 
   console.log(edge.name+"\n"+curve);
+  // $('#clickForm').children('#do').attr({value:'get_relation'});
+  // $('#clickForm').append('<input name="id" value='+edge.id+'>');
+  // $('#clickForm').append('<input name="curve" value="'+curve+'">');
+  // $('#clickForm').submit();//button.trigger("click");
 }
 
 
@@ -175,35 +195,6 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
   paper.clear() //start blank
   easing = "backOut" //either this or linear look nice
 
-  //move the old nodes into the new
-  for(var i=0, len=fromNodes['keys'].length; i<len; i++)
-  {
-    fromNode = fromNodes[fromNodes['keys'][i]] //easy access
-    toNode = toNodes[fromNode['id']] //corresponding toNode (one that has id as key; could also just check if has the same key)
-
-    icon = drawNode(fromNode, paper)
-
-    if(typeof toNode === 'undefined'){ //if no toNode
-      icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear', function(){this.remove()}) //disappear
-    }
-    else{
-      icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+t_off }, 1000, easing)
-    }
-  }
-  
-  //also check if anyone needs to appear, and make those as well
-  for(var i=0, len=toNodes['keys'].length; i<len; i++)
-  {
-    toNode = toNodes[toNodes['keys'][i]] //easy access
-    fromNode = fromNodes[toNode['id']] //corresponding fromNode (one that has id as key; could also just check if has the same key)
-
-    if(typeof fromNode === 'undefined'){ //if no fromNode
-      drawNode(toNode, paper)    
-      .attr({'opacity':0, 'fill-opacity':0})
-      .animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
-    }
-  }
-
   //move old edges into the new
   for(var i=0, len=fromEdges['keys'].length; i<len; i++)
   {
@@ -231,6 +222,37 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
       .animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
     }
   }  
+
+  //move the old nodes into the new
+  for(var i=0, len=fromNodes['keys'].length; i<len; i++)
+  {
+    fromNode = fromNodes[fromNodes['keys'][i]] //easy access
+    toNode = toNodes[fromNode['id']] //corresponding toNode (one that has id as key; could also just check if has the same key)
+
+    icon = drawNode(fromNode, paper)
+
+    if(typeof toNode === 'undefined'){ //if no toNode
+      icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear', function(){this.remove()}) //disappear
+    }
+    else{
+      fromNode.x = toNode.x; fromNode.y = toNode.y; //change the stored location for future querying (interaction)
+      icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+t_off }, 1000, easing)
+    }
+  }
+  
+  //also check if anyone needs to appear, and make those as well
+  for(var i=0, len=toNodes['keys'].length; i<len; i++)
+  {
+    toNode = toNodes[toNodes['keys'][i]] //easy access
+    fromNode = fromNodes[toNode['id']] //corresponding fromNode (one that has id as key; could also just check if has the same key)
+
+    if(typeof fromNode === 'undefined'){ //if no fromNode
+      drawNode(toNode, paper)    
+      .attr({'opacity':0, 'fill-opacity':0})
+      .animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
+    }
+  }
+
 } //animateNodes
 
 

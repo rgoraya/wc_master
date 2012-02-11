@@ -1,30 +1,56 @@
 #canvas_container {
   border: 1px solid #bebebe;
-  margin-top: 10px;
+  padding:0px;
 /*  margin-left: auto;
   margin-right: auto;*/
 }
 
-.centered_spinner {
+#spinner {
   position: relative;
-  left:45%; /*forced position, about there*/
-  top:-60%;
+  z-index:1;
+  margin-bottom:-64px;
 }
 
 #modal_container {
-  /* div for determining where we want to put the popup window. */
+  /* popup window with things inside it */
   display:none; /*to start*/
   position: relative;
-  top:-100%; /*puts at the top*/
-  left: 1%;
+  width:400px;
+  height:150px;
+}
 
-  /* basic border */
+#modal_fill {
   background-color: #FCFCFC;
+  padding: 0px;
+  width:400px;
+  height:150px;
+  overflow:auto;
+  clear:both;
+  /* basic border */
   border: 1px solid #2F2F2F;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
-  padding: 5px;
-  
-  width:400px;
+}
+
+.up_pointer_arrow {
+  display:none; /*hide by default*/
+  clear:both;
+	width: 0px;
+	height: 0;
+	float:right;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 20px solid #2f2f2f;
+}
+
+.down_pointer_arrow {
+  display:none; /*hide by default*/
+  clear:both;
+	width: 0px;
+	height: 0;
+	float:right;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 20px solid #2f2f2f;
 }
 
 #issue_modal {}

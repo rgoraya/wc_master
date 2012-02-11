@@ -61,12 +61,12 @@ class Mapvisualization #< ActiveRecord::Base
     end
 
     def to_s
-      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'is type of')
+      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'includes')
       "Edge "+@id.to_s+": "+@a.to_s+" "+conn+" "+@b.to_s
     end
 
     def name
-      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'is type of')
+      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'includes')
       @a.name+" "+conn+" "+@b.name
     end
 
