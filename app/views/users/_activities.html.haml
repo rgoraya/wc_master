@@ -14,12 +14,18 @@
   - @activities.each do |activity|
     - @activity = @user.formatted(activity)
 
+    // When?
     %div.activity_time
       = time_ago_in_words(@activity[:time]) + ' ago' 
 
-    %div.activity_score{:style=>"float:right;color:#BEBEBE;text-align:right;"}
+    // Score for this activity
+    %div.activity_score
       = @activity[:score]
+      
+    // will display icon according to the action.
+    %div.activity_icon{:style=>"background-position:#{@activity[:icon_position]}"}
 
+    // form the sentence describing this activity
     %div.activity_sentence{:title=>(@activity[:action]+" "+@activity[:type]+" "+@activity[:what])}
       %span
         = @activity[:action]
@@ -28,9 +34,6 @@
       %span  
         = @activity[:what].html_safe
       %span
-
-    %div.activity_icon{:style=>"background-position:#{@activity[:icon_position]}"}
-      // will display icon according to the action.
       
     .clearboth		
 		

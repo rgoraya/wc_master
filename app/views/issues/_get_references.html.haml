@@ -35,7 +35,7 @@
       %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar/#{@submitter_avatar}?s=26&d=mm"}          
     - else
       %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar?s=26&d=mm"} 
-    .reference_text{:style=>"float:left;margin-left:5px;"}  
+    .reference_text
       %a{:href=>"#{reference.reference_content}", :target=>"_blank"}>= reference.reference_content
       %br
         %span.reference_owner

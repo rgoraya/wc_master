@@ -27,7 +27,7 @@ margin:0 auto;
 }
 
 #footer {
-	background: #fcfcfc;
+	background: #f5f5f5;
 	/*background: -moz-linear-gradient(center bottom, #fcfcfc 0%, white 100%);
 	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=white, endColorstr=#fcfcfc);
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#fcfcfc')";*/
@@ -426,7 +426,23 @@ z-index:0;
 	text-shadow:0 0px 1px rgba(0,0,0,0.2);
 	color: #434343;
 	margin:0px 5px 5px 0px;
-	width:auto;
+	max-width: 275px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;	
+	
+}
+
+#issues .formheading:hover, #userissues .formheading:hover{
+	max-width: 400px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	margin-right:-150px;
+	position:relative;
+	background:#fefefe;
+	z-index: 1;
+	padding-right:5px;	
 }
 
 .pageheading{
@@ -3025,14 +3041,14 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 .activity_icon{
 	background:url('/images/system/activity.png') no-repeat 0px 0px; 
 	width:20px; height:20px; 
-	float:right; 
+	float:left; 
 	margin-right:10px;
 }
 
 .activity_sentence{
 	padding:4px 0px; 
 	font-size:13px; 
-	float:right;
+	float:left;
 	width:400px;
 	margin-right:10px;
 	overflow: hidden;
@@ -3045,6 +3061,8 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+.activity_score{float:right;color:#BEBEBE;}
 
 .gravatar {
 	margin:10px 0px 5px 0px;
@@ -3779,6 +3797,10 @@ cursor:default;
 ul.reference_error_list{margin:0px; padding:0px;}
 
 ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
+
+.reference_text{
+	float: left;margin-left: 5px;word-wrap: break-word;	max-width: 790px;	
+}
 
 .clearboth{clear:both;}
 

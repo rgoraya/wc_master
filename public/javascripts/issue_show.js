@@ -95,8 +95,9 @@ $(".relationship_partial_toggle").live('click',function(){
 		$("#modal_form").toggle();		
 	});
 	
-	$('.btn_close, #val_collector, .relationship_partial_toggle').click(function(){
+	$('.btn_close, #val_collector, .relationship_partial_toggle').live('click', function(){
 		close_addNew();
+		$("#modal_form").hide();
 	});
 
 // -------------------------------------------------------------------------------

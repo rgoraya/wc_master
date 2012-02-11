@@ -186,7 +186,7 @@
   var ignore_keys_array = [18,20,17,40,35,13,27,36,45,37,93,91,34,33,39,16,9,38];
   var mouse_is_inside = false;
   var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&redirects&format=json&page=';
-  var jsonData = " ";
+  // var jsonData = "";
   var img_src = '';
   var text_preview = '';
   
@@ -258,8 +258,14 @@
   $("#btn_preview").click(function(){
   if ($("#query").val()){
   $("#results").empty();
-  // $("#searchfield_reset").css({'display' : 'block'});
-  // $("#query").attr("disabled", "disabled");
+  $("#title_holder").html('');
+  // hide the save button
+  $('#form_container').css("display", "none");
+  // replace HTML of target Div
+  $('#text_holder ').html('');
+  $('#text_preview').removeAttr('style'); 
+  // show dummy image for image
+  $('#image_preview').removeAttr('style');
   parseJSON();
   
   $("#results").empty();
@@ -272,9 +278,14 @@
   // initialize spinner
   $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
   // create the json url
-  jsonData = $.trim(url_img_name+encodeURIComponent($("#query").val())+'&callback=?');  
+  var queryRaw = $("#query").val()
+  var queryEncoded = encodeURIComponent(queryRaw).replace('\'','%27').replace('(','%28').replace(')','%29');
+  var jsonData = (url_img_name + queryEncoded + "&callback=?")  
+ 
+  
   // parse the json
   $.getJSON(jsonData, function (data) {
+  
   $.each(data, function (key, val) {
   // call the getJson function
   getJson(val);    
@@ -282,8 +293,6 @@
   
   // remove spinner
   $("#wait").empty();
-  // highlight
-  //$("div#text_preview").effect("highlight", {color: '#AADDEE'}, 3000); 
   });}
   
   
@@ -303,14 +312,6 @@
   //  Throw error if no text was received
   if(text_preview == ''){
   text_preview = "No data! Please try a different keyword."
-  
-  // hide the save button
-  $('#form_container').css("display", "none");
-  // replace HTML of target Div
-  $('#text_holder ').html('');
-  $('#text_preview').removeAttr('style'); 
-  // show dummy image for image
-  $('#image_preview').removeAttr('style');
   
   //  If the search was successful - 
   } else {
