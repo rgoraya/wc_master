@@ -3078,7 +3078,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	/*text-align:left;*/
 	font-size: 16px;
 	/*text-shadow:0 -1px 1px rgba(0,0,0,0.2);*/
-	color: #858585; 
+	color:#434343; 
 	border-style:solid;
 	border-color:whiteSmoke;
 	border-width:1px;
@@ -3089,8 +3089,20 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
   border-radius: 5px;
 	margin:10px 0px 0px 0px;
 }
+
+#versions a{
+text-decoration:none;
+text-shadow:none;
+color: #434343;;
+}
+
+#versions a:hover{
+text-decoration:underline;
+color:#4DB8DB;
+}
+
+
 .version:hover, #more:hover{
-color:#434343;
 background-color:whiteSmoke;
 }
 

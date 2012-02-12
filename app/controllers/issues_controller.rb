@@ -386,7 +386,6 @@ require 'backports'
     @issue = Issue.find(params[:id])
 		@versions = []
 		if Version.last.id - params[:more].to_i >= 0
-
 			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id - params[:more].to_i, "Relationship"]).each do |version|
 				relationship = version.get_object
 				if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
