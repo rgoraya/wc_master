@@ -20,15 +20,12 @@ require 'backports'
   def show
     @issue = Issue.find(params[:id]) 
     
-
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
     else
       @rel_type = "is caused by"
     end
-    
-    
     
     case @rel_type
 
@@ -147,7 +144,7 @@ require 'backports'
     end
 
     respond_to do |format|
-      format.html {render :layout=>"issues/get_relationship"}
+      format.html { render :layout=>"issues/get_relationship"}
       format.xml  { render :xml => @issue }
       format.js
       end 

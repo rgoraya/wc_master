@@ -11,14 +11,14 @@
 	%div{:id=>"error"}
 		- if @feed_back.errors.any?
 			= @feed_back.errors.full_messages.push("Feedback submission failed").join("\n")
-	%div{:style=>"clear:both;"}
+	.clearboth
 
 #contentwrapper
 	.contentmain
 		%div{:id=>'feedback'}
 			= render 'form'
 
-%div{:style=>"clear:both;"}
+.clearboth
 
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css", :type => "text/javascript"}
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js", :type => "text/javascript"}

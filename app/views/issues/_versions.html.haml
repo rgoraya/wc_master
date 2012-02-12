@@ -61,5 +61,5 @@
 						New action
 				%div{:style=>"float:right;margin:2px 1px 2px 1px;"}
 					- if current_user
-						= link_to image_tag('/images/system/reset.png'), restore_version_path(version), {:title=>"Reset to this change", :border=>0, :height=>0, :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :class=>"large_icon_box"}
+						= link_to image_tag('/images/system/reset.png'), restore_version_path(version), {:title=>"Revert this change", :border=>0, :height=>0, :confirm=>"Rollback will revert to the version up to #{DateTime.parse(version.created_at.to_s).strftime('%b %d %Y - %R:%S')} for relationship:\r#{@issue.title} - #{relation}: #{Issue.find(id).title}\r\rContinue?", :class=>"large_icon_box"}
 				%div{:style=>"clear:both"}

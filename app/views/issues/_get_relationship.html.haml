@@ -16,7 +16,7 @@
             
         .rationale_headers
           Relationship
-        %div{:style => "clear:both"}
+        .clearboth
         // paragraph retrieved from wikipedia page
         %p
           %b
@@ -42,7 +42,7 @@
               
         .rationale_headers
           References  
-        %div{:style => "clear:both"}  
+        .clearboth  
 
 
         
@@ -61,13 +61,13 @@
             %br
             %a{:href=>"/users/#{@relationship.user.id}"}>= @relationship.user.username
             %br>= pluralize(@relationship.user.relationships.length(), "causal link")
-          %div{:style=>"clear:both;"}
+          .clearboth
         - else
           %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
           .gravatar_text  
             %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'
             %br>Anonymous user
-          %div{:style=>"clear:both;"}        
+          .clearboth        
 
       /%div.discussion_submit{:style=>"margin-bottom:10px;float:none;padding:0px;"}
       /  .med-relation
@@ -82,24 +82,24 @@
         = @permalink
       
       - if current_user
-        %div{:class=>"relationship_delete"}
+        /%div{:class=>"relationship_delete"}
           
-          %a{"data-confirm" => "are you sure?", "data-title"=>"Delete Causal Link", "data-remote"=>"true", "data-method" => "delete", :href => "../relationships/#{@relationship.id}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
-            Delete Relationship       
+        /  %a{"data-confirm" => "are you sure?", "data-title"=>"Delete Causal Link", "data-remote"=>"true", "data-method" => "delete", :href => "../relationships/#{@relationship.id}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
+        /    Delete Relationship       
 
 
             
-    %div{:style => "clear:both"}
+    .clearboth
     
   %div.relation_discussion{:style=>"display:none;"}
     .rationale_headers
       Discussion
-    %div{:style => "clear:both"}  
+    .clearboth  
 
     %textarea.discussion_input
         
     %div.discussion_submit
       Submit
-    %div{:style => "clear:both"}
+    .clearboth
             
-  %div{:style => "clear:both"}
+  .clearboth
