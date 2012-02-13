@@ -7,83 +7,35 @@
 			Revision history for:
 			%b				
 				= link_to @issue.title, issue_path(@issue), :class=>"logo_txt", :style=>"text-decoration:none;text-shadow:none"
-		-#%div{:id=>"notice"}
-			-#= notice
+
 		%div{:id=>"versions"}
 			= render "versions"
+		%div{:id=>"more", :style=>"margin-top:10px; padding:5px 10px; border:1px solid #f5f5f5; font-size:18px; text-align:center; font-weight:bold;", :title=>"More contributions"} Load more
+		%div{:id=>"wait_for_more", :align=>"center"}
 		
-		- if @versions.count > 0
-			%div{:id=>"wait", :style=>"display:block;margin-left:auto; margin-right:auto;"}
-			%div{:id=>"get_more", :segment=>"2", :style=>"text-align:center;padding:5px; font-size:18px;cursor:pointer;"} More
-			-#%div{:id=>"go", :segment=>"2",:style=>"float:right;width:100px;margin-top:20px;", :title=>"More contributions"}
-			-#	%div{:id=>"next", :style=>"float:right;cursor:pointer;", :title=>"Next"} Next
-			-#	%div{:id=>"previous", :style=>"float:left;cursor:pointer;", :title=>"Previous"} Previous
-			-#%div{:style=>"clear:both;"}
-%div{:style=>"clear:both;"}
+.clearboth
+
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css", :type => "text/javascript"}
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js", :type => "text/javascript"}
 %script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js", :type => "text/javascript"}
 %script{:type => "text/javascript"}
 
-	$("div#get_more").click(function(){ 
+	$(document).ready(function(){
 	
-	$(this).hide();
-	$("div#wait").html('<img src="/images/system/spinner.gif" />');
-
-	$.ajax({url: document.location.href, data: {segment: $("div#get_more").attr("segment")}, success: function(data){
-	$("div#wait").empty();
-	$("div#get_more").show();
-	$("div#get_more").attr("segment", parseInt($("div#get_more").attr("segment"))+1);
-	}});
-
-	return false;
-	});
-
-
-
+	$("div#more").click(function(){
+	$("div#more").hide();
+	$("#wait_for_more").html('<img src="/images/system/spinner.gif" style="margin-top:10px;" height=30/>');
 	
+	var lastId = parseInt($("div#data").filter(":last").attr("more"));
 
-	$("div#next").click(function(){
-  
-	$("div#previous").show();
-	$("div#go").attr("segment", parseInt($("div#go").attr("segment"))+1);
-	$("div#go").hide();
-	$("div#wait").html('<img src="/images/system/spinner.gif" />');
+	$.ajax({url: document.location.href, data: {more: parseInt($("div#data").filter(":last").attr("more"))},success: function(data){
 
-	$.ajax({url: document.location.href, data: {segment: $("div#go").attr("segment")}, success: function(data){
-	$("div#go").show();
-	$("div#wait").empty();
-
-	if ($(".version").length < 10){
-	$("div#next").hide();
-	}else{
-	$("div#next").show();
+	$("#wait_for_more").empty();
+	if (lastId >= parseInt($("div#data").filter(":last").attr("more"))){
+	$("div#more").show();
 	}
-
 	}});
 
 	return false;
 	});
-
-	$("div#previous").click(function(){
-
-	$("div#next").show();
-	if (parseInt($("div#go").attr("segment")) > 2){
-  
-	$(this).show();
-	$("div#go").attr("segment", parseInt($("div#go").attr("segment"))-1);
-	$("div#go").hide();
-	$("div#wait").html('<img src="/images/system/spinner.gif" />');
-
-	$.ajax({url: document.location.href, data: {segment: $("div#go").attr("segment")},success: function(data){
-	$("div#go").show();
-	$("div#wait").empty();
-	}});
-
-	}else{
-	$(this).hide();
-	}
-
-	return false;
 	});
-

@@ -9,6 +9,9 @@
     = stylesheet_link_tag "styles"
     = yield :include_custom_stylesheet
     = javascript_include_tag :defaults
+    = javascript_include_tag  "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"
+    = javascript_include_tag  "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"    
+    
     = yield :include_custom_javascript_head
     = csrf_meta_tag
   
@@ -32,7 +35,7 @@
                 = text_field_tag :query, params["def"], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_visible_input"
                 %input{:type=>"button", :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"search_submit_btn"}
 
-                %div{:style=>"clear:both"}
+                .clearboth
                                     
               %div{:id=>"issue_search"}
                 = render 'issues/issue_search'
@@ -65,56 +68,50 @@
                     
                     // filler
                     %div.white_filler
-                    %div{:style=>"clear:both;"} 
+                    .clearboth 
                       
                     = link_to "Edit profile", edit_user_path(current_user.id)
                     = link_to "Logout", :logout
                     = link_to "Feedback", new_feed_back_path
                 
-                %div{:style=>"clear:both;"}      
+                .clearboth      
 
               - else
                 
                 .login_button_seperator{:style=>"background-image:none; padding-left:0px;"}
                   = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button",:style=>"background-image:url('/images/system/user.png');margin:-2px 0px 0px 6px;"
-                
-                
+                                
                 %div.login_main_container{:style=>"float:left;"}
                   .login_form_opener 
                     Login &#x25BC;
                   
-                  %div{:style=>"clear:both;"}
+                  .clearboth
                   %div.login_form_container
                     .white_filler_big
-                    %div{:style=>"clear:both;"} 
+                    .clearboth 
                     = form_for UserSession.new do |f|
                       #form_elements{:style=>"margin:10px;"}
                       
                         .field
                           %div{:class=>"formlabel_small"}
                             = f.label :username                        
-                         
                           = f.text_field :username, :class=>"formfield_small", :autocomplete=>"off"
-
+                        
                         .field
                           %div{:class=>"formlabel_small",:style=>"margin-top:5px;"}
                             = f.label :password  
-                          
-                          = f.password_field :password, :class=>"formfield_small", :autocomplete=>"off"
-                          
+                          = f.password_field :password, :class=>"formfield_small", :autocomplete=>"off"                          
+                        
                         .actions
                           = f.submit 'Login', :class=>"discussion_submit", :style=>"float:left; margin-top:10px"
                         
-                          %div{:style=>"clear:both;"}
+                          .clearboth
 
-
-                  %div{:style=>"clear:both;"}
-        
+                  .clearboth
                
-              %div{:style=>"clear:both;"}
-              
-          
-          %div{:style=>"clear:both;"}  
+              .clearboth
+                      
+          .clearboth  
 
       #content
         //.filler
@@ -129,14 +126,11 @@
         %a{:href=>"http://www.uci.edu/", :title=>"UCI website", :target=>"_blank"}
           UC, Irvine.
         The Site uses 
-        /%img{:src=>"/images/system/mediawiki.png", :style=>"height:32px; margin-bottom:-12px"}
         %a{:href=>"http://www.mediawiki.org/wiki/API:Main_page", :title=>"MediaWiki API website", :target=>"_blank"}
-          MediaWiki, 
-        /%img{:src=>"/images/system/google.png", :style=>"height:22px; margin-bottom:-7px"}
+          MediaWiki,
         %a{:href=>"http://code.google.com/apis/maps/index.html", :title=>"Google Maps API website", :target=>"_blank"}  
           Google Maps
-        and 
-        /%img{:src=>"/images/system/panoramio.png", :style=>"height:32px; margin-bottom:-12px"}
+        and
         %a{:href=>"http://www.panoramio.com/api/widget/api.html", :title=>"Panoramio API website", :target=>"_blank"}
           Panoramio APIs
       

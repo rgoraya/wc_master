@@ -13,7 +13,7 @@
         Edit profile information
       - else  
         Correct errors to proceed
-    %div{:style=>"clear:both;"}    
+    .clearboth    
 
     %div{:class => "formcontentdiv"}
 
@@ -36,7 +36,7 @@
                 
               %div{:class=>"formlabel"}
                 = f.text_field :username, :class=>"formfield", :autocomplete=>"off"
-              %div{:style=>"clear:both;"}
+              .clearboth
             
             .field
               %div{:class=>"formlabel", :style=>"text-align:right;"}
@@ -45,7 +45,7 @@
                   Add a valid email address                
               %div{:class=>"formlabel"}
                 = f.text_field :email, :class=>"formfield", :autocomplete=>"off"
-              %div{:style=>"clear:both;"}
+              .clearboth
       
             .field
               %div{:class=>"formlabel", :style=>"text-align:right;"}
@@ -54,7 +54,7 @@
                   Minimum 4 characters                
               %div{:class=>"formlabel"}
                 = f.password_field :password, :class=>"formfield", :autocomplete=>"off"
-              %div{:style=>"clear:both;"}
+              .clearboth
               
               
             .field
@@ -64,22 +64,23 @@
                   Re-enter your password
               %div{:class=>"formlabel", :style=> "margin-bottom:30px"}
                 = f.password_field :password_confirmation, :class=>"formfield", :autocomplete=>"off"
-              %div{:style=>"clear:both;"}
+              .clearboth
               
             .actions
               %div{:class=>"form_button"}
                 = f.submit 'Save', :class=>"save_button"
-              %div{:style=>"clear:both;"}
+              .clearboth
           
           
           
 #clear{:style => "clear:left;"}       
 
 %script{:type => "text/javascript"}
+  $(function() {
   // D I S M I S S    T H E    F L A S H    N O T I C E
 
   var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='18' height='18' style='float:right' /></a>";
-  if ($('.formerrorhead').html().trim()) {
+  if ($('.formerrorhead').text()) {
   $('.formerrorhead').append(close);
   }
   
@@ -87,3 +88,5 @@
   $("#error_explanation").slideUp(300);
   });
  
+  });
+

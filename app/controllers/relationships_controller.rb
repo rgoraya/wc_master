@@ -89,7 +89,7 @@ class RelationshipsController < ApplicationController
 																		:me=>current_user.id, \
 																		:you=>@relationship.user_id, \
 																		:undo=>false, \
-																		:calculate=>false)
+																		:calculate=>true)
 
 
     respond_to do |format|

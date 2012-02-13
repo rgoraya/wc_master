@@ -10,7 +10,7 @@
     .pageheading
       %span{:style=>"color:#4DB8DB;"}>= @user.username
 
-    %div{:style=>"clear:both;"}
+    .clearboth
       
       
     .profile_stats_container.formcontentdiv
@@ -19,7 +19,7 @@
         
         %div.formheading{:style=>"font-size:18px;"}
           Contribution
-        %div{:style=>"clear:both;"}    
+        .clearboth    
         %div{:style=>"float:left;"}
           - @hash = Digest::MD5.hexdigest(@user.email).to_s
   
@@ -60,7 +60,7 @@
             References
           %div{:class=>"profile_stats_value"}  
             = @user.references.count  
-        %div{:style=>"clear:both;"}
+        .clearboth
       
          
       - if @activities.count > 0
@@ -72,7 +72,7 @@
         %div{:style=>"text-align:center;padding:25px 10px;color:#bebebe; font-weight:bold; width:500px; float:right"}
           No activity log to display.  
   
-      %div{:style=>"clear:both;"}
+      .clearboth
 
     
     %div{:id=>"userissues"}

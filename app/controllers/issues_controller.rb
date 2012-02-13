@@ -20,15 +20,12 @@ require 'backports'
   def show
     @issue = Issue.find(params[:id]) 
     
-
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
     else
       @rel_type = "is caused by"
     end
-    
-    
     
     case @rel_type
 
@@ -147,7 +144,7 @@ require 'backports'
     end
 
     respond_to do |format|
-      format.html {render :layout=>"issues/get_relationship"}
+      format.html { render :layout=>"issues/get_relationship"}
       format.xml  { render :xml => @issue }
       format.js
       end 
@@ -193,6 +190,13 @@ require 'backports'
       respond_to do |format|     
         if @issue.save
           initialize_suggestion_object
+
+					Reputation::Utils.reputation(:action=>:create, \
+                                   :type=>:issue, \
+                                   :me=>@issue.user_id, \
+                                   :undo=>false, \
+                                   :calculate=>true)
+
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
           format.xml  { render :xml => @issue, :status => :created, :location => @issue }
           format.js
@@ -377,33 +381,18 @@ require 'backports'
   #issues/:id/versions
   def versions
     @issue = Issue.find(params[:id])
-    @versions = []
-		count = 10
-		if params[:segment]
-			count = params[:segment].to_i*10
+		@versions = []
+		if Version.last.id - params[:more].to_i >= 0
+
+			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id - params[:more].to_i, "Relationship"]).each do |version|
+				relationship = version.get_object
+				if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
+					@versions << version
+				end
+				@versions.count == 10 ? break : next	
+			end 
 		end
-    Version.find(:all, :conditions => ["item_type=?", 'Relationship'], :order=>"created_at DESC").each do |version|
 
-      relationship = version.get_object #should return a Relationshiop object here
-      if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
-        @versions << version
-      end
-
-			if @versions.length >= count
-				break
-			end
-			
-    end
- 
-    #@versions.sort!{|a,b| b.created_at <=> a.created_at}
-		#if params[:segment]
-		#	if (params[:segment].to_i-1)*10 <= (@versions.length-1)
-		#		@versions = @versions[((params[:segment].to_i-1)*10)..(@versions.length-1)]
-		#	else
-		#		@versions = []
-		#	end
-		#end
-		#@versions = @versions.paginate(:per_page => 10, :page => params[:page])
 
     respond_to do |format|
 			format.js {render :layout=>false}
