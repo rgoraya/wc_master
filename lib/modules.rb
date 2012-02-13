@@ -111,7 +111,7 @@ module Reputation
 				  
 				if options[:undo]
 					raise ArgumentError, "Missing or invalid argument :vid" unless (!options[:vid].nil? && options[:vid].integer?) 
-					((Version.find(options[:vid]).index % 2) == 0 ) ? score = [-score[0],-score[1]] : score = score
+					((Version.find(options[:vid]).index % 2) == 0 ) ? score = [-score[0],-score[1]] : score = score #since versions are recorded only on "create" and "destroy" events, even indexed versions (compared to its sibling_versions) are reverts.
 				end
 
 			  if options[:calculate]

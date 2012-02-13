@@ -7,7 +7,8 @@ class Relationship < ActiveRecord::Base
   belongs_to :cause,  :class_name => 'Issue', :foreign_key => 'cause_id'
   #belongs_to :effect, :class_name => 'Issue', :foreign_key => 'issue_id'
 
-  has_many :references, :dependent => :destroy 
+  has_many :references, :dependent => :destroy
+	has_many :comments, :dependent => :destroy
   
   validates :issue_id, :presence => true, :uniqueness => {:scope => :cause_id}
 

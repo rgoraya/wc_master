@@ -134,6 +134,9 @@ require 'backports'
    if params[:rel_id]
       @relationship = Relationship.find(params[:rel_id])
       @rel_references = @relationship.references
+
+			@rel_comments = @relationship.comments
+
       @rel_issue = Issue.find(@relationship.issue_id)
       @rel_cause = Issue.find(@relationship.cause_id)
       @issue_id = params[:issueid]

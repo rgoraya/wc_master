@@ -3082,7 +3082,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	float:right; margin:2px 5px -5px 0px; text-align:right;
 }
 
-.reference_gravatar{
+.reference_gravatar, .comment_gravatar{
 	float:left;
 	border:1px solid #bebebe;
 	margin-right:-1px;
@@ -3776,7 +3776,7 @@ cursor:default;
 	word-wrap:break-word; width:142px; padding:5px; margin-bottom:10px; border:1px solid #434343; border-top:none;	
 }
 
-.reference_container{
+.reference_container, .comment_container{
 	padding:7px 5px;
 	background-color:#f5f5f5;
 	border-bottom:1px solid #ddd;
@@ -3810,7 +3810,7 @@ ul.reference_error_list{margin:0px; padding:0px;}
 
 ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 
-.reference_text{
+.reference_text, .comment_text{
 	float: left;margin-left: 5px;word-wrap: break-word;	max-width: 790px;	
 }
 
