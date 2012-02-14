@@ -15,15 +15,16 @@
 
 #contentwrapper
   .contentmain
-    #vis_container{:style => "margin-top:10px"}
+    #vis_container{:style => "margin-top:10px;"}
       #spinner
         = image_tag "system/spinner.gif", :size => "64x64"
       #canvas_container
-      #modal_container
-        .up_pointer_arrow
-        #modal_fill
-        .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
-        .down_pointer_arrow
+      .absolute_position
+        #modal_container
+          .up_pointer_arrow
+          #modal_fill
+          .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
+          .down_pointer_arrow
     #interaction
       #reset_form
         = form_tag({:action => "index", :layout_cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
@@ -39,6 +40,7 @@
         = button_to "Random Spread", {:action => "index", :layout_cmd => 'place_randomly'}, {:remote => true, :method => :get}
         = button_to "Normalize Graph", {:action => "index", :layout_cmd => 'normalize_graph'}, {:remote => true, :method => :get}
         = button_to "Circle Nodes", {:action => "index", :layout_cmd => 'circle_nodes'}, {:remote => true, :method => :get}
+        = button_to "Grid Nodes", {:action => "index", :layout_cmd => 'grid_nodes'}, {:remote => true, :method => :get}
         = button_to "Fruchterman Layout", {:action => "index", :layout_cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
         = button_to "Springy Layout", {:action => "index", :layout_cmd => 'springy'}, {:remote => true, :method => :get}
         = button_to "Kamada Layout", {:action => "index", :layout_cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
@@ -51,4 +53,4 @@
       Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
       Springy is good for disconnected graphs, but can be slow depending on initial layout (can also tweak speed parameters if needed).
 
-#clear{:style => "clear:left;"}
+.clear_both

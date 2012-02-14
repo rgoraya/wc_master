@@ -27,6 +27,7 @@ function show_modal(data) {
 };
 
 //put the modal window in the desired location (relative to parent of course)
+//has positioning information that is based off of the css classes
 function position_modal(click_x,click_y) {
   c_width = $('#canvas_container').width(); 
   c_height = $('#canvas_container').height(); 

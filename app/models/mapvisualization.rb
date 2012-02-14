@@ -10,15 +10,16 @@ class Mapvisualization #< ActiveRecord::Base
   class Node < Object
     include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
 
-    attr_accessor :id, :name, :url, :location, :d, :a
+    attr_accessor :id, :name, :url, :location, :static, :d, :a
 
     def initialize(id, name, url)
       @id = id #db-level index
       @name = name
       @url = url
       @location = Vector[0.0,0.0]
+      @static = false #should the node move or not
       @d = Vector[0.0,0.0] #delta variable
-      @a = Vector[0.0,0.0] #accelration variable
+      @a = Vector[0.0,0.0] #acceleration variable
     end
 
     def to_s
@@ -106,12 +107,14 @@ class Mapvisualization #< ActiveRecord::Base
       @adjacency = args[:adjancecy] || Hash.new(0)
     elsif args[:params][:data_query] #did we have a query to use?
       graph_from_data(args[:params])
+      set_static_nodes
       place_randomly #how to organize?
     else
       #default to random nodes for testing, etc
       #can instead load top40 default or something
       reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random IF NOT DEFINED
     end
+    #@nodes.first[1].static = 'center' ##For testing!!
   end
 
 
@@ -194,19 +197,15 @@ class Mapvisualization #< ActiveRecord::Base
 
   end
 
-  
-
+  # generates a random graph
   def random_graph(node_count, edge_ratio)
     @nodes = Hash.new()
     @edges = Array.new()
     @adjacency = Hash.new(0)
-
     (1..node_count).each {|i| @nodes[i] = Node.new(i, "Node "+i.to_s, "myurl")} #make random nodes
-
     for i in (1..node_count)
       for j in (1..node_count) #edges in both directions, chance of 1 each way
         if(i!=j and rand() < edge_ratio) #make random edges
-          #want random number between 1 and 3
           rel_type = (rand()*15).ceil #get a random set of attributes (rel_type) for that edge
           @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type))
           @adjacency[[i,j]] += 1 #count the edge
@@ -215,19 +214,41 @@ class Mapvisualization #< ActiveRecord::Base
     end
   end
 
-  # put the nodes into a circle that will (mostly) fit in the given canvas
+  #places the static nodes at their desired locations
+  def set_static_nodes(width=@width, height=@height, nodeset=@nodes)
+    nodeset.each_value do |node|
+      if node.static == 'center'
+        node.location = Vector[width/2,height/2]
+      elsif node.static == 'stationary' #just leave at location
+      end
+      #can add other handlers if needed
+    end
+  end
+
+  # put the nodes into a circle that will fit in the given canvas
   def circle_nodes(width=@width, height=@height, nodeset=@nodes)
     center = Vector[width/2, height/2]
     radius = [width,height].min/2
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
       center[0] + (radius * Math.cos(2*Math::PI*i/nodeset.length)), 
-      center[1] + (radius * Math.sin(2*Math::PI*i/nodeset.length))]}
+      center[1] + (radius * Math.sin(2*Math::PI*i/nodeset.length))] if !nodeset[key].static}
+  end
+
+  # put the nodes into a grid that will fit in the given canvas
+  def grid_nodes(width=@width, height=@height, nodeset=@nodes)
+    puts "grid_nodes called"
+    num_cols = (Math.sqrt(nodeset.length)*(width/height)).ceil
+    num_rows = (nodeset.length/num_cols.to_f).ceil
+    col_len = width/num_cols
+    row_len = height/num_rows
+    nodeset.each_with_index{|(key, node), i| nodeset[key].location = 
+      Vector[(0.5 + (i%num_cols))*col_len,(0.5 + (i/num_cols))*row_len] if !nodeset[key].static}
   end
 
   #put the nodes in random locations
   def place_randomly(width=@width, height=@height, nodeset=@nodes)
     nodeset.each_value do |node|
-      node.location = Vector[rand(width), rand(height)]
+      node.location = Vector[rand(width), rand(height)] if !node.static
     end
   end
 
@@ -239,19 +260,21 @@ class Mapvisualization #< ActiveRecord::Base
   # algorithm from fruchterman_reingold via Kobourov 2004
   def fruchterman_reingold(width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjacency=@adjacency)
     puts "beginning fruchterman_reingold @ "+Time.now.to_s
-    iterations = 500
+    iterations = 100
     area = width*height
     k = nodeset.length > 0 ? Math.sqrt(area/nodeset.length) : 1 #multiply this by .75 to slow it down?
     k2 = k**2
     temperature = width/10
     for i in (1..iterations) do
       nodeset.each_value do |v| #calc repulsive forces
-        v.d = Vector[0.0,0.0]
-        nodeset.each_value do |u|
-          if u!=v
-            dist = v.location - u.location
-            distlen = dist.r.to_f
-            v.d += distlen != 0.0 ? (dist/distlen)*k2/distlen : Vector[0.0,0.0]
+        if !v.static
+          v.d = Vector[0.0,0.0]
+          nodeset.each_value do |u|
+            if u!=v
+              dist = v.location - u.location
+              distlen = dist.r.to_f
+              v.d += distlen != 0.0 ? (dist/distlen)*k2/distlen : Vector[0.0,0.0]
+            end
           end
         end
       end
@@ -261,23 +284,25 @@ class Mapvisualization #< ActiveRecord::Base
           dist = e.a.location - e.b.location
           distlen = dist.r.to_f
           fa = distlen**2/k
-          e.a.d -= (dist/distlen)*fa
-          e.b.d += (dist/distlen)*fa
+          e.a.d -= (dist/distlen)*fa if !e.a.static
+          e.b.d += (dist/distlen)*fa if !e.b.static
         end
       end
       #puts nodeset
       nodeset.each_value do |v| #move nodes
         #added in attraction to center
-        dist_center = v.location - Vector[width/2, height/2]
-        distlen = dist_center.r.to_f
-        fa = distlen**2/k
-        v.d -= (dist_center/distlen)*fa
-        dlen = v.d.r.to_f
-        if dlen > 0.0 #if we have a distance to move
-          v.location += (v.d/dlen)*[dlen,temperature].min
-          nx = [[v.location[0],0].max, width].min #don't let outside of bounds (50px border)
-          ny = [[v.location[1],0].max, height].min
-          v.location = Vector[nx,ny]
+        if !v.static
+          dist_center = v.location - Vector[width/2, height/2]
+          distlen = dist_center.r.to_f
+          fa = distlen**2/k
+          v.d -= (dist_center/distlen)*fa
+          dlen = v.d.r.to_f
+          if dlen > 0.0 #if we have a distance to move
+            v.location += (v.d/dlen)*[dlen,temperature].min
+            nx = [[v.location[0],0].max, width].min #don't let outside of bounds (50px border)
+            ny = [[v.location[1],0].max, height].min
+            v.location = Vector[nx,ny]
+          end
         end
       end
       temperature *= (1 - i/iterations.to_f) #cooling function from http://goo.gl/xcbXR
@@ -312,8 +337,8 @@ class Mapvisualization #< ActiveRecord::Base
             d = n1.location - n2.location
             distance = d.r + 0.1 #avoid massive forces at small distances (and divide by zero)
             direction = d/d.r #normalized
-            n1.a += direction*(repulsion/(distance*distance*0.5))/1.0 #divide by "mass" (currently 1)
-            n2.a += direction*(repulsion/(distance*distance*-0.5))/1.0 #divide by "mass" (currently 1)          
+            n1.a += direction*(repulsion/(distance*distance*0.5))/1.0 if !n1.static#divide by "mass" (currently 1)
+            n2.a += direction*(repulsion/(distance*distance*-0.5))/1.0 if !n2.static#divide by "mass" (currently 1)          
           end
         end
       end      
@@ -325,31 +350,35 @@ class Mapvisualization #< ActiveRecord::Base
           d = e.b.location - e.a.location
           displacement = 1.0 - d.r #spring "length" at rest?? - magnitude... either 0 or 1 or ?
           direction = d/d.r #normalized
-          e.a.a += direction*(stiffness*displacement*-0.5)/1.0 #divide by the "mass" (currently 1)
-          e.b.a += direction*(stiffness*displacement*0.5)/1.0
+          e.a.a += direction*(stiffness*displacement*-0.5)/1.0 if !e.a.static #divide by the "mass" (currently 1)
+          e.b.a += direction*(stiffness*displacement*0.5)/1.0 if !e.b.static
         end
       end
 
       #nodeset.each {|k,n| puts n.to_s + " accel: "+ n.a.to_s } #seems large... but maybe because of how 
 
       nodeset.each_value do |n| #finish moving nodes/etc
-        n.a += (n.location*-1)*(repulsion/50.0)/1.0 #attract to center
-        #puts n.to_s + " accel: "+ n.a.to_s
-        n.d += n.a*timestep*damping #update velocity
-        #puts n.to_s + " veloc: "+ n.d.to_s
-        n.a = Vector[0.0,0.0] #reset acceleration
-        n.location += n.d*timestep #update position        
-        #puts n.to_s + " loc: "+ n.location.to_s
+        if !n.static
+          n.a += (n.location*-1)*(repulsion/50.0)/1.0 #attract to center
+          #puts n.to_s + " accel: "+ n.a.to_s
+          n.d += n.a*timestep*damping #update velocity
+          #puts n.to_s + " veloc: "+ n.d.to_s
+          n.a = Vector[0.0,0.0] #reset acceleration
+          n.location += n.d*timestep #update position        
+          #puts n.to_s + " loc: "+ n.location.to_s
+        end
       end
 
       scale = Vector[ 2.0/[nodeset.max_by{|k,n| n.location[0].abs}[1].location[0].abs,2.0].max , 
                       2.0/[nodeset.max_by{|k,n| n.location[1].abs}[1].location[1].abs,2.0].max ] #biggest coords
       currEnergy = 0.0
       nodeset.each_value do |n|
-        n.location = Vector[n.location[0]*scale[0], n.location[1]*scale[1]] ##rescale to stay within bounds!
-        n.d = Vector[n.d[0]*scale[0], n.d[1]*scale[1]]
-        # puts n.to_s + " loc: "+ n.location.to_s
-        currEnergy += 0.5*1.0*n.d.r**2 #calculate total energy; 1.0=mass
+        if !n.static
+          n.location = Vector[n.location[0]*scale[0], n.location[1]*scale[1]]##rescale to stay within bounds!
+          n.d = Vector[n.d[0]*scale[0], n.d[1]*scale[1]]
+          # puts n.to_s + " loc: "+ n.location.to_s
+          currEnergy += 0.5*1.0*n.d.r**2 #calculate total energy; 1.0=mass
+        end
       end
             
       # calc delta energy, and use that for stopping?
@@ -399,10 +428,12 @@ class Mapvisualization #< ActiveRecord::Base
     delta_p = p = 0
     partial_derivatives = Hash.new(0)#Array.new(nodeset.length)
     nodeset.each_key do |i| #go through every person; computer partial deriv affect on them
-      deriv = compute_partial_derivatives(i, nodeset, spring_strength, ideal_length)
-      partial_derivatives[i] = deriv
-      delta = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
-      p, delta_p = i, delta if delta > delta_p
+      if !nodeset[i].static
+        deriv = compute_partial_derivatives(i, nodeset, spring_strength, ideal_length)
+        partial_derivatives[i] = deriv
+        delta = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
+        p, delta_p = i, delta if delta > delta_p
+      end
     end
             
     last_energy = 1.0/0  
@@ -413,69 +444,72 @@ class Mapvisualization #< ActiveRecord::Base
 
       last_local_energy = 1.0/0
       begin
-        
-        # compute jacobian; copied code basically
-        dE_dx_dx = dE_dx_dy = dE_dy_dx = dE_dy_dy = 0.0
-        nodeset.each_key do |i|
-          if i!=p
-            dx = nodeset[p].location[0] - nodeset[i].location[0]
-            dy = nodeset[p].location[1] - nodeset[i].location[1]
-            dist = Math.sqrt(dx*dx+dy*dy)
-            dist_cubed = dist**3
-            k_mi = spring_strength[[p,i]]
-            l_mi = ideal_length[[p,i]]
-            dE_dx_dx += k_mi * (1 - (l_mi * dy * dy) / dist_cubed)
-            dE_dx_dy += k_mi * l_mi * dy * dx / dist_cubed
-            dE_dy_dx += k_mi * l_mi * dy * dx / dist_cubed
-            dE_dy_dy += k_mi * (1 - (l_mi * dx * dx) / dist_cubed)
+        if !nodeset[p].static
+          # compute jacobian; copied code basically
+          dE_dx_dx = dE_dx_dy = dE_dy_dx = dE_dy_dy = 0.0
+          nodeset.each_key do |i|
+            if i!=p
+              dx = nodeset[p].location[0] - nodeset[i].location[0]
+              dy = nodeset[p].location[1] - nodeset[i].location[1]
+              dist = Math.sqrt(dx*dx+dy*dy)
+              dist_cubed = dist**3
+              k_mi = spring_strength[[p,i]]
+              l_mi = ideal_length[[p,i]]
+              dE_dx_dx += k_mi * (1 - (l_mi * dy * dy) / dist_cubed)
+              dE_dx_dy += k_mi * l_mi * dy * dx / dist_cubed
+              dE_dy_dx += k_mi * l_mi * dy * dx / dist_cubed
+              dE_dy_dy += k_mi * (1 - (l_mi * dx * dx) / dist_cubed)
+            end
           end
-        end
         
-        # calculate dv (amount we should move)
-        dE_dx = partial_derivatives[p][0]
-        dE_dy = partial_derivatives[p][1]
+          # calculate dv (amount we should move)
+          dE_dx = partial_derivatives[p][0]
+          dE_dy = partial_derivatives[p][1]
         
-        dv = Vector[(dE_dx_dy * dE_dy - dE_dy_dy * dE_dx) / (dE_dx_dx * dE_dy_dy - dE_dx_dy * dE_dy_dx),
-                       (dE_dx_dx * dE_dy - dE_dy_dx * dE_dx) / (dE_dy_dx * dE_dx_dy - dE_dx_dx * dE_dy_dy)]
+          dv = Vector[(dE_dx_dy * dE_dy - dE_dy_dy * dE_dx) / (dE_dx_dx * dE_dy_dy - dE_dx_dy * dE_dy_dx),
+                         (dE_dx_dx * dE_dy - dE_dy_dx * dE_dx) / (dE_dy_dx * dE_dx_dy - dE_dx_dx * dE_dy_dy)]
 
-        # if for some reason our dv ends up being infinite (divide by 0), just set to 0??
-        # and why in gods name is assignment a private function?! And why doesn't rails say so?!
-        dv = Vector[0.0,dv[1]] if dv[0].infinite?
-        dv = Vector[dv[0],0.0] if dv[1].infinite?
+          # if for some reason our dv ends up being infinite (divide by 0), just set to 0??
+          # and why in gods name is assignment a private function?! And why doesn't rails say so?!
+          dv = Vector[0.0,dv[1]] if dv[0].infinite?
+          dv = Vector[dv[0],0.0] if dv[1].infinite?
 
-        # move vertex
-        nodeset[p].location += dv
-        # recompute partial derivates and delta_p based on new location
-        deriv = compute_partial_derivatives(p, nodeset, spring_strength, ideal_length)
-        partial_derivatives[p] = deriv
-        delta_p = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
+          # move vertex
+          nodeset[p].location += dv
+          # recompute partial derivates and delta_p based on new location
+          deriv = compute_partial_derivatives(p, nodeset, spring_strength, ideal_length)
+          partial_derivatives[p] = deriv
+          delta_p = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
 
-        #check local energy if we should be done--I feel like this could be done with a cleaner conditional
-        #repeat until delta is 0 or energy change falls bellow tolerance    
-        local_done = false
-        if last_local_energy == 1.0/0 #round 1
-          local_done = (delta_p == 0)
-        else
-          local_done = (delta_p == 0) || ((last_local_energy - delta_p)/last_local_energy < tolerance)
+          #check local energy if we should be done--I feel like this could be done with a cleaner conditional
+          #repeat until delta is 0 or energy change falls bellow tolerance    
+          local_done = false
+          if last_local_energy == 1.0/0 #round 1
+            local_done = (delta_p == 0)
+          else
+            local_done = (delta_p == 0) || ((last_local_energy - delta_p)/last_local_energy < tolerance)
+          end
+          last_local_energy = delta_p #in either case, set our local energy to the last change
+          #puts "local energy="+last_local_energy.to_s
         end
-        last_local_energy = delta_p #in either case, set our local energy to the last change
-        #puts "local energy="+last_local_energy.to_s
       end while !local_done #local energy is still too high
       
       #update partial derivatives and select new p
       old_p = p
       nodeset.each_key do |i|
-        old_deriv_p = p_partials[i]
-        old_p_partial = compute_partial_derivative(i,old_p, nodeset, spring_strength, ideal_length) #don't we have this already?
-        deriv = partial_derivatives[i]
-        deriv[0] += old_p_partial[0] - old_deriv_p[0]
-        deriv[1] += old_p_partial[1] - old_deriv_p[1]
-        partial_derivatives[i] = deriv
+        if !nodeset[i].static
+          old_deriv_p = p_partials[i]
+          old_p_partial = compute_partial_derivative(i,old_p, nodeset, spring_strength, ideal_length) #don't we have this already?
+          deriv = partial_derivatives[i]
+          deriv[0] += old_p_partial[0] - old_deriv_p[0]
+          deriv[1] += old_p_partial[1] - old_deriv_p[1]
+          partial_derivatives[i] = deriv
         
-        delta = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
-        if delta > delta_p
-          p = i
-          delta_p = delta
+          delta = Math.sqrt(deriv[0]*deriv[0]+deriv[1]*deriv[1])
+          if delta > delta_p
+            p = i
+            delta_p = delta
+          end
         end
       end
 
@@ -534,7 +568,7 @@ class Mapvisualization #< ActiveRecord::Base
     min_x = nodeset.min_by{|k,n| n.location[0]}[1].location[0]
     min_y = nodeset.min_by{|k,n| n.location[1]}[1].location[1]
     center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
-    nodeset.each_value {|n| n.location = n.location-center_offset}
+    nodeset.each_value {|n| n.location = n.location-center_offset if !n.static}
 
     #scale to fit
     center = [width/2, height/2]
@@ -545,7 +579,7 @@ class Mapvisualization #< ActiveRecord::Base
     scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
              center[1]/(far_y-center[1]).abs]
     nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
-                                                scale[1]*(n.location[1]-center[1])+center[1]]}
+                                                scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}
   end
   
   def remove_edges(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)

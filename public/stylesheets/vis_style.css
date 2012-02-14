@@ -11,6 +11,10 @@
   margin-bottom:-64px;
 }
 
+.absolute_position {
+  position:absolute;
+}
+
 #modal_container {
   /* popup window with things inside it */
   display:none; /*to start*/
@@ -26,7 +30,6 @@
   height:150px;
   overflow:auto;
   clear:both;
-  /* basic border */
   border: 1px solid #2F2F2F;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
 }
