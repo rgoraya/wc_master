@@ -1,10 +1,12 @@
 = stylesheet_link_tag "vis_style"
+= stylesheet_link_tag "jquery.qtip.min"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
   #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
-= javascript_include_tag "raphael-min.js" #for drawing
 = javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"
+= javascript_include_tag "jquery.qtip.min.js"
+= javascript_include_tag "raphael-min.js" #for drawing
 
 -# specifies the data that we're going to be working with in javascript
 :javascript

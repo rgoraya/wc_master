@@ -7,19 +7,21 @@ var t_off = 8 //txt offset
 //details on drawing/laying out a node
 function drawNode(node, paper){
   if(!compact){
+
+    txt = paper.text(node.x, node.y+t_off, node.name)
     circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
     .attr({
       fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
     })
 
-    txt = paper.text(node.x, node.y+t_off, node.name)
-
     icon = paper.set()
     .push(circ,txt)
     .click(function() { clickNode(node)})
-    .mouseover(function() {this.node.style.cursor='pointer';})  
+    .mouseover(function() {this.node.style.cursor='pointer'})  
 
-    return icon;  
+		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
+		
+   	return icon;  
   }
   else{
     circ = paper.circle(node.x, node.y, 2)//+(node.weight*6))
@@ -57,8 +59,13 @@ function drawEdge(edge, paper){
     
     icon = paper.set() //for storing pieces of the line as needed
     icon.push(e)
-    .click(function() { clickEdge(edge)})
+		.click(function() { clickEdge(edge)})
     .mouseover(function() {this.node.style.cursor='pointer';})
+
+		$(e.node).qtip({
+			content:{text:edge.name},
+			position:{target: 'mouse', adjust:{y:5}}
+		});
 
     return icon;
 }
