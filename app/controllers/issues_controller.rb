@@ -215,7 +215,8 @@ require 'backports'
   def add_already_existent_issue
     retrieve_id_of_issue
     @relationship = Relationship.new
-    set_relationship_user_id_if_applicable 
+    set_relationship_user_id_if_applicable
+    update_img_if_applicable 
     set_type_of_relationship(true)       
     save_relationship  
   end
@@ -228,6 +229,14 @@ require 'backports'
   def set_relationship_user_id_if_applicable
     if @issue.user_id.to_s != ""
       @relationship.user_id = @issue.user_id  
+    end 
+  end
+
+  def update_img_if_applicable
+    @existingIssue = Issue.find(@issueid)
+    # if the image selected by the user is different than the one saved then update it.
+    if @issue.short_url != @existingIssue.short_url 
+      @existingIssue.update_attribute(:short_url, @issue.short_url)
     end 
   end
 
