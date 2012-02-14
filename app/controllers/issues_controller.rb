@@ -6,7 +6,6 @@ require 'backports'
   
   def index
     @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
-
     respond_to do |format|
       format.js {render :layout=>false}
       format.html # index.html.erb
@@ -110,7 +109,6 @@ require 'backports'
       @causal_sentence = @rel_type
     end
 
-
     @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
     @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
     @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
@@ -151,7 +149,12 @@ require 'backports'
     
   end
 
-
+  def auto_complete_search
+    @search_results = Issue.search(params[:query]).first(5)
+      respond_to do |format|
+        format.js
+      end 
+  end
 
   # GET /issues/new
   # GET /issues/new.xml

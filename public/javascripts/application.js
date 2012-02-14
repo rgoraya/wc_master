@@ -1,6 +1,20 @@
 $(function() {
 
 // -------------------------------------------------------------------------------
+// STUFF TO BE DONE ON THE INITIAL LOAD OF THE PAGE
+// -------------------------------------------------------------------------------
+
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+  if ($('#notice').html().trim()) {
+  	$("#notice_container").effect("bounce", { times:3 }, 200);
+  	$('#notice').show;
+  }
+  
+  $("#notice_container .closebutton").click(function(){
+  	$("#notice_container").slideUp(100);
+  });
+
+// -------------------------------------------------------------------------------
 // PAGINATION FUNCTIONS FOR ISSUE INDEX AND USER PAGE (DROPPING THEM 
 // IN TO APPLICATION js INSTEAD OF CREATING SEPERATE FILES FOR THEM)
 // -------------------------------------------------------------------------------  
@@ -45,7 +59,7 @@ $(function() {
 		searchDelay(function(){
     		$('#issue_search').html('<div class="search_result_wait"></div>');    		
     		$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
-		}, 500 );     
+		}, 500);     
     
   });
 

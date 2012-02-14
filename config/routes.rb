@@ -1,8 +1,6 @@
 Wikicausality::Application.routes.draw do
   resources :mapvisualizations
-
   resources :feed_backs
-
   resources :suggestions
 	resources :feedbacks
   
@@ -21,16 +19,17 @@ Wikicausality::Application.routes.draw do
   match 'contact' => 'pages#contact', :as => :contact
   
 
-
   resources :users
 
   resources :user_sessions
   
   resources :relationships
   
+  
+  match 'issues/auto_complete_search' => 'issues#auto_complete_search'
   resources :issues do
-    get :get_relationship, :on => :member
-    post :create_reference, :on => :member
+    get  :get_relationship,     :on => :member
+    post :create_reference,     :on => :member
   end
   
   get "issues/:id/versions" => "issues#versions", :as => "issue_versions"
