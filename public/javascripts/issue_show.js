@@ -197,22 +197,22 @@ $(".relationship_partial_toggle").live('click',function(){
 // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
 // -------------------------------------------------------------------------------   
   
-  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
-  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
-  var query;
-  var arr_length = 0;
-  var search_results = [];
-  var ignore_keys_array = [18,20,17,40,35,13,27,36,45,37,93,91,34,33,39,16,9,38];
-  var mouse_is_inside = false;
-  var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&redirects&format=json&page=';
-  var img_src = '';
-  var text_preview = '';
-  var title_holder = '';
-  // Variables to store form field values for Submit:
-  var form_title = '';
-  var form_descr = '';
-  var form_url = '';
-  var form_image = '';  
+	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
+	  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
+	  var query;
+	  var arr_length = 0;
+	  var search_results = [];
+	  var ignore_keys_array = [18,20,17,40,35,13,27,36,45,37,93,91,34,33,39,16,9,38];
+	  var mouse_is_inside = false;
+	  var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&redirects&format=json&page=';
+	  var img_src = '';
+	  var text_preview = '';
+	  var title_holder = '';
+	  // Variables to store form field values for Submit:
+	  var form_title = '';
+	  var form_descr = '';
+	  var form_url = '';
+	  var form_image = '';  
 
 // -------------------------------------------------------------------------------   
 // Monitoring the keyUp action on the query textbox 
@@ -384,6 +384,21 @@ $(".relationship_partial_toggle").live('click',function(){
   });
 
 // -------------------------------------------------------------------------------
+// Function to show the spinner and make space if required
+// -------------------------------------------------------------------------------
+	function showWait_makeSpace()
+  	{
+	  	// Show The Spinner and Hide the none_found message (if shown)
+		$('.relationship_addnew_wait').show();
+		$('.relationship_none_found').hide();
+		
+		// if more than 5 relationships are displayed then hide the last one to make space!!
+		if ($('.relationship_thumb:visible').length > 5){
+	 		$('.relationship_thumb:visible').last().hide();	
+		}  
+	}
+
+// -------------------------------------------------------------------------------
 // Gather the values for the Form submission
 // -------------------------------------------------------------------------------
   function valueCollect() {
@@ -402,13 +417,13 @@ $(".relationship_partial_toggle").live('click',function(){
   		{	$("#frm_img_url").val(extractUrl($("#image_preview1").css("background-image")));}
   
   	// 2.   W I K I P E D I A    U R L
-  	$("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_')); 
+  	$("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#title_holder").html().trim()).split(' ').join('_')); 
   	
   	// 3.   W I K I P E D I A    D E S C R I P T I O N 
   	$("#frm_descr").val(form_descr);
   	
   	// 4.   W I K I P E D I A    T I T L E 
-	$("#frm_title").val($("#title_holder").html());
+	$("#frm_title").val($("#title_holder").html().trim());
   	
   }
 
@@ -419,21 +434,6 @@ $(".relationship_partial_toggle").live('click',function(){
   		{
   			return input.replace(/"/g,"").replace(/url\(|\)$/ig, "");
   		}
-
-// -------------------------------------------------------------------------------
-// Function to show the spinner and make space if required
-// -------------------------------------------------------------------------------
-	function showWait_makeSpace()
-  	{
-	  	// Show The Spinner and Hide the none_found message (if shown)
-		$('.relationship_addnew_wait').show();
-		$('.relationship_none_found').hide();
-		
-		// if more than 5 relationships are displayed then hide the last one to make space!!
-		if ($('.relationship_thumb:visible').length > 5){
-	 		$('.relationship_thumb:visible').last().hide();	
-		}  
-	}
 
 // -------------------------------------------------------------------------------
 // FUNCTIONS TO INITIALIZE AND TOGGLE ADD_NEW MODAL

@@ -182,8 +182,11 @@ require 'backports'
       # Read in the :type passed with form to recognize whether this is a Cause or Effect
       @causality = params[:action_carrier].to_s
       @causality_id = params[:id_carrier]     
-
-      if Issue.exists?(:wiki_url => [@issue.wiki_url])
+      
+      # Check whether or not this Node exist as an issue already?
+      # IMPORTANT: Keep the search case-insensitive
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      if !@existing_issue.nil?
         add_already_existent_issue
       else
         add_new_issue
@@ -223,7 +226,7 @@ require 'backports'
 
   def retrieve_id_of_issue
     @wikiurl = @issue.wiki_url
-    @issueid = Issue.where(:wiki_url => @wikiurl).select('id').first.id
+    @issueid = @existing_issue.id
   end
 
   def set_relationship_user_id_if_applicable
