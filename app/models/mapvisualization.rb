@@ -105,16 +105,17 @@ class Mapvisualization #< ActiveRecord::Base
       @nodes = args[:nodes] || Hash.new()
       @edges = args[:edges] || Array.new()
       @adjacency = args[:adjancecy] || Hash.new(0)
-    elsif args[:params][:data_query] #did we have a query to use?
+    elsif args[:params][:query] #did we have a query to use?
       graph_from_data(args[:params])
       set_static_nodes
-      place_randomly #how to organize?
+      place_randomly #how to organize? We should probably alter this loop to place based on the query (muxing in the graph_from_data method--maybe split that into a small pile of methods)
     else
       #default to random nodes for testing, etc
       #can instead load top40 default or something
       reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random IF NOT DEFINED
     end
     #@nodes.first[1].static = 'center' ##For testing!!
+    #@nodes.each_with_index{|(key, node), i| @nodes[key].static = 'center' if i < 3}
   end
 
 
@@ -129,7 +130,7 @@ class Mapvisualization #< ActiveRecord::Base
     puts "===graph_from_data args==="
     puts args
 
-    query = args[:data_query].downcase
+    query = args[:query].downcase
     
     if query == 'top40' ### TOP 40 ###
       limit = 40
@@ -137,6 +138,8 @@ class Mapvisualization #< ActiveRecord::Base
       #get all relationships between those nodes
       subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
       relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
+
+      convert_activerecords(issues,relationships)
 
     elsif query == 'mostcited' ### TOP RELATIONSHIPS AND THEIR NODES
       limit = 40
@@ -148,10 +151,23 @@ class Mapvisualization #< ActiveRecord::Base
       puts subquery_list.length
       issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
 
+      convert_activerecords(issues,relationships)
+
     elsif query == 'show' ### SHOW ONLY THE LIST OF NODES
+      issue_list = args[:issue_list] || ''
+      static = issue_list.split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
+      
       #should check for args[:data_list], otherwise error
-      #.class == Array 
       ## FILL ME IN
+      # TOP 40 FOR NOW
+      limit = 40
+      issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
+      #get all relationships between those nodes
+      subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
+      relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
+
+      convert_activerecords(issues,relationships)
+      @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered...
 
     elsif query == 'fill' ### FILL IN THE LIST OF NODES (to 40?)
       ## FILL ME IN
@@ -161,19 +177,34 @@ class Mapvisualization #< ActiveRecord::Base
       issues = Issue.select("id,title,wiki_url")
       relationships = Relationship.select("id,cause_id,issue_id,relationship_type")
 
+      convert_activerecords(issues,relationships)
+
     #can add extra elsifs here
 
     else
-      #default to first 50 (cause they are connected)? or to what?
+      #default to first 40 (cause they are connected)? or to what?
       limit = 40
       issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
       #get all relationships between those nodes
       subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
       relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
+
+      convert_activerecords(issues,relationships)
     end
 
+    ## ALT: get 40 Issues that have the most relationships
+    ## Issue.find().relationships.length + Issue.find().inverse_relationships.length
 
-    #once we have our issues and relationships; convert them!
+    #With our list of issues, get all the relationships between them (a relationship that has a and b in the list)
+    
+    ### ALT: get 20-30 relationships with the most cites
+    ### get the issues that are part of those relationships (unique)
+    
+    #### ALT: do Bill's algorithm for what to get
+  end
+  
+  #converts activerecord arrays into the instance variables we want to use, separate function so we can do further processing
+  def convert_activerecords(issues,relationships)
     issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
     relationships.each do |rel| 
       node_a = @nodes[rel.cause_id] #note these are the opposite of what I expected
@@ -182,19 +213,6 @@ class Mapvisualization #< ActiveRecord::Base
       @edges.push(Edge.new(rel.id, node_a, node_b, type))
       @adjacency[ [node_a.id, node_b.id] ] += 1 #count the edges between those nodes
     end if !relationships.nil?
-
-    ## ALT: get 40 Issues that have the most relationships
-    ## Issue.find().relationships.length + Issue.find().inverse_relationships.length
-
-    #With our list of issues, get all the relationships between them (a relationship that has a and b in the list)
-    
-    
-    ### ALT: get 20-30 relationships with the most cites
-    ### get the issues that are part of those relationships (unique)
-    
-    
-    #### ALT: do Bill's algorithm for what to get
-
   end
 
   # generates a random graph
@@ -232,6 +250,28 @@ class Mapvisualization #< ActiveRecord::Base
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
       center[0] + (radius * Math.cos(2*Math::PI*i/nodeset.length)), 
       center[1] + (radius * Math.sin(2*Math::PI*i/nodeset.length))] if !nodeset[key].static}
+  end
+
+  # puts the nodes in a circle with the static nodes in a smaller, centered circle
+  def static_wheel_nodes(width=@width, height=@height, nodeset=@nodes)
+    static = Hash.new()
+    nonstatic = Hash.new()
+    nodeset.each do |key,node| 
+      if node.static
+        static[key] = node
+      else
+        nonstatic[key] = node 
+      end
+    end
+    
+    circle_nodes(width,height,nonstatic) #circle the nonstatics normally
+
+    # this is just the code from circle_nodes, without the "static" check (and swapped circle list). Not worth factoring out
+    center = Vector[width/2, height/2]
+    radius = (static.length==0 ? 0 : [width,height].min/20)
+    static.each_with_index{|(key, node), i| static[key].location = Vector[
+      center[0] + (radius * -1*Math.sin(2*Math::PI*i/static.length)), 
+      center[1] + (radius * -1*Math.cos(2*Math::PI*i/static.length))]}
   end
 
   # put the nodes into a grid that will fit in the given canvas
