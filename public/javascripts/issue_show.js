@@ -290,15 +290,13 @@ $(".relationship_partial_toggle").live('click',function(){
 	  $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
 	  // create the json url
 	  var queryRaw = $("#query").val()
-	  var queryEncoded = encodeURIComponent(queryRaw).replace('\'','%27').replace('(','%28').replace(')','%29');
+	  var queryEncoded = encodeURIComponent(queryRaw);
 	  var jsonData = (url_img_name + queryEncoded + "&callback=?")  
   
 	  // parse the json
 	  $.getJSON(jsonData, function (data) {
-	  	$.each(data, function (key, val) {
 	  	// call the getJson function
-	  	getJson(val);    
-	  });    
+	  	getContent(data);    
 	  
 	  	// remove spinner
 	  	$("#wait").empty();
@@ -308,14 +306,9 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------  
 // R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T			
 // -------------------------------------------------------------------------------  		
-  function getJson(JData) {
-   
-  	$.each(JData, function (Jkey, Jval) {
-  	if (Jval && typeof Jval == "object") {
-	  getJson(Jval);    
-  	} else {
-	  if (Jkey == "title"){
-	  	title_holder = Jval;}
+  function getContent(JData) {
+
+      var Jval = JData.parse.text["*"];
 	  	//  populate the description text
 	  	text_preview = $(Jval.replace(/<p><br \/><\/p>/gi,'')).filter('p:first').text().replace(/\[\d+\]/gi,'');
 	  
@@ -325,7 +318,7 @@ $(".relationship_partial_toggle").live('click',function(){
   
 	  	  //  If the search was successful - 
 	  	} else {
-	  		$("#title_holder").html(title_holder);
+	  		$("#title_holder").html(JData.parse.title);
   
 		  	// shorten if beyond limit
 		  	if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
@@ -363,10 +356,7 @@ $(".relationship_partial_toggle").live('click',function(){
   
   				}  // END of If structure (checking for Image Success from Wikipedia)	  
   			}  // END of If structure (checking for Text Success from Wikipedia)
-  		}   // END of If structure (checking for type Object)
-  	 }); // END of Each loop
   }  // END of function  
-
 
 // -------------------------------------------------------------------------------
 // WHEN THE USER HITS CREATE IN THE CREATE NEW RELATIONSHIP DIALOG:
