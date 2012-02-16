@@ -17,7 +17,7 @@ class MapvisualizationsController < ApplicationController
 
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
-          :params => {:query => params[:q],:issue_list => params[:i]}) #on new html--generate graph
+          :params => params) #on new html--generate graph. Just pass in all the params for handling
 
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
@@ -28,7 +28,7 @@ class MapvisualizationsController < ApplicationController
 
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
-          :params => {:query => params[:q],:issue_list => params[:i]}) #grab the old vis, or make a new one if needed
+          :params => {:query => params[:q],:id_list => params[:i]}) #grab the old vis, or make a new one if needed
 
         puts "===format.js params===",params
         
