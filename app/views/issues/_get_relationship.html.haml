@@ -38,16 +38,24 @@
           %img.linkout{:src=>"/images/system/linkout.png"}
           %a{:href=>@rel_cause.wiki_url, :target => "_blank"} more on Wikipedia
 
+
       %div.relation_descr
               
         .rationale_headers
           References  
         .clearboth  
-
-
-        
+ 
         %div#get_references
           = render 'get_references', :relationship => @relationship
+
+      %div.relation_descr
+
+        .rationale_headers
+          Comments 
+        .clearboth
+
+        %div#get_comments
+          = render 'get_comments', :relationship => @relationship
                 
     %div.relation_controls{:style=>"float:left; width:154px; border:1px solid #f5f5f5; padding:10px; background:#fcfcfc"} 
   

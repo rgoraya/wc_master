@@ -3137,7 +3137,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	float:right; margin:2px 5px -5px 0px; text-align:right;
 }
 
-.reference_gravatar{
+.reference_gravatar, .comment_gravatar{
 	float:left;
 	border:1px solid #bebebe;
 	margin-right:-1px;
@@ -3165,7 +3165,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	/*text-align:left;*/
 	font-size: 16px;
 	/*text-shadow:0 -1px 1px rgba(0,0,0,0.2);*/
-	color: #858585; 
+	color:#434343; 
 	border-style:solid;
 	border-color:whiteSmoke;
 	border-width:1px;
@@ -3176,8 +3176,20 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
   border-radius: 5px;
 	margin:10px 0px 0px 0px;
 }
+
+#versions a{
+text-decoration:none;
+text-shadow:none;
+color: #434343;;
+}
+
+#versions a:hover{
+text-decoration:underline;
+color:#4DB8DB;
+}
+
+
 .version:hover, #more:hover{
-color:#434343;
 background-color:whiteSmoke;
 }
 
@@ -3819,7 +3831,7 @@ cursor:default;
 	word-wrap:break-word; width:142px; padding:5px; margin-bottom:10px; border:1px solid #434343; border-top:none;	
 }
 
-.reference_container{
+.reference_container, .comment_container{
 	padding:7px 5px;
 	background-color:#f5f5f5;
 	border-bottom:1px solid #ddd;
@@ -3853,7 +3865,7 @@ ul.reference_error_list{margin:0px; padding:0px;}
 
 ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 
-.reference_text{
+.reference_text, .comment_text{
 	float: left;margin-left: 5px;word-wrap: break-word;	max-width: 790px;	
 }
 

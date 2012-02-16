@@ -7,6 +7,7 @@ Wikicausality::Application.routes.draw do
   get "suggestions/:id/reject" => "suggestions#reject"
 
   resources :references
+	post "comments" => "comments#create"
 
   get "pages/home"
 
