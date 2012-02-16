@@ -48,7 +48,7 @@ class UserSessionsController < ApplicationController
         format.xml  { render :xml => @user_session, :status => :created, :location => @user_session }
       else
         #format.html { render :action => "new" }
-        format.html { redirect_to(:back, :notice => @user_session.errors.full_messages) }
+        format.html { redirect_to(:back, :notice => @user_session.errors.full_messages.join(", ")) }
         #format.xml  { render :xml => @user_session.errors, :status => :unprocessable_entity }
       end
     end

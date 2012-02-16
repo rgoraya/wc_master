@@ -1,6 +1,8 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
   
+= javascript_include_tag "issue_new.js"  
+  
 - content_for(:title, 'Create New Issue')
 %div{:id=>"error_container"}
   %div{:style=>"float:right;width:15px;"}
@@ -8,7 +10,7 @@
       %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
   %div{:id=>"error"}
     -if @issue.errors.any?
-      = @issue.errors.full_messages.join("\n")
+      = @issue.errors.full_messages.join(", ")
   .clearboth 
 
 #contentwrapper
@@ -25,41 +27,67 @@
         .title_edit
           // Search text-field     
           %div{:style=>"float:left"}  
-            %input#query.searchfield_wiki{:style=>"" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}            
-          // Spinner
-          %div{:style=>"float:right; margin:2px 2px -10px -27px; position:relative; z-index:1;", :id=>"wait"}      
+            %input#query.searchfield_wiki{:style=>"" ,:placeholder => "Enter Issue name...", :autocomplete=>"off"}
+
           // Preview Button
-          %input{:type=>"button", :id=>"btn_preview", :class=>"discussion_submit", :value=>"Preview",:style=>"margin:0px; margin-left:3px; float:left;"}                    
-          .clearboth
+          %input{:type=>"button", :id=>"btn_preview", :class=>"discussion_submit", :value=>"Preview",:style=>"margin:0px; margin-left:3px;"} 
+            
+          // Spinner
+          %div{:style=>"float:right; margin:2px 2px -10px -27px; position:relative; z-index:1;", :id=>"wait"}
+      
+         
           
+          //.btn_close{:title => "Close Window"}
+          
+          .clearboth
+        
           %div{:id=>"results", :class=>"result-box"}            
           .clearboth
-
-        .wikicontent_edit
-          #title_modalhead  
-          %div#image_preview                     
+        %div{:class =>"wikicontent_edit"}
+          .image_preview_holder
+            .img_prev#image_preview1
+              .checkcontainer
+                .check_empty
+                .check_clicked                     
+            .img_prev#image_preview2
+              .checkcontainer
+                .check_empty
+                .check_clicked
+            .img_prev#image_preview3
+              .checkcontainer
+                .check_empty
+                .check_clicked
+            .checkmsg
+              Select one
                               
           %div#text_preview
             %div#title_holder
             %div#text_holder  
-          
+              
           .clearboth
+          
               
           %div{:id=>"form_container"}
-            = form_for Issue.new, :id=>"new_issue_form" do |f|
-
-              .field  
-                = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr"
+            = form_for Issue.new, :id=>"relationship_form" do |f|
+              
               .field  
                 = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_wiki_url"
+                      
+              .field                   
+                = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr"
+                                    
               .field
                 = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_img_url"
+        
               .field
-                = f.hidden_field :title, :class=>"formfield", :id=>"frm_title"
+                = f.hidden_field :title, :class =>"formfield", :id=>"frm_title"
+      
               .field
                 - if current_user
-                  = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id     
-              .action
+                  = f.hidden_field :user_id, :class=>"formfield", :id=>"frm_user_id", :value=>current_user.id
+      
+                      
+              .actions
                 = f.submit 'Create', :class=>"discussion_submit", :name=>"save_issue_rel_button", :id=>"val_collector"
                 .clearboth
 
@@ -75,265 +103,8 @@
   $(document).ready(function(){
 
   // D I S M I S S    T H E    F L A S H    N O T I C E
-  if ($('#notice').html().trim()) {
-  $("#notice_container").effect("bounce", { times:3 }, 200);
-  $('#notice').css({display : 'block'});
-  }
-  
-  $("#notice_container a.closebutton").click(function(){
-  $("#notice_container").slideUp(100);
-  });
-
-  if ($('#error').html().trim()) {
-  $("#error_container").effect("bounce", { times:3 }, 200);
-  $('#error').css("display","block");
-  }
-  
-  $("#error_container a.closebutton").click(function(){
-  $("#error_container").slideUp(100);
-  });
-
-  // A R R O W    K E Y    N A V I G A T I O N    F O R    T H E    M O D A L
-  window.displayBoxIndex = -1;
-  
-  
-  // Arrow keys pressed while being within the Query Box
-  $("#query").keyup(function(e) 
-  {
-  if (e.keyCode == 40){  
-  Navigate(1);}
-  if(e.keyCode==38){
-  Navigate(-1);}
-  if (e.keyCode == 13){
-  $("#query").val($(".suggestion").eq(displayBoxIndex).html());
-  $("#results").empty();
-  displayBoxIndex = -1;
-  }
-  });
-                   
-  var Navigate = function(diff) {
-  displayBoxIndex += diff;
-  var oBoxCollection = $(".suggestion");
-  if (displayBoxIndex >= oBoxCollection.length)
-  displayBoxIndex = 0;
-  if (displayBoxIndex < 0)
-  displayBoxIndex = oBoxCollection.length - 1;
-  var elem_class = "suggestion_hover";
-  oBoxCollection.removeClass(elem_class).eq(displayBoxIndex).addClass(elem_class);
-  }
-
-  $(".suggestion").live('mouseover', function(){
-  displayBoxIndex = $(this).index();
-  var elem_class = "suggestion_hover";
-  var oBoxCollection = $(".suggestion");
-  oBoxCollection.removeClass(elem_class).eq(displayBoxIndex).addClass(elem_class);  
-  });  
-
-
-  // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
-
-  window.displayBoxIndex = -1;
-  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
-  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=1&v=1.0&q=';
-  var query;
-  var arr_length = 0;
-  var search_results = [];
-  var ignore_keys_array = [18,20,17,40,35,13,27,36,45,37,93,91,34,33,39,16,9,38];
-  var mouse_is_inside = false;
-  var url_img_name = 'http://en.wikipedia.org/w/api.php?action=parse&prop=text&section=0&redirects&format=json&page=';
-  var jsonData = " ";
-  var img_src = '';
-  var text_preview = '';
-  
-  // Variables to store form field values for Submit:
-  var form_title = '';
-  var form_descr = '';
-  var form_url = '';
-  var form_image = '';  
-  
-  //  (1) *** Monitoring the keyUp action on the query textbox ***
-  $('#query').bind('keyup', function(e){
-
-  //  Get value of query from the textbox			
-  query=$("#query").val();
-
-  if (query =='' || e.keyCode == 27){
-  $("#results").empty(); 
-  }
-	
-  //  If the user types in something and it is a valid key	
-  if (query != '' && ($.inArray(e.keyCode, ignore_keys_array) == -1) ){
-  
-  //  Clear the suggestions
-  $("#results").empty();  
-  
-  //  Initialize the suggestion box with a spinner		
-  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
-  
-  //  Talk to mediawiki API to fetch suggestions 
-  $.getJSON(url+encodeURIComponent(query)+'&callback=?',function(data){
-  
-  search_results = data[1];
-	
-  //  Limiting the suggestions to a maximum of 5
-  if (search_results.length <= 4) {
-  arr_length = search_results.length - 1;
-  } else {
-  arr_length = 4;
-  }
-  
-  //  Clear the suggestions
-  $("#results").empty();
-  
-  //  Loop through first 5 (maximum) suggestions and show 'em
-  for(var i = 0; i<=arr_length; i++){
-  
-  $("#results").append('<div class="suggestion" >'+search_results[i]+'</div>');
-  
-  }   //       End of for loop
-  
-  }); //     End of getJSON function
-  
-  }   //   End of If structure
-
-  }); // End of keyUp function 
-
-
-  //  G E T    Q U E R Y    F R O M    S E A R C H - B O X
-  $('.suggestion').live("click", function(){
-  $("#query").val($(this).html()); 
-  $("#results").empty();
-  displayBoxIndex = -1;
-  });
-
-  //  R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
-  $("#btn_preview").click(function(){
-  if ($("#query").val()){
-  $("#results").empty();
-  /$("#searchfield_reset").css({'display' : 'block'});
-  /$("#query").attr("disabled", "disabled");
-  parseJSON();
-
-  $("#results").empty();
-  }
-  });
-
-  //  P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
-  function parseJSON() {
-  // initialize spinner
-  $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
-  // create the json url
-  jsonData = $.trim(url_img_name+encodeURIComponent($("#query").val())+'&callback=?');
-  // parse the json
-  $.getJSON(jsonData, function (data) {
-
-  getContent(data);      
-  
-  // remove spinner
-  $("#wait").empty();
-  });}
-  
-  
-  //  R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T					
-  function getContent(JData) {
-
-  var Jval = JData.parse.text["*"];
-
-  //  populate the description text
-  //The problem is here; Jval is assumed to be a html document object. But due to the way Jval is parsed, it is not always the case. Fixed.
-  text_preview = $(Jval.replace(/<p><br \/><\/p>/gi,'')).filter('p:first').text().replace(/\[\d+\]/gi,'');
-  
-  //  Throw error if no text was received
-  if(text_preview == ''){
-  
-  text_preview = "No data! Please try a different keyword."
-  
-  // hide the save button
-  $('#form_container').css("display", "none");
-  // replace HTML of target Div
-  $('#text_holder ').html('');
-  $('#text_preview').removeAttr('style');
-  // show dummy image for image
-  $('#image_preview').removeAttr('style');
-  
-  //  If the search was successful - 
-  } else {
-  
-  $("#title_holder").html(JData.parse.title);  
-  // shorten if beyond limit
-  if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
-
-  // replace HTML of target Div
-  $('#text_holder').html(text_preview, 400);
-  $('#text_preview').css({'background-image':'none','height':'auto'});   
-  form_descr = $("#text_holder").html();
-  // show the form 
-  $("#form_container").css("display", "block");
-
-  // find the image from Json
-  img_src = $(Jval).find('img.thumbimage').attr('src');  
-  
-  // if image not found from wikipedia, get it from google
-  if (img_src == null){
-
-  // retrieve JSON from google images search and pull the url for first image result
-  $.getJSON(url_google_img+encodeURIComponent($("#query").val())+'&callback=?', function(data) {
-  $.each(data.responseData.results, function(i,item){
-  // replace HTML of target Div
-  $('#image_preview').css({'background-image': 'url("'+item.tbUrl+'")'});
-  //$('#image_preview').html('<img src="'+item.tbUrl+'" onError="this.src=\'/images/issues/image.png\'" class="wikiimage_edit"/><br />Google image');
-  form_image = $('#image_preview').html();
-  if ( i == 0 ) return false;
-  });  
-  });
-  
-  // if the image was found from WIKIPEDIA itself, then just go ahead and use that.
-  } else {
-  // replace HTML of target Div 
-  $('#image_preview').css({'background-image': 'url("'+img_src+'")'});
-  //$('#image_preview').html('<img src="'+img_src+'" onError="this.src=\'/images/issues/image.png\';" class="wikiimage_edit"/><br />wikipedia image');
-  form_image = $("#image_preview img:first").attr("src");
-  
-  }	  //        END of If structure (checking for Image Success from Wikipedia)	  
-  
-  }   //      END of If structure (checking for Text Success from Wikipedia)
-  
-  }   // END of function  
-
-  function valueCollect() {
-  $("#frm_img_url").val(extractUrl($("#image_preview").css("background-image")));
-  $("#frm_descr").val(form_descr);
-  $("#frm_title").val($("#title_holder").html());
-  $("#frm_wiki_url").val("http://en.wikipedia.org/wiki/" + ($("#query").val()).split(' ').join('_'));
-  $("#new_issue_form").submit();
-  }
-
-  function extractUrl(input){
-  // remove quotes and wrapping url()
-  return input.replace(/"/g,"").replace(/url\(|\)$/ig, "");}
-
-  $("#val_collector").click(function(){
-  valueCollect();
-  });
-
-  //   Close suggestions if clicked elsewhere
-  $('#results, #query').hover(function(){ 
-  mouse_is_inside=true; 
-  }, function(){ 
-  mouse_is_inside=false; 
-  });
-
-  $("body").mouseup(function(){ 
-  if(! mouse_is_inside) {
-  $("#results").empty();
-  $("#wait").empty(); 
-  displayBoxIndex = -1;}
-  });
-  
-
-  // D I S M I S S    T H E    F L A S H    N O T I C E
   var close = "<a href='#' class='closebutton'><img border='0' src='/images/system/close.png' alt='close button' width='18' height='18' style='float:right' /></a>";
-  if ($('.formerrorhead').html().trim()) {
+  if ($.trim($(".formerrorhead").text()) != "") {
   $('.formerrorhead').append(close);
   }
   
