@@ -16,20 +16,15 @@
       // *-*-*-*-*-*-*-*-*-*-*-*-*
       // *-*-*-  The Issue  -*-*-*
       // *-*-*-*-*-*-*-*-*-*-*-*-*
-      .issue_thumb_blanket
-        %div.issue_thumb_container
-            
-          %div.main_thumb_title
-            = link_to @issue.title, @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
-        
-          %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@issue.short_url})"}
-            = link_to "", @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
-
-      // *-*-*-*-*-*-*-*-*-*-*-
+      %div{:id=>"issue_main"}      
+        = render :partial => "issue_main"
+              
+      // ----------------------
       // Relationship Partial
-      // *-*-*-*-*-*-*-*-*-*-*-
+      // ----------------------
       %div.relationship_partial#selected_rel_type
-        = render 'selected_rel_type' 
+        = render 'selected_rel_type'
+         
       // *-*-*-*-*-*-*-*-*-*-*-
       // Modal Form for Add New
       // *-*-*-*-*-*-*-*-*-*-*-        

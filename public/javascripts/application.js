@@ -5,8 +5,20 @@ $(function() {
 // -------------------------------------------------------------------------------
 
   // D I S M I S S    T H E    F L A S H    N O T I C E
-  if ($('#notice').html().trim()) {
-  	$("#notice_container").effect("bounce", { times:3 }, 200);
+  if ($.trim($("#error").text()) != "")
+  {
+	  $("#error_container").effect("highlight", {color: '#b84030'}, 800);
+	  $('#error').css("display","block");
+  }
+  
+  $("#error_container a.closebutton").click(function(){
+	  $("#error_container").slideUp(100);
+  });
+
+
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+  if ($.trim($('#notice').text()) != "") {
+  	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
   	$('#notice').show;
   }
   

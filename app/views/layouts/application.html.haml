@@ -78,8 +78,7 @@
 
               - else
                 
-                .login_button_seperator{:style=>"background-image:none; padding-left:0px;"}
-                  = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button",:style=>"background-image:url('/images/system/user.png');"
+                = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button_seperator",:style=>"background-image:url('/images/system/user.png');"
                                 
                 %div.login_main_container{:style=>"float:left;"}
                   .login_form_opener 

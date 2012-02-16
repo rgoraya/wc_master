@@ -236,10 +236,10 @@ require 'backports'
   end
 
   def update_img_if_applicable
-    @existingIssue = Issue.find(@issueid)
+    #@existing_issue = Issue.find(@issueid)
     # if the image selected by the user is different than the one saved then update it.
-    if @issue.short_url != @existingIssue.short_url 
-      @existingIssue.update_attribute(:short_url, @issue.short_url)
+    if @issue.short_url != @existing_issue.short_url 
+      @existing_issue.update_attribute(:short_url, @issue.short_url)
     end 
   end
 
@@ -341,17 +341,28 @@ require 'backports'
 
     @issue = Issue.find(params[:id])
 
-    if params[:previewbutton]
-
+    if params[:update_image]
+      
       @issue.attributes = params[:issue]
-      render :action => "edit"
-      return
+      if @issue.save
+        respond_to do |format|
+          format.html { redirect_to(:back, :notice => 'Successfully created.') }
+          format.js {render(:layout=>false, :notice => "Done!")}
+        end
+      else
+        respond_to do |format|
+          format.html { redirect_to(:back, :error => 'Not created.') }
+          format.js {render(:layout=>false, :notice => "Done!")}
+        end        
+      end
+      
+
 
     else
 
       respond_to do |format|
         if @issue.update_attributes(params[:issue])
-          format.js {render :layout=>false}
+          format.js   {render :layout=>false}
           format.html { redirect_to(@issue, :notice => 'Issue was successfully updated.') }
           format.xml  { head :ok }
         else

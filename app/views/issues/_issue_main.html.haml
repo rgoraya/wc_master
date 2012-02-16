@@ -1,0 +1,14 @@
+.issue_thumb_blanket
+  %div.issue_thumb_container
+      
+    %div.main_thumb_title
+      = link_to @issue.title, @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+  
+    %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@issue.short_url})"}
+      = link_to "", @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+
+  = form_for @issue, :remote=>true do |f|
+    .field
+      = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_imzzg_url", :value=>"https://encrypted-tbn1.google.com/images?q=tbn:ANd9GcR0xZr5B5aqqgXwmWmvP5BpEXGTFZU-fT3Ioth2wxU4E9S7GHDX1w"
+    .action
+      /= f.submit 'update', :class=>"discussion_submit", :name=>"update_image", :id=>"img_collector"

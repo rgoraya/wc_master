@@ -5,25 +5,25 @@ html{
 
 html, body /*Body Styles*/
 {
-background: #ffffff;
-margin:0px;
-padding:0px;
-height: 100%;
--webkit-font-smoothing: antialiased;
+	background: #ffffff;
+	margin:0px;
+	padding:0px;
+	height: 100%;
+	-webkit-font-smoothing: antialiased;
 }
 
 #container {
-min-height:100%;
-position:relative;
-width: 100%; 
-margin:0 auto;
+	min-height:100%;
+	position:relative;
+	width: 100%; 
+	margin:0 auto;
 }
 
 #content {
-padding:0px;
-padding-bottom:45px;   /* total Height of the footer including padding */
-width: 1080px; 
-margin:0 auto;
+	padding:0px;
+	padding-bottom:45px;   /* total Height of the footer including padding */
+	width: 1080px; 
+	margin:0 auto;
 }
 
 #footer {
@@ -1489,52 +1489,52 @@ word-wrap:break-word;
 	display:none;
 	text-align:center;
 	color: #ffffff;
-	background-color:#4DB8DB;
-	padding:10px;
+	background-color:#434343;
+	padding:10px 5px;
 	/*--CSS3 Rounded Corners--*/
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
 	/* Positioning */
 	position: absolute; 
 	z-index:2;
-	top: 10px; 
+	top: 3px; 
 	left: 50%;
 	margin-left: -110px;
 	/* shadows */
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
-	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;		
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
+	border:1px solid #4DB8DB;		
 }
 
 #error_container{
-	width:200px;
 	font: normal 14px "lucida grande",tahoma,verdana,arial,sans-serif;
 	display:none;
 	text-align:center;
 	color: #ffffff;
-	background-color:#b84030;
-	padding:10px;
+	background-color:#434343;
+	padding:10px 5px;
 	/*--CSS3 Rounded Corners--*/
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
 	/* Positioning */
 	position: absolute; 
 	z-index:2;
-	top: 10px;
-	left:40%;
-	margin-left:auto;
-	margin-right:auto;
+	top: 3px; 
+	left: 50%;
+	margin-left: -110px;
 	/* shadows */
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
-	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;		
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
+	border:1px solid #b84030;	
 }
 
-#notice{
+#notice, #error{
 	float:left;
-	width:180px;
+	width:188px;
 	margin-right:5px;
 }
 
@@ -2561,6 +2561,7 @@ a.issue-user:hover{
 	font-size:11px;
 	background:#434343;
 	padding:1px;
+	text-align:center;
 }
 
 .placeholder_image{
