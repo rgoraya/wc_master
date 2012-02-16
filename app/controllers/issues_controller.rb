@@ -118,7 +118,6 @@ require 'backports'
 
     @references = Issue.rel_references(params[:rel_id])
     
-
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @issue }
@@ -179,7 +178,7 @@ require 'backports'
 
     # A D D    N E W    C A U S E / E F F E C T
     if params[:action_carrier]
-      # Read in the :type passed with form to recognize whether this is a Cause or Effect
+      # Read in the :type passed with form to recognize Relationship Type
       @causality = params[:action_carrier].to_s
       @causality_id = params[:id_carrier]     
       
@@ -218,8 +217,7 @@ require 'backports'
   def add_already_existent_issue
     retrieve_id_of_issue
     @relationship = Relationship.new
-    set_relationship_user_id_if_applicable
-    update_img_if_applicable 
+    set_relationship_user_id_if_applicable 
     set_type_of_relationship(true)       
     save_relationship  
   end
@@ -238,9 +236,11 @@ require 'backports'
   def update_img_if_applicable
     #@existing_issue = Issue.find(@issueid)
     # if the image selected by the user is different than the one saved then update it.
-    if @issue.short_url != @existing_issue.short_url 
-      @existing_issue.update_attribute(:short_url, @issue.short_url)
-    end 
+    if !@existing_issue.nil?
+      if @issue.short_url != @existing_issue.short_url 
+        @existing_issue.update_attribute(:short_url, @issue.short_url)
+      end 
+    end
   end
 
   def add_new_issue
@@ -258,8 +258,8 @@ require 'backports'
       set_type_of_relationship(false)
       save_relationship
     else
-      @notice = @issue.errors.full_messages
-      redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
+      @notice = @issue.errors.full_messages.join(", ")
+      #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
     end  
   end
 
@@ -300,7 +300,8 @@ require 'backports'
 
   def save_relationship
     if @relationship.save
-      remove_duplicate_suggestions 
+      remove_duplicate_suggestions
+      update_img_if_applicable 
       Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:relationship, \
                                    :id=>@relationship.id, \
@@ -308,7 +309,7 @@ require 'backports'
                                    :undo=>false, \
                                    :calculate=>true)
 
-      redirect_to(:back, :notice => @notice)
+      #redirect_to(:back, :notice => @notice)
     else
       error_saving_causal_link
     end   
@@ -324,8 +325,8 @@ require 'backports'
   end
 
   def error_saving_causal_link
-    @notice = @relationship.errors.full_messages
-    redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
+    @notice = @relationship.errors.full_messages.join(", ")
+    #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
   end
 
   #protected
@@ -345,13 +346,15 @@ require 'backports'
       
       @issue.attributes = params[:issue]
       if @issue.save
+        @notice = "Image replaced!"
         respond_to do |format|
-          format.html { redirect_to(:back, :notice => 'Successfully created.') }
+          format.html 
           format.js {render(:layout=>false, :notice => "Done!")}
         end
       else
+        @notice = "Cannot Replace!"
         respond_to do |format|
-          format.html { redirect_to(:back, :error => 'Not created.') }
+          format.html 
           format.js {render(:layout=>false, :notice => "Done!")}
         end        
       end

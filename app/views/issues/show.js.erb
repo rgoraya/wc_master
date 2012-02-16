@@ -5,13 +5,6 @@ $('.relationship_thumb, relation_pagination').fadeIn();
 $(".relationship_thumb_title").effect("highlight", {color: '#4DB8DB'}, 500);
 $("#title_filler_text").show();
 
-// Display Notice if Ajax
-$("#notice").html("<%= escape_javascript(flash[:notice]) %>");
-if ($.trim($('#notice').text()) != "") {
-	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
-  	$('#notice').show;
-}
-
 $(".relationship_partial_toggle:contains(" + $(".central_causality_container").text() + ")").filter(function(){
   $(this).hide()
 })
