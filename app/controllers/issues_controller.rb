@@ -26,6 +26,46 @@ require 'backports'
       @rel_type = "is caused by"
     end
     
+    # Call to retrieve the corresponding relationships based on the params
+    get_selected_relations
+    
+    # Populate Notice variable if the call was made after creating a new Relationship
+    if params[:create_notice]
+      @notice = params[:create_notice]
+    end
+
+    # Default params to "causes" for initial load
+    if params[:rel_id]
+      @relationship = Relationship.find(params[:rel_id])
+      @rel_references = @relationship.references
+      @rel_issue = Issue.find(@relationship.issue_id)
+      @rel_cause = Issue.find(@relationship.cause_id)
+      @issue_id = params[:issueid]
+      if @issue.id == @rel_cause.id # then swap!
+         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
+      end
+      @causal_sentence = @rel_type
+    end
+
+    @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
+    @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
+    @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
+    @issue_inhibited_suggestion = @issue.suggestions.where(:causality => 'R',:status => 'N')
+    @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
+    @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
+
+    @references = Issue.rel_references(params[:rel_id])
+    
+    respond_to do |format|
+      format.html # show.html.erb
+      format.xml  { render :xml => @issue }
+      format.js
+     
+    end
+  end
+  
+  def get_selected_relations
+       
     case @rel_type
 
     when "is caused by"
@@ -96,34 +136,6 @@ require 'backports'
       
    end
 
-    # Default params to "causes" for initial load
-    if params[:rel_id]
-      @relationship = Relationship.find(params[:rel_id])
-      @rel_references = @relationship.references
-      @rel_issue = Issue.find(@relationship.issue_id)
-      @rel_cause = Issue.find(@relationship.cause_id)
-      @issue_id = params[:issueid]
-      if @issue.id == @rel_cause.id # then swap!
-         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
-      end
-      @causal_sentence = @rel_type
-    end
-
-    @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
-    @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
-    @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
-    @issue_inhibited_suggestion = @issue.suggestions.where(:causality => 'R',:status => 'N')
-    @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
-    @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
-
-    @references = Issue.rel_references(params[:rel_id])
-    
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @issue }
-      format.js
-     
-    end
   end
 
   def get_relationship
