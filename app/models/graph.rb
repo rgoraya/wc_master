@@ -7,16 +7,20 @@ class Graph
 	attr_accessor :nodes, :edges
 	def initialize(issues)
 		# Generates nodes from list of issues
-		@nodes = [] # To do: initialize with Node class
+		@nodes = [] # To do: initialize with Mapviz::Node class
 
 		# Retrieve relationships between issues
-		@edges = [] # To do
+		@edges = [] # To do: Initialize with Mapviz::Edge
+
+		# Placeholder for history
 	end
 
 	def initialize
-		# Basic empty graph
-		@nodes = [] # Initialize as empty list of node objects?
-		@edges = [] # Initialize as empty list of edges?
+		# Generates empty graph which can be filled later
+		@nodes = []
+		@edges = []
+
+		# Placeholder for history
 	end
 
 	# Custom graph generation
@@ -41,7 +45,7 @@ class Graph
 	def get_graph_of_nas
 	end
 
-	# PathFinding
+	# Path finding
 end
 
 
