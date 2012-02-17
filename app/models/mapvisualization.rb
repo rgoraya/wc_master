@@ -187,6 +187,11 @@ class Mapvisualization #< ActiveRecord::Base
       ### RANDOM TEST GRAPH ###
       elsif params[:q] == 'test'
         reset_graph(args, @width, @height)
+
+      else #if not specified, default to show something
+        issues, relationships = default_graph
+        convert_activerecords(issues,relationships)
+        default_layout
       end
     
     ### DEFAULT ###
