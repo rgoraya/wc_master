@@ -3,6 +3,86 @@
 *****/
 
 var t_off = 8 //txt offset
+var arrow_length = 20 // arrowhead length
+var arrow_height = 8 // arrowhead height
+
+function getEdgeCenter(edge, e)
+{
+    a = edge.a;
+    b = edge.b;
+
+    curve = getPath(edge);
+    pathLength = Math.round(e.getTotalLength(curve)/2) + arrow_length/2;
+    edgeCenter = e.getPointAtLength(pathLength);
+
+   return edgeCenter;  
+}
+
+function getArrow(edge,paper, e) {
+    size = arrow_length;
+    a = edge.a;
+    b = edge.b;
+
+    angle = Math.atan2(a.x-b.x,b.y-a.y);
+    angle = (angle / (2 * Math.PI)) * 360;
+
+    curve = getPath(edge);
+    midPoint = getEdgeCenter(edge, e);
+
+
+    drawArrowPath = "M" + midPoint.x + " " + midPoint.y + " L" + (midPoint.x - size) + " " + (midPoint.y - arrow_height) + " L" + (midPoint.x - size) + " " + (midPoint.y + arrow_height) + " L" + midPoint.x + " " + midPoint.y;
+
+    a = paper.path(drawArrowPath);
+
+   if(edge.reltype&INCREASES) 
+	a.attr({fill:'#FF0E39', stroke:'none'}).rotate((90+angle),midPoint.x,midPoint.y);	
+   else if(edge.reltype&SUPERSET)
+	a.attr({fill:'#BBBBBB', stroke:'none'}).rotate((90+angle),midPoint.x,midPoint.y);
+   else  //if decreases 
+	a.attr({fill:'#1893AE', stroke:'none'}).rotate((90+angle),midPoint.x,midPoint.y);
+
+
+//    arrowPath = paper.path(drawArrowPath).attr("fill","black").rotate((90+angle),midPoint.x,midPoint.y);
+
+   return a;
+
+}
+
+function getArrowIcon(edge, paper, e) {
+    size = 3;
+
+    a = edge.a;
+    b = edge.b;
+
+    angle = Math.atan2(a.x-b.x,b.y-a.y);
+    angle = (angle / (2 * Math.PI)) * 360;
+
+    curve = getPath(edge);
+    midPoint = getEdgeCenter(edge, e);
+
+
+// drawing path
+   if(edge.reltype&INCREASES)
+	drawArrowIconPath = "M " + (midPoint.x-9) + " " + (midPoint.y+2) + " l 0 " + (0 - size) + " l " + (0 - size) + " 0 l 0 " + (0 - size) + " l " + (0 - size) + " 0 l 0 " + size + " l " + (0 - size) + " 0 l 0 " + size + " l " + size + " 0 l 0 " + size + " l " + size + " 0 l 0 " + (0 - size) + " z";
+   else if(edge.reltype&SUPERSET)
+	drawArrowIconPath = "M " + (midPoint.x-9) + " " + (midPoint.y+2) + " z"; //  should delete this object or make another icon ! 
+   else //if decreases 
+	drawArrowIconPath = "M " + (midPoint.x-9) + " " + (midPoint.y+2) + " l 0 " + (0 - size) + " l " + (0 - size*3) + " 0 l 0 " + size + " z";
+
+   i = paper.path(drawArrowIconPath).rotate((90+angle),midPoint.x,midPoint.y);
+
+// setting attributes
+   i.attr({fill:'#FFFFFF', stroke:'none'});
+
+ //   arrowIconPath = paper.path(drawArrowIconPath).attr({fill: '#ffffff', 'stroke-width': 0}).rotate((90+angle),midPoint.x,midPoint.y);
+
+   return i;
+
+}
+
+
+
+
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
@@ -41,14 +121,18 @@ function drawEdge(edge, paper){
     curve = getPath(edge) //get the curve's path
 
     e = paper.path(curve).toBack() //base to draw
+
+    arrow = getArrow(edge, paper, e); 	// draw arrow head(triangle) in the center of the edge
+    arrowIcon = getArrowIcon(edge, paper, e);   // draw INCREASE/DECREASE/SUPERSET icons on arrowhead
+
   
     //set attributes based on relationship type (bitcheck with constants)
     if(edge.reltype&INCREASES)
-      e.attr({stroke:'#C06B82'}) //BA717F
+      e.attr({stroke:'#FF0E39'}) //BA717F
     else if(edge.reltype&SUPERSET)
       e.attr({stroke:'#BEBEBE'}) //BBBBBB change for superset
     else //if decreases
-      e.attr({stroke:'#008FBD'}) //408EB8, 54B9D9
+      e.attr({stroke:'#1893AE'}) //408EB8, 54B9D9
     //if(edge.reltype&HIGHLIGHTED)
     //e.glow({width:4,fill:false,color:'#FFFF00',opacity:1}) //would have to animate this as well it seems...
 
@@ -58,7 +142,9 @@ function drawEdge(edge, paper){
       e.attr({'stroke-width':1})
     
     icon = paper.set() //for storing pieces of the line as needed
-    icon.push(e)
+
+    icon.push(e, arrow, arrowIcon)
+
 		.click(function() { clickEdge(edge)})
     .mouseover(function() {this.node.style.cursor='pointer';})
 
@@ -86,7 +172,7 @@ function getPath(edge)
   angleAB = Math.atan(dy/dx)
 
   if(edge.n == 0){ //Curve "0" -- straight line if we want it
-    return "M"+a.x+","+a.y+"L"+b.x+","+b.y+"z"
+    return "M"+a.x+","+a.y+"L"+b.x+","+b.y
   }
 
   if(Math.abs(edge.n) == 1){ //Curve "1"
@@ -133,13 +219,6 @@ function getPath(edge)
   return "" //in case we didn't get anything?
 }
 
-function getEdgeCenter(edge)
-{
-  //midpoint is (average?) of midpoints between each segment
-  //can I parse out the points from a curve, to save time? Or calc midpoint at same time?
-  //direction is  < http://www.cs.helsinki.fi/group/goa/mallinnus/curves/curves.html >
-  
-}
 
 //Interaction functions, for when we click on things. Variables passed are things we're going to use
 function clickNode(node){
