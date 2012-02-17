@@ -172,6 +172,13 @@ function getPathCenter(e)
 	return edgeCenter;  
 }
 
+
+function getArrowPath(edge)
+{
+	
+}
+
+
 function drawArrow(edge,paper, e) 
 {
 	symbolSize = 3;

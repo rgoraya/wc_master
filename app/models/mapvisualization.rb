@@ -25,34 +25,16 @@ class Mapvisualization #< ActiveRecord::Base
     def to_s
       @id.to_s + ": "+@location.to_s+" ("+@name.to_s + ")"
     end
-
-    #returns a javascript version of the object
-    def js(offset=0)
-      "{id:"+@id.to_s+","+
-      "name:'"+escape_javascript(@name)+"',"+
-      "x:"+(@location[0]+offset).to_s+",y:"+(@location[1]+offset).to_s+","+
-      "url:'"+escape_javascript(@url)+"'}"
-      #can add more fields as needed
-    end
-
-    #returns a unique javascript key for the node object
-    def js_k
-      @id.to_s
-    end
   end  
 
   class Edge < Object
     attr_accessor :id, :a, :b, :rel_type
     include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
 
-    ## IF these change, remember to alter in javascript!
-    DECREASES = 0
-    INCREASES = 1 #constants for relationship type
-    SUPERSET = 4
-    EXPANDABLE = 8
-    HIGHLIGHTED = 16
+    ##a converter for building the edges; can eventually get moved into the db parser (what Eugenia is doing) ??
+    ## where should the bitmask constants be? should I just store rel_type as a string and not deal with it otherwise??
     ##rel_type nil means increases, 'I' means inhibitor (decreases), 'H' means A-superset-B
-    RELTYPE_TO_BITMASK = {nil=>INCREASES, 'I'=>DECREASES, 'H'=>SUPERSET}
+    RELTYPE_TO_BITMASK = {nil=>MapvisualizationsHelper::INCREASES, 'I'=>MapvisualizationsHelper::DECREASES, 'H'=>MapvisualizationsHelper::SUPERSET}
 
     def initialize(id, a, b, rel_type=1)
       @id = id #needed?
@@ -62,33 +44,14 @@ class Mapvisualization #< ActiveRecord::Base
     end
 
     def to_s
-      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'includes')
-      "Edge "+@id.to_s+": "+@a.to_s+" "+conn+" "+@b.to_s
+      "Edge "+@id.to_s+": "+name
     end
 
     def name
-      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'includes')
+      conn = @rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'increases' : (@rel_type & MapvisualizationsHelper::SUPERSET == 0 ? 'decreases' : 'includes')
       @a.name+" "+conn+" "+@b.name
     end
 
-    #returns a javascript version of the object 
-    #nodeset is the name of the js node array (default to "nodes"), (a and b are references into the nodeset array)
-    def js(nodeset='nodes', count=0)
-      #do we need to also include an id field inside the object?
-      "{id:"+@id.to_s+","+
-      "name:'"+escape_javascript(name)+"',"+
-      "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
-      "reltype:"+@rel_type.to_s+","+
-      "n:"+count.to_s+"}"
-      #can add more fields as needed
-    end
-    
-    #gets a unique key for the edge (A-B) => (AiehB) / (AdB) / (AsB), etc
-    def js_k
-      conn = @rel_type & INCREASES != 0 ? 'i' : (@rel_type & SUPERSET == 0 ? 'd' : 's')
-      conn += 'e'*[(@rel_type&EXPANDABLE),1].min + 'h'*[(@rel_type&HIGHLIGHTED),1].min
-      "'"+@a.js_k+conn+@b.js_k+"'"
-    end
   end
 
 ######## END SUBCLASS DEFINITIONS #########  
