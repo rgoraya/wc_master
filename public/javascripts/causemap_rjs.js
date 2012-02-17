@@ -2,9 +2,9 @@
 ** This file includes methods for drawing the graph on a Raphael.js canvas
 *****/
 
-var t_off = 9 //txt offset
-var arrow_length = 20 // arrowhead length
-var arrow_height = 8 // arrowhead height
+var T_OFF = 9 //txt offset
+var ARROW_LENGTH = 20 // arrowhead length
+var ARROW_HEIGHT = 8 // arrowhead height
 var edge_colors = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BEBEBE'}
 
 
@@ -12,7 +12,7 @@ var edge_colors = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BEBE
 function drawNode(node, paper){
 	if(!compact){
 
-		txt = paper.text(node.x, node.y+t_off, node.name)
+		txt = paper.text(node.x, node.y+T_OFF, node.name)
 		circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
 		.attr({
 			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
@@ -43,30 +43,46 @@ function drawNode(node, paper){
 //details on drawing/laying out an edge (a single line/relationship)
 function drawEdge(edge, paper){
 	if(!compact){	
+		a = edge.a;
+		b = edge.b;
 
 		curve = getPath(edge) //get the curve's path
-		e = paper.path(curve).toBack() //base to draw
+		midPoint = getPathCenter(curve,-1*ARROW_LENGTH/2); //midpoint offset by arrow-length
+		arrowPath = getArrowPath(midPoint)
+		arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
 
-		arrow = drawArrow(edge, paper, e); 	// draw arrow head(triangle) in the center of the edge
-		//arrowIcon = drawArrowIcon(edge, paper, e);   // draw INCREASE/DECREASE/SUPERSET icons on arrowhead
+		e = paper.path(curve)
+			.attr({'stroke-width':2})
+		arrow = paper.path(arrowPath)
+			.attr({stroke:'none'})
+			.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
+		arrowSymbol = paper.path(arrowSymbolPath)
+			.attr({fill:'#FFFFFF', stroke:'none'})
+			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
 
 		//set attributes based on relationship type (bitcheck with constants)
-		if(edge.reltype&INCREASES)
-			e.attr({stroke:edge_colors['increases']}) //BA717F
-		else if(edge.reltype&SUPERSET)
-			e.attr({stroke:edge_colors['superset']}) //BBBBBB change for superset
-		else //if decreases
-			e.attr({stroke:edge_colors['decreases']}) //408EB8, 54B9D9
+		if(edge.reltype&INCREASES){
+			e.attr({stroke:edge_colors['increases']})
+			arrow.attr({fill:edge_colors['increases']})
+		}
+		else if(edge.reltype&SUPERSET){
+			e.attr({stroke:edge_colors['superset']})
+			arrow.attr({fill:edge_colors['superset']})	
+		}
+		else{ //if decreases
+			e.attr({stroke:edge_colors['decreases']})
+			arrow.attr({fill:edge_colors['decreases']});	
+		}
+
 		//if(edge.reltype&HIGHLIGHTED)
 			//e.glow({width:4,fill:false,color:'#FFFF00',opacity:1}) //would have to animate this as well it seems...
-		e.attr({'stroke-width':2})
 
 		icon = paper.set() //for storing pieces of the line as needed
-		.push(e, arrow[0], arrow[1])//, arrowIcon)
+		.push(e, arrow, arrowSymbol)
 		.click(function() { clickEdge(edge)})
 		.mouseover(function() {this.node.style.cursor='pointer';})
 
-		$(e.node).qtip({
+		$([e.node,arrow.node,arrowSymbol.node]).qtip({
 			content:{text:edge.name},
 			position:{target: 'mouse', adjust:{y:5}}
 		});
@@ -75,7 +91,7 @@ function drawEdge(edge, paper){
 	}
 	else{	
 		curve = getPath(edge) //get the curve's path
-		e = paper.path(curve).toBack() //base to draw
+		e = paper.path(curve).attr({'stroke-width':1}) //base to draw
 
 		//set attributes based on relationship type (bitcheck with constants)
 		if(edge.reltype&INCREASES)
@@ -86,7 +102,6 @@ function drawEdge(edge, paper){
 			e.attr({stroke:edge_colors['decreases']}) //408EB8, 54B9D9
 		//if(edge.reltype&HIGHLIGHTED)
 			//e.glow({width:4,fill:false,color:'#FFFF00',opacity:1}) //would have to animate this as well it seems...
-		e.attr({'stroke-width':1})
 
 		icon = paper.set() //for storing pieces of the line as needed
 		.push(e)
@@ -117,7 +132,7 @@ function getPath(edge)
 	angleAB = Math.atan(dy/dx)
 
 	if(edge.n == 0){ //Curve "0" -- straight line if we want it
-		return "M"+a.x+","+a.y+"L"+b.x+","+b.y
+		return "M "+a.x+","+a.y+" L "+b.x+","+b.y+" z"
 	}
 
 	if(Math.abs(edge.n) == 1){ //Curve "1"
@@ -130,7 +145,7 @@ function getPath(edge)
 			ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
 			ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
 		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y+"z"
 	}
 
 	if(Math.abs(edge.n) == 2){ //Curve "2"
@@ -143,7 +158,7 @@ function getPath(edge)
 			ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
 			ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
 		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y+"z"
 	}
 
 	if(Math.abs(edge.n) == 3) {//Curve "3"
@@ -158,59 +173,46 @@ function getPath(edge)
 			ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
 			ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y       
 		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y+"z"
 	}
 	return "" //in case we didn't get anything?
 }
 
-//gets the "center" of a path (offset by arrow_length)
-function getPathCenter(e)
+function getPathCenter(path, offset)
 {
-	pathLength = Math.round(e.getTotalLength()/2) + arrow_length/2;
-	edgeCenter = e.getPointAtLength(pathLength);
+	offset = typeof offset !== 'undefined' ? offset : 0;
 
-	return edgeCenter;  
+	pathLength = Math.round(Raphael.getTotalLength(path)/2);
+	midPoint = Raphael.getPointAtLength(path,pathLength/2 - offset);
+
+	return midPoint;
+}
+
+//gets the path of an arrow drawn at a particular point
+//point is a Raphael.getPointAtLength object {x,y,alpha}
+function getArrowPath(point)
+{
+	return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
 }
 
 
-function getArrowPath(edge)
-{
-	
-}
-
-
-function drawArrow(edge,paper, e) 
+//gets the path to draw the symbol inside an arrow
+//should this be a text function instead?
+function getArrowSymbolPath(point, reltype)
 {
 	symbolSize = 3;
-	a = edge.a;
-	b = edge.b;
 
-	angle = Math.atan2(a.x-b.x,b.y-a.y);
-	angle = (angle / (2 * Math.PI)) * 360;
-	midPoint = getPathCenter(e);
-
-	drawArrowPath = "M" + midPoint.x + " " + midPoint.y + " L" + (midPoint.x - arrow_length) + " " + (midPoint.y - arrow_height) + " L" + (midPoint.x - arrow_length) + " " + (midPoint.y + arrow_height) + " L" + midPoint.x + " " + midPoint.y;
-
-	arrow = paper.path(drawArrowPath).attr({stroke:'none'}).rotate((90+angle),midPoint.x,midPoint.y);
-
-	if(edge.reltype&INCREASES){		
-		arrow.attr({fill:edge_colors['increases']});	
-		drawArrowSymbolPath = "M " + (midPoint.x-9) + " " + (midPoint.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize) + " z";
+	if(reltype&INCREASES){
+		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize) + " z";
 	}
-	else if(edge.reltype&SUPERSET){
-		arrow.attr({fill:edge_colors['superset']});
-		drawArrowSymbolPath = "M " + (midPoint.x-9) + " " + (midPoint.y+2) + " z"; //  should delete this object or make another icon !
+	else if(reltype&SUPERSET){
+		return "M " + (point.x-9) + " " + (point.y+2) + " z"; //  should delete this object or make another icon !
 	}
 	else{  //if decreases 
-		arrow.attr({fill:edge_colors['decreases']});
-		drawArrowSymbolPath = "M " + (midPoint.x-9) + " " + (midPoint.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize*3) + " 0 l 0 " + symbolSize + " z";
+		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize*3) + " 0 l 0 " + symbolSize + " z";
 	}
-	//arrowPath = paper.path(drawArrowPath).attr("fill","black").rotate((90+angle),midPoint.x,midPoint.y);
-
-	//why is this not a text object?
-	symbol = paper.path(drawArrowSymbolPath).rotate((90+angle),midPoint.x,midPoint.y).attr({fill:'#FFFFFF', stroke:'none'})
-
-	return [arrow,symbol]; //not a set so we can push them onto a top-level set and not have nested arrays
+	
+	return "" //if problem
 }
 
 
@@ -232,14 +234,11 @@ function clickNode(node){
 
 function clickEdge(edge){
 	curve = getPath(edge);
-	x = (edge.a.x+edge.b.x)/2 //just estimate center of straight line for now
-	y = (edge.a.y+edge.b.y)/2
-	
-	//need to fix this for curves somehow....
+	midPoint = getPathCenter(curve);	
 	
 	$.ajax({
 		url: '/mapvisualizations',
-		data: {do:'get_relation',id:edge.id, curve:curve, x:x, y:y},
+		data: {do:'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
 		complete: function(data) {show_modal(data);},
 		dataType: 'script'
 	});
@@ -258,15 +257,17 @@ function clickEdge(edge){
 function drawElements(nodes, edges, paper)
 {
 	paper.clear() //clear out old drawings
+
+	//draw edges (below the nodes)
+	for(var i=0, len=edges['keys'].length; i<len; i++){
+		edge = edges[edges['keys'][i]]
+		drawEdge(edge, paper)
+	}
+
 	//draw nodes
 	for(var i=0, len=nodes['keys'].length; i<len; i++){
 		node = nodes[nodes['keys'][i]] //easy access
 		drawNode(node, paper)
-	}
-
-	for(var i=0, len=edges['keys'].length; i<len; i++){
-		edge = edges[edges['keys'][i]]
-		drawEdge(edge, paper)
 	}
 }
 
@@ -288,7 +289,23 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 			icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear', function(){this.remove()}) //disappear
 		}
 		else{
-			icon.animate({'path':getPath(toEdge)},1000,easing); //pass the new path
+			if(!compact){ //not compact so we need to move arrows as well
+				//get the curves for the new path 
+				curve = getPath(toEdge)
+				midPoint = getPathCenter(curve,-1*ARROW_LENGTH/2); //midpoint offset by arrow-length
+				arrowPath = getArrowPath(midPoint)
+				arrowSymbolPath = getArrowSymbolPath(midPoint, toEdge.reltype)
+				transform = 'r'+midPoint.alpha+','+midPoint.x+','+midPoint.y
+
+				icon[0].animate({'path':curve},1000,easing)
+				icon[1].attr({'path':arrowPath,'transform':transform,'opacity':0, 'fill-opacity':0})
+				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear') //hack because tranform doesn't animate smoothly
+				icon[2].attr({'path':arrowSymbolPath,'transform':transform,'opacity':0, 'fill-opacity':0})
+				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')			
+			}
+			else{
+				icon.animate({'path':getPath(toEdge)},1000,easing)
+			}
 		}
 	}  
 
@@ -317,7 +334,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		}
 		else{
 			fromNode.x = toNode.x; fromNode.y = toNode.y; //change the stored location for future querying (interaction)
-			icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+t_off }, 1000, easing)
+			icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+T_OFF }, 1000, easing)
 		}
 	}
 
