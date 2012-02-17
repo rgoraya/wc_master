@@ -1,6 +1,11 @@
 /* Functions and such for interacting on the index page (usually ajax-based) */
 
 $(document).ready(function(){
+	$("#notice").html(notice_msg);
+  if ($('#notice').html().trim()) {
+  	$("#notice_container").show();
+  	$("#notice_container").effect("bounce", { times:3 }, 200);
+  }
   $("#spinner").css('left',$('#canvas_container').width()/2-32)
     .css('top',$('#canvas_container').height()/2-32)
     .toggle();

@@ -19,6 +19,8 @@ class MapvisualizationsController < ApplicationController
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
           :params => params) #on new html--generate graph. Just pass in all the params for handling
 
+        flash[:notice] = @vis.notice
+        
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
@@ -53,7 +55,7 @@ class MapvisualizationsController < ApplicationController
               @vis.send(params[:layout_cmd]) #if ACTIONS.include?(params[:layout_cmd])
             end
           rescue NoMethodError
-            flash[:error] = 'No such layout command'
+            flash[:notice] = 'No such layout command'
           end
         end
 

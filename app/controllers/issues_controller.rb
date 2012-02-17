@@ -313,7 +313,7 @@ require 'backports'
 
   def error_saving_causal_link
     @notice = @relationship.errors.full_messages
-    redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
+    redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created')
   end
 
   #protected

@@ -56,7 +56,7 @@ class Mapvisualization #< ActiveRecord::Base
 
 ######## END SUBCLASS DEFINITIONS #########  
 
-  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display
+  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice
   
   def initialize(args)    
     #puts args
@@ -152,9 +152,10 @@ class Mapvisualization #< ActiveRecord::Base
         reset_graph(args, @width, @height)
 
       else #if not specified, default to show something
-        issues, relationships = default_graph
-        convert_activerecords(issues,relationships)
-        default_layout
+        @notice = "Please specify something to show!"
+        # issues, relationships = default_graph
+        # convert_activerecords(issues,relationships)
+        # default_layout
       end
     
     ### DEFAULT ###
