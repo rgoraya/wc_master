@@ -90,7 +90,7 @@ class ReferencesController < ApplicationController
     @reference = Reference.find(params[:id])
     @reference.destroy
 
-		Reputation::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>true)
+		Reputation::Utils.reputation(:action=>:destroy, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>true)
 
 
     respond_to do |format|

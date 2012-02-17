@@ -5,7 +5,7 @@ class IssuesController < ApplicationController
 require 'backports'
   
   def index
-    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+    @issues = Issue.search(params[:search].to_s.strip).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
     respond_to do |format|
       format.js {render :layout=>false}
       format.html # index.html.erb
@@ -221,8 +221,10 @@ require 'backports'
     retrieve_id_of_issue
     @relationship = Relationship.new
     set_relationship_user_id_if_applicable 
-    set_type_of_relationship(true)       
-    save_relationship  
+    set_type_of_relationship(true)
+		if !check_if_same_relationship_existed       
+    	save_relationship
+		end  
   end
 
   def retrieve_id_of_issue
@@ -259,7 +261,7 @@ require 'backports'
       @relationship = Relationship.new
       set_relationship_user_id_if_applicable
       set_type_of_relationship(false)
-      save_relationship
+      save_relationship #I don't add "check_if_same_relationship_existed" because of the assumption that an issue will never be deleted (thus, same relationship couldn't exist before - Duyet.
     else
       @notice = @issue.errors.full_messages.join(", ")
       #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
@@ -300,6 +302,29 @@ require 'backports'
                 "New Issue was created and linked as #{args[1]}"
               end
   end
+
+	def check_if_same_relationship_existed
+		vs = []
+
+		Version.order("created_at DESC").find(:all, :conditions=>["item_type=?","Relationship"]).each do |version|
+			rel = version.get_object
+			if rel.issue_id == @relationship.issue_id && rel.cause_id == @relationship.cause_id && rel.relationship_type == @relationship.relationship_type
+				vs << version
+				break
+			end
+		end
+
+
+		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
+			vs.last.restore
+			@notice = "An identical relationship used to exist. It is now reverted back to existence!"
+		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
+			@notice = "An identical relationship used to exist. Please login to have sufficient privilege to re-create this relationship!"
+		end
+
+		return !vs.empty?
+	end
+
 
   def save_relationship
     if @relationship.save
@@ -432,6 +457,8 @@ require 'backports'
     end
   end
 
+
+	#don't use this method. It's outdated.
   #issues/:id/snapshot/:at
   def snapshot
     ids = []
