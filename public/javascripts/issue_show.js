@@ -68,7 +68,7 @@ $(".relationship_partial_toggle").live('click',function(){
 		close_addNew();
 		$('.del-relation').attr('href', "../relationships/" + relationship_id);
 		
-		$(".issue_linkout").removeAttr('style');
+		$(".relationship_thumb .issue_linkout").removeAttr('style');
 		$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
 	
 		return false;
@@ -465,6 +465,50 @@ $(".relationship_partial_toggle").live('click',function(){
 		  $("#wait").empty(); 
 		  displayBoxIndex = -1; }
   });
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+// -------------------------------------------------------------------------------
+// Function to Retrieve image options from Google 
+// -------------------------------------------------------------------------------
+
+	$('.btn_image_edit').live('click', function(){
+	  // Display the Modal for image options
+	  $(".edit_image_modal").toggle();
+	  
+	  // If the form was opened:
+	  if ($(".edit_image_modal").is(":visible")){
+		  // retrieve JSON from google images search and pull the url for first image result
+		  $.getJSON(url_google_img+encodeURIComponent($(".main_thumb_title a").text())+'&callback=?', function(data) {
+			  $.each(data.responseData.results, function(i,item){
+			  	// replace HTML of target Div
+			  	$('#image_edit_option' + (i+1)).css({'background-image': 'url("'+item.tbUrl+'")'});
+			  	$('.check_empty_edit').show();
+			  	if ( i == 2 ) return false;
+			  	});  
+			  // Select the first image option by default	
+			  $(".image_edit_container_wait").hide();
+			  $(".image_edit_container").show();
+			  $(".check_clicked_edit:first").show();
+			  // Set the background of this first selected as the default value
+			  $("#frm_img_update").val(extractUrl($("#image_edit_option1").css("background-image")))
+		  });
+		}
+	});
+
+// -------------------------------------------------------------------------------
+// Set the value of the field in image update form based on selection
+// -------------------------------------------------------------------------------
+	$(".check_empty_edit").live('click', function(){
+		$('.check_clicked_edit').removeAttr('style');
+		// Show selection
+		$(this).siblings('.check_clicked_edit').show();
+		// Update field value in the form accordingly
+		$("#frm_img_update").val(extractUrl($(this).parents(".image_edit_option").css("background-image")))
+	});
 
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	

@@ -66,7 +66,7 @@ class User < ActiveRecord::Base
           if cause_version.nil? || issue_version.nil?
             activity[:what]='? (data untraceable)'
           else
-            activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
           end
         
           case version.get_object.relationship_type
@@ -96,7 +96,7 @@ class User < ActiveRecord::Base
           	if cause_version.nil? || issue_version.nil?
             	activity[:what]='? (data untraceable)'
           	else
-            	activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            	activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
           	end
 
           	case relationship_version.get_object.relationship_type
