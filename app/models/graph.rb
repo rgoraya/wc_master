@@ -37,7 +37,7 @@ class Graph
 	end
 	
 	def get_graph_of_most_connected (limit)
-    end
+	end
 
 	def get_graph_of_all
 	end
