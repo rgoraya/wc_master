@@ -16,23 +16,18 @@
     .actions
       = f.submit 'Add Reference', :class=>"discussion_submit", :id=>"reference_collector", :style=>"margin:0px;"
           
-  %div{:style => "clear:both"}
-
-%div{:id=>"error_container"}
-  %div{:style=>"float:right;width:15px;"}
-    %a{:href=>'#', :class=>'closebutton'}
-      %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
-  %div{:id=>"error"}
-    -if Reference.new.errors.any?
-      = Reference.new.errors.full_messages.join("\n")
-  %div{:style=>"clear:both;"} 
+  .clearboth
 
 - if @notice
   .reference_container
     .reference_error
     .reference_error_text
-      = @notice
-    %div{:style=>"clear:both;"}  
+      %ul.reference_error_list
+        - @notice.full_messages.each do |msg|
+          %li
+            = msg
+             
+    .clearboth  
 - @relationship.references.reverse.each do |reference|
   .reference_container
     - if reference.user
@@ -40,7 +35,7 @@
       %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar/#{@submitter_avatar}?s=26&d=mm"}          
     - else
       %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar?s=26&d=mm"} 
-    .reference_text{:style=>"float:left;margin-left:5px;"}  
+    .reference_text
       %a{:href=>"#{reference.reference_content}", :target=>"_blank"}>= reference.reference_content
       %br
         %span.reference_owner
@@ -52,4 +47,4 @@
         %span.date_time
           = time_ago_in_words(reference.created_at) + ' ago'
 
-    %div{:style => "clear:both"}
+    .clearboth

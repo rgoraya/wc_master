@@ -28,7 +28,7 @@
               /= f.label :description
               /%div{:class => "field", :style=>"float:left"}  
               = f.hidden_field :description, :class=>"formfield", :id=>"frm_descr", :value=>@wikidescr
-              /%div{:style => "clear:both"}
+              /.clearboth
   
                   
             .field
@@ -36,14 +36,14 @@
               /  = f.label :wiki_url
               /%div{:class => "field", :style=>"float:left"}  
               = f.hidden_field :wiki_url, :class=>"formfield", :id=>"frm_wiki_url", :value=>@wikiurl
-              /%div{:style => "clear:both"}
+              /.clearboth
                   
             .field
               /%div{:class => "formlabel"}
               /  = f.label :short_url
               /%div{:class => "field", :style=>"float:left"}  
               = f.hidden_field :short_url, :class=>"formfield", :id=>"frm_img_url", :value=>@wikiimg
-              /%div{:style => "clear:both"}                                                
+              /.clearboth                                                
   
                 
             %div{:class =>"issueblock_edit"}
@@ -57,7 +57,7 @@
                     = f.text_field :title, :id=>"txt_title", :class=>"searchfield",:style=>"width:270px" ,:placeholder => "Enter an Issue name...", :autocomplete=>"off", :value=>@title 
                   %div{:style=>"float:right"}
                     = f.submit 'Preview', :class=>"preview_button", :name => "previewbutton"
-                  %div{:style => "clear:both"}
+                  .clearboth
                       
               %div{:class =>"wikicontent_edit" }
                 
@@ -78,7 +78,7 @@
                 = @wikidescr
   
                   
-              %div{:style => "clear:both"}
+              .clearboth
                   
               %p{:style => "font-size:smaller; padding:0px 10px 0px 10px;"}
                 Click
@@ -119,9 +119,9 @@
             %a{:class=>"cause_effect_button",:href=>"#", :title=>"accept this as an effect"}
               %img{:src=>"/images/issues/effect.png", :align=>"top", :width=>"15px" }  
               
-          %div{:style=>"clear:both;"}
+          .clearboth
           
-      %div{:style=>"clear:both;"}  
+      .clearboth  
       
     %div{:class=>"formheading"}
       3. All set ?

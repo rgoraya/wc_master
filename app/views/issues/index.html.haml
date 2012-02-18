@@ -22,10 +22,6 @@
       %input#confirm_yes{:type => "button", :value => "Delete", :class=>"discussion_submit", :style=>"float:none;"}
       %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"discussion_submit", :style=>"float:none;"}
 
-
-%script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css", :type => "text/javascript"}
-%script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js", :type => "text/javascript"}
-%script{:src => "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js", :type => "text/javascript"}
 %script{:type => "text/javascript"}
 
   // Make sure the DOM is loaded
@@ -33,17 +29,6 @@
 
   window.confirm = false;
   
-  // D I S M I S S    T H E    F L A S H    N O T I C E
-  if ($('#notice').html().trim()) {
-  $("#notice_container").effect("bounce", { times:3 }, 200);
-  $('#notice').css({display : 'block'});
-  }
-  
-  $("#notice_container a.closebutton").click(function(){
-  $("#notice_container").slideUp(100);
-  });
-
-
   // D E L E T E     C O N F I R M A T I O N
   var href_carrier = '';
   var bubble_to_remove = '';
@@ -86,16 +71,7 @@
   href_carrier = '';
   });
 
-  if ($('#error').html().trim()) {
-  $("#error_container").effect("bounce", { times:3 }, 200);
-  $('#error').css({display : 'block'});
-  }
-  
-  $("#error_container a.closebutton").click(function(){
-  $("#error_container").slideUp(100);
-  });
 
- 
   });   //  E N D    O F    D O M    L O A D 
 
   function showPopup(title, msg) {

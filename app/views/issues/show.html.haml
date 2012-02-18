@@ -16,20 +16,15 @@
       // *-*-*-*-*-*-*-*-*-*-*-*-*
       // *-*-*-  The Issue  -*-*-*
       // *-*-*-*-*-*-*-*-*-*-*-*-*
-      .issue_thumb_blanket
-        %div.issue_thumb_container
-            
-          %div.main_thumb_title
-            = link_to @issue.title, @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
-        
-          %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@issue.short_url})"}
-            = link_to "", @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
-
-      // *-*-*-*-*-*-*-*-*-*-*-
+      %div{:id=>"issue_main"}      
+        = render :partial => "issue_main"
+              
+      // ----------------------
       // Relationship Partial
-      // *-*-*-*-*-*-*-*-*-*-*-
+      // ----------------------
       %div.relationship_partial#selected_rel_type
-        = render 'selected_rel_type' 
+        = render 'selected_rel_type'
+         
       // *-*-*-*-*-*-*-*-*-*-*-
       // Modal Form for Add New
       // *-*-*-*-*-*-*-*-*-*-*-        
@@ -42,7 +37,7 @@
     %div{:class =>"issueblock", :style=>"float:left;width:1050px;"}
     
               
-    %div{:style => "clear:both"}  
+    .clearboth  
     - if current_user      
   
       %div{:style=>"float:right; margin-top:20px; margin-left:10px;text-align:center;font-size:12px;"}    
@@ -72,16 +67,16 @@
               = @issue.user.username
           %div              
             = pluralize(@issue.user.issues.length(), "issue")
-        %div{:style=>"clear:both;"}
+        .clearboth
       - else
         %div{:style=>"float:left;"}
           %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=40&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
         %div{:style=>"float:left; margin:5px 0px -5px 3px;"} 
           %div
             Anonymous
-        %div{:style=>"clear:both;"}
+        .clearboth
       
-      %div{:style=>"clear:both;"}                  
+      .clearboth                  
               
 
 #clear{:style => "clear:left;"}
@@ -102,7 +97,7 @@
     /.img-tooltip
     .txt-tooltip
       random text
-      /%div{:style=>"clear:both"}    
+      /.clearboth    
       
 #onetouch_image{:style=>"display:none;"}
 #onetouch_text{:style=>"display:none;"}     
