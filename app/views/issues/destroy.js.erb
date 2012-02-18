@@ -1,2 +1,6 @@
-$("#issues").html("<%= escape_javascript(render("issues")) %>");
-$(".formcontentdiv").effect("highlight", {color: '#f5f5f5'}, 1500);
+$("#notice").html("<%= escape_javascript(@notice) %>");
+
+//$.get($("#userissues #search_form").attr("action"), $("#userissues #search_form").serialize(), null, "script");
+
+$("#search_invisible_input").val("");
+$.get($("#search_form").attr("action"), $("#search_form").serialize(), null, "script");

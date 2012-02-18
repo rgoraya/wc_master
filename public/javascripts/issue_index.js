@@ -11,18 +11,20 @@ $(function() {
 // D E L E T E     C O N F I R M A T I O N
 // -------------------------------------------------------------------------------  
 
+// UNCOMMENT THE following lines of code to get the custom confirm box to show
+
   //window.confirm = false;
   
-  var href_carrier;
+  //var href_carrier;
         
-  $(".del-issue").live('click', function() {
-	  var title = $(this).data('title');
-	  var msg = $(this).data('confirm');
-	  href_carrier = $(this);
-	  showPopup(title, msg);
-	  
-	  return false;
-  });
+  //$(".del-issue").live('click', function() {
+  //	  var title = "Delete Issue?";
+//	  var msg = $(this).data('confirm');
+//	  href_carrier = $(this);
+//	  showPopup(title, msg);
+
+//	  return false;
+//  });
 
 // -------------------------------------------------------------------------------
 // D E L E T E     C O N F I R M A T I O N      'Y E S' 
@@ -30,8 +32,7 @@ $(function() {
 
   $("#confirm_yes").click(function() {
   	$("#confirm_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-	$.getScript(href_carrier.href);
-		return false;
+	href_carrier.trigger('click');
   });
 
 // -------------------------------------------------------------------------------
@@ -56,6 +57,7 @@ $(function() {
 	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer 
 	  $("#confirm_popup").fadeIn();
   }   
+
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  
