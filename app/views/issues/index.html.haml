@@ -2,6 +2,7 @@
   = stylesheet_link_tag "styles"
   
 - content_for(:title, 'Causality Project: Issues')
+= javascript_include_tag "issue_index.js"
 
 #contentwrapper
 
@@ -23,85 +24,6 @@
       %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"discussion_submit", :style=>"float:none;"}
 
 %script{:type => "text/javascript"}
-
-  // Make sure the DOM is loaded
-  $(document).ready(function(){
-
-  window.confirm = false;
-  
-  // D I S M I S S    T H E    F L A S H    N O T I C E
-  if ($('#notice').html().trim()) {
-  $("#notice_container").effect("bounce", { times:3 }, 200);
-  $('#notice').css({display : 'block'});
-  }
-  
-  $("#notice_container a.closebutton").click(function(){
-  $("#notice_container").slideUp(100);
-  });
-
-
-  // D E L E T E     C O N F I R M A T I O N
-  var href_carrier = '';
-  var bubble_to_remove = '';
-        
-  $(".del-issue").live('click', function(e) {
-  e.preventDefault();
-  var title = $(this).data('title');
-  var msg = $(this).data('confirm');
-  href_carrier = $(this).attr('href');
-  bubble_to_remove = $(this).parents(".issue_container");
-  showPopup(title, msg);
-  return false;
-  });
-
-  $("#confirm_yes").click(function() {
-  /$("#confirm_popup").fadeOut('slow');
-  $("#confirm_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-  $.ajax({
-  type: "DELETE",
-  url: href_carrier,
-  cache: false,
-  success: function(){
-  bubble_to_remove.slideUp(400);
-  bubble_to_remove = '';
-  $("#confirm_msg").html('Issue Deleted!'); 
-  $("#confirm_buttons").hide(); 
-  $("#confirm_wait").empty();
-  $("#confirm_popup").delay(2000).fadeOut('slow', function(){
-  $('#fade').delay(2000).remove();
-  });
-  
-  }
-  });  
-  /location.href = href_carrier;
-  });
-    
-  $("#confirm_cancel").click(function() {
-  $('#fade').remove();
-  $("#confirm_popup").fadeOut('slow');    
-  href_carrier = '';
-  });
-
-  if ($('#error').html().trim()) {
-  $("#error_container").effect("bounce", { times:3 }, 200);
-  $('#error').css({display : 'block'});
-  }
-  
-  $("#error_container a.closebutton").click(function(){
-  $("#error_container").slideUp(100);
-  });
-
- 
-  });   //  E N D    O F    D O M    L O A D 
-
-  function showPopup(title, msg) {
-  $("#confirm_title").html(title);
-  $("#confirm_msg").html(msg);
-  $("#confirm_buttons").show();
-  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
-  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies   
-  $("#confirm_popup").fadeIn('slow');
-  }   
  
   
 

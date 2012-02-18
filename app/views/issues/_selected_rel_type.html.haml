@@ -2,7 +2,8 @@
 // FORM to retrieve the relationship types based on User's selection
 // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
 = form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
-  = text_field_tag :rel_type,@rel_type,:align=>"top", :id=>"select_rel_type"
+  = text_field_tag :rel_type, @rel_type, :align=>"top", :id=>"select_rel_type"
+  = text_field_tag :create_notice, "" ,:align=>"top", :id=>"select_notice"
   = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
 
 // *-*-*-*-*-*-*-*-*-*-*-*-*
@@ -54,12 +55,10 @@
       No such causal links have been identified yet. 
   
   %div.relationship_addnew
-    %div.relationship_addnew_title
-      %a.poplight{:href => "#", :rel => "popup_name",:title => "add new", :id=>"#{@add_btn_id}"}
-        Add New
+    %div.relationship_addnew_title.poplight{:title => "add new", :id=>"#{@add_btn_id}"}
+      Add New
                   
-    %div.relationship_thumb_addnew
-      %a.poplight{:href => "#", :rel => "popup_name", :title => "add new", :id=>"#{@add_btn_id}"} 
+    %div.relationship_thumb_addnew.poplight{:title => "add new", :id=>"#{@add_btn_id}"} 
   .clearboth        
 .clearboth 
 
