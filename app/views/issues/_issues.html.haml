@@ -30,7 +30,8 @@
       // Only show Edit and Delete if the Issue belongs to current user or an anonymous user
       /-if current_user
       /  -if current_user.id == slice[0].user_id  
-      /    = link_to 'Delete', slice[0], "data-confirm" => "Are you sure you want to delete the issue #{slice[0].title}?", "data-title" => "Delete Issue", :method => :delete, :remote=>true, :class=>"del-issue", :title=>"Delete this Issue"
+      /    = link_to "Delete", slice[0], :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true
+      /    /= link_to 'Delete', slice[0], {:action=>"destroy", :method=>:delete, :confirm => "Are you sure you want to delete the issue #{slice[0].title}?", :class=>"del-issue"} , :title=>"Delete this Issue"
     
       // author
       - if slice[0].user

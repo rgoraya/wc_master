@@ -397,7 +397,7 @@ require 'backports'
   def destroy
     @issue = Issue.find(params[:id])
     @issue.destroy
-
+    
     Reputation::Utils.reputation(:action=>:destroy, \
                                  :type=>:issue, \
                                  :id=>@issue.id, \
@@ -405,9 +405,14 @@ require 'backports'
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
                                  :calculate=>false)
+    
+    @issues.reload
+    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+    
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
+      format.js
     end
   end
 

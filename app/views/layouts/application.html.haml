@@ -11,9 +11,9 @@
     = javascript_include_tag :defaults
     = javascript_include_tag  "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"
     = javascript_include_tag  "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"    
-    
-    = yield :include_custom_javascript_head
     = csrf_meta_tag
+    /= yield :include_custom_javascript_head
+    
   
   %body
     
