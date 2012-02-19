@@ -1,0 +1,48 @@
+class CommentsController < ApplicationController
+
+  def show
+    @comment = comment.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.xml  { render :xml => @comment }
+    end
+  end
+
+	def create
+		@comment = Comment.new(params[:comment])
+		
+    @relationship = Relationship.find(@comment.relationship_id)
+    
+    respond_to do |format|
+			if @comment.save
+				format.html { redirect_to(:back, :notice => 'Comment was successfully added.') }
+				format.xml  { render :xml => @comment, :status => :created, :location => @comment }
+				format.js
+			else
+				@notice = @comment.errors
+				format.html { redirect_to(:back, :notice => @comment.errors) }
+				format.xml  { render :xml => @comment.errors, :status => :unprocessable_entity }
+				format.js
+      end
+    end
+	end
+
+  def destroy
+    @comment = Comment.find(params[:id])
+    
+    @relationship = Relationship.find(@comment.relationship_id)
+
+    @comment.destroy
+
+    Reputation::Utils.reputation(:action=>:create, :type=>:comment, :id=>@comment.id, :me=>current_user.id, :you=>@comment.user_id, :undo=>false, :calculate=>true)
+
+    @comnotice = "comment Deleted!"
+    respond_to do |format|
+      format.html { redirect_to(comments_url) }
+      format.xml  { head :ok }
+      format.js
+    end
+  end
+
+end

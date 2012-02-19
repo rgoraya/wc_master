@@ -1,37 +1,72 @@
+// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
 // FORM to retrieve the relationship types based on User's selection
+// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
 = form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
-  = text_field_tag :rel_type, params[:rel_type],:align=>"top", :id=>"select_rel_type"
+  = text_field_tag :rel_type, @rel_type, :align=>"top", :id=>"select_rel_type"
   = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
 
-%div.relationship_addnew_wait
+// *-*-*-*-*-*-*-*-*-*-*-*-*
+// Relationship type Choices
+// *-*-*-*-*-*-*-*-*-*-*-*-*
+%div.causality_types
+  %div.causality_toggle_container
+    %div.central_causality_container
+      = @rel_type         
+    %div.relationship_partial_toggle#toggle_causes
+      is caused by                     
+    %div.relationship_partial_toggle#toggle_effects
+      causes             
+    %div.relationship_partial_toggle#toggle_inhibitors
+      is reduced by            
+    %div.relationship_partial_toggle#toggle_inhibiteds
+      reduces             
+    %div.relationship_partial_toggle#toggle_subsets
+      is a superset of                             
+    %div.relationship_partial_toggle#toggle_supersets
+      is a subset of  
 
-- if !@issue_relations.nil?
-
-  %div#relation_pagination
-    = will_paginate (@issue_relations), :page_links=>false, :param_name => 'relationship_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
+%div.issue_relationships_container
   
-    %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"relations_wait"}
+  %div.relationship_addnew_wait
   
-  - @issue_relations.each do |relation|
-    %div.relationship_thumb
-
-      %div.relationship_thumb_title
-        = link_to relation.title, relation, :rel => "#{relation.description}"
-      %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
-        = link_to relation.title, relation, :rel => "#{relation.description}"
-      %span.relationship_id_store
-        //= relation.rel_id       
-
-- else
-  .relationship_none_found
-    No such causal links have been identified yet. 
-
-%div.relationship_addnew
-  %div.relationship_addnew_title
-    %a#add_relation_btn.poplight{:href => "#?w=500", :rel => "popup_name",:title => "add new"}
-      Add New
-                
-  %div.relationship_thumb_addnew
-    %a#add_relation_btn.poplight{:href => "#?w=500", :rel => "popup_name", :title => "add new"} 
+  - if @issue_relations.length > 0
+  
+    %div#relation_pagination
+      = will_paginate (@issue_relations), :page_links=>false, :param_name => 'relationship_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
+    
+      %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"relations_wait"}
+    
+    - @issue_relations.each do |relation|
+      %div.relationship_thumb
+  
+        %div.relationship_thumb_title
+          = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
+        %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
+          = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
         
-%div{:style => "clear:both"} 
+        = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
+           
+        %span.relationship_id_store{:style=>"display:none;"}
+          = relation.wiki_url       
+  
+  - else
+    .relationship_none_found
+      No such causal links have been identified yet. 
+  
+  %div.relationship_addnew
+    %div.relationship_addnew_title.poplight{:title => "add new", :id=>"#{@add_btn_id}"}
+      Add New
+                  
+    %div.relationship_thumb_addnew.poplight{:title => "add new", :id=>"#{@add_btn_id}"} 
+  .clearboth        
+.clearboth 
+
+%div{:class =>"title"}
+  - if @issue_relations.length > 0
+    #title_filler_text
+      Please select one of the
+      %span#title_filler_causality
+        = @causal_sentence.capitalize
+      above to learn more
+  
+  

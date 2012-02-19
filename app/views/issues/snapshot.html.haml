@@ -23,11 +23,11 @@
             %div{:class=>"relation_link"}
               = link_to issue.title, issue_path(issue)
                   
-            %div{:style => "clear:both"} 
+            .clearboth 
 
-        %div{:style => "clear:both"}
+        .clearboth
 
-    %div{:style => "clear:both"}
+    .clearboth
     %div{:style=>"margin:5px 0px 15px 0px;text-align:center;height:50px; z-index:2; position:relative;"}
     %div{:class=>"arrow", :style=>"margin-top:-70px;"}
     // The issue  
@@ -51,11 +51,11 @@
               
                   
           // paragraph retrieved from wikipedia page
-          = @issue.description
+          = @issue.description.html_safe
           /= @toc
                   
                 
-          %div{:style => "clear:both"}
+          .clearboth
                
           %p{:style => "font-size:smaller; padding:0px 10px 0px 10px;"}
             Click
@@ -76,7 +76,7 @@
           #map_canvas{:style => "width:298px; "}
             %img{:src=>"/images/system/spinnerblue.gif", :alt=>"spinner", :class=>"result-spinner"}
         
-        %div{:style => "clear:both"}
+        .clearboth
         
       %div{:class=>"arrow", :style=>"background-image:url('/images/issues/diverge.png'); margin-bottom:-70px;"}            
 
@@ -102,11 +102,11 @@
               = link_to issue.title, issue_path(issue)
               
 
-            %div{:style => "clear:both"}
+            .clearboth
 
             /- if current_user
 
-        %div{:style => "clear:both"}
+        .clearboth
           
           
 
@@ -131,7 +131,7 @@
         %div              
           = pluralize(@issue.user.issues.length(), "issue")
 
-      %div{:style=>"clear:both;"}        
+      .clearboth        
 
 #clear{:style => "clear:left;"}
 

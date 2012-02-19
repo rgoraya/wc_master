@@ -1,12 +1,13 @@
 %div.search_content_wrapper
-  - @search_results = Issue.search(params[:query]).first(5)
-  - @search_results.each do |issue|
-    %div.search_result_appl
-      %a{:href => "/issues/" + issue.id.to_s + "-" + issue.permalink}
-        %div{:class=>"search_img_box_sqr", :style=>"float:left;background-image:url(#{issue.short_url})"}
-        %div{:style=>"float:left"}
-          %div{:class=>"search_result_title"}
-            = issue.title
-          %div{:class=>"search_result_descr"}
-            = issue.description  
-        %div{:style=>"clear:both;"}
+  /- @search_results = Issue.search(params[:query]).first(5)
+  - if !@search_results.nil?
+    - @search_results.each do |issue|
+      %div.search_result_appl
+        %a{:href => "/issues/" + issue.id.to_s + "-" + issue.permalink}
+          %div{:class=>"search_img_box_sqr", :style=>"float:left;background-image:url(#{issue.short_url})"}
+          %div{:style=>"float:left"}
+            %div{:class=>"search_result_title"}
+              = issue.title
+            %div{:class=>"search_result_descr"}
+              = issue.description.html_safe  
+          .clearboth

@@ -1,6 +1,5 @@
 class RelationshipsController < ApplicationController
 
-
   # GET /relationships
   # GET /relationships.xml
   def index
@@ -25,7 +24,8 @@ class RelationshipsController < ApplicationController
     
     respond_to do |format|
       format.html # show.html.erb
-      format.xml  { render :xml => @relationship }
+      format.xml  { render :xml    => @relationship }
+      format.js
     end
   end
 
@@ -89,12 +89,13 @@ class RelationshipsController < ApplicationController
 																		:me=>current_user.id, \
 																		:you=>@relationship.user_id, \
 																		:undo=>false, \
-																		:calculate=>false)
+																		:calculate=>true)
 
-
+    @notice = "Relationship Deleted!"
     respond_to do |format|
       format.html { redirect_to(:back,:notice => 'Causal link was successfully deleted.' ) }
       format.xml  { head :ok }
+      format.js
     end
   end
 end

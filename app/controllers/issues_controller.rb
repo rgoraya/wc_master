@@ -1,17 +1,11 @@
 class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
-  before_filter :set_rel_type
-  
-  def set_rel_type
-    @rel_type ||= 'causes'
-    # or @a_entity = Entity.find(params['a_entity'])
-  end
 
+require 'backports'
   
   def index
     @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
-
     respond_to do |format|
       format.js {render :layout=>false}
       format.html # index.html.erb
@@ -23,90 +17,30 @@ class IssuesController < ApplicationController
   # GET /issues/1
   # GET /issues/1.xml
   def show
-    @issue = Issue.find(params[:id])
-
-
+    @issue = Issue.find(params[:id]) 
+    
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
     else
-      @rel_type = "causes"
+      @rel_type = "is caused by"
     end
     
-    case @rel_type
-
-    when "causes"
-      # get the causes
-      @issue_relations = @issue.causes.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      #@issue_relations.each do |cause|
-      #  @rel_id = @issue.relationships.where(:cause_id=>cause.id, :relationship_type=>nil).select('id').first.id
-      #  cause = cause.to_a << {rel_id => @rel_id} 
-      #end
-      # return this
-      #return @issue_relations
+    # Call to retrieve the corresponding relationships based on the params
+    get_selected_relations
     
-    when "effects"
-      # get the causes
-      @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      #@issue_effects.each do |effect|
-      #  @rel_id = Relationship.where(:issue_id=>effect.id, :cause_id=>@issue.id, :relationship_type=>nil).select('id').first.id
-      #  effect << {:rel_id => @rel_id} 
-      #end
-      # return this
-      #return @issue_effects
-    
-    when "inhibitors"
-      # get the causes
-      @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      #@issue_inhibitors.each do |inhibitor|
-      #  @rel_id = @issue.relationships.where(:cause_id=>inhibitor.id, :relationship_type=>nil).select('id').first.id
-      #  inhibitor << {:rel_id => @rel_id} 
-      #end
-      # return this
-      #return @issue_inhibitors
-          
-    when "inhibiteds"
-      # get the inhibiteds
-      @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      #@issue_inhibiteds.each do |inhibited|
-      #  @rel_id = Relationship.where(:issue_id=>inhibited.id, :cause_id=>@issue.id, :relationship_type=>'I').select('id').first.id
-      #  inhibited << {:rel_id => @rel_id} 
-      #end
-      # return this
-      #return @issue_inhibiteds
-    
-    when "supersets"
-      # get the causes
-      @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      #@issue_supersets.each do |superset|
-      #  @rel_id = @issue.relationships.where(:cause_id=>superset.id, :relationship_type=>'H').select('id').first.id
-      #  superset << {:rel_id => @rel_id} 
-      #end
-      # return this
-      #return @issue_supersets
-    
-    when "subsets"
-      # get the subsets
-      @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      #@issue_subsets.each do |subset|
-      #  @rel_id = Relationship.where(:issue_id=>subset.id, :cause_id=>@issue.id, :relationship_type=>'H').select('id').first.id
-      #  subset << {:rel_id => @rel_id} 
-      #end
-      # return this
-      #return @issue_subsets
-      
-   end
-
-
-
-
-
+    # Default params to "causes" for initial load
+    if params[:rel_id]
+      @relationship = Relationship.find(params[:rel_id])
+      @rel_references = @relationship.references
+      @rel_issue = Issue.find(@relationship.issue_id)
+      @rel_cause = Issue.find(@relationship.cause_id)
+      @issue_id = params[:issueid]
+      if @issue.id == @rel_cause.id # then swap!
+         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
+      end
+      @causal_sentence = @rel_type
+    end
 
     @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
     @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
@@ -115,22 +49,120 @@ class IssuesController < ApplicationController
     @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
     @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
 
-    #@issue_causes     = @issue.causes.paginate(:per_page => 6, :page => params[:cause_page])
-    #@issue_effects    = @issue.effects.paginate(:per_page => 6, :page => params[:effect_page])
-    #@issue_inhibitors = @issue.inhibitors.paginate(:per_page => 6, :page => params[:inhibitor_page])
-    #@issue_supersets  = @issue.supersets.paginate(:per_page => 6, :page => params[:superset_page])
-    #@issue_subsets    = @issue.subsets.paginate(:per_page => 6, :page => params[:subset_page])
-    #@issue_inhibiteds = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:inhibited_page])
-
     @references = Issue.rel_references(params[:rel_id])
     
-
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @issue }
-      format.js   { render :layout=>false }
+      format.js
      
     end
+  end
+  
+  def get_selected_relations
+       
+    case @rel_type
+
+    when "is caused by"
+      # get the causes
+      @issue_relations = @issue.causes.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      @issue_relations.each do |cause|
+        @rel_id = @issue.relationships.where(:cause_id=>cause.id, :relationship_type=>nil).select('id').first.id
+        cause.wiki_url = @rel_id 
+      end
+      @add_btn_id = "add_cause_btn"
+      @causal_sentence = "causes"
+    
+    when "causes"
+      # get the causes
+      @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      @issue_relations.each do |effect|
+        @rel_id = Relationship.where(:issue_id=>effect.id, :cause_id=>@issue.id, :relationship_type=>nil).select('id').first.id
+        effect.wiki_url = @rel_id 
+      end
+      @add_btn_id = "add_effect_btn"
+      @causal_sentence = "effects"
+      
+    when "is reduced by"
+      # get the causes
+      @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      @issue_relations.each do |inhibitor|
+        @rel_id = @issue.relationships.where(:cause_id=>inhibitor.id, :relationship_type=>'I').select('id').first.id
+        inhibitor.wiki_url = @rel_id 
+      end
+      @add_btn_id = "add_inhibitor_btn"
+      @causal_sentence = "inhibitors"
+          
+    when "reduces"
+      # get the inhibiteds
+      @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      @issue_relations.each do |inhibited|
+        @rel_id = Relationship.where(:issue_id=>inhibited.id, :cause_id=>@issue.id, :relationship_type=>'I').select('id').first.id
+        inhibited.wiki_url = @rel_id 
+      end
+      @add_btn_id = "add_inhibited_btn"
+      @causal_sentence = "inhibiteds"
+      
+    when "is a subset of"
+      # get the causes
+      @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      @issue_relations.each do |superset|
+        @rel_id = @issue.relationships.where(:cause_id=>superset.id, :relationship_type=>'H').select('id').first.id
+        superset.wiki_url = @rel_id 
+      end
+      @add_btn_id = "add_superset_btn"
+      @causal_sentence = "supersets"
+    
+    when "is a superset of"
+      # get the subsets
+      @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
+      # insert relationship_id
+      @issue_relations.each do |subset|
+        @rel_id = Relationship.where(:issue_id=>subset.id, :cause_id=>@issue.id, :relationship_type=>'H').select('id').first.id
+        subset.wiki_url = @rel_id 
+      end
+      @add_btn_id = "add_subset_btn"
+      @causal_sentence = "subsets"
+      
+   end
+
+  end
+
+  def get_relationship
+   
+   if params[:rel_id]
+      @relationship = Relationship.find(params[:rel_id])
+      @rel_references = @relationship.references
+
+			@rel_comments = @relationship.comments
+
+      @rel_issue = Issue.find(@relationship.issue_id)
+      @rel_cause = Issue.find(@relationship.cause_id)
+      @issue_id = params[:issueid]
+      if @issue_id.to_i == @rel_cause.id # then swap!
+         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
+      end
+      @causal_sentence = params[:sentence]
+    end
+
+    respond_to do |format|
+      format.html { render :layout=>"issues/get_relationship"}
+      format.xml  { render :xml => @issue }
+      format.js
+      end 
+    
+  end
+
+  def auto_complete_search
+    @search_results = Issue.search(params[:query]).first(5)
+      respond_to do |format|
+        format.js
+      end 
   end
 
   # GET /issues/new
@@ -156,11 +188,14 @@ class IssuesController < ApplicationController
 
     # A D D    N E W    C A U S E / E F F E C T
     if params[:action_carrier]
-      # Read in the :type passed with form to recognize whether this is a Cause or Effect
+      # Read in the :type passed with form to recognize Relationship Type
       @causality = params[:action_carrier].to_s
       @causality_id = params[:id_carrier]     
-
-      if Issue.exists?(:wiki_url => [@issue.wiki_url])
+      
+      # Check whether or not this Node exist as an issue already?
+      # IMPORTANT: Keep the search case-insensitive
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      if !@existing_issue.nil?
         add_already_existent_issue
       else
         add_new_issue
@@ -170,13 +205,20 @@ class IssuesController < ApplicationController
       respond_to do |format|     
         if @issue.save
           initialize_suggestion_object
+
+					Reputation::Utils.reputation(:action=>:create, \
+                                   :type=>:issue, \
+                                   :me=>@issue.user_id, \
+                                   :undo=>false, \
+                                   :calculate=>true)
+
           format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
           format.xml  { render :xml => @issue, :status => :created, :location => @issue }
-          format.js {render :layout=>"layouts/notice_partial"}
+          format.js
         else
           format.html { render :action => "new" }
           format.xml  { render :xml => @issue.errors, :status => :unprocessable_entity }
-          format.js {render :layout=>"layouts/notice_partial"}
+          format.js
         end
       end      
     end
@@ -192,13 +234,23 @@ class IssuesController < ApplicationController
 
   def retrieve_id_of_issue
     @wikiurl = @issue.wiki_url
-    @issueid = Issue.where(:wiki_url => @wikiurl).select('id').first.id
+    @issueid = @existing_issue.id
   end
 
   def set_relationship_user_id_if_applicable
     if @issue.user_id.to_s != ""
       @relationship.user_id = @issue.user_id  
     end 
+  end
+
+  def update_img_if_applicable
+    #@existing_issue = Issue.find(@issueid)
+    # if the image selected by the user is different than the one saved then update it.
+    if !@existing_issue.nil?
+      if @issue.short_url != @existing_issue.short_url 
+        @existing_issue.update_attribute(:short_url, @issue.short_url)
+      end 
+    end
   end
 
   def add_new_issue
@@ -216,8 +268,8 @@ class IssuesController < ApplicationController
       set_type_of_relationship(false)
       save_relationship
     else
-      @notice = @issue.errors.full_messages
-      redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
+      @notice = @issue.errors.full_messages.join(", ")
+      #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
     end  
   end
 
@@ -258,7 +310,8 @@ class IssuesController < ApplicationController
 
   def save_relationship
     if @relationship.save
-      remove_duplicate_suggestions 
+      remove_duplicate_suggestions
+      update_img_if_applicable 
       Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:relationship, \
                                    :id=>@relationship.id, \
@@ -266,7 +319,7 @@ class IssuesController < ApplicationController
                                    :undo=>false, \
                                    :calculate=>true)
 
-      redirect_to(:back, :notice => @notice)
+      #redirect_to(:back, :notice => @notice)
     else
       error_saving_causal_link
     end   
@@ -282,8 +335,8 @@ class IssuesController < ApplicationController
   end
 
   def error_saving_causal_link
-    @notice = @relationship.errors.full_messages
-    redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
+    @notice = @relationship.errors.full_messages.join(", ")
+    #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
   end
 
   #protected
@@ -299,17 +352,30 @@ class IssuesController < ApplicationController
 
     @issue = Issue.find(params[:id])
 
-    if params[:previewbutton]
-
+    if params[:update_image]
+      
       @issue.attributes = params[:issue]
-      render :action => "edit"
-      return
+      if @issue.save
+        @notice = "Image replaced!"
+        respond_to do |format|
+          format.html 
+          format.js {render(:layout=>false, :notice => "Done!")}
+        end
+      else
+        @notice = "Cannot Replace!"
+        respond_to do |format|
+          format.html 
+          format.js {render(:layout=>false, :notice => "Done!")}
+        end        
+      end
+      
+
 
     else
 
       respond_to do |format|
         if @issue.update_attributes(params[:issue])
-          format.js {render :layout=>false}
+          format.js   {render :layout=>false}
           format.html { redirect_to(@issue, :notice => 'Issue was successfully updated.') }
           format.xml  { head :ok }
         else
@@ -325,8 +391,9 @@ class IssuesController < ApplicationController
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
+    @called_from = params[:called_from]
     @issue.destroy
-
+    
     Reputation::Utils.reputation(:action=>:destroy, \
                                  :type=>:issue, \
                                  :id=>@issue.id, \
@@ -334,9 +401,16 @@ class IssuesController < ApplicationController
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
                                  :calculate=>false)
+    
+    
+    
+    @notice = "Issue Deleted!"
+    
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
+      format.js
+      
     end
   end
 
@@ -354,18 +428,21 @@ class IssuesController < ApplicationController
   #issues/:id/versions
   def versions
     @issue = Issue.find(params[:id])
-    @versions = []
-    Version.find(:all, :conditions => ["item_type=?", 'Relationship']).each do |version|
-      relationship = version.get_object #should return a Relationshiop object here
-      if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
-        @versions << version
-      end
-    end 
-    @versions.sort!{|a,b| b.created_at <=> a.created_at}
-    @versions = @versions.paginate(:page => params[:page], :per_page => 10)
+		@versions = []
+		if Version.last.id - params[:more].to_i >= 0
+			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id - params[:more].to_i, "Relationship"]).each do |version|
+				relationship = version.get_object
+				if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
+					@versions << version
+				end
+				@versions.count == 10 ? break : next	
+			end 
+		end
+
 
     respond_to do |format|
-      format.html
+			format.js {render :layout=>false}
+      format.html 
       format.xml 
     end
   end

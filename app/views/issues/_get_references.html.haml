@@ -1,0 +1,57 @@
+%p
+  = form_for Reference.new, :remote => true, :id=>"reference_form" do |f|
+    .field  
+      = f.hidden_field :relationship_id, :id=>"reference_rel_id", :value=>@relationship.id
+    .field
+      - if current_user
+        = f.hidden_field :user_id, :value=>current_user.id 
+    .field
+      - if current_user      
+        - @rel_owner = Digest::MD5.hexdigest(current_user.email).to_s
+        %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=26&d=mm"}
+      - else
+        %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar?s=26&d=mm"}              
+      = f.text_field :reference_content, {:class=>"discussion_input", :placeholder=>"Please enter a valid URL &#8230;".html_safe, :id=>"ref_content_field"}              
+      
+    .actions
+      = f.submit '', :class=>"search_appl_submit", :id=>"reference_collector", :style=>"margin:0px;"
+      %div{:style=>"float:left;margin:3px 2px -24px -26px", :id=>"references_wait"}
+          
+  .clearboth
+
+- if @notice
+  .reference_container
+    .reference_error
+    .reference_error_text
+      %ul.reference_error_list
+        - @notice.full_messages.each do |msg|
+          %li
+            = msg
+             
+    .clearboth  
+- @relationship.references.reverse.each do |reference|
+  .reference_container
+    - if reference.user
+      - @submitter_avatar = Digest::MD5.hexdigest(reference.user.email).to_s
+      %a{:href=>"/users/#{reference.user.id}"}
+        %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar/#{@submitter_avatar}?s=26&d=mm", :border=>0}          
+    - else
+      %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar?s=26&d=mm"} 
+    .reference_text
+      %a{:href=>"#{reference.reference_content}", :target=>"_blank"}>= reference.reference_content
+      %br
+        %span.reference_owner
+          - if reference.user
+            %a{:href=>"/users/#{reference.user.id}"}>= reference.user.username
+          - else
+            Anonymous user
+        - if reference.user
+          %span.reference_owner_reputation        
+            %b>= reference.user.reputation
+        %span.date_time
+          = time_ago_in_words(reference.created_at) + ' ago'
+
+    - if current_user.id == reference.user_id 
+      .reference_delete
+        = link_to image_tag('/images/system/close1.png', :width=>"12px", :border=>0), reference_path(reference), :method => :delete, :remote=>true, :class=>"del-reference"
+    .clearboth

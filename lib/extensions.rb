@@ -6,23 +6,16 @@ class Version
 	belongs_to :user, :class_name=>'User', :foreign_key=>:whodunnit
 
 	
-	def get_object
-		object = nil		
+	def get_object	
 		if !self.event.eql?('destroy')
-			begin
-				object = Kernel.const_get(self.item_type).find(self.item_id)
-				if Version.find(:all, :conditions=>["item_type=? AND item_id=?", self.item_type, self.item_id]).size > 1
-					object = object.version_at(self.created_at)
-				else
-					object = object.version_at(DateTime.now)
-				end
-			rescue ActiveRecord::RecordNotFound
-				object = Version.find(:all, :conditions => ["item_type = ? AND item_id = ? AND event = 'destroy'", self.item_type, self.item_id]).last.reify.version_at(self.created_at)
+			if self.next
+				return self.next.reify
+			else
+				return Kernel.const_get(self.item_type).find(self.item_id)
 			end
 		else
-			object = self.reify
+			return self.reify
 		end
-		return object
 	end
 
 	def revert

@@ -1,23 +1,32 @@
-/= javascript_include_tag "sorttable.js"
+
 
 %div#activity_pagination{:style=>"margin:5px 0px 0px 0px;"}
   = will_paginate (@activities), :page_links=>false,:param_name => 'activity_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
 
   %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"activities_wait"}
   
-  %div.pageheading{:style=>"font-size:18px;margin:0px;"}
+  %div.formheading{:style=>"font-size:18px;"}
     = @user.username + "\'s activity log"
     
-  %div{:style=>"clear:both"}
+  .clearboth
 
-%div{:style=>"margin-top:10px"}
+%div{:style=>"margin-top:10px;"}
   - @activities.each do |activity|
     - @activity = @user.formatted(activity)
 
+    // When?
     %div.activity_time
-      = time_ago_in_words(@activity[:time]) + ' ago'
+      = time_ago_in_words(@activity[:time]) + ' ago' 
 
-    %div.activity_sentence
+    // Score for this activity
+    %div.activity_score
+      = @activity[:score]
+      
+    // will display icon according to the action.
+    %div.activity_icon{:style=>"background-position:#{@activity[:icon_position]}"}
+
+    // form the sentence describing this activity
+    %div.activity_sentence{:title=>(@activity[:action]+" "+@activity[:type]+" "+@activity[:what])}
       %span
         = @activity[:action]
       %span
@@ -25,47 +34,6 @@
       %span  
         = @activity[:what].html_safe
       %span
-
-    %div.activity_icon{:style=>"background-position:#{@activity[:icon_position]}"}
-      // will display icon according to the action.
       
-    %div{:style=>"clear:both"}		
+    .clearboth		
 		
-  
-  //%table{:class=>"sortable", :id=>"activities", :style=>"height:100%;width:100%;border:none;"}
-  //  %thead{:style=>"display:block;"}
-  //    %tr
-  //      %th{:id=>"action",:style=>"height:20px;width:442px;text-align:left;"} Action
-  //      %th{:id=>"time",:style=>"height:20px;width:145px;text-align:left;"} Time
-  //      %th{:id=>"score",:style=>"height:20px;width:50px;text-align:left;"} Score
-  //  %tbody{:style=>"overflow:auto;"}
-  //    - @activities.each do |activity|
-  //      - @activity = @user.formatted(activity)
-  /      %tr
-  //        %td{:style=>"width:442px;height:16px;padding:0px 0px 0px 2px;text-align:left;overflow:hidden;text-overflow:ellipsis;border-right:1px solid whiteSmoke;"}
-  /          - if @activity[:action].include?('deleted')
-  /            - color='#b84030'
-  /          - else  
-  /            - color='#669900'
-  /            %span{:id=>"type", :style=>"color:#{color};"}
-  /              = @activity[:action].capitalize 
-  /            = @activity[:type] +': '
-  /            %span{:id=>"type", :style=>"color:#4EB8DB;",:title=>"#{@activity[:what].html_safe}"}
-  /              = @activity[:what].html_safe
-  /        %td{:sorttable_customkey=>DateTime.parse(@activity[:time].to_s).strftime('%Y%m%d%H%M%S').to_s, :style=>"width:145px;border-right:1px solid whiteSmoke;"}
-  /          /= DateTime.parse(@activity[:time].to_s).strftime('%m/%d/%y-%R')
-  /          = time_ago_in_words(@activity[:time]) + ' ago'
-  /        %td{:sorttable_customkey=>@activity[:score].to_s, :style=>"width:50px;"}
-  /          - if @activity[:score]
-  /            - if !@activity[:action].include?('deleted')
-  /              - score = "+"+@activity[:score].abs.to_s
-  /              %span{:id=>"score", :style=>"color:green;"}
-  /                = score
-  /            - else
-  /              - score = "-"+@activity[:score].abs.to_s
-  /              %span{:id=>"score", :style=>"color:red;"}
-  /                = score
-  /          - else
-  /            %span{:id=>"score", :style=>"color:#434343;"}
-  /              = '--'
-  /   

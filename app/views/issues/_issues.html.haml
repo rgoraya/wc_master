@@ -10,12 +10,10 @@
     = will_paginate (@issues),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 
 
   %div{:style=>"float:right; margin:13px 15px -17px 0px;", :id=>"issues_wait"}
+  
+  .clearboth
 
   
-  %div{:style=>"clear:both"}
-
-  
-
 
 %div{:style=>"margin-top:0px"}
 - @issues.each_slice(2) do |slice|
@@ -32,7 +30,8 @@
       // Only show Edit and Delete if the Issue belongs to current user or an anonymous user
       -if current_user
         -if current_user.id == slice[0].user_id  
-          = link_to 'Delete', slice[0], "data-confirm" => "Are you sure you want to delete the issue #{slice[0].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+          = link_to "Delete", issue_path(slice[0], :called_from=>"issues"), :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+      /    /= link_to 'Delete', slice[0], {:action=>"destroy", :method=>:delete, :confirm => "Are you sure you want to delete the issue #{slice[0].title}?", :class=>"del-issue"} , :title=>"Delete this Issue"
     
       // author
       - if slice[0].user
@@ -50,7 +49,7 @@
       
         =  time_ago_in_words(slice[0].created_at) + ' ago'         
     
-    %div{:style=>"clear:both"}
+    .clearboth
 
     // Image
     // The corresponding image is set as background of the container div (to attain vertical centering)
@@ -64,14 +63,15 @@
       - @description = slice[0].description
       - if @description.length > 200
         - @description = @description[0, 200] + "..."
-        = @description
+        = @description.html_safe
       - else
-        = @description
+        = @description.html_safe
       %br
+      %img.linkout{:src=>"/images/system/linkout.png"}
       %a{:href=> slice[0].wiki_url, :target=>"_blank"}
         Read more on Wikipedia
     
-    %div{:style=>"clear:both"}
+    .clearboth
     
   - if !slice[1].nil?   
 
@@ -87,7 +87,7 @@
         // Only show Edit and Delete if the Issue belongs to current user or an anonymous user
         -if current_user
           -if current_user.id == slice[1].user_id   
-            = link_to 'Delete', slice[1], "data-confirm" => "Are you sure you want to delete the issue #{slice[1].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+            = link_to "Delete", issue_path(slice[1], :called_from=>"issues"), :confirm => "Are you sure you want to delete the issue #{slice[1].title}", :method => :delete, :remote=>true, :class=>"del-issue"
       
         // author
         - if slice[1].user
@@ -106,7 +106,7 @@
         
           =  time_ago_in_words(slice[1].created_at) + ' ago'         
       
-      %div{:style=>"clear:both"}
+      .clearboth
   
       // Image
       // The corresponding image is set as background of the container div (to attain vertical centering)
@@ -120,16 +120,17 @@
         - @description = slice[1].description
         - if @description.length > 200
           - @description = @description[0, 200] + "..."
-          = @description
+          = @description.html_safe
         - else
-          = @description
+          = @description.html_safe
         %br
+        %img.linkout{:src=>"/images/system/linkout.png"}
         %a{:href=> slice[1].wiki_url, :target=>"_blank"}
           Read more on Wikipedia
       
-      %div{:style=>"clear:both"}
+      .clearboth
 
-  %div{:style=>"clear:both"}  
+  .clearboth  
 
 
 %div{:style=>"margin:20px 0px 5px 0px; float:right;"}
@@ -138,8 +139,8 @@
 %div{:style=>"float:right; margin:23px 15px -23px 0px;", :id=>"issues_wait"}
 
 
-%div{:style=>"clear:both"}
+.clearboth
 
-%div{:style=>"clear:both"}
+.clearboth
 
          
