@@ -7,7 +7,7 @@ class MapvisualizationsController < ApplicationController
     # for large map, 900x900 looks good
     @default_border = 50
     @default_node_count = 5 #40
-    @default_edge_ratio = 0.5 #0.08
+    @default_edge_ratio = 1.0 #0.08
 
     # puts "===Controller Params==="
     # puts params
@@ -59,6 +59,8 @@ class MapvisualizationsController < ApplicationController
           end
         end
 
+        flash[:notice] = @vis.notice
+        
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end

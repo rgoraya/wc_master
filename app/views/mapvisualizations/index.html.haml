@@ -12,7 +12,7 @@
 :javascript
   #{javascript_graph(@vis.nodes,@vis.edges,@vis.adjacency)}
   #{load_raphael(@vis.compact_display)}
-  var notice_msg = "#{escape_javascript(flash[:notice])}";
+  //var notice_msg = "#{escape_javascript(flash[:notice])}";
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 = javascript_include_tag "mapvisualization_index.js" #for interaction/ajax stuff
 

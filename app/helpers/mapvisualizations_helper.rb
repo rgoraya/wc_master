@@ -19,7 +19,7 @@ module MapvisualizationsHelper
     js_node_key(node) + ":"+
     "{id:"+node.id.to_s+","+
     "name:'"+escape_javascript(node.name)+"',"+
-    "x:"+(node.location[0]+offset).to_s+",y:"+(node.location[1]+offset).to_s+","+
+    "x:"+(node.location[0]+offset).round.to_s+",y:"+(node.location[1]+offset).round.to_s+","+
     "url:'"+escape_javascript(node.url)+"'}"
     #can add more fields as needed
   end
@@ -62,12 +62,13 @@ module MapvisualizationsHelper
     end
       
     if edges.length > 0
-      multi_edge = Hash[edges.group_by {|e| [e.a.id,e.b.id].sort}.map {|k,v| [k,v.count]}] #number edges per nodeset
+      multi_edge = Hash[edges.group_by {|e| [e.a.id,e.b.id].sort}.map {|k,v| [k,v.count]}] #number edges per nodepair
 
       counters = Hash.new(0)
       out += "var "+edges_name+"={"+
         edges.map {|e| js_edge(e,nodes_name, 
-          multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : (counters[ [e.a.id,e.b.id].sort ] += 1)*(e.a.id < e.b.id ? 1 : -1))
+          multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : (counters[ [e.a.id,e.b.id].sort ] += 1)*(e.a.id < e.b.id ? 1 : -1))          
+          #multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : (counters[ [e.a.id,e.b.id].sort ] += 1)*(e.a.id < e.b.id ? 1 : -1))
           }.join(',')+
         ",keys:["+ edges.map {|e| js_edge_key(e)} .join(',') +"]"+
         "};"

@@ -47,7 +47,13 @@ function drawEdge(edge, paper){
 		b = edge.b;
 
 		curve = getPath(edge) //get the curve's path
-		midPoint = getPathCenter(curve,-1*ARROW_LENGTH/2); //midpoint offset by arrow-length
+		midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+		if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
+			if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
+				//console.log("flipped",edge.name)
+				midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
+				//console.log("alpha after flip",midPoint.alpha)
+		}}
 		arrowPath = getArrowPath(midPoint)
 		arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
 
@@ -128,37 +134,62 @@ function getPath(edge)
 	pivotPoint = (b.x > a.x) ? a : b
 	dx = b.x - a.x
 	dy = b.y - a.y 
-	lengthAB = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+	lengthAB = Math.sqrt(dx*dx + dy*dy)
 	angleAB = Math.atan(dy/dx)
 
-	if(edge.n == 0){ //Curve "0" -- straight line if we want it
-		return "M "+a.x+","+a.y+" L "+b.x+","+b.y+" z"
-	}
+	//should handle case where a.y and b.y are the same (instead put control point elsewhere?)
 
+	PI2 = Math.PI/180
+
+	if(edge.n == 0){ //Curve "0" -- straight line if we want it
+		return "M "+a.x+","+a.y+" L "+b.x+","+b.y
+	}
+	
+
+	
+	// else if(Math.abs(edge.n)%2 == 1){ //if odd, curve up		
+	// 
+	// }
+	// else if(Math.abs(edge.n)%2 == 0){ //if even, curve down
+	//  
+	// }
+	
+	
 	if(Math.abs(edge.n) == 1){ //Curve "1"
 		if(edge.n > 0){
-			ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
+			ctrlx = lengthAB / (2 * Math.cos(20 * PI2)) * Math.cos(angleAB + 20 * PI2) + pivotPoint.x
+			ctrly = lengthAB / (2 * Math.cos(20 * PI2)) * Math.sin(angleAB + 20 * PI2) + pivotPoint.y
 		}
 		else{
 			//change to flip the curve
-			ctrlx = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.cos(angleAB + 30 * Math.PI/180) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(30 * Math.PI/180)) * Math.sin(angleAB + 30 * Math.PI/180) + pivotPoint.y
+			ctrlx = lengthAB / (2 * Math.cos(20 * PI2)) * Math.cos(angleAB + 20 * PI2) + pivotPoint.x
+			ctrly = lengthAB / (2 * Math.cos(20 * PI2)) * Math.sin(angleAB + 20 * PI2) + pivotPoint.y
 		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y+"z"
+		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
 	}
 
 	if(Math.abs(edge.n) == 2){ //Curve "2"
 		if(edge.n > 0){
-			ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
-		} 
+			ctrlx = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.cos(angleAB + 30 * PI2) + pivotPoint.x
+			ctrly = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.sin(angleAB + 30 * PI2) + pivotPoint.y
+		}
 		else{
 			//change to flip the curve
-			ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
+			ctrlx = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.cos(angleAB - 30 * PI2) + pivotPoint.x
+			ctrly = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.sin(angleAB - 30 * PI2) + pivotPoint.y
 		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y+"z"
+		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+
+		// if(edge.n > 0){
+		// 	ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
+		// 	ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
+		// } 
+		// else{
+		// 	//change to flip the curve
+		// 	ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
+		// 	ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
+		// }
+		// return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
 	}
 
 	if(Math.abs(edge.n) == 3) {//Curve "3"
@@ -173,23 +204,25 @@ function getPath(edge)
 			ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
 			ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y       
 		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y+"z"
+		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
 	}
 	return "" //in case we didn't get anything?
 }
 
-function getPathCenter(path, offset)
+function getPathCenter(path, offset, flip)
 {
 	offset = typeof offset !== 'undefined' ? offset : 0;
+	flip = typeof offset !== 'undefined' ? flip : false;
 
-	pathLength = Math.round(Raphael.getTotalLength(path)/2);
-	midPoint = Raphael.getPointAtLength(path,pathLength/2 - offset);
+	pathLength = Raphael.getTotalLength(path);
+	midPoint = Raphael.getPointAtLength(path,pathLength/2 + offset);
 
 	return midPoint;
 }
 
 //gets the path of an arrow drawn at a particular point
 //point is a Raphael.getPointAtLength object {x,y,alpha}
+//this needs to include a switch if the guy is going the other direction...
 function getArrowPath(point)
 {
 	return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
@@ -203,13 +236,13 @@ function getArrowSymbolPath(point, reltype)
 	symbolSize = 3;
 
 	if(reltype&INCREASES){
-		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize) + " z";
+		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize);
 	}
 	else if(reltype&SUPERSET){
-		return "M " + (point.x-9) + " " + (point.y+2) + " z"; //  should delete this object or make another icon !
+		return "M " + (point.x-9) + " " + (point.y+2); //  should delete this object or make another icon !
 	}
 	else{  //if decreases 
-		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize*3) + " 0 l 0 " + symbolSize + " z";
+		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize*3) + " 0 l 0 " + symbolSize;
 	}
 	
 	return "" //if problem
@@ -235,6 +268,9 @@ function clickNode(node){
 function clickEdge(edge){
 	curve = getPath(edge);
 	midPoint = getPathCenter(curve);	
+	arrowPath = getArrowPath(midPoint)
+	
+	
 	
 	$.ajax({
 		url: '/mapvisualizations',
@@ -244,6 +280,8 @@ function clickEdge(edge){
 	});
 
 	console.log(edge.name+"\n"+curve);
+	console.log(midPoint)
+
 	// $('#clickForm').children('#do').attr({value:'get_relation'});
 	// $('#clickForm').append('<input name="id" value='+edge.id+'>');
 	// $('#clickForm').append('<input name="curve" value="'+curve+'">');
@@ -291,8 +329,14 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		else{
 			if(!compact){ //not compact so we need to move arrows as well
 				//get the curves for the new path 
-				curve = getPath(toEdge)
-				midPoint = getPathCenter(curve,-1*ARROW_LENGTH/2); //midpoint offset by arrow-length
+				curve = getPath(toEdge) //get the curve's path
+				midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+				if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
+					if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
+						//console.log("flipped",edge.name)
+						midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
+						//console.log("alpha after flip",midPoint.alpha)
+				}}
 				arrowPath = getArrowPath(midPoint)
 				arrowSymbolPath = getArrowSymbolPath(midPoint, toEdge.reltype)
 				transform = 'r'+midPoint.alpha+','+midPoint.x+','+midPoint.y

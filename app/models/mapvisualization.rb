@@ -58,6 +58,8 @@ class Mapvisualization #< ActiveRecord::Base
 
   attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice
   
+  BAD_PARAM_ERROR = "Please specify what to visualize!"
+  
   def initialize(args)    
     #puts args
     @width, @height = args[:width], args[:height]
@@ -109,9 +111,7 @@ class Mapvisualization #< ActiveRecord::Base
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
           default_layout
         else
-          issues, relationships = default_graph
-          convert_activerecords(issues,relationships)
-          default_layout
+          @notice = BAD_PARAM_ERROR
         end               
 
       ### TOP 40 ###
@@ -150,12 +150,10 @@ class Mapvisualization #< ActiveRecord::Base
       ### RANDOM TEST GRAPH ###
       elsif params[:q] == 'test'
         reset_graph(args, @width, @height)
+        circle_nodes
 
       else #if not specified, default to show something
-        @notice = "Please specify something to show!"
-        # issues, relationships = default_graph
-        # convert_activerecords(issues,relationships)
-        # default_layout
+        @notice = BAD_PARAM_ERROR
       end
     
     ### DEFAULT ###
@@ -213,6 +211,8 @@ class Mapvisualization #< ActiveRecord::Base
       if node.static == 'center'
         node.location = Vector[width/2,height/2]
       elsif node.static == 'stationary' #just leave at location
+      elsif node.static == 'left' #just leave at location
+      elsif node.static == 'right' #just leave at location
       end
       #can add other handlers if needed
     end
