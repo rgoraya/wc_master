@@ -1,7 +1,18 @@
 class CommentsController < ApplicationController
 
+  def show
+    @comment = comment.find(params[:id])
+
+    respond_to do |format|
+      format.html # show.html.erb
+      format.xml  { render :xml => @comment }
+    end
+  end
+
 	def create
 		@comment = Comment.new(params[:comment])
+		
+    @relationship = Relationship.find(@comment.relationship_id)
     
     respond_to do |format|
 			if @comment.save
@@ -16,5 +27,22 @@ class CommentsController < ApplicationController
       end
     end
 	end
+
+  def destroy
+    @comment = Comment.find(params[:id])
+    
+    @relationship = Relationship.find(@comment.relationship_id)
+
+    @comment.destroy
+
+    Reputation::Utils.reputation(:action=>:create, :type=>:comment, :id=>@comment.id, :me=>current_user.id, :you=>@comment.user_id, :undo=>false, :calculate=>true)
+
+    @comnotice = "comment Deleted!"
+    respond_to do |format|
+      format.html { redirect_to(comments_url) }
+      format.xml  { head :ok }
+      format.js
+    end
+  end
 
 end

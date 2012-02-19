@@ -39,7 +39,7 @@
           %a{:href=>@rel_cause.wiki_url, :target => "_blank"} more on Wikipedia
 
 
-      %div.relation_descr
+      %div.relation_discussion
               
         .rationale_headers
           References  
@@ -48,7 +48,7 @@
         %div#get_references
           = render 'get_references', :relationship => @relationship
 
-      %div.relation_descr
+      %div.relation_discussion
 
         .rationale_headers
           Comments 
@@ -56,8 +56,10 @@
 
         %div#get_comments
           = render 'get_comments', :relationship => @relationship
+      
+      .clearboth
                 
-    %div.relation_controls{:style=>"float:left; width:154px; border:1px solid #f5f5f5; padding:10px; background:#fcfcfc"} 
+    %div.relation_controls
   
       %div#relation_owner
         - if @relationship.user       
@@ -79,7 +81,7 @@
 
       /%div.discussion_submit{:style=>"margin-bottom:10px;float:none;padding:0px;"}
       /  .med-relation
-      /    Add Intermediate
+      /    Visualize relation
       
       - @permalink = request.protocol + request.host_with_port + "/issues/" + @rel_issue.id.to_s + '-' + @rel_issue.permalink + '?rel_type=' + @causal_sentence.gsub(" ", "+") + '&rel_id=' + @relationship.id.to_s
       %div.discussion_submit{:style=>"float:none;padding:0px; margin-top:10px;"}
@@ -94,20 +96,39 @@
           = link_to "Delete Relationship", "../relationships/#{@relationship.id}", :confirm => "Are you sure you want to delete the relationship?", :method => :delete, :remote=>true, :class=>"del-issue",:title=>"delete this causal link", :class=>"del-relation"
           //%a{"data-confirm" => "are you sure?", "data-title"=>"Delete Causal Link", "data-remote"=>"true", "data-method" => "delete", :href => "../relationships/#{@relationship.id}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
           //  Delete Relationship       
-
-
             
     .clearboth
     
-  %div.relation_discussion{:style=>"display:none;"}
-    .rationale_headers
-      Discussion
-    .clearboth  
 
-    %textarea.discussion_input
+- else
+  %div.title
+    #title_dynamic_text
+      %span#title_issue
+        = @issue.title
         
-    %div.discussion_submit
-      Submit
+  %div.rationale_container
+    %div{:style=>"float:left;"}
+      %div.relation_descr     
+        .rationale_headers
+          Wikipedia Description
+        .clearboth
+        // paragraph retrieved from wikipedia page
+        %p
+          %b
+            %span#issue_title_dynamic
+              = link_to @issue.title + ':', @issue, :title=>"View this Issue"
+           
+          %span#issue_descr_dynamic
+            = @issue.description.html_safe
+          %img.linkout{:src=>"/images/system/linkout.png"}
+          %a{:href=>@issue.wiki_url, :target => "_blank"} more on Wikipedia
+              
+    %div.relation_controls 
+  
+      %div.discussion_submit{:style=>"margin-bottom:10px;float:none;padding:0px;"}
+        .med-relation
+          Visualize Issue
+                      
     .clearboth
-            
-  .clearboth
+    
+

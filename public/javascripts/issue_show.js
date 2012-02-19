@@ -145,11 +145,22 @@ $(".relationship_partial_toggle").live('click',function(){
   });
 
 // -------------------------------------------------------------------------------
-// SHOW SPINNER ON REFERENCE FORM SUBMISSION
+// SHOW SPINNER ON REFERENCE FORM and COMMENTS FORM SUBMISSION
 // -------------------------------------------------------------------------------	
-  $('#reference_collector').live('click', function(){
-  	$("#references_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+  $('#reference_collector').live('click', function(e){
+  	if ($("#ref_content_field").val().length == 0)
+  		{e.preventDefault();}
+  	else
+  		{ $("#references_wait").html('<img border="0" src="/images/system/spinnerf6.gif" width="22px"/>');}
   });	
+
+  $('#comment_collector').live('click', function(e){
+	if ($("#com_content_field").val().length == 0)
+  		{e.preventDefault();}
+  	else
+  		{$("#comments_wait").html('<img border="0" src="/images/system/spinnerf6.gif" width="22px"/>');}
+  });
+
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
