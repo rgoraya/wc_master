@@ -27,7 +27,6 @@ $(function() {
          
 	}
 	
-	window.confirm = false;
 // -------------------------------------------------------------------------------
 // FUNCTION TO CYCLE THROUGH THE VARIOUS RELATIONSHIP TYPES BASED ON USER CLLICK 
 // -------------------------------------------------------------------------------
@@ -89,20 +88,22 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------
 // RELATIONSHIP DELETE FUNCTIONS
 // -------------------------------------------------------------------------------
-  var href_carrier = '';
-  var bubble_to_remove = '';
+  // UNCOMMENT THE FOLLOWING CODE FOR CUSTOM CONFIRM TO SHOW!
+//  window.confirm = false;
+//  var href_carrier = '';
+//  var bubble_to_remove = '';
         
-  $(".del-relation").live('click', function(e) {
-  	e.preventDefault();
-  	var title = $(this).data('title');
-  	var msg = "Are you sure you want to remove this causal link?"
-  	href_carrier = $(this).attr('href');
-  	bubble_to_remove = $(this).parents(".bubble");
-  	showPopup(title, msg);
+  //$(".del-relation").live('click', function(e) {
+  //	e.preventDefault();
+  //	var title = $(this).data('title');
+  //	var msg = "Are you sure you want to remove this causal link?"
+  //	href_carrier = $(this).attr('href');
+  //	bubble_to_remove = $(this).parents(".bubble");
+  //	showPopup(title, msg);
   
-  return false;      
+  //return false;      
   
-  });
+  //});
 
 
 // -------------------------------------------------------------------------------

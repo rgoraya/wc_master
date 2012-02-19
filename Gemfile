@@ -35,7 +35,7 @@ gem 'spork', '~> 0.9.0.rc'
 
 gem 'paper_trail', '~> 2.5.0'
 gem 'will_paginate', '3.0.pre2'
-gem 'jquery-rails'
+gem 'jquery-rails', '>= 1.0.12'
 
 gem 'rails3-jquery-autocomplete'
 

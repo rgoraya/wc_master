@@ -3,7 +3,6 @@
 // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
 = form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
   = text_field_tag :rel_type, @rel_type, :align=>"top", :id=>"select_rel_type"
-  = text_field_tag :create_notice, "" ,:align=>"top", :id=>"select_notice"
   = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
 
 // *-*-*-*-*-*-*-*-*-*-*-*-*

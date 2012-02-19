@@ -29,11 +29,6 @@ require 'backports'
     # Call to retrieve the corresponding relationships based on the params
     get_selected_relations
     
-    # Populate Notice variable if the call was made after creating a new Relationship
-    if params[:create_notice]
-      @notice = params[:create_notice]
-    end
-
     # Default params to "causes" for initial load
     if params[:rel_id]
       @relationship = Relationship.find(params[:rel_id])
@@ -406,13 +401,14 @@ require 'backports'
                                  :undo=>false, \
                                  :calculate=>false)
     
-    @issues.reload
-    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
     
+    #@issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+    @notice = "Issue Deleted!"
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
       format.js
+      
     end
   end
 

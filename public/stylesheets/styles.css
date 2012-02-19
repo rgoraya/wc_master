@@ -1496,7 +1496,7 @@ word-wrap:break-word;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	/* Positioning */
-	position: absolute; 
+	position: fixed; 
 	z-index:2;
 	top: 3px; 
 	left: 50%;
