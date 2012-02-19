@@ -48,7 +48,17 @@
            
         %span.relationship_id_store{:style=>"display:none;"}
           = relation.wiki_url       
-  
+
+    - @issue_cause_suggestion.each do |suggestion|
+      %div.relationship_thumb
+
+        %div.relationship_thumb_title
+          = link_to suggestion.title
+        %div{:class=>"relationship_thumb_main"}
+          = link_to suggestion.title
+
+        = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), suggestion, {:title=>"go to this issue", :class=>"issue_linkout"}
+
   - else
     .relationship_none_found
       No such causal links have been identified yet. 

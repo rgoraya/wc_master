@@ -80,8 +80,8 @@ class Suggestion < ActiveRecord::Base
 
   def search_word(keyword, relation_type, issue_id)
     relation_occurrences = [ ]
-                                                                        
-    suggestions_counter = 0
+
+    @suggestions_counter = 0
 
     @buffer.search(%Q{//p[text()*= "#{keyword}'"]/a}).each do |relation| unless @suggestions_counter == 6 
     relation_suggestion_url            = "http://en.wikipedia.org#{relation.attributes['href']}"
