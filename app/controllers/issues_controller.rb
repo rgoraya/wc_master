@@ -29,11 +29,6 @@ require 'backports'
     # Call to retrieve the corresponding relationships based on the params
     get_selected_relations
     
-    # Populate Notice variable if the call was made after creating a new Relationship
-    if params[:create_notice]
-      @notice = params[:create_notice]
-    end
-
     # Default params to "causes" for initial load
     if params[:rel_id]
       @relationship = Relationship.find(params[:rel_id])
@@ -396,8 +391,9 @@ require 'backports'
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
+    @called_from = params[:called_from]
     @issue.destroy
-
+    
     Reputation::Utils.reputation(:action=>:destroy, \
                                  :type=>:issue, \
                                  :id=>@issue.id, \
@@ -405,9 +401,16 @@ require 'backports'
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
                                  :calculate=>false)
+    
+    
+    
+    @notice = "Issue Deleted!"
+    
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
+      format.js
+      
     end
   end
 

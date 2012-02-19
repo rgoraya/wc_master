@@ -1,4 +1,4 @@
 // Display Notice if Ajax
-$('#select_notice').val("<%= escape_javascript(@notice) %>")
+$('#notice').html("<%= escape_javascript(@notice) %>")
 
 $("#select_rel_submit").trigger('click');

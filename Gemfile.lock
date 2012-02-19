@@ -107,7 +107,7 @@ DEPENDENCIES
   haml-rails
   hirb
   hpricot
-  jquery-rails
+  jquery-rails (>= 1.0.12)
   json
   lock
   paper_trail (~> 2.5.0)

@@ -91,10 +91,11 @@ class RelationshipsController < ApplicationController
 																		:undo=>false, \
 																		:calculate=>true)
 
-
+    @notice = "Relationship Deleted!"
     respond_to do |format|
       format.html { redirect_to(:back,:notice => 'Causal link was successfully deleted.' ) }
       format.xml  { head :ok }
+      format.js
     end
   end
 end
