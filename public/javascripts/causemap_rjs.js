@@ -6,6 +6,7 @@ var T_OFF = 9 //txt offset
 var ARROW_LENGTH = 20 // arrowhead length
 var ARROW_HEIGHT = 8 // arrowhead height
 var edge_colors = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BEBEBE'}
+var TORAD = Math.PI/360 //mult to convert from degrees to radians
 
 
 //details on drawing/laying out a node
@@ -130,6 +131,11 @@ function getPath(edge)
 	a = edge.a //for quick access
 	b = edge.b
 
+	if(edge.n == 0){ //Curve "0" -- straight line if we want it
+		return "M "+a.x+","+a.y+" L "+b.x+","+b.y
+	}
+	
+	//else will need to curve--calculate values
 	//-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
 	pivotPoint = (b.x > a.x) ? a : b
 	dx = b.x - a.x
@@ -137,75 +143,27 @@ function getPath(edge)
 	lengthAB = Math.sqrt(dx*dx + dy*dy)
 	angleAB = Math.atan(dy/dx)
 
-	//should handle case where a.y and b.y are the same (instead put control point elsewhere?)
+	if(dx == 0){ //to fix vertical lines (probably due to the tangent in arctan)
+		if(angleAB < 0)
+			angleAB = -angleAB
+		else {
+			angleAB = (Math.PI/-4.0) //WHY DOES THIS NOT BEND RIGHT?
+		}
+	}
 
-	PI2 = Math.PI/180
-
-	if(edge.n == 0){ //Curve "0" -- straight line if we want it
-		return "M "+a.x+","+a.y+" L "+b.x+","+b.y
+	bend = 30 * Math.ceil(edge.n/2) //scale bend based on how many edges there are
+	if(edge.n % 2 == 1){ //odd, curving up
+		ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB + bend * TORAD) + pivotPoint.x
+		ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB + bend * TORAD) + pivotPoint.y
+		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
 	}
 	
-
-	
-	// else if(Math.abs(edge.n)%2 == 1){ //if odd, curve up		
-	// 
-	// }
-	// else if(Math.abs(edge.n)%2 == 0){ //if even, curve down
-	//  
-	// }
-	
-	
-	if(Math.abs(edge.n) == 1){ //Curve "1"
-		if(edge.n > 0){
-			ctrlx = lengthAB / (2 * Math.cos(20 * PI2)) * Math.cos(angleAB + 20 * PI2) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(20 * PI2)) * Math.sin(angleAB + 20 * PI2) + pivotPoint.y
-		}
-		else{
-			//change to flip the curve
-			ctrlx = lengthAB / (2 * Math.cos(20 * PI2)) * Math.cos(angleAB + 20 * PI2) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(20 * PI2)) * Math.sin(angleAB + 20 * PI2) + pivotPoint.y
-		}
+	if(edge.n % 2 == 0){ //even, curving down
+		ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB - bend * TORAD) + pivotPoint.x
+		ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB - bend * TORAD) + pivotPoint.y
 		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
 	}
 
-	if(Math.abs(edge.n) == 2){ //Curve "2"
-		if(edge.n > 0){
-			ctrlx = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.cos(angleAB + 30 * PI2) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.sin(angleAB + 30 * PI2) + pivotPoint.y
-		}
-		else{
-			//change to flip the curve
-			ctrlx = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.cos(angleAB - 30 * PI2) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(-30 * PI2)) * Math.sin(angleAB - 30 * PI2) + pivotPoint.y
-		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
-
-		// if(edge.n > 0){
-		// 	ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
-		// 	ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
-		// } 
-		// else{
-		// 	//change to flip the curve
-		// 	ctrlx = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.cos(angleAB + 45 * Math.PI/180) + pivotPoint.x
-		// 	ctrly = lengthAB / (2 * Math.cos(45 * Math.PI/180)) * Math.sin(angleAB + 45 * Math.PI/180) + pivotPoint.y
-		// }
-		// return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
-	}
-
-	if(Math.abs(edge.n) == 3) {//Curve "3"
-		//curve 3 should probably be a straight line? Like a function of whether there are even or odd curves? Something to think about.
-		//like have the edges bend out based on the magnitude of n, where even and odd n are flips of each other, and if odd total the last is straight. Would be clean and somewhat slick.
-		if(edge.n > 0){
-			ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y 
-		}
-		else{
-			//change to flip the curve
-			ctrlx = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.cos(angleAB + 55 * Math.PI/180) + pivotPoint.x
-			ctrly = lengthAB / (2 * Math.cos(55 * Math.PI/180)) * Math.sin(angleAB + 55 * Math.PI/180) + pivotPoint.y       
-		}
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
-	}
 	return "" //in case we didn't get anything?
 }
 
@@ -222,7 +180,6 @@ function getPathCenter(path, offset, flip)
 
 //gets the path of an arrow drawn at a particular point
 //point is a Raphael.getPointAtLength object {x,y,alpha}
-//this needs to include a switch if the guy is going the other direction...
 function getArrowPath(point)
 {
 	return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
@@ -270,8 +227,6 @@ function clickEdge(edge){
 	midPoint = getPathCenter(curve);	
 	arrowPath = getArrowPath(midPoint)
 	
-	
-	
 	$.ajax({
 		url: '/mapvisualizations',
 		data: {do:'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
@@ -280,7 +235,6 @@ function clickEdge(edge){
 	});
 
 	console.log(edge.name+"\n"+curve);
-	console.log(midPoint)
 
 	// $('#clickForm').children('#do').attr({value:'get_relation'});
 	// $('#clickForm').append('<input name="id" value='+edge.id+'>');

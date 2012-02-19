@@ -43,7 +43,6 @@ module MapvisualizationsHelper
   # a unique key for the edge (A-B) => (AiehB) / (AdB) / (AsB), etc
   def js_edge_key(edge)
       conn = edge.rel_type & INCREASES != 0 ? 'i' : (edge.rel_type & SUPERSET == 0 ? 'd' : 's')
-      puts edge.rel_type
       conn += 'e'*[(edge.rel_type&EXPANDABLE),1].min + 'h'*[(edge.rel_type&HIGHLIGHTED),1].min
       "'"+js_node_key(edge.a)+conn+js_node_key(edge.b)+"'"
   end
@@ -66,8 +65,8 @@ module MapvisualizationsHelper
 
       counters = Hash.new(0)
       out += "var "+edges_name+"={"+
-        edges.map {|e| js_edge(e,nodes_name, 
-          multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : (counters[ [e.a.id,e.b.id].sort ] += 1)*(e.a.id < e.b.id ? 1 : -1))          
+        edges.map {|e| es = [e.a.id,e.b.id].sort; js_edge(e,nodes_name, 
+          ((counters[es] += 1) == multi_edge[es] and multi_edge[es]%2==1) ? 0 : counters[es])
           #multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : (counters[ [e.a.id,e.b.id].sort ] += 1)*(e.a.id < e.b.id ? 1 : -1))
           }.join(',')+
         ",keys:["+ edges.map {|e| js_edge_key(e)} .join(',') +"]"+

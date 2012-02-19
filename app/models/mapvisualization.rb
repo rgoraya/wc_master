@@ -132,8 +132,8 @@ class Mapvisualization #< ActiveRecord::Base
         #get all nodes linked by those relationships
         subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit)
           .flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
-        puts "===NUMBER OF ISSUES"
-        puts subquery_list.length
+        #puts "===NUMBER OF ISSUES"
+        #puts subquery_list.length
         issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
 
         convert_activerecords(issues,relationships)

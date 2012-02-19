@@ -6,7 +6,7 @@ class MapvisualizationsController < ApplicationController
     @default_height = 675*0.8
     # for large map, 900x900 looks good
     @default_border = 50
-    @default_node_count = 5 #40
+    @default_node_count = 4 #40
     @default_edge_ratio = 1.0 #0.08
 
     # puts "===Controller Params==="
