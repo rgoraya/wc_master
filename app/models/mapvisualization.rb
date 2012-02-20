@@ -84,29 +84,19 @@ class Mapvisualization #< ActiveRecord::Base
       if params[:q] == 'show'
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
-          ## will need to 
-          
-          # FIRST 40 FOR NOW; REPLACE THIS SOON
-          limit = 40
-          issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
-          #get all relationships between those nodes
-          subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
-          relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
 
+          issues, relationships = build_graph(static,40)
+          
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
           default_layout
+        
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
           rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids) #can we clean this up??
           static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
           
-          # FIRST 40 FOR NOW; REPLACE THIS SOON
-          limit = 40
-          issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
-          #get all relationships between those nodes
-          subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
-          relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
+          issues, relationships = build_graph(static,40)
 
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
@@ -183,6 +173,22 @@ class Mapvisualization #< ActiveRecord::Base
     subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
     relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
     return [issues,relationships]
+  end
+  
+  # builds a graph centered around a starting set of nodes.
+  # starting_nodes is a list of node ids; limit is up to how many things we should get
+  def build_graph(starting_nodes, limit)
+    ids = starting_nodes
+    while ids.length < limit
+      new_ids = Relationship.select("issue_id, cause_id").where("relationships.issue_id IN (?) OR relationships.cause_id IN (?)", ids, ids).map {|i| [i.issue_id, i.cause_id]}
+      break if new_ids.length == 0
+      ids = (ids + new_ids).flatten.uniq
+    end
+    
+    issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", ids).limit(limit)
+    subquery_list = issues.map {|i| i.id}
+    relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
+    [issues, relationships]
   end
   
   #converts activerecord arrays into the instance variables we want to use, separate function so we can do further processing later
