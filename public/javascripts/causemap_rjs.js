@@ -5,9 +5,9 @@
 var T_OFF = 9 //txt offset
 var ARROW_LENGTH = 20 // arrowhead length
 var ARROW_HEIGHT = 8 // arrowhead height
-var edge_colors = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BEBEBE'}
+var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BEBEBE'}
 var TORAD = Math.PI/360 //mult to convert from degrees to radians
-
+var DESEL_OP = 0.4
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
@@ -22,7 +22,12 @@ function drawNode(node, paper){
 		icon = paper.set()
 		.push(circ,txt)
 		.click(function() { clickNode(node)})
-		.mouseover(function() {this.node.style.cursor='pointer'})  
+		.mouseover(function() {this.node.style.cursor='pointer'})
+
+		if(hasSelection){
+			if(!node.h) //if not highlighted
+				icon.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
+		}
 
 		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
 
@@ -69,20 +74,23 @@ function drawEdge(edge, paper){
 
 		//set attributes based on relationship type (bitcheck with constants)
 		if(edge.reltype&INCREASES){
-			e.attr({stroke:edge_colors['increases']})
-			arrow.attr({fill:edge_colors['increases']})
+			e.attr({stroke:EDGE_COLORS['increases']})
+			arrow.attr({fill:EDGE_COLORS['increases']})
 		}
 		else if(edge.reltype&SUPERSET){
-			e.attr({stroke:edge_colors['superset']})
-			arrow.attr({fill:edge_colors['superset']})	
+			e.attr({stroke:EDGE_COLORS['superset']})
+			arrow.attr({fill:EDGE_COLORS['superset']})	
 		}
 		else{ //if decreases
-			e.attr({stroke:edge_colors['decreases']})
-			arrow.attr({fill:edge_colors['decreases']});	
+			e.attr({stroke:EDGE_COLORS['decreases']})
+			arrow.attr({fill:EDGE_COLORS['decreases']});	
 		}
 
-		//if(edge.reltype&HIGHLIGHTED)
-			//e.glow({width:4,fill:false,color:'#FFFF00',opacity:1}) //would have to animate this as well it seems...
+		if(hasSelection){
+			if((edge.reltype&HIGHLIGHTED)==0){ //if not highlighted
+				e.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
+				arrow.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
+		}}
 
 		icon = paper.set() //for storing pieces of the line as needed
 		.push(e, arrow, arrowSymbol)
@@ -102,13 +110,16 @@ function drawEdge(edge, paper){
 
 		//set attributes based on relationship type (bitcheck with constants)
 		if(edge.reltype&INCREASES)
-			e.attr({stroke:edge_colors['increases']}) //BA717F
+			e.attr({stroke:EDGE_COLORS['increases']}) //BA717F
 		else if(edge.reltype&SUPERSET)
-			e.attr({stroke:edge_colors['superset']}) //BBBBBB change for superset
+			e.attr({stroke:EDGE_COLORS['superset']}) //BBBBBB change for superset
 		else //if decreases
-			e.attr({stroke:edge_colors['decreases']}) //408EB8, 54B9D9
-		//if(edge.reltype&HIGHLIGHTED)
-			//e.glow({width:4,fill:false,color:'#FFFF00',opacity:1}) //would have to animate this as well it seems...
+			e.attr({stroke:EDGE_COLORS['decreases']}) //408EB8, 54B9D9
+
+		if(hasSelection){
+			if((edge.reltype&HIGHLIGHTED)==0){ //if not highlighted
+				e.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
+		}}
 
 		icon = paper.set() //for storing pieces of the line as needed
 		.push(e)

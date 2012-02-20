@@ -10,7 +10,7 @@ class Mapvisualization #< ActiveRecord::Base
   class Node < Object
     include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
 
-    attr_accessor :id, :name, :url, :location, :static, :d, :a
+    attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
 
     def initialize(id, name, url)
       @id = id #db-level index
@@ -18,6 +18,7 @@ class Mapvisualization #< ActiveRecord::Base
       @url = url
       @location = Vector[0.0,0.0]
       @static = false #should the node move or not
+      @highlighted = false
       @d = Vector[0.0,0.0] #delta variable
       @a = Vector[0.0,0.0] #acceleration variable
     end
@@ -152,6 +153,14 @@ class Mapvisualization #< ActiveRecord::Base
         reset_graph(args, @width, @height)
         circle_nodes
 
+        #highlight a few edges (and their nodes) for testing
+        # @edges[1].rel_type = @edges[1].rel_type | MapvisualizationsHelper::HIGHLIGHTED
+        # @edges[1].a.highlighted = true
+        # @edges[1].b.highlighted = true
+        # @edges[2].rel_type = @edges[2].rel_type | MapvisualizationsHelper::HIGHLIGHTED
+        # @edges[2].a.highlighted = true
+        # @edges[2].b.highlighted = true
+  
       else #if not specified, default to show something
         @notice = BAD_PARAM_ERROR
       end
@@ -197,12 +206,18 @@ class Mapvisualization #< ActiveRecord::Base
     for i in (1..node_count)
       for j in (1..node_count) #edges in both directions, chance of 1 each way
         if(i!=j and rand() < edge_ratio) #make random edges
-          rel_type = (rand()*15).ceil #get a random set of attributes (rel_type) for that edge
+          rel_type = (rand()*10).ceil #get a random set of attributes (rel_type) for that edge
           @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type))
           @adjacency[[i,j]] += 1 #count the edge
         end
       end
     end
+  end
+
+  # returns whether anything in this graph is highlighted or not.
+  # version in helper currently being used
+  def has_highlighted?(edgeset=@edges)
+    edgeset.find {|e| e.rel_type & MapvisualizationsHelper::HIGHLIGHTED != 0} != nil
   end
 
   #places the static nodes at their desired locations
@@ -211,8 +226,10 @@ class Mapvisualization #< ActiveRecord::Base
       if node.static == 'center'
         node.location = Vector[width/2,height/2]
       elsif node.static == 'stationary' #just leave at location
-      elsif node.static == 'left' #just leave at location
-      elsif node.static == 'right' #just leave at location
+      elsif node.static == 'left'
+        node.location = Vector[0,height/2]
+      elsif node.static == 'right'
+        node.location = Vector[0,height/2]
       end
       #can add other handlers if needed
     end
@@ -241,7 +258,7 @@ class Mapvisualization #< ActiveRecord::Base
     static = Hash.new()
     nonstatic = Hash.new()
     nodeset.each do |key,node| 
-      if node.static
+      if node.static == 'center'
         static[key] = node
       else
         nonstatic[key] = node 

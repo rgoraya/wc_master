@@ -20,7 +20,8 @@ module MapvisualizationsHelper
     "{id:"+node.id.to_s+","+
     "name:'"+escape_javascript(node.name)+"',"+
     "x:"+(node.location[0]+offset).round.to_s+",y:"+(node.location[1]+offset).round.to_s+","+
-    "url:'"+escape_javascript(node.url)+"'}"
+    "url:'"+escape_javascript(node.url)+"',"+
+    "h:"+(node.highlighted ? "1" : "0")+"}"
     #can add more fields as needed
   end
 
@@ -47,10 +48,9 @@ module MapvisualizationsHelper
       "'"+js_node_key(edge.a)+conn+js_node_key(edge.b)+"'"
   end
 
-
   #helper method to print the nodes and edges as javascript arrays, now with empty-set handling!
-  def javascript_graph(nodes, edges, adjacency, nodes_name='currNodes', edges_name='currEdges')
-    out = ""
+  def javascript_graph(nodes, edges, nodes_name='currNodes', edges_name='currEdges')
+    out = "var hasSelection = #{has_highlighted?(edges)};"
     if nodes.length > 0
       out += "var "+nodes_name+"={"+
         nodes.map {|k,n| js_node(n,@default_border)} .join(',')+
@@ -76,6 +76,11 @@ module MapvisualizationsHelper
     end
     #puts out
     return out      
+  end
+
+  # asks the edges if any are highlighted?--here for ease of calling (could also be property of the Graph potentially)
+  def has_highlighted?(edges)
+    edges.find {|e| e.rel_type & HIGHLIGHTED != 0} != nil
   end
 
   #the code to setup raphael; defined here so separate from the drawing .js file (and can be dynamically generated)
