@@ -943,7 +943,7 @@ z-index:0;
 	/*background-color:#4DB8DB;*/
 	font:bold 26px "lucida grande",tahoma,verdana,arial,sans-serif;
 	padding:10px 15px 10px 15px;
-	margin:10px 0px 10px 0px ;
+	margin:0px -15px 10px -15px;
 	text-align:left;
 	text-shadow:0px 1px 1px #fff;
 	color: #434343; 
@@ -3307,7 +3307,7 @@ cursor:default;
 .issue_thumb_blanket{
 	float: left;
 	background-color: #434343;
-	padding: 10px 15px 0px 15px;
+	padding: 15px;
 	padding-right: 10px;
 	
 }
@@ -3361,7 +3361,7 @@ cursor:default;
 .causality_types{
 	font: bold 11px "lucida grande",tahoma,verdana,arial,sans-serif;		
 	float:left;
-	padding:10px 0px 0px 0px;
+	padding:15px 0px 0px 0px;
 	background-color:#434343;
 }	
 
@@ -3404,7 +3404,7 @@ cursor:default;
 	background-color: #434343;
 	width: 780px;
 	margin-left: 0px;
-	padding: 10px 5px 0px 5px;
+	padding: 15px 5px 0px 5px;
 	padding-left: 0px;
 }
 
@@ -3461,6 +3461,12 @@ cursor:default;
 	word-wrap: break-word;
 }
 
+.relationship_thumb:hover .relationship_suggestion_title{
+	overflow:visible;
+	white-space:normal;
+	word-wrap: break-word;
+}
+
 .relationship_addnew{
 	float:left;
 	margin:0px 0px 0px 10px;
@@ -3469,6 +3475,33 @@ cursor:default;
 	float:right;
 	margin-right:10px;
 	}
+
+.relationship_thumb_suggestion{
+	height:90px; border:4px solid #2f2f2f;
+	background-position:center 40px;
+	background-repeat:no-repeat;
+	background-size:40px;
+	text-align:center;	
+	background-image:url('/images/issues/ques.png'); 
+	width:90px;
+	background-color:#505050;
+}
+
+.relationship_suggestion_title{
+	width:86px;
+	padding:4px 1px;
+	margin:4px;
+	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color:#fcfcfc;
+	text-align:center;
+	background:#2f2f2f;
+	position:absolute;
+	opacity:0.8;
+	border: 1px solid #4DB8DB;	
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
 
 
 .relationship_thumb_addnew{
@@ -3536,7 +3569,7 @@ cursor:default;
 .add_new_relation_modal{
 	width: 320px;
 	float: right;
-	margin: -71px 15px -400px 0px;
+	margin: -10px 15px -400px 0px;
 	position:relative;
 	z-index: 1;
 }

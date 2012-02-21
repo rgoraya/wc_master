@@ -31,8 +31,11 @@
       %div{:id=>"modal_form"}      
         = render :partial => "modal"
     
-    %div#get_relationship{:style=>"margin-top:-61px;"}
-      = render 'get_relationship'      
+    // *-*-*-*-*-*-*-*-*-*-*-
+    // Selected Relationship
+    // *-*-*-*-*-*-*-*-*-*-*-     
+    %div#get_relationship
+      = render 'get_relationship'     
       
     .clearboth                   
               

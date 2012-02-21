@@ -61,9 +61,9 @@ ActiveRecord::Schema.define(:version => 20120213002708) do
     t.integer  "cause_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id"
     t.string   "relationship_type"
     t.integer  "references_count",  :default => 0
+    t.integer  "user_id"
   end
 
   add_index "relationships", ["cause_id"], :name => "index_relationships_on_cause_id"

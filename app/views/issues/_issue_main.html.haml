@@ -6,3 +6,5 @@
   
     %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@issue.short_url})"}
       = link_to "", @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+    %span#issue_id_store{:style=>"display:none;"}
+      = @issue.id  

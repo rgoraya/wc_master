@@ -121,8 +121,7 @@ class Mapvisualization #< ActiveRecord::Base
         limit = 40
         relationships = Relationship.select("id,cause_id,issue_id,relationship_type").order("references_count DESC,updated_at DESC").limit(limit) #get top rated/most recent relationships
         #get all nodes linked by those relationships
-        subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit)
-          .flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
+        subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit).flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
         #puts "===NUMBER OF ISSUES"
         #puts subquery_list.length
         issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
