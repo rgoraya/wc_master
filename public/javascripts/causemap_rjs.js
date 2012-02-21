@@ -52,7 +52,10 @@ function drawEdge(edge, paper){
 		a = edge.a;
 		b = edge.b;
 
-		curve = getPath(edge) //get the curve's path
+		curve = getPath(edge) //get the curve's path		
+		// console.log(edge.name)
+		// console.log(curve)
+		
 		midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
 		if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
 			if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
@@ -68,7 +71,7 @@ function drawEdge(edge, paper){
 		arrow = paper.path(arrowPath)
 			.attr({stroke:'none'})
 			.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-		arrowSymbol = paper.path(arrowSymbolPath)
+		arrowSymbol = paper.path(arrowSymbolPath, edge.reltype)
 			.attr({fill:'#FFFFFF', stroke:'none'})
 			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
 
@@ -142,38 +145,47 @@ function getPath(edge)
 	a = edge.a //for quick access
 	b = edge.b
 
-	if(edge.n == 0){ //Curve "0" -- straight line if we want it
+	if(edge.n == 0){ //if the odd curve, then just draw a straight line
 		return "M "+a.x+","+a.y+" L "+b.x+","+b.y
 	}
-	
-	//else will need to curve--calculate values
-	//-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
-	pivotPoint = (b.x > a.x) ? a : b
-	dx = b.x - a.x
-	dy = b.y - a.y 
-	lengthAB = Math.sqrt(dx*dx + dy*dy)
-	angleAB = Math.atan(dy/dx)
-
-	if(dx == 0){ //to fix vertical lines (probably due to the tangent in arctan)
-		if(angleAB < 0)
-			angleAB = -angleAB
-		else {
-			angleAB = (Math.PI/-4.0) //WHY DOES THIS NOT BEND RIGHT?
-		}
+	else{ //otherwise, calculate curves. Control point is some distance along the perpendicular bisector
+		center = [(a.x+b.x)/2, (a.y+b.y)/2]
+		normal = [center[1]-a.y, a.x-center[0]]
+		scale = .3*Math.ceil(edge.n/2) //scale bend based on how many edges there are
+		control = [center[0]+scale*normal[0], center[1]+scale*normal[1]]
+		
+		// console.log("control",control)
+		return "M"+a.x+","+a.y+" Q "+control[0]+","+control[1]+" "+b.x+","+b.y
 	}
 
-	bend = 30 * Math.ceil(edge.n/2) //scale bend based on how many edges there are
-	if(edge.n % 2 == 1){ //odd, curving up
-		ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB + bend * TORAD) + pivotPoint.x
-		ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB + bend * TORAD) + pivotPoint.y
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
-	}
-	
-	if(edge.n % 2 == 0){ //even, curving down
-		ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB - bend * TORAD) + pivotPoint.x
-		ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB - bend * TORAD) + pivotPoint.y
-		return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
-	}
+
+	// //-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
+	// pivotPoint = (b.x > a.x) ? a : b
+	// dx = b.x - a.x
+	// dy = b.y - a.y 
+	// lengthAB = Math.sqrt(dx*dx + dy*dy)
+	// angleAB = Math.atan(dy/dx)
+	// 
+	// if(dx == 0){ //to fix vertical lines (probably due to the tangent in arctan)
+	// 	if(angleAB < 0)
+	// 		angleAB = -angleAB
+	// 	else {
+	// 		angleAB = (Math.PI/-4.0) //WHY DOES THIS NOT BEND RIGHT?
+	// 	}
+	// }
+	// 
+	// bend = 30 * Math.ceil(edge.n/2) //scale bend based on how many edges there are
+	// if(edge.n % 2 == 1){ //odd, curving up
+	// 	ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB + bend * TORAD) + pivotPoint.x
+	// 	ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB + bend * TORAD) + pivotPoint.y
+	// 	return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+	// }
+	// 
+	// if(edge.n % 2 == 0){ //even, curving down
+	// 	ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB - bend * TORAD) + pivotPoint.x
+	// 	ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB - bend * TORAD) + pivotPoint.y
+	// 	return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
+	// }
 
 	return "" //in case we didn't get anything?
 }

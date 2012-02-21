@@ -2,6 +2,7 @@
 = stylesheet_link_tag "jquery.qtip.min"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
+  #vis_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
   #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
 = javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"
@@ -18,7 +19,7 @@
 
 #contentwrapper
   .contentmain
-    #vis_container{:style => "margin-top:10px;"}
+    #vis_container
       #spinner
         = image_tag "system/spinner.gif", :size => "64x64"
       #canvas_container
@@ -28,7 +29,7 @@
           #modal_fill
           .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
           .down_pointer_arrow
-    #interaction
+    #interaction{:style => (@verbose ? "" : "display:none")}
       #reset_form
         = form_tag({:action => "index", :layout_cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
           #inputs
@@ -46,13 +47,13 @@
         = button_to "Grid Nodes", {:action => "index", :layout_cmd => 'grid_nodes'}, {:remote => true, :method => :get}
         = button_to "Static Wheel", {:action => "index", :layout_cmd => 'static_wheel_nodes'}, {:remote => true, :method => :get}
         = button_to "Fruchterman Layout", {:action => "index", :layout_cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
-        = button_to "Springy Layout", {:action => "index", :layout_cmd => 'springy'}, {:remote => true, :method => :get}
+        / = button_to "Springy Layout", {:action => "index", :layout_cmd => 'springy'}, {:remote => true, :method => :get}
         = button_to "Kamada Layout", {:action => "index", :layout_cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
         / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
       #interact_form
         = form_tag({:action => "index"}, {:id => "clickForm", :remote => true, :method => :get}) do
           = text_field_tag "do"
-    #debug
+    #debug{:style => (@verbose ? "" : "display:none")}
       %b Some notes:
       Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
       Springy is good for disconnected graphs, but can be slow depending on initial layout (can also tweak speed parameters if needed).

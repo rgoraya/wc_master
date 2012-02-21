@@ -10,16 +10,19 @@ $(document).ready(function(){
     .css('top',$('#canvas_container').height()/2-32)
     .toggle();
   $("form.button_to") //anything formed by the button_to tag apparently
-    .bind("ajax:beforeSend", function() {
+		.live("ajax:beforeSend", function(evt, data) {
+			console.log("showing spinner")
       $("#spinner").toggle()
     })
-    .bind("ajax:complete", function() {
+		.live("ajax:complete", function(evt, data) {
+			console.log("hiding spinner")
       $("#spinner").toggle()
     })
-  $("#clickForm").live('ajax:complete', function(evt, data) {
-    show_modal(data);
-    //$('#clickForm').children().not('#do').remove();
-  });
+		.click(function(){console.log("clicked!")})
+  // $("#clickForm").live('ajax:complete', function(evt, data) {
+  //   show_modal(data);
+  //   //$('#clickForm').children().not('#do').remove();
+  // });
   $('#modal_container .btn_close').click(function(){
     $('#modal_container').toggle(false);
 	});
