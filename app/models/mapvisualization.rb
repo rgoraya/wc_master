@@ -60,6 +60,7 @@ class Mapvisualization #< ActiveRecord::Base
   attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice
   
   BAD_PARAM_ERROR = "Please specify what to visualize!"
+  NO_ITEM_ERROR = "The item you requested could not be found"
   
   def initialize(args)    
     #puts args
@@ -121,8 +122,7 @@ class Mapvisualization #< ActiveRecord::Base
         limit = 40
         relationships = Relationship.select("id,cause_id,issue_id,relationship_type").order("references_count DESC,updated_at DESC").limit(limit) #get top rated/most recent relationships
         #get all nodes linked by those relationships
-        subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit)
-          .flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
+        subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit).flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
         #puts "===NUMBER OF ISSUES"
         #puts subquery_list.length
         issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
@@ -243,11 +243,15 @@ class Mapvisualization #< ActiveRecord::Base
 
   # the default set of layout commands (hopefully not slow)
   def default_layout()
-    set_static_nodes
-    static_wheel_nodes
-    fruchterman_reingold(50) #fast, little bit of layout for now
-    normalize_graph
-    #do_kamada_kawai
+    if @nodes.length > 0
+      set_static_nodes
+      static_wheel_nodes
+      fruchterman_reingold(50) #fast, little bit of layout for now
+      normalize_graph
+      #do_kamada_kawai
+    else
+      @notice = NO_ITEM_ERROR
+    end
   end
 
   # put the nodes into a circle that will fit in the given canvas
@@ -608,25 +612,27 @@ class Mapvisualization #< ActiveRecord::Base
   #centers the nodes within the graph, then squeezes the graph to fit inside the window (without border)
   def normalize_graph(width=@width, height=@height, nodeset=@nodes)
     puts "normalizing graph"
+    
+    if nodeset.length > 0 #to handle empty graphs; could also do it in default layout (else display message)
+      #center the nodes
+      max_x = nodeset.max_by{|k,n| n.location[0]}[1].location[0]
+      max_y = nodeset.max_by{|k,n| n.location[1]}[1].location[1]
+      min_x = nodeset.min_by{|k,n| n.location[0]}[1].location[0]
+      min_y = nodeset.min_by{|k,n| n.location[1]}[1].location[1]
+      center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
+      nodeset.each_value {|n| n.location = n.location-center_offset if !n.static}
 
-    #center the nodes
-    max_x = nodeset.max_by{|k,n| n.location[0]}[1].location[0]
-    max_y = nodeset.max_by{|k,n| n.location[1]}[1].location[1]
-    min_x = nodeset.min_by{|k,n| n.location[0]}[1].location[0]
-    min_y = nodeset.min_by{|k,n| n.location[1]}[1].location[1]
-    center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
-    nodeset.each_value {|n| n.location = n.location-center_offset if !n.static}
-
-    #scale to fit
-    center = [width/2, height/2]
-    far_x = nodeset.max_by{|k,n| (n.location[0]-center[0]).abs}[1].location[0] #node with max x
-    far_y = nodeset.max_by{|k,n| (n.location[1]-center[1]).abs}[1].location[1] #node with max y
-    # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
-    #          [center[1]/(far_y-center[1]).abs, 1.0].min]
-    scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
-             center[1]/(far_y-center[1]).abs]
-    nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
-                                                scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}
+      #scale to fit
+      center = [width/2, height/2]
+      far_x = nodeset.max_by{|k,n| (n.location[0]-center[0]).abs}[1].location[0] #node with max x
+      far_y = nodeset.max_by{|k,n| (n.location[1]-center[1]).abs}[1].location[1] #node with max y
+      # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
+      #          [center[1]/(far_y-center[1]).abs, 1.0].min]
+      scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
+               center[1]/(far_y-center[1]).abs]
+      nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
+                                                  scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}
+    end
   end
 
 end
