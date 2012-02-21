@@ -51,22 +51,22 @@
         %span.relationship_id_store{:style=>"display:none;"}
           = relation.wiki_url       
 
-    - number_of_suggestions = number_of_relations
-    - @issue_suggestions.each do |suggestion|
-      %div.relationship_thumb
-
-        %div.relationship_thumb_title
-          = link_to suggestion.title
-        %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{'/images/issues/ques.png'}); background-color:transparent"}
-          = link_to suggestion.title
-
-        = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), suggestion, {:title=>"go to this issue", :class=>"issue_linkout"}
+  
+  - if @suggestions.length > 0
+    - @suggestions.each do |suggestion|
       
-      - number_of_suggestions += 1
-      - break if (number_of_suggestions == 6)
-
-
-  - else
+      %div.relationship_thumb
+  
+        .relationship_suggestion_title
+          = suggestion.title
+        .relationship_thumb_suggestion
+              
+        /= link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
+        
+        /%span.relationship_id_store{:style=>"display:none;"}
+        /  = relation.wiki_url       
+  
+  - if !(@suggestions.length + @issue_relations.length > 0)
     .relationship_none_found
       No such causal links have been identified yet. 
   
@@ -78,12 +78,12 @@
   .clearboth        
 .clearboth 
 
-%div{:class =>"title"}
-  - if @issue_relations.length > 0
-    #title_filler_text
-      Please select one of the
-      %span#title_filler_causality
-        = @causal_sentence.capitalize
-      above to learn more
+/%div{:class =>"title"}
+/  - if @issue_relations.length > 0
+/    #title_filler_text
+/      Please select one of the
+/      %span#title_filler_causality
+/        = @causal_sentence.capitalize
+/      above to learn more
   
   

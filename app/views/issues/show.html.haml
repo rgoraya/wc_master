@@ -31,49 +31,13 @@
       %div{:id=>"modal_form"}      
         = render :partial => "modal"
     
-    %div#get_relationship{:style=>"margin-top:-61px;"}
-      = render 'get_relationship'      
+    // *-*-*-*-*-*-*-*-*-*-*-
+    // Selected Relationship
+    // *-*-*-*-*-*-*-*-*-*-*-     
+    %div#get_relationship
+      = render 'get_relationship'     
       
-    %div{:class =>"issueblock", :style=>"float:left;width:1050px;"}
-    
-              
-    .clearboth  
-    - if current_user      
-  
-      %div{:style=>"float:right; margin-top:20px; margin-left:10px;text-align:center;font-size:12px;"}    
-        %div{:class=>"large_icon_box"}
-          = link_to image_tag('/images/issues/history.png'), issue_versions_path(@issue), {:title=>"view all changes", :border=>0, :height=>0}
-        %div{:style=>"font-weight:normal;"}
-          History
-
-    %div{:class=>"created_by"}
-      %span{:style=>"font-size:10px;"}
-        Author:
-      %br
-      
-      // The Issue has an Owner  
-      - if @issue.user
-        %div{:style=>"float:left;"}        
-          - @hash = Digest::MD5.hexdigest(@issue.user.email).to_s
-          %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none; "}
-            %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=40&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
-        %div{:style=>"float:left; margin:5px 0px -5px 3px;"} 
-          %div
-            %a{:href=>"/users/#{@issue.user.id}"}
-              = @issue.user.username
-          %div              
-            = pluralize(@issue.user.issues.length(), "issue")
-        .clearboth
-      - else
-        %div{:style=>"float:left;"}
-          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=40&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
-        %div{:style=>"float:left; margin:5px 0px -5px 3px;"} 
-          %div
-            Anonymous
-        .clearboth
-      
-      .clearboth                  
-              
+    .clearboth                   
 
 #clear{:style => "clear:left;"}
         

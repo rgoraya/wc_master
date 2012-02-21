@@ -1,6 +1,13 @@
 %div{:style=>"float:right;margin:12px 0px -24px -24px;", :id=>"relationship_wait"}
+
+= form_tag "/issues/get_relationship", :id=>"get_relationship_form", :remote=>true, :style=>"display:none;", :method => 'get' do               
+  = text_field_tag :rel_id, params[:rel_id], :align=>"top", :id=>"get_relationship_input"
+  = hidden_field_tag :sentence, params[:sentence], :align=>"top", :id=>"get_rel_sentence_input"
+  = hidden_field_tag :issueid, params[:issueid], :align=>"top", :id=>"get_rel_issueid_input"
+  = submit_tag "submit", :name => nil, :id=>"get_relationship_btn"
+
 - if @relationship
-  %div.title
+  .title
     #title_dynamic_text
       %span#title_issue
         = @rel_issue.title
@@ -9,10 +16,10 @@
       %span#title_relationship
         = @rel_cause.title
         
-  %div.rationale_container
+  .rationale_container
     
-    %div{:style=>"float:left;"}
-      %div.relation_descr
+    .relation_descr_container
+      .relation_descr
             
         .rationale_headers
           Relationship
@@ -39,76 +46,118 @@
           %a{:href=>@rel_cause.wiki_url, :target => "_blank"} more on Wikipedia
 
 
-      %div.relation_discussion
+      .relation_discussion
               
         .rationale_headers
           References  
         .clearboth  
  
-        %div#get_references
+        #get_references
           = render 'get_references', :relationship => @relationship
 
-      %div.relation_discussion
+      .relation_discussion
 
         .rationale_headers
           Comments 
         .clearboth
 
-        %div#get_comments
+        #get_comments
           = render 'get_comments', :relationship => @relationship
       
       .clearboth
-                
-    %div.relation_controls
+    
+    .relation_controls_container            
+      .relation_controls
+    
+        #relation_owner
+          - if @relationship.user       
+            - @rel_owner = Digest::MD5.hexdigest(@relationship.user.email).to_s
+            %a{:href=>"/users/#{@relationship.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
+              %img{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+            .gravatar_text
+              %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'           
+              %br
+              %a{:href=>"/users/#{@relationship.user.id}"}
+                = @relationship.user.username
+              %span.reference_owner_reputation        
+                %b>= @relationship.user.reputation              
+              %br>= pluralize(@relationship.user.relationships.length(), "causal link")
+            .clearboth
+          - else
+            %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
+            .gravatar_text  
+              %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'
+              %br>Anonymous user
+            .clearboth        
   
-      %div#relation_owner
-        - if @relationship.user       
-          - @rel_owner = Digest::MD5.hexdigest(@relationship.user.email).to_s
-          %a{:href=>"/users/#{@relationship.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
-            %img{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
-          .gravatar_text
-            %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'           
-            %br
-            %a{:href=>"/users/#{@relationship.user.id}"}>= @relationship.user.username
-            %br>= pluralize(@relationship.user.relationships.length(), "causal link")
-          .clearboth
-        - else
-          %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
-          .gravatar_text  
-            %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'
-            %br>Anonymous user
-          .clearboth        
+        .discussion_submit
+          %a.med-relation{:href=>"/mapvisualizations?q=show&r=#{@relationship.id}"}
+            Visualize Relation
+        
+        - @permalink = "http://www.thiscausesthat.org/issues/" + @rel_issue.id.to_s + '-' + @rel_issue.permalink + '?rel_type=' + @causal_sentence.gsub(" ", "+") + '&rel_id=' + @relationship.id.to_s
+        .discussion_submit
+          %a.perm-relation{:href=>"#{@permalink}", :target=>"_blank"}
+            Go to Permalink
+        
+        #permalink_display
+          = @permalink
+        
+        - if current_user
+          .relationship_delete
+            = link_to "Delete Relationship", "../relationships/#{@relationship.id}", :confirm => "Are you sure you want to delete the relationship?", :method => :delete, :remote=>true,:title=>"delete this causal link", :class=>"del-relation"
 
-      /%div.discussion_submit{:style=>"margin-bottom:10px;float:none;padding:0px;"}
-      /  .med-relation
-      /    Visualize relation
-      
-      - @permalink = request.protocol + request.host_with_port + "/issues/" + @rel_issue.id.to_s + '-' + @rel_issue.permalink + '?rel_type=' + @causal_sentence.gsub(" ", "+") + '&rel_id=' + @relationship.id.to_s
-      %div.discussion_submit{:style=>"float:none;padding:0px; margin-top:10px;"}
-        %a.perm-relation{:href=>"#{@permalink}", :target=>"_blank"}
-          Go to Permalink
-      
-      #permalink_display
-        = @permalink
-      
-      - if current_user
-        %div{:class=>"relationship_delete"}
-          = link_to "Delete Relationship", "../relationships/#{@relationship.id}", :confirm => "Are you sure you want to delete the relationship?", :method => :delete, :remote=>true, :class=>"del-issue",:title=>"delete this causal link", :class=>"del-relation"
-          //%a{"data-confirm" => "are you sure?", "data-title"=>"Delete Causal Link", "data-remote"=>"true", "data-method" => "delete", :href => "../relationships/#{@relationship.id}", :rel => "nofollow", :title=>"delete this causal link", :class=>"del-relation"} 
-          //  Delete Relationship       
-            
+      .clearboth         
+  
+      .relation_controls 
+  
+        // Uncomment below if Issue owner needs to displayed
+        /#issue_owner
+        /  - if @rel_issue.user       
+        /    - @issue_owner = Digest::MD5.hexdigest(@rel_issue.user.email).to_s
+        /    %a{:href=>"/users/#{@rel_issue.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
+        /      %img{:src=> "http://www.gravatar.com/avatar/#{@issue_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+        /    .gravatar_text
+        /      %span.date_time>= time_ago_in_words(@rel_issue.created_at) + ' ago'           
+        /      %br
+        /      %a{:href=>"/users/#{@rel_issue.user.id}"}>= @rel_issue.user.username
+        /      %br>= pluralize(@rel_issue.user.issues.length(), "issue")
+        /    .clearboth
+        /  - else
+        /    %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
+        /    .gravatar_text  
+        /      %span.date_time>= time_ago_in_words(@rel_issue.created_at) + ' ago'
+        /      %br>Anonymous user
+        /    .clearboth
+  
+    
+        .discussion_submit
+          %a.med-relation{:href=>"/mapvisualizations?q=show&i=#{@rel_issue.id}"}
+            Visualize Issue
+        
+        - if current_user    
+          .discussion_submit
+            = link_to "View History", issue_versions_path(@rel_issue), :class=>"his-relation"
+  
+        - if current_user
+          .discussion_submit
+            .btn_image_edit
+              Edit Issue image
+  
+          #issue_image_edit
+            = render 'issue_image_edit'
+              
     .clearboth
     
 
 - else
-  %div.title
+  .title
     #title_dynamic_text
       %span#title_issue
         = @issue.title
         
-  %div.rationale_container
-    %div{:style=>"float:left;"}
-      %div.relation_descr     
+  .rationale_container
+    .relation_descr_container
+      .relation_descr     
         .rationale_headers
           Wikipedia Description
         .clearboth
@@ -122,12 +171,45 @@
             = @issue.description.html_safe
           %img.linkout{:src=>"/images/system/linkout.png"}
           %a{:href=>@issue.wiki_url, :target => "_blank"} more on Wikipedia
-              
-    %div.relation_controls 
+    
+    .relation_controls_container           
+      .relation_controls 
   
-      %div.discussion_submit{:style=>"margin-bottom:10px;float:none;padding:0px;"}
-        .med-relation
-          Visualize Issue
+        #issue_owner
+          - if @issue.user       
+            - @issue_owner = Digest::MD5.hexdigest(@issue.user.email).to_s
+            %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
+              %img{:src=> "http://www.gravatar.com/avatar/#{@issue_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+            .gravatar_text
+              %span.date_time>= time_ago_in_words(@issue.created_at) + ' ago'           
+              %br
+              %a{:href=>"/users/#{@issue.user.id}"}= @issue.user.username
+              %span.reference_owner_reputation        
+                %b>= @issue.user.reputation
+              %br>= pluralize(@issue.user.issues.length(), "issue")
+            .clearboth
+          - else
+            %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
+            .gravatar_text  
+              %span.date_time>= time_ago_in_words(@issue.created_at) + ' ago'
+              %br>Anonymous user
+            .clearboth
+    
+        .discussion_submit
+          %a.med-relation{:href=>"/mapvisualizations?q=show&i=#{@issue.id}"}
+            Visualize Issue
+        
+        - if current_user    
+          .discussion_submit
+            = link_to "View History", issue_versions_path(@issue), :class=>"his-relation"
+  
+        - if current_user
+          .discussion_submit
+            .btn_image_edit
+              Edit Issue image
+  
+          #issue_image_edit
+            = render 'issue_image_edit'
                       
     .clearboth
     

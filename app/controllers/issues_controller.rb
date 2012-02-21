@@ -42,13 +42,6 @@ require 'backports'
       @causal_sentence = @rel_type
     end
 
-    @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
-    @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
-    @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
-    @issue_inhibited_suggestion = @issue.suggestions.where(:causality => 'R',:status => 'N')
-    @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
-    @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
-
     @references = Issue.rel_references(params[:rel_id])
     
     respond_to do |format|
@@ -72,9 +65,16 @@ require 'backports'
         @rel_id = @issue.relationships.where(:cause_id=>cause.id, :relationship_type=>nil).select('id').first.id
         cause.wiki_url = @rel_id 
       end
+      
       @add_btn_id = "add_cause_btn"
       @causal_sentence = "causes"
-    
+            
+      if @issue_relations.length < 6
+        num_of_suggestions_to_pull = (6 - @issue_relations.length)
+        type_of_suggestions        = @causal_sentence          
+        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+      end
+          
     when "causes"
       # get the causes
       @issue_suggestions = @issue.suggestions.where(:causality => 'E',:status => 'N')
@@ -86,7 +86,13 @@ require 'backports'
       end
       @add_btn_id = "add_effect_btn"
       @causal_sentence = "effects"
-      
+            
+      if @issue_relations.length < 6
+        num_of_suggestions_to_pull = (6 - @issue_relations.length)
+        type_of_suggestions        = @causal_sentence          
+        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+      end
+            
     when "is reduced by"
       # get the causes
       @issue_suggestions = @issue.suggestions.where(:causality => 'I',:status => 'N')
@@ -98,6 +104,12 @@ require 'backports'
       end
       @add_btn_id = "add_inhibitor_btn"
       @causal_sentence = "inhibitors"
+            
+      if @issue_relations.length < 6
+        num_of_suggestions_to_pull = (6 - @issue_relations.length)
+        type_of_suggestions        = @causal_sentence          
+        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+      end
           
     when "reduces"
       # get the inhibiteds
@@ -110,7 +122,13 @@ require 'backports'
       end
       @add_btn_id = "add_inhibited_btn"
       @causal_sentence = "inhibiteds"
-      
+            
+      if @issue_relations.length < 6
+        num_of_suggestions_to_pull = (6 - @issue_relations.length)
+        type_of_suggestions        = @causal_sentence          
+        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+      end
+            
     when "is a subset of"
       # get the causes
       @issue_suggestions = @issue.suggestions.where(:causality => 'P',:status => 'N')
@@ -122,7 +140,13 @@ require 'backports'
       end
       @add_btn_id = "add_superset_btn"
       @causal_sentence = "supersets"
-    
+            
+      if @issue_relations.length < 6
+        num_of_suggestions_to_pull = (6 - @issue_relations.length)
+        type_of_suggestions        = @causal_sentence          
+        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+      end
+          
     when "is a superset of"
       # get the subsets
       @issue_suggestions = @issue.suggestions.where(:causality => 'S',:status => 'N') 
@@ -134,10 +158,39 @@ require 'backports'
       end
       @add_btn_id = "add_subset_btn"
       @causal_sentence = "subsets"
-      
+            
+      if @issue_relations.length < 6
+        num_of_suggestions_to_pull = (6 - @issue_relations.length)
+        type_of_suggestions        = @causal_sentence          
+        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+      end
+            
    end
-
   end
+
+  def retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+    case type_of_suggestions
+    when
+      "causes"
+      @suggestions = @issue.suggestions.where(:causality => 'C',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "effects"
+      @suggestions = @issue.suggestions.where(:causality => 'E',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "inhibitors"
+      @suggestions = @issue.suggestions.where(:causality => 'I',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "inhibiteds"
+      @suggestions = @issue.suggestions.where(:causality => 'R',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "supersets"
+      @suggestions = @issue.suggestions.where(:causality => 'P',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "subsets"
+      @suggestions = @issue.suggestions.where(:causality => 'S',:status => 'N').limit(num_of_suggestions_to_pull)
+    end
+  end
+
 
   def get_relationship
    
@@ -157,7 +210,7 @@ require 'backports'
     end
 
     respond_to do |format|
-      format.html { render :layout=>"issues/get_relationship"}
+      format.html 
       format.xml  { render :xml => @issue }
       format.js
       end 
