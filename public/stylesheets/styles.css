@@ -2331,6 +2331,22 @@ a.issue-user:hover{
 	border-left:none;
 }
 
+#get_relationship .search_appl_submit{
+	background:url("/images/issues/submit_appl.png") no-repeat 5px 4px;
+	border:1px solid #bebebe;
+	height:28px;
+	margin-left:-3px;
+	border-left:none;
+	box-shadow:none;
+} 
+
+#get_relationship .search_appl_submit:hover{	
+	background:url("/images/issues/submit_appl.png") no-repeat 5px -16px;
+	background-color:#4DB8DB;
+	background-size:17px;
+	border:1px solid #4DB8DB;
+	border-left:none;
+}
 
 #issue_search{
 	display:none; 
@@ -3703,10 +3719,15 @@ cursor:default;
 	text-decoration:underline;
 }
 
+.relation_controls{float:left; width:154px; border:1px solid #f5f5f5; padding:10px; background:#fcfcfc;}
+
 .relation_discussion{
-	border:1px solid #ededed;
-	padding:10px;
-	margin-top:15px;
+	float:left;
+	border: 1px solid #f5f5f5;
+	width: 400px;
+	margin: 0px 15px 15px 0px;
+	padding: 10px;
+	background-color: #FCFCFC;
 	}
 	
 .rationale_headers{
@@ -3726,7 +3747,7 @@ cursor:default;
 .discussion_input{
 	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	float:left;
-	width:650px;
+	width:332px;
 	padding:5px; 
 	height:16px;
 	border:1px solid #bebebe;	
@@ -3837,6 +3858,18 @@ cursor:default;
 	list-style-type: none;
 }
 
+.vis-relation{
+	background:url("/images/issues/visualize.png") no-repeat left;
+	background-size:12px;
+	background-position: 5px center;
+	padding:5px;
+	padding-left:17px;	
+	width:128px;
+	text-align: center;	
+	display: list-item;
+	list-style-type: none;
+}
+
 .perm-relation, a.perm-relation{
 	background:url("/images/issues/permalink.png") no-repeat left;
 	background-size:12px;
@@ -3898,14 +3931,23 @@ cursor:default;
 	margin:0px 2px;
 }
 
-.reference_error_text{float:left;margin:5px}
+.reference_delete{float:right; display:none; opacity:0.7; margin-left:-12px;}
+.reference_delete:hover{opacity:1;}
+.reference_container:hover .reference_delete{display:block;}
+.comment_container:hover .reference_delete{display:block;}
+
+.reference_error_text{float:left; margin:5px; max-width:340px; margin-top:0px;}
 
 ul.reference_error_list{margin:0px; padding:0px;}
 
 ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 
 .reference_text, .comment_text{
-	float: left;margin-left: 5px;word-wrap: break-word;	max-width: 790px;	
+	float: left;margin-left: 5px;word-wrap: break-word;	max-width: 345px;	
+}
+
+.reference_text a:hover{
+	text-decoration: underline;	
 }
 
 .clearboth{clear:both;}
