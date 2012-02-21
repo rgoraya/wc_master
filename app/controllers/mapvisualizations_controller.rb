@@ -2,12 +2,14 @@ class MapvisualizationsController < ApplicationController
     
   # GET /mapvisualizations
   def index
-    @default_width = 900*0.8 #defaults
-    @default_height = 675*0.8
+    @default_width = 900*1.0 #defaults
+    @default_height = 675*1.0
     # for large map, 900x900 looks good
     @default_border = 50
     @default_node_count = 5 #40
-    @default_edge_ratio = 0.5 #0.08
+    @default_edge_ratio = 1.0 #0.08
+    
+    @verbose = false
 
     # puts "===Controller Params==="
     # puts params
@@ -15,10 +17,15 @@ class MapvisualizationsController < ApplicationController
     respond_to do |format|
       format.html do #on html calls
 
+        @verbose = !params[:v].nil?
+        puts "verbose", @verbose
+
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
-          :params => {:data_query => params[:q],:data_list => params[:l]}) #on new html--generate graph
+          :params => params) #on new html--generate graph. Just pass in all the params for handling
 
+        flash[:notice] = @vis.notice
+        
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
@@ -28,7 +35,7 @@ class MapvisualizationsController < ApplicationController
 
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
-          :params => {:data_query => params[:q],:data_list => params[:l]}) #grab the old vis, or make a new one if needed
+          :params => {:query => params[:q],:id_list => params[:i]}) #grab the old vis, or make a new one if needed
 
         puts "===format.js params===",params
         
@@ -53,10 +60,12 @@ class MapvisualizationsController < ApplicationController
               @vis.send(params[:layout_cmd]) #if ACTIONS.include?(params[:layout_cmd])
             end
           rescue NoMethodError
-            flash[:error] = 'No such layout command'
+            flash[:notice] = 'No such layout command'
           end
         end
 
+        flash[:notice] = @vis.notice
+        
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end

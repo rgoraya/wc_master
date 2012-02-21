@@ -6,7 +6,6 @@ require 'backports'
   
   def index
     @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
-
     respond_to do |format|
       format.js {render :layout=>false}
       format.html # index.html.erb
@@ -20,7 +19,6 @@ require 'backports'
   def show
     @issue = Issue.find(params[:id]) 
     
-
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
@@ -28,8 +26,41 @@ require 'backports'
       @rel_type = "is caused by"
     end
     
+    # Call to retrieve the corresponding relationships based on the params
+    get_selected_relations
     
+    # Default params to "causes" for initial load
+    if params[:rel_id]
+      @relationship = Relationship.find(params[:rel_id])
+      @rel_references = @relationship.references
+      @rel_issue = Issue.find(@relationship.issue_id)
+      @rel_cause = Issue.find(@relationship.cause_id)
+      @issue_id = params[:issueid]
+      if @issue.id == @rel_cause.id # then swap!
+         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
+      end
+      @causal_sentence = @rel_type
+    end
+
+    @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
+    @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
+    @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
+    @issue_inhibited_suggestion = @issue.suggestions.where(:causality => 'R',:status => 'N')
+    @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
+    @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
+
+    @references = Issue.rel_references(params[:rel_id])
     
+    respond_to do |format|
+      format.html # show.html.erb
+      format.xml  { render :xml => @issue }
+      format.js
+     
+    end
+  end
+  
+  def get_selected_relations
+       
     case @rel_type
 
     when "is caused by"
@@ -100,36 +131,6 @@ require 'backports'
       
    end
 
-    # Default params to "causes" for initial load
-    if params[:rel_id]
-      @relationship = Relationship.find(params[:rel_id])
-      @rel_references = @relationship.references
-      @rel_issue = Issue.find(@relationship.issue_id)
-      @rel_cause = Issue.find(@relationship.cause_id)
-      @issue_id = params[:issueid]
-      if @issue.id == @rel_cause.id # then swap!
-         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
-      end
-      @causal_sentence = @rel_type
-    end
-
-
-    @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
-    @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
-    @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
-    @issue_inhibited_suggestion = @issue.suggestions.where(:causality => 'R',:status => 'N')
-    @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
-    @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
-
-    @references = Issue.rel_references(params[:rel_id])
-    
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @issue }
-      format.js
-     
-    end
   end
 
   def get_relationship
@@ -137,6 +138,9 @@ require 'backports'
    if params[:rel_id]
       @relationship = Relationship.find(params[:rel_id])
       @rel_references = @relationship.references
+
+			@rel_comments = @relationship.comments
+
       @rel_issue = Issue.find(@relationship.issue_id)
       @rel_cause = Issue.find(@relationship.cause_id)
       @issue_id = params[:issueid]
@@ -147,14 +151,19 @@ require 'backports'
     end
 
     respond_to do |format|
-      format.html {render :layout=>"issues/get_relationship"}
+      format.html { render :layout=>"issues/get_relationship"}
       format.xml  { render :xml => @issue }
       format.js
       end 
     
   end
 
-
+  def auto_complete_search
+    @search_results = Issue.search(params[:query]).first(5)
+      respond_to do |format|
+        format.js
+      end 
+  end
 
   # GET /issues/new
   # GET /issues/new.xml
@@ -179,11 +188,14 @@ require 'backports'
 
     # A D D    N E W    C A U S E / E F F E C T
     if params[:action_carrier]
-      # Read in the :type passed with form to recognize whether this is a Cause or Effect
+      # Read in the :type passed with form to recognize Relationship Type
       @causality = params[:action_carrier].to_s
       @causality_id = params[:id_carrier]     
-
-      if Issue.exists?(:wiki_url => [@issue.wiki_url])
+      
+      # Check whether or not this Node exist as an issue already?
+      # IMPORTANT: Keep the search case-insensitive
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      if !@existing_issue.nil?
         add_already_existent_issue
       else
         add_new_issue
@@ -222,13 +234,23 @@ require 'backports'
 
   def retrieve_id_of_issue
     @wikiurl = @issue.wiki_url
-    @issueid = Issue.where(:wiki_url => @wikiurl).select('id').first.id
+    @issueid = @existing_issue.id
   end
 
   def set_relationship_user_id_if_applicable
     if @issue.user_id.to_s != ""
       @relationship.user_id = @issue.user_id  
     end 
+  end
+
+  def update_img_if_applicable
+    #@existing_issue = Issue.find(@issueid)
+    # if the image selected by the user is different than the one saved then update it.
+    if !@existing_issue.nil?
+      if @issue.short_url != @existing_issue.short_url 
+        @existing_issue.update_attribute(:short_url, @issue.short_url)
+      end 
+    end
   end
 
   def add_new_issue
@@ -246,8 +268,8 @@ require 'backports'
       set_type_of_relationship(false)
       save_relationship
     else
-      @notice = @issue.errors.full_messages
-      redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
+      @notice = @issue.errors.full_messages.join(", ")
+      #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
     end  
   end
 
@@ -288,7 +310,8 @@ require 'backports'
 
   def save_relationship
     if @relationship.save
-      remove_duplicate_suggestions 
+      remove_duplicate_suggestions
+      update_img_if_applicable 
       Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:relationship, \
                                    :id=>@relationship.id, \
@@ -296,7 +319,7 @@ require 'backports'
                                    :undo=>false, \
                                    :calculate=>true)
 
-      redirect_to(:back, :notice => @notice)
+      #redirect_to(:back, :notice => @notice)
     else
       error_saving_causal_link
     end   
@@ -312,8 +335,8 @@ require 'backports'
   end
 
   def error_saving_causal_link
-    @notice = @relationship.errors.full_messages
-    redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
+    @notice = @relationship.errors.full_messages.join(", ")
+    #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created') 
   end
 
   #protected
@@ -329,17 +352,30 @@ require 'backports'
 
     @issue = Issue.find(params[:id])
 
-    if params[:previewbutton]
-
+    if params[:update_image]
+      
       @issue.attributes = params[:issue]
-      render :action => "edit"
-      return
+      if @issue.save
+        @notice = "Image replaced!"
+        respond_to do |format|
+          format.html 
+          format.js {render(:layout=>false, :notice => "Done!")}
+        end
+      else
+        @notice = "Cannot Replace!"
+        respond_to do |format|
+          format.html 
+          format.js {render(:layout=>false, :notice => "Done!")}
+        end        
+      end
+      
+
 
     else
 
       respond_to do |format|
         if @issue.update_attributes(params[:issue])
-          format.js {render :layout=>false}
+          format.js   {render :layout=>false}
           format.html { redirect_to(@issue, :notice => 'Issue was successfully updated.') }
           format.xml  { head :ok }
         else
@@ -355,8 +391,9 @@ require 'backports'
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
+    @called_from = params[:called_from]
     @issue.destroy
-
+    
     Reputation::Utils.reputation(:action=>:destroy, \
                                  :type=>:issue, \
                                  :id=>@issue.id, \
@@ -364,9 +401,16 @@ require 'backports'
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
                                  :calculate=>false)
+    
+    
+    
+    @notice = "Issue Deleted!"
+    
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
+      format.js
+      
     end
   end
 
@@ -386,7 +430,6 @@ require 'backports'
     @issue = Issue.find(params[:id])
 		@versions = []
 		if Version.last.id - params[:more].to_i >= 0
-
 			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id - params[:more].to_i, "Relationship"]).each do |version|
 				relationship = version.get_object
 				if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id

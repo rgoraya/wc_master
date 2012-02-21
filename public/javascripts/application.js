@@ -1,6 +1,33 @@
 $(function() {
 
 // -------------------------------------------------------------------------------
+// STUFF TO BE DONE ON THE INITIAL LOAD OF THE PAGE
+// -------------------------------------------------------------------------------
+
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+  if ($.trim($("#error").text()) != "")
+  {
+	  $("#error_container").effect("highlight", {color: '#b84030'}, 800);
+	  $('#error').css("display","block");
+  }
+  
+  $("#error_container a.closebutton").click(function(){
+	  $("#error_container").slideUp(100);
+  });
+
+
+  // D I S M I S S    T H E    F L A S H    N O T I C E
+  if ($.trim($('#notice').text()) != "") {
+  	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
+  	$('#notice').show;
+  }
+  
+	setTimeout(function() {
+	    $('#notice_container').fadeOut('slow');
+	    $('#notice').empty();	
+	}, 3000);
+
+// -------------------------------------------------------------------------------
 // PAGINATION FUNCTIONS FOR ISSUE INDEX AND USER PAGE (DROPPING THEM 
 // IN TO APPLICATION js INSTEAD OF CREATING SEPERATE FILES FOR THEM)
 // -------------------------------------------------------------------------------  
@@ -45,7 +72,7 @@ $(function() {
 		searchDelay(function(){
     		$('#issue_search').html('<div class="search_result_wait"></div>');    		
     		$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
-		}, 500 );     
+		}, 500);     
     
   });
 

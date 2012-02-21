@@ -2,7 +2,7 @@
 // FORM to retrieve the relationship types based on User's selection
 // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
 = form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
-  = text_field_tag :rel_type,@rel_type,:align=>"top", :id=>"select_rel_type"
+  = text_field_tag :rel_type, @rel_type, :align=>"top", :id=>"select_rel_type"
   = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
 
 // *-*-*-*-*-*-*-*-*-*-*-*-*
@@ -43,6 +43,9 @@
           = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
         %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
           = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
+        
+        = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
+           
         %span.relationship_id_store{:style=>"display:none;"}
           = relation.wiki_url       
   
@@ -51,14 +54,12 @@
       No such causal links have been identified yet. 
   
   %div.relationship_addnew
-    %div.relationship_addnew_title
-      %a.poplight{:href => "#", :rel => "popup_name",:title => "add new", :id=>"#{@add_btn_id}"}
-        Add New
+    %div.relationship_addnew_title.poplight{:title => "add new", :id=>"#{@add_btn_id}"}
+      Add New
                   
-    %div.relationship_thumb_addnew
-      %a.poplight{:href => "#", :rel => "popup_name", :title => "add new", :id=>"#{@add_btn_id}"} 
-  %div{:style => "clear:both"}        
-%div{:style => "clear:both"} 
+    %div.relationship_thumb_addnew.poplight{:title => "add new", :id=>"#{@add_btn_id}"} 
+  .clearboth        
+.clearboth 
 
 %div{:class =>"title"}
   - if @issue_relations.length > 0

@@ -8,8 +8,11 @@
   .rationale_container
     .relation_descr        
       .rationale_headers
-        = relation.cause.title + " " + (relation.relationship_type.nil? ? 'increases' : (relation.relationship_type == 'I' ? 'decreases' : 'includes')) + " "+ relation.issue.title
-      .clear_both
+        - causal_sentence_internal = (relation.relationship_type.nil? ? 'causes' : (relation.relationship_type == 'I' ? 'reduces' : 'is+a+superset+of'))
+        - causal_sentence_display = (relation.relationship_type.nil? ? 'increases' : (relation.relationship_type == 'I' ? 'decreases' : 'includes'))
+        - permalink = request.protocol + request.host_with_port + "/issues/" + relation.cause.id.to_s + '-' + relation.cause.permalink + '?rel_type=' + causal_sentence_internal + '&rel_id=' + relation.id.to_s
+        = link_to relation.cause.title+" "+causal_sentence_display+" "+relation.issue.title, permalink, :title=>"View this Relationship"
+      .clearboth
       %p  
         %b
           %span#issue_title_dynamic
@@ -28,8 +31,5 @@
           = relation.issue.description.html_safe
         %img.linkout{:src=>"/images/system/linkout.png"}
         %a{:href=>relation.issue.wiki_url, :target => "_blank"} more on Wikipedia
-      -# printing curve for debugging
-      %p
-        %b Curve: #{curve}
 
-      .clear_both
+      .clearboth

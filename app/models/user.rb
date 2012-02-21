@@ -23,118 +23,9 @@ class User < ActiveRecord::Base
     end
   end
 
-	#def history(options={})
-		#unless (!options.empty? && (options.keys - [:of, :max]).empty? && [:contributions, :reverts, :actitivies].include?(options[:of].to_sym) && options[:max].integer?)
-		#unless (!options.empty? && (options.keys - [:of, :max]).empty? && [:contributions, :reverts, :actitivies].include?(options[:of].to_sym) && options[:max].integer?)
-    
-      #raise ArgumentError, 'Missing or invalid argument :of, :max'
-     # raise ArgumentError, 'Missing or invalid argument :of'
-		#end
 
-		#versions = []
-		#case options[:of]
-		#	when [:contributions] then versions += self.contributions
-		#	when [:reverts] then versions += self.reverts
-		#	when [:activities] then versions += self.activities
-		#end
-		#versions += self.contributions.order('created_at DESC').limit(options[:max].to_i)
-		#versions += self.contributions.order('created_at DESC')
-    #versions.sort!{|a,b| b.created_at <=> a.created_at}
-	
-	#	history=[]	
-	#	versions.each do |version|
-	#		activity={}
-			#action type what time owner score
-	#		activity[:type]=version.item_type
-	#		activity[:time]=version.created_at
-	#		(version.get_object.attributes.has_key?("user_id") && !version.get_object.user_id.nil?) ? activity[:owner]=version.get_object.user : activity[:owner]=nil
-
-	#		case version.item_type
-	#			when 'Issue'
-	#				case version.event
-	#					when 'create' then activity[:action]='created'
-	#					when 'update' then activity[:action]='updated'
-	#					when 'destroy' then activity[:action]='deleted'
-	#				end
-	#				activity[:what]=version.get_object.title
-
-	#			when 'Relationship'
-	#				case version.event
-	#					when 'create' then activity[:action]='linked'
-	#					when 'update' then activity[:action]='updated'
-	#					when 'destroy' then activity[:action]='removed'
-	#				end
-	#				cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.cause_id]).first
-	#				issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', version.get_object.issue_id]).first
-	#				if cause_version.nil? || issue_version.nil?
-	#					activity[:what]='? <data untraceable>'
-	#				else
-	#					activity[:what]=cause_version.get_object.permalink + ' &#x27a1; ' + issue_version.get_object.title
-	#				end
-				
-	#				case version.get_object.relationship_type
-	#					when 'I' then activity[:what] += ' (inhibitory)'
-	#					when 'H' then activity[:what] += ' (set)'
-	#					when nil then activity[:what] += ' (causal)'
-	#				end
-
-	#			when 'Reference'
-	#				case version.event
-	#					when 'create' then activity[:action]='added'
-	#					when 'update' then activity[:action]='updated'
-	#					when 'destroy' then activity[:action]='deleted'
-	#				end
-	#				relationship_version=Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first
-	#				if relationship_version.nil?
-	#					activity[:what]='? <data untraceable>'
-	#					break
-	#				end
-	#				cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.cause_id]).first
-	#				issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.issue_id]).first
-	#				if cause_version.nil? || issue_version.nil?
-	#					activity[:what]='? <data untraceable>'
-	#				else
-	#					activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
-	#				end
-
-	#				case relationship_version.get_object.relationship_type
-	#					when 'I' then activity[:what] += ' (inhibitory)'
-	#					when 'H' then activity[:what] += ' (set)'
-	#					when nil then activity[:what] += ' (causal)'
-	#				end
-
-	#			when 'Suggestion'
-	#				case version.event
-	#					when 'create' then activity[:action]='created'
-	#					when 'update' then ((version.reify.status.eql?('N') && version.get_object.status.eql?('D')) ? activity[:action]='rejected' : activity[:action]='updated')
-	#					when 'destroy' then activity[:action]='deleted'
-	#				end
-	#				activity[:what]=version.get_object.title
-	#		end #case item_type
-
-	#		!activity[:what].include?('untraceable') ? activity[:score]= \
-	#				Reputation::Utils.reputation(:action=>version.event.downcase.to_sym, \
-	#				:type=>version.item_type.downcase.to_sym, \
-	#				:id=>version.item_id.to_i, \
-	#				:me=>version.whodunnit.to_i, \
-	#				:you=>(version.get_object.attributes.has_key?("user_id") ? version.get_object.user_id.to_i : nil), \
-	#			 	:undo=>false, \
-	#				:calculate=>false)[0] : activity[:score]=nil
-
-	#		history << activity
-	#	end #versions.each
-		
-	#	return history
-	#end
 
   def formatted(contrib)
-
-    #unless (!options.empty? && (options.keys - [:of, :max]).empty? && [:contributions, :reverts, :actitivies].include?(options[:of].to_sym) && options[:max].integer?)
-    #unless (!options.empty? && (options.keys - [:of]).empty? && [:contributions, :reverts, :actitivies].include?(options[:of].to_sym))
-    
-      #raise ArgumentError, 'Missing or invalid argument :of, :max'
-    # raise ArgumentError, 'Missing or invalid argument :of'
-    #end
 
     version = contrib
 
@@ -176,7 +67,7 @@ class User < ActiveRecord::Base
           if cause_version.nil? || issue_version.nil?
             activity[:what]='? (data untraceable)'
           else
-            activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
           end
         
           case version.get_object.relationship_type
@@ -206,15 +97,15 @@ class User < ActiveRecord::Base
           	if cause_version.nil? || issue_version.nil?
             	activity[:what]='? (data untraceable)'
           	else
-            	activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            	activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
+          	end
+
+          	case relationship_version.get_object.relationship_type
+            	when 'I' then activity[:what] += ' (Inhibitory)'
+            	when 'H' then activity[:what] += ' (Set)'
+            	when nil then activity[:what] += ' (Causal)'
           	end
 					end
-
-          case relationship_version.get_object.relationship_type
-            when 'I' then activity[:what] += ' (Inhibitory)'
-            when 'H' then activity[:what] += ' (Set)'
-            when nil then activity[:what] += ' (Causal)'
-          end
 
         when 'Suggestion'
           case version.event

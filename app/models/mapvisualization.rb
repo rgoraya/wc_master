@@ -10,7 +10,7 @@ class Mapvisualization #< ActiveRecord::Base
   class Node < Object
     include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
 
-    attr_accessor :id, :name, :url, :location, :static, :d, :a
+    attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
 
     def initialize(id, name, url)
       @id = id #db-level index
@@ -18,6 +18,7 @@ class Mapvisualization #< ActiveRecord::Base
       @url = url
       @location = Vector[0.0,0.0]
       @static = false #should the node move or not
+      @highlighted = false
       @d = Vector[0.0,0.0] #delta variable
       @a = Vector[0.0,0.0] #acceleration variable
     end
@@ -25,34 +26,16 @@ class Mapvisualization #< ActiveRecord::Base
     def to_s
       @id.to_s + ": "+@location.to_s+" ("+@name.to_s + ")"
     end
-
-    #returns a javascript version of the object
-    def js(offset=0)
-      "{id:"+@id.to_s+","+
-      "name:'"+escape_javascript(@name)+"',"+
-      "x:"+(@location[0]+offset).to_s+",y:"+(@location[1]+offset).to_s+","+
-      "url:'"+escape_javascript(@url)+"'}"
-      #can add more fields as needed
-    end
-
-    #returns a unique javascript key for the node object
-    def js_k
-      @id.to_s
-    end
   end  
 
   class Edge < Object
     attr_accessor :id, :a, :b, :rel_type
     include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
 
-    ## IF these change, remember to alter in javascript!
-    DECREASES = 0
-    INCREASES = 1 #constants for relationship type
-    SUPERSET = 4
-    EXPANDABLE = 8
-    HIGHLIGHTED = 16
+    ##a converter for building the edges; can eventually get moved into the db parser (what Eugenia is doing) ??
+    ## where should the bitmask constants be? should I just store rel_type as a string and not deal with it otherwise??
     ##rel_type nil means increases, 'I' means inhibitor (decreases), 'H' means A-superset-B
-    RELTYPE_TO_BITMASK = {nil=>INCREASES, 'I'=>DECREASES, 'H'=>SUPERSET}
+    RELTYPE_TO_BITMASK = {nil=>MapvisualizationsHelper::INCREASES, 'I'=>MapvisualizationsHelper::DECREASES, 'H'=>MapvisualizationsHelper::SUPERSET}
 
     def initialize(id, a, b, rel_type=1)
       @id = id #needed?
@@ -62,118 +45,154 @@ class Mapvisualization #< ActiveRecord::Base
     end
 
     def to_s
-      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'includes')
-      "Edge "+@id.to_s+": "+@a.to_s+" "+conn+" "+@b.to_s
+      "Edge "+@id.to_s+": "+name
     end
 
     def name
-      conn = @rel_type & INCREASES != 0 ? 'increases' : (@rel_type & SUPERSET == 0 ? 'decreases' : 'includes')
+      conn = @rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'increases' : (@rel_type & MapvisualizationsHelper::SUPERSET == 0 ? 'decreases' : 'includes')
       @a.name+" "+conn+" "+@b.name
     end
 
-    #returns a javascript version of the object 
-    #nodeset is the name of the js node array (default to "nodes"), (a and b are references into the nodeset array)
-    def js(nodeset='nodes', count=0)
-      #do we need to also include an id field inside the object?
-      "{id:"+@id.to_s+","+
-      "name:'"+escape_javascript(name)+"',"+
-      "a:"+nodeset+"["+@a.js_k+"],b:"+nodeset+"["+@b.js_k+"]"+","+
-      "reltype:"+@rel_type.to_s+","+
-      "n:"+count.to_s+"}"
-      #can add more fields as needed
-    end
-    
-    #gets a unique key for the edge (A-B) => (AiehB) / (AdB) / (AsB), etc
-    def js_k
-      conn = @rel_type & INCREASES != 0 ? 'i' : (@rel_type & SUPERSET == 0 ? 'd' : 's')
-      conn += 'e'*[(@rel_type&EXPANDABLE),1].min + 'h'*[(@rel_type&HIGHLIGHTED),1].min
-      "'"+@a.js_k+conn+@b.js_k+"'"
-    end
   end
 
 ######## END SUBCLASS DEFINITIONS #########  
 
-  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display
+  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice
+  
+  BAD_PARAM_ERROR = "Please specify what to visualize!"
   
   def initialize(args)    
     #puts args
     @width, @height = args[:width], args[:height]
     @compact_display = false
+    @nodes = args[:nodes] || Hash.new()
+    @edges = args[:edges] || Array.new()
+    @adjacency = args[:adjancecy] || Hash.new(0)
 
-    # check if we have been passed in variables to use
-    if args[:nodes]
-      @nodes = args[:nodes] || Hash.new()
-      @edges = args[:edges] || Array.new()
-      @adjacency = args[:adjancecy] || Hash.new(0)
-    elsif args[:params][:data_query] #did we have a query to use?
-      graph_from_data(args[:params])
-      set_static_nodes
-      place_randomly #how to organize?
-    else
-      #default to random nodes for testing, etc
-      #can instead load top40 default or something
-      reset_graph(args, @width, @height) if @nodes.nil? #currently resets to random IF NOT DEFINED
-    end
-    #@nodes.first[1].static = 'center' ##For testing!!
-  end
-
-
-  # method fetches the Issues and Relationships from the database, dependent on the arguments, and constructs graph
-  # args is probably a hash of something
-  # how much of this should instead be in the controller?
-  def graph_from_data(args)
-    @nodes = Hash.new()
-    @edges = Array.new()
-    @adjacency = Hash.new(0)
-    
-    puts "===graph_from_data args==="
+    puts "===mapvisualization initialize args===" #debugging
     puts args
 
-    query = args[:data_query].downcase
+    handle_params(args[:params],args)
+  end
+
+  # picks the right stuff to display/initialize model with based on passed in parameters
+  def handle_params(params,args) #passing in args for testing still; can eventually get rid of that
+    if params[:q] #do we have a query to use?
+      params[:q] = params[:q].downcase
+
+      ### SHOW PARTICULAR ###
+      if params[:q] == 'show'
+        if params[:i] #show issues
+          static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
+
+          issues, relationships = build_graph(static,40)
+          
+          convert_activerecords(issues,relationships)
+          @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
+          default_layout
+        
+        elsif params[:r] #show relationships
+          static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
+          rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids) #can we clean this up??
+          static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
+          
+          issues, relationships = build_graph(static,40)
+
+          convert_activerecords(issues,relationships)
+          @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
+          default_layout
+        else
+          @notice = BAD_PARAM_ERROR
+        end               
+
+      ### TOP 40 ###
+      elsif params[:q] == 'last40'
+        limit = 40
+        issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit) #get 40 most recent issues
+        #get all relationships between those nodes
+        subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
+        relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
+
+        convert_activerecords(issues,relationships)
+        default_layout
+
+      ### TOP RELATIONSHIPS AND THEIR NODES ###
+      elsif params[:q] == 'mostcited' 
+        limit = 40
+        relationships = Relationship.select("id,cause_id,issue_id,relationship_type").order("references_count DESC,updated_at DESC").limit(limit) #get top rated/most recent relationships
+        #get all nodes linked by those relationships
+        subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit)
+          .flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
+        #puts "===NUMBER OF ISSUES"
+        #puts subquery_list.length
+        issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
+
+        convert_activerecords(issues,relationships)
+        default_layout
+
+      elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
+        issues = Issue.select("id,title,wiki_url")
+        relationships = Relationship.select("id,cause_id,issue_id,relationship_type")
+
+        @compact_display = true #use compact display
+        convert_activerecords(issues,relationships)
+        place_randomly
+
+      ### RANDOM TEST GRAPH ###
+      elsif params[:q] == 'test'
+        reset_graph(args, @width, @height)
+        circle_nodes
+
+        #highlight a few edges (and their nodes) for testing
+        # @edges[1].rel_type = @edges[1].rel_type | MapvisualizationsHelper::HIGHLIGHTED
+        # @edges[1].a.highlighted = true
+        # @edges[1].b.highlighted = true
+        # @edges[2].rel_type = @edges[2].rel_type | MapvisualizationsHelper::HIGHLIGHTED
+        # @edges[2].a.highlighted = true
+        # @edges[2].b.highlighted = true
+  
+      else #if not specified, default to show something
+        @notice = BAD_PARAM_ERROR
+      end
     
-    if query == 'top40' ### TOP 40 ###
-      limit = 40
-      issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit) #get 40 most recent issues
-      #get all relationships between those nodes
-      subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
-      relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
-
-    elsif query == 'mostcited' ### TOP RELATIONSHIPS AND THEIR NODES
-      limit = 40
-      relationships = Relationship.select("id,cause_id,issue_id,relationship_type").order("references_count DESC,updated_at DESC").limit(limit) #get top rated/most recent relationships
-      #get all nodes linked by those relationships
-      subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit)
-        .flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
-      puts "===NUMBER OF ISSUES"
-      puts subquery_list.length
-      issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
-
-    elsif query == 'show' ### SHOW ONLY THE LIST OF NODES
-      #should check for args[:data_list], otherwise error
-      #.class == Array 
-      ## FILL ME IN
-
-    elsif query == 'fill' ### FILL IN THE LIST OF NODES (to 40?)
-      ## FILL ME IN
-
-    elsif query == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
-      @compact_display = true #use compact display
-      issues = Issue.select("id,title,wiki_url")
-      relationships = Relationship.select("id,cause_id,issue_id,relationship_type")
-
-    #can add extra elsifs here
-
-    else
-      #default to first 50 (cause they are connected)? or to what?
-      limit = 40
-      issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
-      #get all relationships between those nodes
-      subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
-      relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
+    ### DEFAULT ###
+    else #if no params
+      issues, relationships = default_graph
+      convert_activerecords(issues,relationships)
+      default_layout
     end
+  end
 
-
-    #once we have our issues and relationships; convert them!
+  # fetch a default graph if options missing??
+  # alternatively, display an error/message somehow??
+  def default_graph
+    #default to first 40 (cause they are connected)? or to what?
+    limit = 40
+    issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
+    #get all relationships between those nodes
+    subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
+    relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
+    return [issues,relationships]
+  end
+  
+  # builds a graph centered around a starting set of nodes.
+  # starting_nodes is a list of node ids; limit is up to how many things we should get
+  def build_graph(starting_nodes, limit)
+    ids = starting_nodes
+    while ids.length < limit
+      new_ids = Relationship.select("issue_id, cause_id").where("relationships.issue_id IN (?) OR relationships.cause_id IN (?)", ids, ids).map {|i| [i.issue_id, i.cause_id]}
+      break if new_ids.length == 0
+      ids = (ids + new_ids).flatten.uniq
+    end
+    
+    issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", ids).limit(limit)
+    subquery_list = issues.map {|i| i.id}
+    relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
+    [issues, relationships]
+  end
+  
+  #converts activerecord arrays into the instance variables we want to use, separate function so we can do further processing later
+  def convert_activerecords(issues,relationships)
     issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
     relationships.each do |rel| 
       node_a = @nodes[rel.cause_id] #note these are the opposite of what I expected
@@ -182,19 +201,6 @@ class Mapvisualization #< ActiveRecord::Base
       @edges.push(Edge.new(rel.id, node_a, node_b, type))
       @adjacency[ [node_a.id, node_b.id] ] += 1 #count the edges between those nodes
     end if !relationships.nil?
-
-    ## ALT: get 40 Issues that have the most relationships
-    ## Issue.find().relationships.length + Issue.find().inverse_relationships.length
-
-    #With our list of issues, get all the relationships between them (a relationship that has a and b in the list)
-    
-    
-    ### ALT: get 20-30 relationships with the most cites
-    ### get the issues that are part of those relationships (unique)
-    
-    
-    #### ALT: do Bill's algorithm for what to get
-
   end
 
   # generates a random graph
@@ -206,12 +212,18 @@ class Mapvisualization #< ActiveRecord::Base
     for i in (1..node_count)
       for j in (1..node_count) #edges in both directions, chance of 1 each way
         if(i!=j and rand() < edge_ratio) #make random edges
-          rel_type = (rand()*15).ceil #get a random set of attributes (rel_type) for that edge
+          rel_type = (rand()*10).ceil #get a random set of attributes (rel_type) for that edge
           @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type))
           @adjacency[[i,j]] += 1 #count the edge
         end
       end
     end
+  end
+
+  # returns whether anything in this graph is highlighted or not.
+  # version in helper currently being used
+  def has_highlighted?(edgeset=@edges)
+    edgeset.find {|e| e.rel_type & MapvisualizationsHelper::HIGHLIGHTED != 0} != nil
   end
 
   #places the static nodes at their desired locations
@@ -220,9 +232,22 @@ class Mapvisualization #< ActiveRecord::Base
       if node.static == 'center'
         node.location = Vector[width/2,height/2]
       elsif node.static == 'stationary' #just leave at location
+      elsif node.static == 'left'
+        node.location = Vector[0,height/2]
+      elsif node.static == 'right'
+        node.location = Vector[0,height/2]
       end
       #can add other handlers if needed
     end
+  end
+
+  # the default set of layout commands (hopefully not slow)
+  def default_layout()
+    set_static_nodes
+    static_wheel_nodes
+    fruchterman_reingold(50) #fast, little bit of layout for now
+    normalize_graph
+    #do_kamada_kawai
   end
 
   # put the nodes into a circle that will fit in the given canvas
@@ -232,6 +257,28 @@ class Mapvisualization #< ActiveRecord::Base
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
       center[0] + (radius * Math.cos(2*Math::PI*i/nodeset.length)), 
       center[1] + (radius * Math.sin(2*Math::PI*i/nodeset.length))] if !nodeset[key].static}
+  end
+
+  # puts the nodes in a circle with the static nodes in a smaller, centered circle
+  def static_wheel_nodes(width=@width, height=@height, nodeset=@nodes)
+    static = Hash.new()
+    nonstatic = Hash.new()
+    nodeset.each do |key,node| 
+      if node.static == 'center'
+        static[key] = node
+      else
+        nonstatic[key] = node 
+      end
+    end
+    
+    circle_nodes(width,height,nonstatic) #circle the nonstatics normally
+
+    # this is just the code from circle_nodes, without the "static" check (and swapped circle list). Not worth factoring out
+    center = Vector[width/2, height/2]
+    radius = (static.length==0 ? 0 : [width,height].min/20)
+    static.each_with_index{|(key, node), i| static[key].location = Vector[
+      center[0] + (radius * -1*Math.cos(2*Math::PI*i/static.length)), 
+      center[1] + (radius * -1*Math.sin(2*Math::PI*i/static.length))]}
   end
 
   # put the nodes into a grid that will fit in the given canvas
@@ -258,9 +305,9 @@ class Mapvisualization #< ActiveRecord::Base
   end
 
   # algorithm from fruchterman_reingold via Kobourov 2004
-  def fruchterman_reingold(width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjacency=@adjacency)
+  def fruchterman_reingold(max_iters=100, width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjacency=@adjacency)
     puts "beginning fruchterman_reingold @ "+Time.now.to_s
-    iterations = 100
+    iterations = max_iters
     area = width*height
     k = nodeset.length > 0 ? Math.sqrt(area/nodeset.length) : 1 #multiply this by .75 to slow it down?
     k2 = k**2
@@ -581,14 +628,5 @@ class Mapvisualization #< ActiveRecord::Base
     nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
                                                 scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}
   end
-  
-  def remove_edges(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)
-    edgeset.clear #clear the edges for testing
-  end
-
-  def force_layout(width=@width, height=@height, nodeset=@nodes, edgeset=@edges)
-    fruchterman_reingold #can specify particular layouts here if we wanted...
-  end
-
 
 end

@@ -1,8 +1,12 @@
+#vis_container {
+	margin-top:10px;
+	margin-left:auto;
+	margin-right:auto
+}
+
 #canvas_container {
   border: 1px solid #bebebe;
   padding:0px;
-/*  margin-left: auto;
-  margin-right: auto;*/
 }
 
 #spinner {

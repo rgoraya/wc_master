@@ -15,7 +15,7 @@
   
   %div{:style=>"float:right; margin:23px 15px -22px 0px;", :id=>"issues_wait"}
              
-  %div{:style=>"clear:both;"}
+  .clearboth
 
 - @userissues.each_slice(2)do |slice|
   %div{:class=>"formcontentdiv", :style=>"margin-right:15px;float:left;width:485px;"}
@@ -30,7 +30,7 @@
       // Only show Edit and Delete if the Issue belongs to current user
       -if current_user
         -if current_user.id == slice[0].user_id    
-          = link_to 'Delete', slice[0], "data-confirm" => "Are you sure you want to delete the issue #{slice[0].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+          = link_to "Delete", issue_path(slice[0], :called_from=>"userissues"),:confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
     
       // author
       - if slice[0].user
@@ -48,7 +48,7 @@
       
         =  time_ago_in_words(slice[0].created_at) + ' ago'         
     
-    %div{:style=>"clear:both"}
+    .clearboth
 
     // Image
     // The corresponding image is set as background of the container div (to attain vertical centering)
@@ -70,7 +70,7 @@
       %a{:href=> slice[0].wiki_url, :target=>"_blank"}
         Read more on Wikipedia
     
-    %div{:style=>"clear:both"}
+    .clearboth
     
   - if !slice[1].nil?   
 
@@ -86,7 +86,7 @@
         // Only show Edit and Delete if the Issue belongs to current user
         -if current_user
           -if current_user.id == slice[1].user_id    
-            = link_to 'Delete', slice[1], "data-confirm" => "Are you sure you want to delete the issue #{slice[1].title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+            = link_to "Delete", issue_path(slice[1], :called_from=>"userissues"),:confirm => "Are you sure you want to delete the issue #{slice[1].title}", :method => :delete, :remote=>true, :class=>"del-issue"
       
         // author
         - if slice[1].user
@@ -104,7 +104,7 @@
         
           =  time_ago_in_words(slice[1].created_at) + ' ago'         
       
-      %div{:style=>"clear:both"}
+      .clearboth
   
       // Image
       // The corresponding image is set as background of the container div (to attain vertical centering)
@@ -126,14 +126,14 @@
         %a{:href=> slice[1].wiki_url, :target=>"_blank"}
           Read more on Wikipedia
       
-      %div{:style=>"clear:both"}
+      .clearboth
 
-  %div{:style=>"clear:both"}  
+  .clearboth  
 
 %div{:style=>"margin:20px 0px 5px 0px; float:right;"}
   = will_paginate (@userissues) , :param_name => 'user_page', :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
 %div{:style=>"float:right; margin:22px 15px -22px 0px;", :id=>"issues_wait"}
 
-%div{:style=>"clear:both"}
+.clearboth
 
          

@@ -7,11 +7,13 @@
   .contentmain
 
 
-    %div{:class=> "formheading"} 
+    %div{:class=> "pageheading"} 
       Sign in to Causality Project
+    .clearboth
+      
     %div{:class => "formcontentdiv"}
       %div{:class=>"centralized"}
-
+    
         = form_for @user_session do |f|
           -if @user_session.errors.any?
             #error_explanation
@@ -30,7 +32,7 @@
 
               %div{:class=>"formlabel"}
                 = f.text_field :username, :class=>"formfield", :autocomplete=>"off"
-              %div{:style=>"clear:both;"}
+              .clearboth
 
             .field
               %div{:class=>"formlabel", :style=>"text-align:right;"}
@@ -39,13 +41,13 @@
                   Enter your password                
               %div{:class=>"formlabel"}
                 = f.password_field :password, :class=>"formfield", :autocomplete=>"off"
-              %div{:style=>"clear:both;"}
+              .clearboth
               %br
 
             .actions
               %div{:class=>"form_button"}
-                = f.submit 'Login', :class=>"save_button", :style=>"background-image:url('/images/system/login1.png')"
-              %div{:style=>"clear:both;"}
+                = f.submit 'Login', :class=>"save_button"
+              .clearboth
 
 
 #clear{:style => "clear:left;"}   
