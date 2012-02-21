@@ -65,6 +65,7 @@ require 'backports'
 
     when "is caused by"
       # get the causes
+      @issue_suggestions = @issue.suggestions.where(:causality => 'C',:status => 'N')
       @issue_relations = @issue.causes.paginate(:per_page => 6, :page => params[:relationship_page])
       # insert relationship_id
       @issue_relations.each do |cause|
@@ -76,6 +77,7 @@ require 'backports'
     
     when "causes"
       # get the causes
+      @issue_suggestions = @issue.suggestions.where(:causality => 'E',:status => 'N')
       @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
       # insert relationship_id
       @issue_relations.each do |effect|
@@ -87,6 +89,7 @@ require 'backports'
       
     when "is reduced by"
       # get the causes
+      @issue_suggestions = @issue.suggestions.where(:causality => 'I',:status => 'N')
       @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
       # insert relationship_id
       @issue_relations.each do |inhibitor|
@@ -98,6 +101,7 @@ require 'backports'
           
     when "reduces"
       # get the inhibiteds
+      @issue_suggestions = @issue.suggestions.where(:causality => 'R',:status => 'N')
       @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:relationship_page])
       # insert relationship_id
       @issue_relations.each do |inhibited|
@@ -109,6 +113,7 @@ require 'backports'
       
     when "is a subset of"
       # get the causes
+      @issue_suggestions = @issue.suggestions.where(:causality => 'P',:status => 'N')
       @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
       # insert relationship_id
       @issue_relations.each do |superset|
@@ -120,6 +125,7 @@ require 'backports'
     
     when "is a superset of"
       # get the subsets
+      @issue_suggestions = @issue.suggestions.where(:causality => 'S',:status => 'N') 
       @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
       # insert relationship_id
       @issue_relations.each do |subset|

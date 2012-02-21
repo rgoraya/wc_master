@@ -52,7 +52,7 @@
           = relation.wiki_url       
 
     - number_of_suggestions = number_of_relations
-    - @issue_cause_suggestion.each do |suggestion|
+    - @issue_suggestions.each do |suggestion|
       %div.relationship_thumb
 
         %div.relationship_thumb_title
@@ -64,6 +64,7 @@
       
       - number_of_suggestions += 1
       - break if (number_of_suggestions == 6)
+
 
   - else
     .relationship_none_found
