@@ -29,8 +29,9 @@ Wikicausality::Application.routes.draw do
   
   
   match 'issues/auto_complete_search' => 'issues#auto_complete_search'
+  match 'issues/get_relationship' => 'issues#get_relationship'
   resources :issues do
-    get  :get_relationship,     :on => :member
+    #get  :get_relationship,     :on => :member
     post :create_reference,     :on => :member
   end
   

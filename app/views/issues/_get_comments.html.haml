@@ -11,7 +11,7 @@
         %img.comment_gravatar{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=26&d=mm"}
       - else
         %img.comment_gravatar{:src=> "http://www.gravatar.com/avatar?s=26&d=mm"}              
-      = f.text_field :content, {:class=>"discussion_input", :placeholder=>"Your commnent...".html_safe, :id=>"com_content_field"}              
+      = f.text_field :content, {:class=>"discussion_input", :placeholder=>"Your commnent...".html_safe, :id=>"com_content_field", :autocomplete=>"off"}              
     .actions
       = f.submit '', :class=>"search_appl_submit", :id=>"comment_collector", :style=>"margin:0px;"
       %div{:style=>"float:left;margin:3px 2px -24px -26px", :id=>"comments_wait"}    
@@ -38,7 +38,8 @@
             %b>= comment.user.reputation
         %span.date_time
           = time_ago_in_words(comment.created_at) + ' ago'
-    - if current_user.id == comment.user_id 
-      .reference_delete
-        = link_to image_tag('/images/system/close1.png', :width=>"12px", :border=>0), comment, :method => :delete, :remote=>true, :class=>"del-comment"
+    -if current_user
+      - if current_user.id == comment.user_id 
+        .reference_delete
+          = link_to image_tag('/images/system/close1.png', :width=>"12px", :border=>0), comment, :method => :delete, :remote=>true, :class=>"del-comment"
     .clearboth

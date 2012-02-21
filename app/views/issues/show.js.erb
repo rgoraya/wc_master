@@ -5,6 +5,12 @@ $('.relationship_thumb, relation_pagination').fadeIn();
 $(".relationship_thumb_title").effect("highlight", {color: '#4DB8DB'}, 500);
 $("#title_filler_text").show();
 
+$(".relationship_thumb_main:first a").click();
+$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
+$("#get_relationship_input").val($('.relationship_id_store:first').text().trim());
+$("#get_rel_sentence_input").val($(".central_causality_container").text().trim());
+$("#get_relationship_btn").trigger('click');
+
 if ($.trim($('#notice').text()) != "") {
 	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
   	$('#notice').show;
@@ -22,3 +28,4 @@ $(".relationship_partial_toggle:contains(" + $(".central_causality_container").t
 $(".relationship_partial_toggle:not(:contains(" + $(".central_causality_container").text() + "))").filter(function(){
 	$(this).show()
 })
+
