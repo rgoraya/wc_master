@@ -1,26 +1,50 @@
+require 'rubygems'
+require 'active_model'
+
 class Graph
 	include ActiveModel::Validations
+
+	# Begin subclass definitions
+	class Node
+		def initialize(id, name, url)
+			@id = id
+			@name = name
+			@url = url
+		end
+	end	
+
+	class Edge
+		def initialize(id, a, b, rel_type)
+			@relationship_id = id
+			@cause_id = a
+			@issue_id = b
+			@rel_type = rel_type
+		end
+	end
+
+	# End subclass definitions
 
 	validates_presence_of :nodes, :edges
 
 	# Initialization and Attributes
 	attr_accessor :nodes, :edges
 	def initialize(issues)
-		# Generates nodes from list of issues
-		@nodes = [] # To do: initialize with Mapviz::Node class
-
-		# Retrieve relationships between issues
-		@edges = [] # To do: Initialize with Mapviz::Edge
-
-		# Placeholder for history
+		# input issues should be
+		@nodes = []
+		@edges = []
+		issues_to_graph = Issue.find(issues)
+		update_graph_contents(issues_to_graph)
 	end
 
 	def initialize
 		# Generates empty graph which can be filled later
 		@nodes = []
 		@edges = []
+	end
 
-		# Placeholder for history
+	def update_graph_contents(issues)
+		@nodes = []
+		@edges = []		
 	end
 
 	# Custom graph generation
@@ -33,19 +57,17 @@ class Graph
 	def get_graph_where (condition, limit)
 	end
 
-	def get_graph_of_most_recent (limit)
+	def get_graph_of_most_recent(limit=50)
+		# Creates a graph of most recently updated issues (default limit 50)
+		issues = Issue.order("updated_at DESC").limit(limit)
+		update_graph_contents(issues)
 	end
 	
-	def get_graph_of_most_connected (limit)
+	def get_graph_of_most_connected (limit)	
 	end
 
 	def get_graph_of_all
+		issues = Issue.find :all
+		update_graph_contents(issues)
 	end
-
-	def get_graph_of_nas
-	end
-
-	# Path finding
 end
-
-
