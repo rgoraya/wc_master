@@ -96,13 +96,12 @@ class Mapvisualization #< ActiveRecord::Base
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
           rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids) #can we clean this up??
           static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
-          
+
           issues, relationships = build_graph(static,40)
 
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
-          
-          default_layout
+          default_layout          
         else
           @notice = BAD_PARAM_ERROR
         end               
@@ -179,9 +178,11 @@ class Mapvisualization #< ActiveRecord::Base
   # builds a graph centered around a starting set of nodes.
   # starting_nodes is a list of node ids; limit is up to how many things we should get
   def build_graph(starting_nodes, limit)
+    #puts "IN BUILD GRAPH"
     ids = Array.new(starting_nodes)
     while ids.length < limit
-      new_ids = Relationship.select("issue_id, cause_id").where("relationships.issue_id IN (?) OR relationships.cause_id IN (?)", ids, ids).map {|i| [i.issue_id, i.cause_id]}
+      new_ids = Relationship.select("issue_id, cause_id").where("(relationships.issue_id IN (?) OR relationships.cause_id IN (?)) AND NOT (relationships.issue_id IN (?) AND relationships.cause_id IN (?))", ids, ids, ids, ids).map {|i| [i.issue_id, i.cause_id]}
+      #puts "IDS",ids,"NEW_IDS", new_ids, "len",new_ids.length   
       break if new_ids.length == 0
       ids = (ids + new_ids).flatten.uniq
     end
@@ -630,7 +631,10 @@ class Mapvisualization #< ActiveRecord::Base
       # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
       #          [center[1]/(far_y-center[1]).abs, 1.0].min]
       scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
-               center[1]/(far_y-center[1]).abs]
+               center[1]/(far_y-center[1]).abs]      
+      scale[0] = 1 if scale[0] == 1.0/0 #if we don't need to stretch, then don't!
+      scale[1] = 1 if scale[1] == 1.0/0
+
       nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
                                                   scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}
     end
