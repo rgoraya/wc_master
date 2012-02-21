@@ -86,8 +86,8 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-          issues, relationships = build_graph(static,40)
-          
+          issues, relationships = build_graph(static,40) #why would this get called later than the default-layout??
+      
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
           default_layout
@@ -101,6 +101,7 @@ class Mapvisualization #< ActiveRecord::Base
 
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
+          
           default_layout
         else
           @notice = BAD_PARAM_ERROR
@@ -178,14 +179,14 @@ class Mapvisualization #< ActiveRecord::Base
   # builds a graph centered around a starting set of nodes.
   # starting_nodes is a list of node ids; limit is up to how many things we should get
   def build_graph(starting_nodes, limit)
-    ids = starting_nodes
+    ids = Array.new(starting_nodes)
     while ids.length < limit
       new_ids = Relationship.select("issue_id, cause_id").where("relationships.issue_id IN (?) OR relationships.cause_id IN (?)", ids, ids).map {|i| [i.issue_id, i.cause_id]}
       break if new_ids.length == 0
       ids = (ids + new_ids).flatten.uniq
     end
-    
-    issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", ids).limit(limit)
+    ids = ids.slice(0,limit-1)
+    issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", ids)
     subquery_list = issues.map {|i| i.id}
     relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
     [issues, relationships]
