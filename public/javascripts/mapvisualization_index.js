@@ -9,16 +9,15 @@ $(document).ready(function(){
   $("#spinner").css('left',$('#canvas_container').width()/2-32)
     .css('top',$('#canvas_container').height()/2-32)
     .toggle();
+	//console.log($("form.button_to"))
   $("form.button_to") //anything formed by the button_to tag apparently
-		.live("ajax:beforeSend", function(evt, data) {
-			console.log("showing spinner")
-      $("#spinner").toggle()
-    })
-		.live("ajax:complete", function(evt, data) {
-			console.log("hiding spinner")
-      $("#spinner").toggle()
-    })
-		.click(function(){console.log("clicked!")})
+		.bind("ajax:beforeSend", function(e) {
+		  $("#spinner").toggle()
+		})
+		.bind("ajax:complete", function(e) {
+		  $("#spinner").toggle()
+		})
+
   // $("#clickForm").live('ajax:complete', function(evt, data) {
   //   show_modal(data);
   //   //$('#clickForm').children().not('#do').remove();

@@ -246,9 +246,9 @@ function clickNode(node){
 }
 
 function clickEdge(edge){
-	curve = getPath(edge);
-	midPoint = getPathCenter(curve);	
-	arrowPath = getArrowPath(midPoint)
+	// curve = getPath(edge);
+	// midPoint = getPathCenter(curve);	
+	// arrowPath = getArrowPath(midPoint)
 	
 	$.ajax({
 		url: '/mapvisualizations',
