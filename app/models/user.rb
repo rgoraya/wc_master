@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  require 'backports'
   
   # following code makes the user model to work as AUTHLOGIC authentication class
   acts_as_authentic
