@@ -3,6 +3,9 @@ class Suggestion < ActiveRecord::Base
   has_paper_trail :on=>[:update], :only=>[:status] 
 
   belongs_to :issue
+  validates_presence_of  :title
+  validates_format_of :causality, :with => /\A[a-zA-Z]\z/
+  validates_format_of :wiki_url, :with => URI::regexp(%w(http https))
 
   KEYWORDS = {  #should be filled with several keywords related to each of the types
     :C => ['cause', 'proposed'],
@@ -57,7 +60,7 @@ class Suggestion < ActiveRecord::Base
     @current_suggested['supersets']  = this_issue.suggestions.where(:causality => 'P').collect{|x| x.wiki_url}
     @current_suggested['inhibited']  = this_issue.suggestions.where(:causality => 'R').collect{|x| x.wiki_url}
     @current_suggested['subsets']    = this_issue.suggestions.where(:causality => 'S').collect{|x| x.wiki_url}
-    {:title=>"Renewable energy", :wiki_url=>"http://en.wikipedia.org/wiki/Renewable_energy", :causality=>"P", :issue_id=>3, :status=>"N"}  end                    
+  end                    
 
   def retrieve_accepted_relations_for_issue(this_issue)
     @accepted['causes']     = this_issue.causes.collect{|x| x.wiki_url}
@@ -77,14 +80,19 @@ class Suggestion < ActiveRecord::Base
 
   def search_word(keyword, relation_type, issue_id)
     relation_occurrences = [ ]
-                                                                        
-    @buffer.search(%Q{//p[text()*= "#{keyword}'"]/a}).each do |relation|
-      relation_suggestion_url            = "http://en.wikipedia.org#{relation.attributes['href']}"
-      relation_suggestion_title          = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
-      occurrence                         = create_relation_occurrence(relation_suggestion_title, relation_suggestion_url, relation_type, issue_id)
 
-      relation_occurrences << occurrence
-    end 
+    @suggestions_counter = 0
+
+    @buffer.search(%Q{//p[text()*= "#{keyword}'"]/a}).each do |relation| unless @suggestions_counter == 6 
+    relation_suggestion_url            = "http://en.wikipedia.org#{relation.attributes['href']}"
+    relation_suggestion_title          = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
+    occurrence                         = create_relation_occurrence(relation_suggestion_title, relation_suggestion_url, relation_type, issue_id)
+    @suggestions_counter += 1
+
+    relation_occurrences << occurrence
+    end end
+
+    @suggestions_counter = 0
 
     relation_occurrences
   end  

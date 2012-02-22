@@ -29,9 +29,9 @@ gem 'sqlite3-ruby', '1.3.2', :require => 'sqlite3'
 # group :development, :test do
 #   gem 'webrat'
 # end
-
 gem "hpricot"
 gem "haml-rails"
+gem 'spork', '~> 0.9.0.rc'
 
 gem 'paper_trail', '~> 2.5.0'
 gem 'will_paginate', '3.0.pre2'
@@ -54,5 +54,12 @@ gem "exception_notification", :require => "exception_notifier"
 gem 'backports'
 
 group :development do
-	gem "hpricot"
+  gem "hpricot"
+end
+group :test do
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'cucumber-rails'
+  gem 'capybara'
+  gem 'database_cleaner'
 end

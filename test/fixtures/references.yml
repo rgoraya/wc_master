@@ -1,9 +1,0 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-one:
-  relationship_id: 1
-  reference_content: MyString
-
-two:
-  relationship_id: 1
-  reference_content: MyString
