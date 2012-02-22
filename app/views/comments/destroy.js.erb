@@ -1,0 +1,14 @@
+$("#get_comments").html("<%= escape_javascript(render('issues/get_comments'))%>")
+
+// Display Notice if Ajax
+$("#notice").html("<%= escape_javascript(@comnotice) %>");
+
+if ($.trim($('#notice').text()) != "") {
+	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
+  	$('#notice').show;
+  }
+
+	setTimeout(function() {
+	    $('#notice_container').fadeOut('slow');
+	    $('#notice').empty();	
+	}, 3000);

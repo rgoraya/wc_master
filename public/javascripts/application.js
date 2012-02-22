@@ -22,9 +22,10 @@ $(function() {
   	$('#notice').show;
   }
   
-  $("#notice_container .closebutton").click(function(){
-  	$("#notice_container").slideUp(100);
-  });
+	setTimeout(function() {
+	    $('#notice_container').fadeOut('slow');
+	    $('#notice').empty();	
+	}, 3000);
 
 // -------------------------------------------------------------------------------
 // PAGINATION FUNCTIONS FOR ISSUE INDEX AND USER PAGE (DROPPING THEM 

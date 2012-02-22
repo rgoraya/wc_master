@@ -426,7 +426,7 @@ z-index:0;
 	text-shadow:0 0px 1px rgba(0,0,0,0.2);
 	color: #434343;
 	margin:0px 5px 5px 0px;
-	max-width: 275px;
+	max-width: 250px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;	
@@ -943,7 +943,7 @@ z-index:0;
 	/*background-color:#4DB8DB;*/
 	font:bold 26px "lucida grande",tahoma,verdana,arial,sans-serif;
 	padding:10px 15px 10px 15px;
-	margin:10px 0px 10px 0px ;
+	margin:0px -15px 10px -15px;
 	text-align:left;
 	text-shadow:0px 1px 1px #fff;
 	color: #434343; 
@@ -1496,7 +1496,7 @@ word-wrap:break-word;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
 	/* Positioning */
-	position: absolute; 
+	position: fixed; 
 	z-index:2;
 	top: 3px; 
 	left: 50%;
@@ -2331,6 +2331,22 @@ a.issue-user:hover{
 	border-left:none;
 }
 
+#get_relationship .search_appl_submit{
+	background:url("/images/issues/submit_appl.png") no-repeat 5px 4px;
+	border:1px solid #bebebe;
+	height:28px;
+	margin-left:-3px;
+	border-left:none;
+	box-shadow:none;
+} 
+
+#get_relationship .search_appl_submit:hover{	
+	background:url("/images/issues/submit_appl.png") no-repeat 5px -16px;
+	background-color:#4DB8DB;
+	background-size:17px;
+	border:1px solid #4DB8DB;
+	border-left:none;
+}
 
 #issue_search{
 	display:none; 
@@ -2515,7 +2531,7 @@ a.issue-user:hover{
 	height:50px; width:50px;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:50px auto;
+	background-size:auto;
 	text-align:center;
 	margin-right:5px;
 	display:none;
@@ -2539,7 +2555,12 @@ a.issue-user:hover{
 	left:32px;
 }
 
-.check_empty{
+.image_edit_container .checkcontainer{
+	top:22px;
+	left:22px;
+}
+
+.check_empty, .check_empty_edit {
 	height:18px; width:18px;
 	background-position:center center;
 	background-repeat:no-repeat;
@@ -2549,7 +2570,7 @@ a.issue-user:hover{
 	display:none; 	
 }
 
-.check_clicked{
+.check_clicked, .check_clicked_edit{
 	height:18px; width:18px;
 	background-position:center center;
 	background-repeat:no-repeat;
@@ -2954,12 +2975,12 @@ text-decoration:none;
 	height:18px;	
 }
 
-.btn_close:hover, btn_close:hover {
+.btn_close:hover {
 	background-image:url('/images/system/close1.png');
 	background-color:#2f2f2f;
 }
 
-.btn_close:active, btn_close:active {
+.btn_close:active{
 	background-image:url('/images/system/close1.png'), -webkit-gradient(linear, left bottom, left top, from(#2f2f2f), to(#434343)); 
 	background-image:url('/images/system/close1.png'), -moz-linear-gradient(center bottom, #2f2f2f 0%, #434343 100%);
 }
@@ -3292,7 +3313,7 @@ cursor:default;
 .issue_thumb_blanket{
 	float: left;
 	background-color: #434343;
-	padding: 10px 15px 0px 15px;
+	padding: 15px;
 	padding-right: 10px;
 	
 }
@@ -3332,7 +3353,7 @@ cursor:default;
 	height:90px; width:140px; border:4px solid #2f2f2f;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:150px auto;
+	background-size:auto 90px;
 	text-align:center;
 	background-color:#fcfcfc;
 	}
@@ -3346,7 +3367,7 @@ cursor:default;
 .causality_types{
 	font: bold 11px "lucida grande",tahoma,verdana,arial,sans-serif;		
 	float:left;
-	padding:10px 0px 0px 0px;
+	padding:15px 0px 0px 0px;
 	background-color:#434343;
 }	
 
@@ -3389,7 +3410,7 @@ cursor:default;
 	background-color: #434343;
 	width: 780px;
 	margin-left: 0px;
-	padding: 10px 5px 0px 5px;
+	padding: 15px 5px 0px 5px;
 	padding-left: 0px;
 }
 
@@ -3446,6 +3467,12 @@ cursor:default;
 	word-wrap: break-word;
 }
 
+.relationship_thumb:hover .relationship_suggestion_title{
+	overflow:visible;
+	white-space:normal;
+	word-wrap: break-word;
+}
+
 .relationship_addnew{
 	float:left;
 	margin:0px 0px 0px 10px;
@@ -3454,6 +3481,33 @@ cursor:default;
 	float:right;
 	margin-right:10px;
 	}
+
+.relationship_thumb_suggestion{
+	height:90px; border:4px solid #2f2f2f;
+	background-position:center 40px;
+	background-repeat:no-repeat;
+	background-size:40px;
+	text-align:center;	
+	background-image:url('/images/issues/ques.png'); 
+	width:90px;
+	background-color:#505050;
+}
+
+.relationship_suggestion_title{
+	width:86px;
+	padding:4px 1px;
+	margin:4px;
+	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color:#fcfcfc;
+	text-align:center;
+	background:#2f2f2f;
+	position:absolute;
+	opacity:0.8;
+	border: 1px solid #4DB8DB;	
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap;
+}
 
 
 .relationship_thumb_addnew{
@@ -3521,9 +3575,39 @@ cursor:default;
 .add_new_relation_modal{
 	width: 320px;
 	float: right;
-	margin: -71px 15px -400px 0px;
+	margin: -10px 15px -400px 0px;
 	position:relative;
 	z-index: 1;
+}
+
+.edit_image_modal{
+	width: 150px;
+	margin: 2px 0px -400px 0px;
+	position:absolute;
+	z-index: 1;
+	display:none;	
+}
+
+.image_edit_container{
+	background:#2f2f2f; padding:5px;clear:both;box-shadow:rgba(0, 0, 0, 0.5) 0 3px 8px; text-align: center;display:none;
+}
+
+.image_edit_container_wait{
+	width:100%; background:url('/images/system/spinnef2f.gif') no-repeat center; background-color:#2f2f2f; position:absolute; height:98px;
+}
+
+.image_edit_option{
+	background:url('/images/issues/image.png') no-repeat center center;
+	background-size:auto 40px;
+	height:40px; width:40px;
+	background-color:#fcfcfc;
+	border:1px solid #f5f5f5;
+	margin-right:7px;
+	float:left; 
+}
+
+#image_edit_option3{
+	margin-right:0px;
 }
 
 .add_new_relation_arrow{
@@ -3535,6 +3619,11 @@ cursor:default;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-bottom: 10px solid #2f2f2f;		
+}
+
+.edit_image_modal .add_new_relation_arrow{
+	margin:0 auto;
+	float:none;
 }
 
 .main_container{
@@ -3670,10 +3759,17 @@ cursor:default;
 	text-decoration:underline;
 }
 
+.relation_descr_container{float:left;}
+.relation_controls_container{float:right;}
+.relation_controls{width:154px; border:1px solid #f5f5f5; padding:10px; background:#fcfcfc; margin-bottom:15px;}
+
 .relation_discussion{
-	border:1px solid #ededed;
-	padding:10px;
-	margin-top:15px;
+	float:left;
+	border: 1px solid #f5f5f5;
+	width: 400px;
+	margin: 0px 15px 15px 0px;
+	padding: 10px;
+	background-color: #FCFCFC;
 	}
 	
 .rationale_headers{
@@ -3693,7 +3789,7 @@ cursor:default;
 .discussion_input{
 	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	float:left;
-	width:650px;
+	width:332px;
 	padding:5px; 
 	height:16px;
 	border:1px solid #bebebe;	
@@ -3738,8 +3834,19 @@ cursor:default;
 	background:#2f2f2f;
 }
 
-.discussion_submit:click{
-	background:inherit;
+.discussion_submit:active{
+	background: -webkit-gradient(linear, left bottom, left top, from(#2f2f2f), to(#434343));
+	background: -moz-linear-gradient(center bottom, #2f2f2f 0%, #434343 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#434343, endColorstr=#2f2f2f);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#434343', endColorstr='#2f2f2f')";
+}
+
+.relation_controls .discussion_submit{
+	margin-bottom:-1px;float:none;padding:0px;
+}
+
+#issue_image_edit .discussion_submit{
+	margin-bottom:0px;	margin-top:5px;	float:none;	padding:5px;
 }
 
 .relationship_delete{ 
@@ -3754,7 +3861,6 @@ cursor:default;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
 	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
-	float:right;
 	border-top: 2px groove #CD796E;
 	border-left: 2px groove #CD796E;
 	border-bottom: 2px ridge #B80000;
@@ -3792,7 +3898,7 @@ cursor:default;
 	text-decoration:none;		
 }
 
-.med-relation{
+.med-relation, a.med-relation{
 	background:url("/images/issues/intermediate.png") no-repeat left;
 	background-size:12px;
 	background-position: 5px center;
@@ -3802,6 +3908,36 @@ cursor:default;
 	text-align: center;	
 	display: list-item;
 	list-style-type: none;
+	color:#fcfcfc;
+	text-decoration: none;
+}
+
+.his-relation, a.his-relation{
+	background:url("/images/issues/history.png") no-repeat left;
+	background-size:12px;
+	background-position: 5px center;
+	padding:5px;
+	padding-left:17px;	
+	width:128px;
+	text-align: center;	
+	display: list-item;
+	list-style-type: none;
+	color:#fcfcfc;
+	text-decoration:none;
+}
+
+.btn_image_edit{
+	background:url("/images/issues/image_edit.png") no-repeat left;
+	background-size:12px;
+	background-position: 5px center;
+	padding:5px;
+	padding-left:17px;	
+	width:128px;
+	text-align: center;	
+	display: list-item;
+	list-style-type: none;
+	color:#fcfcfc;
+	text-decoration:none;
 }
 
 .perm-relation, a.perm-relation{
@@ -3818,10 +3954,16 @@ cursor:default;
 	text-decoration:none;
 }	
 
-#relation_owner{
+#relation_owner, #issue_owner{
 	color:#434343;
 	font-size:12px;
+	margin-bottom:10px;
 }
+
+#relation_owner a:hover, #issue_owner a:hover{
+	text-decoration: underline;
+}
+
 
 #relation_owner a{
 	color:#4DB8DB;
@@ -3865,14 +4007,24 @@ cursor:default;
 	margin:0px 2px;
 }
 
-.reference_error_text{float:left;margin:5px}
+.reference_delete{float:right; display:none; opacity:0.7; margin-left:-14px; padding:1px;}
+.reference_delete:hover{opacity:1;}
+.reference_delete:active{opacity:0.6;background:#bebebe;}
+.reference_container:hover .reference_delete{display:block;}
+.comment_container:hover .reference_delete{display:block;}
+
+.reference_error_text{float:left; margin:5px; max-width:340px; margin-top:0px;}
 
 ul.reference_error_list{margin:0px; padding:0px;}
 
 ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 
 .reference_text, .comment_text{
-	float: left;margin-left: 5px;word-wrap: break-word;	max-width: 790px;	
+	float: left;margin-left: 5px;word-wrap: break-word;	max-width: 345px;	
+}
+
+.reference_text a:hover{
+	text-decoration: underline;	
 }
 
 .clearboth{clear:both;}
@@ -3911,6 +4063,8 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#434343', endColorstr='#2f2f2f')";
 	opacity:1;
 }
+
+.issue_thumb_blanket .issue_linkout{display:block;cursor:pointer;}
 
 .poplight, .closebutton{
 	cursor:pointer;

@@ -1,12 +1,109 @@
+#vis_container {
+	margin-top:10px;
+	margin-left:auto;
+	margin-right:auto
+}
+
 #canvas_container {
   border: 1px solid #bebebe;
+  padding:0px;
 }
 
-.centered_spinner {
+#spinner {
   position: relative;
-  top: -250px;
+  z-index:1;
+  margin-bottom:-64px;
 }
 
+.absolute_position {
+  position:absolute;
+}
+
+#modal_container {
+  /* popup window with things inside it */
+  display:none; /*to start*/
+  position: relative;
+  width:400px;
+  height:150px;
+}
+
+#modal_fill {
+  background-color: #FCFCFC;
+  padding: 0px;
+  width:400px;
+  height:150px;
+  overflow:auto;
+  clear:both;
+  border: 1px solid #2F2F2F;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.up_pointer_arrow {
+  display:none; /*hide by default*/
+  clear:both;
+	width: 0px;
+	height: 0;
+	float:right;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-bottom: 20px solid #2f2f2f;
+}
+
+.down_pointer_arrow {
+  display:none; /*hide by default*/
+  clear:both;
+	width: 0px;
+	height: 0;
+	float:right;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 20px solid #2f2f2f;
+}
+
+#issue_modal {}
+
+#issue_modal .formcontentdiv { /*overwrite base form*/
+  border:0px; 
+  padding: 5px 10px;
+	font-size: 12px;
+}
+
+#relation_modal {}
+
+#relation_modal .rationale_container {
+  margin:0px;
+  padding:0px;
+}
+
+#relation_modal .rationale_headers {
+  /* adapted from .formheading */
+  padding:0px 0px 0px 0px;
+	margin:0px;
+	margin-top:-1px;
+	width:auto;
+	background-color:#FFFFFF;
+	font:bold 16px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	color: #434343;
+	text-decoration:none;
+	text-shadow:0 0px 1px rgba(0,0,0,0.2);
+}
+
+#relation_modal .relation_descr {
+  border:0px;
+  margin:0px;
+  width:auto;
+  font-size:12px;
+}
+
+#interact_form {
+  display: none;
+}
+
+
+/*** 
+ *** LAYOUT BUTTONS 
+ ***/
+ 
 #reset_form {
   width: 300px;
 }

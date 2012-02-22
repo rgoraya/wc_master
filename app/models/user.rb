@@ -1,11 +1,12 @@
 class User < ActiveRecord::Base
+  require 'backports'
   
   # following code makes the user model to work as AUTHLOGIC authentication class
   acts_as_authentic
 
 	has_many :activities, :class_name=>'Version', :foreign_key=>:whodunnit
-	has_many :contributions, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS ?', nil]
-	has_many :reverts, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS NOT ?',nil]
+	has_many :contributions, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS ? AND NOT(item_type = ?)', nil, 'Suggestion']
+	has_many :reverts, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS NOT ? AND NOT(item_type = ?)',nil, 'Suggestion']
 
   has_many :issues
   has_many :relationships
@@ -66,7 +67,7 @@ class User < ActiveRecord::Base
           if cause_version.nil? || issue_version.nil?
             activity[:what]='? (data untraceable)'
           else
-            activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
           end
         
           case version.get_object.relationship_type
@@ -96,7 +97,7 @@ class User < ActiveRecord::Base
           	if cause_version.nil? || issue_version.nil?
             	activity[:what]='? (data untraceable)'
           	else
-            	activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            	activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
           	end
 
           	case relationship_version.get_object.relationship_type
@@ -112,7 +113,7 @@ class User < ActiveRecord::Base
               activity[:action]='Created'
               activity[:icon_position]='0px -40px'
             when 'update' 
-              ((version.reify.status.eql?('N') && version.get_object.status.eql?('D')) ? activity[:action]='rejected' : activity[:action]='Updated')
+              ((version.reify.status.eql?('N') && version.get_object.status.eql?('D')) ? activity[:action]='Rejected' : activity[:action]='Updated')
               activity[:icon_position]='-20px -40px'
             when 'destroy' 
               activity[:action]='Deleted'

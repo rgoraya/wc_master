@@ -2,7 +2,7 @@
 // FORM to retrieve the relationship types based on User's selection
 // *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
 = form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
-  = text_field_tag :rel_type,@rel_type,:align=>"top", :id=>"select_rel_type"
+  = text_field_tag :rel_type, @rel_type, :align=>"top", :id=>"select_rel_type"
   = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
 
 // *-*-*-*-*-*-*-*-*-*-*-*-*
@@ -49,7 +49,21 @@
         %span.relationship_id_store{:style=>"display:none;"}
           = relation.wiki_url       
   
-  - else
+  - if @suggestions.length > 0
+    - @suggestions.each do |suggestion|
+      
+      %div.relationship_thumb
+  
+        .relationship_suggestion_title
+          = suggestion.title
+        .relationship_thumb_suggestion
+              
+        /= link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
+        
+        /%span.relationship_id_store{:style=>"display:none;"}
+        /  = relation.wiki_url       
+  
+  - if !(@suggestions.length + @issue_relations.length > 0)
     .relationship_none_found
       No such causal links have been identified yet. 
   
@@ -61,12 +75,12 @@
   .clearboth        
 .clearboth 
 
-%div{:class =>"title"}
-  - if @issue_relations.length > 0
-    #title_filler_text
-      Please select one of the
-      %span#title_filler_causality
-        = @causal_sentence.capitalize
-      above to learn more
+/%div{:class =>"title"}
+/  - if @issue_relations.length > 0
+/    #title_filler_text
+/      Please select one of the
+/      %span#title_filler_causality
+/        = @causal_sentence.capitalize
+/      above to learn more
   
   

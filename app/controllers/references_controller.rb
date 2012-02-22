@@ -88,14 +88,18 @@ class ReferencesController < ApplicationController
   # DELETE /references/1.xml
   def destroy
     @reference = Reference.find(params[:id])
+    
+    @relationship = Relationship.find(@reference.relationship_id)
+
     @reference.destroy
 
 		Reputation::Utils.reputation(:action=>:destroy, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>true)
 
-
+    @refnotice = "Reference Deleted!"
     respond_to do |format|
       format.html { redirect_to(references_url) }
       format.xml  { head :ok }
+      format.js
     end
   end
 end

@@ -1,54 +1,62 @@
 = stylesheet_link_tag "vis_style"
+= stylesheet_link_tag "jquery.qtip.min"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
+  #vis_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
   #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
+/= javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"
+/= javascript_include_tag :defaults #make sure we include the jquery we need, I guess
+= javascript_include_tag "jquery.qtip.min.js"
 = javascript_include_tag "raphael-min.js" #for drawing
-= javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"
 
 -# specifies the data that we're going to be working with in javascript
 :javascript
   #{javascript_graph(@vis.nodes,@vis.edges)}
-  #{load_raphael}
+  #{load_raphael(@vis.compact_display)}
+  //var notice_msg = "#{escape_javascript(flash[:notice])}";
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
+= javascript_include_tag "mapvisualization_index.js" #for interaction/ajax stuff
 
--#to put a "loading" icon on ajax stuff
-:javascript
-  $(document).ready(function(){
-    $("#spinner").toggle()
-    $("form.button_to") //anything formed by the button_to tag apparently
-      .bind("ajax:beforeSend", function() {
-        $("#spinner").toggle()
-      })
-      .bind("ajax:complete", function() {
-        $("#spinner").toggle()
-      })
-  });
+#contentwrapper
+  .contentmain
+    #vis_container
+      #spinner
+        = image_tag "system/spinner.gif", :size => "64x64"
+      #canvas_container
+      .absolute_position
+        #modal_container
+          .up_pointer_arrow
+          #modal_fill
+          .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
+          .down_pointer_arrow
+    #interaction{:style => (@verbose ? "" : "display:none")}
+      #reset_form
+        = form_tag({:action => "index", :layout_cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
+          #inputs
+            = label_tag "Number of Nodes:"
+            = number_field_tag "args[node_count]", @default_node_count, :in => 1...100
+            %br
+            = label_tag "Ratio of Edges:"
+            = number_field_tag "args[edge_ratio]", @default_edge_ratio, :min => 0.0, :max => 1.0, :step => 0.01
+          #reset
+            = submit_tag "Reset Graph"
+      #other_buttons
+        = button_to "Random Spread", {:action => "index", :layout_cmd => 'place_randomly'}, {:remote => true, :method => :get}
+        = button_to "Normalize Graph", {:action => "index", :layout_cmd => 'normalize_graph'}, {:remote => true, :method => :get}
+        = button_to "Circle Nodes", {:action => "index", :layout_cmd => 'circle_nodes'}, {:remote => true, :method => :get}
+        = button_to "Grid Nodes", {:action => "index", :layout_cmd => 'grid_nodes'}, {:remote => true, :method => :get}
+        = button_to "Static Wheel", {:action => "index", :layout_cmd => 'static_wheel_nodes'}, {:remote => true, :method => :get}
+        = button_to "Fruchterman Layout", {:action => "index", :layout_cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
+        / = button_to "Springy Layout", {:action => "index", :layout_cmd => 'springy'}, {:remote => true, :method => :get}
+        = button_to "Kamada Layout", {:action => "index", :layout_cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
+        / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+      #interact_form
+        = form_tag({:action => "index"}, {:id => "clickForm", :remote => true, :method => :get}) do
+          = text_field_tag "do"
+    #debug{:style => (@verbose ? "" : "display:none")}
+      %b Some notes:
+      Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
+      Springy is good for disconnected graphs, but can be slow depending on initial layout (can also tweak speed parameters if needed).
 
-
-#canvas_container
-  = image_tag "system/spinner.gif", :size => "64x64", :id => "spinner", :class => "centered_spinner"
-#interaction
-  / = button_to_function("Button to do Javascript function", "alert('No function here yet!')")
-  #reset_form
-    = form_tag({:action => "index", :cmd => 'reset_graph'}, {:remote => true, :method => :get}) do
-      #inputs
-        = label_tag "Number of Nodes:"
-        = number_field_tag "args[node_count]", @default_node_count, :in => 1...100
-        %br
-        = label_tag "Ratio of Edges:"
-        = number_field_tag "args[edge_ratio]", @default_edge_ratio, :min => 0.0, :max => 1.0, :step => 0.01
-      #reset
-        = submit_tag "Reset Graph"
-  #other_buttons
-    = button_to "Random Spread", {:action => "index", :cmd => 'place_randomly'}, {:remote => true, :method => :get}
-    = button_to "Normalize Graph", {:action => "index", :cmd => 'normalize_graph'}, {:remote => true, :method => :get}
-    = button_to "Circle Nodes", {:action => "index", :cmd => 'circle_nodes'}, {:remote => true, :method => :get}
-    = button_to "Fruchterman Layout", {:action => "index", :cmd => 'fruchterman_reingold'}, {:remote => true, :method => :get}
-    = button_to "Springy Layout", {:action => "index", :cmd => 'springy'}, {:remote => true, :method => :get}
-    = button_to "Kamada Layout", {:action => "index", :cmd => 'kamada_kawai'}, {:remote => true, :method => :get}
-    / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
-#debug
-  %b Some notes:
-  Kamada gives fast and pretty results for connected graphs (remember to normalize afterwards!).
-  Springy is good for disconnected graphs, but can be slow depending on initial layout (can also tweak speed parameters if needed).
+.clearboth

@@ -26,6 +26,34 @@ require 'backports'
       @rel_type = "is caused by"
     end
     
+    # Call to retrieve the corresponding relationships based on the params
+    get_selected_relations
+    
+    # Default params to "causes" for initial load
+    if params[:rel_id]
+      @relationship = Relationship.find(params[:rel_id])
+      @rel_references = @relationship.references
+      @rel_issue = Issue.find(@relationship.issue_id)
+      @rel_cause = Issue.find(@relationship.cause_id)
+      @issue_id = params[:issueid]
+      if @issue.id == @rel_cause.id # then swap!
+         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
+      end
+      @causal_sentence = @rel_type
+    end
+
+    @references = Issue.rel_references(params[:rel_id])
+    
+    respond_to do |format|
+      format.html # show.html.erb
+      format.xml  { render :xml => @issue }
+      format.js
+     
+    end
+  end
+  
+  def get_selected_relations
+       
     case @rel_type
 
     when "is caused by"
@@ -37,8 +65,8 @@ require 'backports'
         cause.wiki_url = @rel_id 
       end
       @add_btn_id = "add_cause_btn"
-      @causal_sentence = "causes"
-    
+      @causal_sentence = "causes"     
+          
     when "causes"
       # get the causes
       @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
@@ -49,7 +77,7 @@ require 'backports'
       end
       @add_btn_id = "add_effect_btn"
       @causal_sentence = "effects"
-      
+            
     when "is reduced by"
       # get the causes
       @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
@@ -71,7 +99,7 @@ require 'backports'
       end
       @add_btn_id = "add_inhibited_btn"
       @causal_sentence = "inhibiteds"
-      
+                    
     when "is a subset of"
       # get the causes
       @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
@@ -82,7 +110,7 @@ require 'backports'
       end
       @add_btn_id = "add_superset_btn"
       @causal_sentence = "supersets"
-    
+          
     when "is a superset of"
       # get the subsets
       @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
@@ -93,38 +121,40 @@ require 'backports'
       end
       @add_btn_id = "add_subset_btn"
       @causal_sentence = "subsets"
-      
-   end
-
-    # Default params to "causes" for initial load
-    if params[:rel_id]
-      @relationship = Relationship.find(params[:rel_id])
-      @rel_references = @relationship.references
-      @rel_issue = Issue.find(@relationship.issue_id)
-      @rel_cause = Issue.find(@relationship.cause_id)
-      @issue_id = params[:issueid]
-      if @issue.id == @rel_cause.id # then swap!
-         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
-      end
-      @causal_sentence = @rel_type
-    end
-
-    @issue_cause_suggestion = @issue.suggestions.where(:causality => 'C',:status => 'N')
-    @issue_effect_suggestion = @issue.suggestions.where(:causality => 'E',:status => 'N')
-    @issue_inhibitor_suggestion = @issue.suggestions.where(:causality => 'I',:status => 'N')
-    @issue_inhibited_suggestion = @issue.suggestions.where(:causality => 'R',:status => 'N')
-    @issue_parent_suggestion = @issue.suggestions.where(:causality => 'P',:status => 'N')
-    @issue_subset_suggestion = @issue.suggestions.where(:causality => 'S',:status => 'N')    
-
-    @references = Issue.rel_references(params[:rel_id])
-    
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @issue }
-      format.js
-     
+            
+   	end
+		if @issue_relations.length < 6
+      num_of_suggestions_to_pull = (6 - @issue_relations.length)
+      type_of_suggestions        = @causal_sentence          
+      retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+		else
+			@suggestions = []
     end
   end
+
+  def retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+    case type_of_suggestions
+    when
+      "causes"
+      @suggestions = @issue.suggestions.where(:causality => 'C',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "effects"
+      @suggestions = @issue.suggestions.where(:causality => 'E',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "inhibitors"
+      @suggestions = @issue.suggestions.where(:causality => 'I',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "inhibiteds"
+      @suggestions = @issue.suggestions.where(:causality => 'R',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "supersets"
+      @suggestions = @issue.suggestions.where(:causality => 'P',:status => 'N').limit(num_of_suggestions_to_pull)
+    when
+      "subsets"
+      @suggestions = @issue.suggestions.where(:causality => 'S',:status => 'N').limit(num_of_suggestions_to_pull)
+    end
+  end
+
 
   def get_relationship
    
@@ -144,7 +174,7 @@ require 'backports'
     end
 
     respond_to do |format|
-      format.html { render :layout=>"issues/get_relationship"}
+      format.html 
       format.xml  { render :xml => @issue }
       format.js
       end 
@@ -222,9 +252,11 @@ require 'backports'
     @relationship = Relationship.new
     set_relationship_user_id_if_applicable 
     set_type_of_relationship(true)
+
 		if !check_if_same_relationship_existed       
     	save_relationship
 		end  
+
   end
 
   def retrieve_id_of_issue
@@ -261,7 +293,7 @@ require 'backports'
       @relationship = Relationship.new
       set_relationship_user_id_if_applicable
       set_type_of_relationship(false)
-      save_relationship #I don't add "check_if_same_relationship_existed" because of the assumption that an issue will never be deleted (thus, same relationship couldn't exist before - Duyet.
+      save_relationship #I don't add "check_if_same_relationship_existed" because of the assumption that an issue will never be deleted (thus, same relationship couldn't have existed before - Duyet.
     else
       @notice = @issue.errors.full_messages.join(", ")
       #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
@@ -409,8 +441,9 @@ require 'backports'
   # DELETE /issues/1.xml
   def destroy
     @issue = Issue.find(params[:id])
+    @called_from = params[:called_from]
     @issue.destroy
-
+    
     Reputation::Utils.reputation(:action=>:destroy, \
                                  :type=>:issue, \
                                  :id=>@issue.id, \
@@ -418,9 +451,16 @@ require 'backports'
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
                                  :calculate=>false)
+    
+    
+    
+    @notice = "Issue Deleted!"
+    
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
+      format.js
+      
     end
   end
 

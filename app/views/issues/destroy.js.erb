@@ -1,0 +1,12 @@
+$("#notice").html("<%= escape_javascript(@notice) %>");
+
+switch ("<%= escape_javascript(@called_from) %>") { 
+  case 'issues':
+	  $("#search_invisible_input").val("");
+	  $.get($("#search_form").attr("action"), $("#search_form").serialize(), null, "script");
+	  	break;
+  case 'userissues':
+	  $("#userissues #search").val("");
+	  $.get($("#userissues #search_form").attr("action"), $("#userissues #search_form").serialize(), null, "script"); 
+	  	break;
+  }
