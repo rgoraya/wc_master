@@ -36,6 +36,7 @@
     
       %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"relations_wait"}
     
+    - number_of_relations = 0
     - @issue_relations.each do |relation|
       %div.relationship_thumb
   
@@ -45,9 +46,11 @@
           = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
         
         = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
-           
+        - number_of_relations += 1
+
         %span.relationship_id_store{:style=>"display:none;"}
           = relation.wiki_url       
+
   
   - if @suggestions.length > 0
     - @suggestions.each do |suggestion|

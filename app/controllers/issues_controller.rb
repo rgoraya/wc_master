@@ -5,7 +5,7 @@ class IssuesController < ApplicationController
 require 'backports'
   
   def index
-    @issues = Issue.search(params[:search].to_s.strip).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
     respond_to do |format|
       format.js {render :layout=>false}
       format.html # index.html.erb
@@ -53,107 +53,74 @@ require 'backports'
   end
   
   def get_selected_relations
-       
-    case @rel_type
+    case @rel_type       
 
     when "is caused by"
-      # get the causes
       @issue_relations = @issue.causes.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |cause|
-        @rel_id = @issue.relationships.where(:cause_id=>cause.id, :relationship_type=>nil).select('id').first.id
-        cause.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_cause_btn"
-      @causal_sentence = "causes"     
-          
+      set_selected_relations_common_data('C',nil,"add_cause_btn","causes")
     when "causes"
-      # get the causes
       @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |effect|
-        @rel_id = Relationship.where(:issue_id=>effect.id, :cause_id=>@issue.id, :relationship_type=>nil).select('id').first.id
-        effect.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_effect_btn"
-      @causal_sentence = "effects"
-            
+      set_selected_relations_common_data('E',nil,"add_effect_btn","effects")
+           
     when "is reduced by"
-      # get the causes
       @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |inhibitor|
-        @rel_id = @issue.relationships.where(:cause_id=>inhibitor.id, :relationship_type=>'I').select('id').first.id
-        inhibitor.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_inhibitor_btn"
-      @causal_sentence = "inhibitors"
+      set_selected_relations_common_data('I','I',"add_inhibitor_btn","inhibitors")
           
     when "reduces"
-      # get the inhibiteds
       @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |inhibited|
-        @rel_id = Relationship.where(:issue_id=>inhibited.id, :cause_id=>@issue.id, :relationship_type=>'I').select('id').first.id
-        inhibited.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_inhibited_btn"
-      @causal_sentence = "inhibiteds"
-                    
+      set_selected_relations_common_data('R','I',"add_inhibited_btn","inhibiteds")
+           
     when "is a subset of"
-      # get the causes
       @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |superset|
-        @rel_id = @issue.relationships.where(:cause_id=>superset.id, :relationship_type=>'H').select('id').first.id
-        superset.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_superset_btn"
-      @causal_sentence = "supersets"
+      set_selected_relations_common_data('P','H',"add_superset_btn","supersets")
           
     when "is a superset of"
-      # get the subsets
       @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |subset|
-        @rel_id = Relationship.where(:issue_id=>subset.id, :cause_id=>@issue.id, :relationship_type=>'H').select('id').first.id
-        subset.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_subset_btn"
-      @causal_sentence = "subsets"
+      set_selected_relations_common_data('S','H',"add_subset_btn","subsets")
             
-   	end
-		if @issue_relations.length < 6
+   end
+  end
+
+  def retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+    case type_of_suggestions
+    when "causes"
+      @suggestions = @issue.suggestions.where(:causality => 'C',:status => 'N').limit(num_of_suggestions_to_pull)
+    when "effects"
+      @suggestions = @issue.suggestions.where(:causality => 'E',:status => 'N').limit(num_of_suggestions_to_pull)
+    when "inhibitors"
+      @suggestions = @issue.suggestions.where(:causality => 'I',:status => 'N').limit(num_of_suggestions_to_pull)
+    when "inhibiteds"
+      @suggestions = @issue.suggestions.where(:causality => 'R',:status => 'N').limit(num_of_suggestions_to_pull)
+    when "supersets"
+      @suggestions = @issue.suggestions.where(:causality => 'P',:status => 'N').limit(num_of_suggestions_to_pull)
+    when "subsets"
+      @suggestions = @issue.suggestions.where(:causality => 'S',:status => 'N').limit(num_of_suggestions_to_pull)
+    end
+  end
+
+  def set_selected_relations_common_data(causality, relationship_type, add_btn_id, causal_sentence)
+
+    @issue_suggestions = @issue.suggestions.where(:causality => causality,:status => 'N')
+    @issue_relations.each do |relation|
+      if(causality.eql? 'E' or causality.eql? 'R' or causality.eql? 'S')
+        @rel_id = Relationship.where(:issue_id=>relation.id, :cause_id=>@issue.id, :relationship_type=>relationship_type).select('id').first.id
+        relation.wiki_url = @rel_id 
+      else 
+        @rel_id = @issue.relationships.where(:cause_id=>relation.id, :relationship_type=>relationship_type).select('id').first.id
+        relation.wiki_url = @rel_id 
+      end
+    end
+    @add_btn_id      = add_btn_id
+    @causal_sentence = causal_sentence
+
+    if @issue_relations.length < 6
       num_of_suggestions_to_pull = (6 - @issue_relations.length)
       type_of_suggestions        = @causal_sentence          
       retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
 		else
 			@suggestions = []
-    end
-  end
-
-  def retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
-    case type_of_suggestions
-    when
-      "causes"
-      @suggestions = @issue.suggestions.where(:causality => 'C',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "effects"
-      @suggestions = @issue.suggestions.where(:causality => 'E',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "inhibitors"
-      @suggestions = @issue.suggestions.where(:causality => 'I',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "inhibiteds"
-      @suggestions = @issue.suggestions.where(:causality => 'R',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "supersets"
-      @suggestions = @issue.suggestions.where(:causality => 'P',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "subsets"
-      @suggestions = @issue.suggestions.where(:causality => 'S',:status => 'N').limit(num_of_suggestions_to_pull)
-    end
-  end
+    end  
+  end 
 
 
   def get_relationship
@@ -252,12 +219,32 @@ require 'backports'
     @relationship = Relationship.new
     set_relationship_user_id_if_applicable 
     set_type_of_relationship(true)
-
 		if !check_if_same_relationship_existed       
     	save_relationship
-		end  
-
+		end 
   end
+
+	def check_if_same_relationship_existed
+		vs = []
+
+		Version.order("created_at DESC").find(:all, :conditions=>["item_type=?","Relationship"]).each do |version|
+			rel = version.get_object
+			if rel.issue_id == @relationship.issue_id && rel.cause_id == @relationship.cause_id && rel.relationship_type == @relationship.relationship_type
+				vs << version
+				break
+			end
+		end
+
+		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
+			vs.last.restore
+			@notice = "An identical relationship used to exist. It is now reverted back to existence!"
+		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
+			@notice = "An identical relationship used to exist. Please login to have sufficient privilege to re-create this relationship!"
+		end
+
+		return !vs.empty?
+	end
+
 
   def retrieve_id_of_issue
     @wikiurl = @issue.wiki_url
@@ -293,7 +280,7 @@ require 'backports'
       @relationship = Relationship.new
       set_relationship_user_id_if_applicable
       set_type_of_relationship(false)
-      save_relationship #I don't add "check_if_same_relationship_existed" because of the assumption that an issue will never be deleted (thus, same relationship couldn't have existed before - Duyet.
+      save_relationship #I don't add check_if_same_relationship_existed here because of the assumption that issues are never to be deleted. Hence, the same relationship couldn't have existed before - Duyet
     else
       @notice = @issue.errors.full_messages.join(", ")
       #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')
@@ -334,29 +321,6 @@ require 'backports'
                 "New Issue was created and linked as #{args[1]}"
               end
   end
-
-	def check_if_same_relationship_existed
-		vs = []
-
-		Version.order("created_at DESC").find(:all, :conditions=>["item_type=?","Relationship"]).each do |version|
-			rel = version.get_object
-			if rel.issue_id == @relationship.issue_id && rel.cause_id == @relationship.cause_id && rel.relationship_type == @relationship.relationship_type
-				vs << version
-				break
-			end
-		end
-
-
-		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
-			vs.last.restore
-			@notice = "An identical relationship used to exist. It is now reverted back to existence!"
-		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
-			@notice = "An identical relationship used to exist. Please login to have sufficient privilege to re-create this relationship!"
-		end
-
-		return !vs.empty?
-	end
-
 
   def save_relationship
     if @relationship.save
@@ -497,8 +461,6 @@ require 'backports'
     end
   end
 
-
-	#don't use this method. It's outdated.
   #issues/:id/snapshot/:at
   def snapshot
     ids = []
