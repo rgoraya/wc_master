@@ -60,6 +60,7 @@ class Mapvisualization #< ActiveRecord::Base
   attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice
   
   BAD_PARAM_ERROR = "Please specify what to visualize!"
+  NO_ITEM_ERROR = "The item you requested could not be found"
   
   def initialize(args)    
     #puts args
@@ -85,8 +86,8 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-          issues, relationships = build_graph(static,40)
-          
+          issues, relationships = build_graph(static,40) #why would this get called later than the default-layout??
+      
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
           default_layout
@@ -95,12 +96,12 @@ class Mapvisualization #< ActiveRecord::Base
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
           rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids) #can we clean this up??
           static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
-          
+
           issues, relationships = build_graph(static,40)
 
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
-          default_layout
+          default_layout          
         else
           @notice = BAD_PARAM_ERROR
         end               
@@ -177,14 +178,16 @@ class Mapvisualization #< ActiveRecord::Base
   # builds a graph centered around a starting set of nodes.
   # starting_nodes is a list of node ids; limit is up to how many things we should get
   def build_graph(starting_nodes, limit)
-    ids = starting_nodes
+    #puts "IN BUILD GRAPH"
+    ids = Array.new(starting_nodes)
     while ids.length < limit
-      new_ids = Relationship.select("issue_id, cause_id").where("relationships.issue_id IN (?) OR relationships.cause_id IN (?)", ids, ids).map {|i| [i.issue_id, i.cause_id]}
+      new_ids = Relationship.select("issue_id, cause_id").where("(relationships.issue_id IN (?) OR relationships.cause_id IN (?)) AND NOT (relationships.issue_id IN (?) AND relationships.cause_id IN (?))", ids, ids, ids, ids).map {|i| [i.issue_id, i.cause_id]}
+      #puts "IDS",ids,"NEW_IDS", new_ids, "len",new_ids.length   
       break if new_ids.length == 0
       ids = (ids + new_ids).flatten.uniq
     end
-    
-    issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", ids).limit(limit)
+    ids = ids.slice(0,limit-1)
+    issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", ids)
     subquery_list = issues.map {|i| i.id}
     relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
     [issues, relationships]
@@ -242,11 +245,15 @@ class Mapvisualization #< ActiveRecord::Base
 
   # the default set of layout commands (hopefully not slow)
   def default_layout()
-    set_static_nodes
-    static_wheel_nodes
-    fruchterman_reingold(50) #fast, little bit of layout for now
-    normalize_graph
-    #do_kamada_kawai
+    if @nodes.length > 0
+      set_static_nodes
+      static_wheel_nodes
+      fruchterman_reingold(50) #fast, little bit of layout for now
+      normalize_graph
+      #do_kamada_kawai
+    else
+      @notice = NO_ITEM_ERROR
+    end
   end
 
   # put the nodes into a circle that will fit in the given canvas
@@ -607,25 +614,30 @@ class Mapvisualization #< ActiveRecord::Base
   #centers the nodes within the graph, then squeezes the graph to fit inside the window (without border)
   def normalize_graph(width=@width, height=@height, nodeset=@nodes)
     puts "normalizing graph"
+    
+    if nodeset.length > 0 #to handle empty graphs; could also do it in default layout (else display message)
+      #center the nodes
+      max_x = nodeset.max_by{|k,n| n.location[0]}[1].location[0]
+      max_y = nodeset.max_by{|k,n| n.location[1]}[1].location[1]
+      min_x = nodeset.min_by{|k,n| n.location[0]}[1].location[0]
+      min_y = nodeset.min_by{|k,n| n.location[1]}[1].location[1]
+      center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
+      nodeset.each_value {|n| n.location = n.location-center_offset if !n.static}
 
-    #center the nodes
-    max_x = nodeset.max_by{|k,n| n.location[0]}[1].location[0]
-    max_y = nodeset.max_by{|k,n| n.location[1]}[1].location[1]
-    min_x = nodeset.min_by{|k,n| n.location[0]}[1].location[0]
-    min_y = nodeset.min_by{|k,n| n.location[1]}[1].location[1]
-    center_offset = Vector[(max_x+min_x-width)/2, (max_y+min_y-height)/2] #center of the nodes - desired center
-    nodeset.each_value {|n| n.location = n.location-center_offset if !n.static}
+      #scale to fit
+      center = [width/2, height/2]
+      far_x = nodeset.max_by{|k,n| (n.location[0]-center[0]).abs}[1].location[0] #node with max x
+      far_y = nodeset.max_by{|k,n| (n.location[1]-center[1]).abs}[1].location[1] #node with max y
+      # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
+      #          [center[1]/(far_y-center[1]).abs, 1.0].min]
+      scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
+               center[1]/(far_y-center[1]).abs]      
+      scale[0] = 1 if scale[0] == 1.0/0 #if we don't need to stretch, then don't!
+      scale[1] = 1 if scale[1] == 1.0/0
 
-    #scale to fit
-    center = [width/2, height/2]
-    far_x = nodeset.max_by{|k,n| (n.location[0]-center[0]).abs}[1].location[0] #node with max x
-    far_y = nodeset.max_by{|k,n| (n.location[1]-center[1]).abs}[1].location[1] #node with max y
-    # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
-    #          [center[1]/(far_y-center[1]).abs, 1.0].min]
-    scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
-             center[1]/(far_y-center[1]).abs]
-    nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
-                                                scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}
+      nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
+                                                  scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}
+    end
   end
 
 end

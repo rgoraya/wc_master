@@ -18,7 +18,7 @@ class MapvisualizationsController < ApplicationController
       format.html do #on html calls
 
         @verbose = !params[:v].nil?
-        puts "verbose", @verbose
+        puts "verbose: "+@verbose.to_s
 
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 

@@ -51,6 +51,7 @@ module MapvisualizationsHelper
   #helper method to print the nodes and edges as javascript arrays, now with empty-set handling!
   def javascript_graph(nodes, edges, nodes_name='currNodes', edges_name='currEdges')
     out = "var hasSelection = #{has_highlighted?(edges)};"
+
     if nodes.length > 0
       out += "var "+nodes_name+"={"+
         nodes.map {|k,n| js_node(n,@default_border)} .join(',')+
@@ -59,7 +60,7 @@ module MapvisualizationsHelper
     else
       out += "var "+nodes_name+"={keys:[]};"
     end
-      
+    
     if edges.length > 0
       multi_edge = Hash[edges.group_by {|e| [e.a.id,e.b.id].sort}.map {|k,v| [k,v.count]}] #number edges per nodepair
 
