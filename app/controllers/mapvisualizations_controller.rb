@@ -1,5 +1,5 @@
 class MapvisualizationsController < ApplicationController
-    
+
   # GET /mapvisualizations
   def index
     @default_width = 900*1.0 #defaults
@@ -29,7 +29,6 @@ class MapvisualizationsController < ApplicationController
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
-
 
       format.js do #respond to ajax calls
 
@@ -70,8 +69,6 @@ class MapvisualizationsController < ApplicationController
         return
       end
     end
-  
-  end
 
 ############################################################
 ### OLD RESTFUL METHODS

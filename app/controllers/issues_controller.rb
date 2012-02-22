@@ -53,137 +53,72 @@ require 'backports'
   end
   
   def get_selected_relations
-       
-    case @rel_type
+    case @rel_type       
 
     when "is caused by"
-      # get the causes
       @issue_relations = @issue.causes.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |cause|
-        @rel_id = @issue.relationships.where(:cause_id=>cause.id, :relationship_type=>nil).select('id').first.id
-        cause.wiki_url = @rel_id 
-      end
-      
-      @add_btn_id = "add_cause_btn"
-      @causal_sentence = "causes"
-            
-      if @issue_relations.length < 6
-        num_of_suggestions_to_pull = (6 - @issue_relations.length)
-        type_of_suggestions        = @causal_sentence          
-        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
-      end
-          
+      set_selected_relations_common_data('C',nil,"add_cause_btn","causes")
     when "causes"
-      # get the causes
       @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |effect|
-        @rel_id = Relationship.where(:issue_id=>effect.id, :cause_id=>@issue.id, :relationship_type=>nil).select('id').first.id
-        effect.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_effect_btn"
-      @causal_sentence = "effects"
-            
-      if @issue_relations.length < 6
-        num_of_suggestions_to_pull = (6 - @issue_relations.length)
-        type_of_suggestions        = @causal_sentence          
-        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
-      end
-            
+      set_selected_relations_common_data('E',nil,"add_effect_btn","effects")
+           
     when "is reduced by"
-      # get the causes
       @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |inhibitor|
-        @rel_id = @issue.relationships.where(:cause_id=>inhibitor.id, :relationship_type=>'I').select('id').first.id
-        inhibitor.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_inhibitor_btn"
-      @causal_sentence = "inhibitors"
-            
-      if @issue_relations.length < 6
-        num_of_suggestions_to_pull = (6 - @issue_relations.length)
-        type_of_suggestions        = @causal_sentence          
-        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
-      end
+      set_selected_relations_common_data('I','I',"add_inhibitor_btn","inhibitors")
           
     when "reduces"
-      # get the inhibiteds
       @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |inhibited|
-        @rel_id = Relationship.where(:issue_id=>inhibited.id, :cause_id=>@issue.id, :relationship_type=>'I').select('id').first.id
-        inhibited.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_inhibited_btn"
-      @causal_sentence = "inhibiteds"
-            
-      if @issue_relations.length < 6
-        num_of_suggestions_to_pull = (6 - @issue_relations.length)
-        type_of_suggestions        = @causal_sentence          
-        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
-      end
-            
+      set_selected_relations_common_data('R','I',"add_inhibited_btn","inhibiteds")
+           
     when "is a subset of"
-      # get the causes
       @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |superset|
-        @rel_id = @issue.relationships.where(:cause_id=>superset.id, :relationship_type=>'H').select('id').first.id
-        superset.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_superset_btn"
-      @causal_sentence = "supersets"
-            
-      if @issue_relations.length < 6
-        num_of_suggestions_to_pull = (6 - @issue_relations.length)
-        type_of_suggestions        = @causal_sentence          
-        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
-      end
+      set_selected_relations_common_data('P','H',"add_superset_btn","supersets")
           
     when "is a superset of"
-      # get the subsets
       @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
-      # insert relationship_id
-      @issue_relations.each do |subset|
-        @rel_id = Relationship.where(:issue_id=>subset.id, :cause_id=>@issue.id, :relationship_type=>'H').select('id').first.id
-        subset.wiki_url = @rel_id 
-      end
-      @add_btn_id = "add_subset_btn"
-      @causal_sentence = "subsets"
-            
-      if @issue_relations.length < 6
-        num_of_suggestions_to_pull = (6 - @issue_relations.length)
-        type_of_suggestions        = @causal_sentence          
-        retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
-      end
+      set_selected_relations_common_data('S','H',"add_subset_btn","subsets")
             
    end
   end
 
   def retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
     case type_of_suggestions
-    when
-      "causes"
+    when "causes"
       @suggestions = @issue.suggestions.where(:causality => 'C',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "effects"
+    when "effects"
       @suggestions = @issue.suggestions.where(:causality => 'E',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "inhibitors"
+    when "inhibitors"
       @suggestions = @issue.suggestions.where(:causality => 'I',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "inhibiteds"
+    when "inhibiteds"
       @suggestions = @issue.suggestions.where(:causality => 'R',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "supersets"
+    when "supersets"
       @suggestions = @issue.suggestions.where(:causality => 'P',:status => 'N').limit(num_of_suggestions_to_pull)
-    when
-      "subsets"
+    when "subsets"
       @suggestions = @issue.suggestions.where(:causality => 'S',:status => 'N').limit(num_of_suggestions_to_pull)
     end
   end
+
+  def set_selected_relations_common_data(causality, relationship_type, add_btn_id, causal_sentence)
+
+    @issue_suggestions = @issue.suggestions.where(:causality => causality,:status => 'N')
+    @issue_relations.each do |relation|
+      if(causality.eql? 'E' or causality.eql? 'R' or causality.eql? 'S')
+        @rel_id = Relationship.where(:issue_id=>relation.id, :cause_id=>@issue.id, :relationship_type=>relationship_type).select('id').first.id
+        relation.wiki_url = @rel_id 
+      else 
+        @rel_id = @issue.relationships.where(:cause_id=>relation.id, :relationship_type=>relationship_type).select('id').first.id
+        relation.wiki_url = @rel_id 
+      end
+    end
+    @add_btn_id      = add_btn_id
+    @causal_sentence = causal_sentence
+
+    if @issue_relations.length < 6
+      num_of_suggestions_to_pull = (6 - @issue_relations.length)
+      type_of_suggestions        = @causal_sentence          
+      retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+    end  
+  end 
 
 
   def get_relationship
