@@ -93,7 +93,7 @@ class ReferencesController < ApplicationController
 
     @reference.destroy
 
-		Reputation::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>true)
+		Reputation::Utils.reputation(:action=>:destroy, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>true)
 
     @refnotice = "Reference Deleted!"
     respond_to do |format|
