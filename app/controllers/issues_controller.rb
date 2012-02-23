@@ -19,7 +19,9 @@ require 'backports'
   def show
     @issue = Issue.find(params[:id]) 
 
-    load_suggestions
+    if @issue.suggestions == [] 
+      load_suggestions
+    end
 
     # Default params to "causes" for initial load
     if params[:rel_type]
