@@ -9,7 +9,7 @@ module Reputation
 			  unless (!options.empty? &&
 					  (options.keys - [:action, :type, :id, :me, :you, :calculate, :undo, :vid]).empty? &&
 					  [:create, :destroy, :update, :up, :down].include?(options[:action].to_sym) && 
-					  [:relationship, :issue, :suggestion, :reference].include?(options[:type].to_sym) &&
+					  [:relationship, :issue, :suggestion, :reference, :comment].include?(options[:type].to_sym) &&
 					  [true, false].include?(options[:undo]) &&
 						[true, false].include?(options[:calculate])
 					  )
@@ -87,6 +87,7 @@ module Reputation
 																																										(!options[:me].nil? && options[:me].integer?) && 
 																																										(!options[:you].nil? && options[:you].integer?))					  
 						ids << options[:you]
+						score = [0,0]
 
 
 				  when [:up, :relationship]
@@ -107,6 +108,19 @@ module Reputation
 						if v.reify.status.eql?('N') && v.get_object.status.eql?('D') #reject only
 							score = [1,0]
 						end
+
+					when [:create, :comment]
+						raise ArgumentError, "Missing or invalid argument :id :me" unless ((!options[:id].nil? && options[:id].integer?) && 
+																																								(!options[:me].nil? && options[:me].integer?))
+						score = [0,0]
+
+					when [:destroy, :comment]
+						raise ArgumentError, "Missing or invalid argument :id :me :you" unless ((!options[:id].nil? && options[:id].integer?) && 
+																																										(!options[:me].nil? && options[:me].integer?) && 
+																																										(!options[:you].nil? && options[:you].integer?))
+						score = [0,0]
+						ids << options[:you]
+
 			  end
 				  
 				if options[:undo]
@@ -129,8 +143,8 @@ module Reputation
 				  return score
 			  end
 		  rescue Exception => exception
-				case exception
-					when ArgumentError #ignore
+				case exception.class
+					when ArgumentError.class #ignore
 					else
 						ReportMailer.notify(exception).deliver #just for rep system
 				end 
