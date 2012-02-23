@@ -1,5 +1,5 @@
 %div.search_content_wrapper
-  /- @search_results = Issue.search(params[:query]).first(5)
+  
   - if !@search_results.nil?
     - @search_results.each do |issue|
       %div.search_result_appl

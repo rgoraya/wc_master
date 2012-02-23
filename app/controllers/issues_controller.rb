@@ -117,6 +117,8 @@ require 'backports'
       num_of_suggestions_to_pull = (6 - @issue_relations.length)
       type_of_suggestions        = @causal_sentence          
       retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
+		else
+			@suggestions = []
     end  
   end 
 
@@ -221,9 +223,33 @@ require 'backports'
     retrieve_id_of_issue
     @relationship = Relationship.new
     set_relationship_user_id_if_applicable 
-    set_type_of_relationship(true)       
-    save_relationship  
+    set_type_of_relationship(true)
+		if !check_if_same_relationship_existed       
+    	save_relationship
+		end 
   end
+
+	def check_if_same_relationship_existed
+		vs = []
+
+		Version.order("created_at DESC").find(:all, :conditions=>["item_type=?","Relationship"]).each do |version|
+			rel = version.get_object
+			if rel.issue_id == @relationship.issue_id && rel.cause_id == @relationship.cause_id && rel.relationship_type == @relationship.relationship_type
+				vs << version
+				break
+			end
+		end
+
+		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
+			vs.last.restore
+			@notice = "An identical relationship used to exist. It is now reverted back to existence!"
+		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
+			@notice = "An identical relationship used to exist. Please login to have sufficient privilege to re-create this relationship!"
+		end
+
+		return !vs.empty?
+	end
+
 
   def retrieve_id_of_issue
     @wikiurl = @issue.wiki_url
@@ -259,7 +285,7 @@ require 'backports'
       @relationship = Relationship.new
       set_relationship_user_id_if_applicable
       set_type_of_relationship(false)
-      save_relationship
+      save_relationship #I don't add check_if_same_relationship_existed here because of the assumption that issues are never to be deleted. Hence, the same relationship couldn't have existed before - Duyet
     else
       @notice = @issue.errors.full_messages.join(", ")
       #redirect_to(:back, :notice => @notice.to_s + ' Causal link was not created - Issue did not exist')

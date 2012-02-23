@@ -5,8 +5,8 @@ class User < ActiveRecord::Base
   acts_as_authentic
 
 	has_many :activities, :class_name=>'Version', :foreign_key=>:whodunnit
-	has_many :contributions, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS ?',nil]
-	has_many :reverts, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS NOT ?',nil]
+	has_many :contributions, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS ? AND NOT(item_type = ?)', nil, 'Suggestion']
+	has_many :reverts, :class_name=>'Version', :foreign_key=>:whodunnit, :conditions=>['reverted_from IS NOT ? AND NOT(item_type = ?)',nil, 'Suggestion']
 
   has_many :issues
   has_many :relationships
@@ -113,13 +113,43 @@ class User < ActiveRecord::Base
               activity[:action]='Created'
               activity[:icon_position]='0px -40px'
             when 'update' 
-              ((version.reify.status.eql?('N') && version.get_object.status.eql?('D')) ? activity[:action]='rejected' : activity[:action]='Updated')
+              ((version.reify.status.eql?('N') && version.get_object.status.eql?('D')) ? activity[:action]='Rejected' : activity[:action]='Updated')
               activity[:icon_position]='-20px -40px'
             when 'destroy' 
               activity[:action]='Deleted'
               activity[:icon_position]='-40px -40px'
           end
           activity[:what]=version.get_object.title
+
+				when 'Comment'
+					activity[:type] = 'on'
+          case version.event
+            when 'create' 
+              activity[:action]='Commented'
+              activity[:icon_position]='0px -40px'
+            when 'destroy' 
+              activity[:action]='Removed'
+              activity[:icon_position]='-40px -40px'
+          end
+          relationship_version=Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first
+          if relationship_version.nil?
+            activity[:what]='? (data untraceable)'
+          else
+          	cause_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.cause_id]).first
+          	issue_version=Version.find(:all, :conditions=>['item_type=? AND item_id=?', 'Issue', relationship_version.get_object.issue_id]).first
+          	if cause_version.nil? || issue_version.nil?
+            	activity[:what]='? (data untraceable)'
+          	else
+            	activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+          	end
+
+          	case relationship_version.get_object.relationship_type
+            	when 'I' then activity[:what] += ' (Inhibitory)'
+            	when 'H' then activity[:what] += ' (Set)'
+            	when nil then activity[:what] += ' (Causal)'
+          	end
+					end
+
       end #case item_type
 
       !activity[:what].include?('untraceable') ? activity[:score]= \
