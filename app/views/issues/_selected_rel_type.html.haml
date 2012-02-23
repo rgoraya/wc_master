@@ -68,7 +68,10 @@
   
   - if !(@suggestions.length + @issue_relations.length > 0)
     .relationship_none_found
-      No such causal links have been identified yet. 
+      No such causal links found. You can add new here 
+      %span
+        &#9654;
+  
   
   %div.relationship_addnew
     %div.relationship_addnew_title.poplight{:title => "add new", :id=>"#{@add_btn_id}"}

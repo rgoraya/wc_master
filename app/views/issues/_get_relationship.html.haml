@@ -94,7 +94,7 @@
           %a.med-relation{:href=>"/mapvisualizations?q=show&r=#{@relationship.id}"}
             Visualize Relation
         
-        - @permalink = "http://www.thiscausesthat.org/issues/" + @rel_issue.id.to_s + '-' + @rel_issue.permalink + '?rel_type=' + @causal_sentence.gsub(" ", "+") + '&rel_id=' + @relationship.id.to_s
+        - @permalink = request.protocol + request.host_with_port + "/issues/" + @rel_issue.id.to_s + '-' + @rel_issue.permalink + '?rel_type=' + @causal_sentence.gsub(" ", "+") + '&rel_id=' + @relationship.id.to_s
         .discussion_submit
           %a.perm-relation{:href=>"#{@permalink}", :target=>"_blank"}
             Go to Permalink
@@ -151,7 +151,7 @@
 
 - else
   .title
-    #title_dynamic_text
+    #title_dynamic_text{:style=>"text-align:left;"}
       %span#title_issue
         = @issue.title
         

@@ -123,7 +123,7 @@ require 'backports'
 
   def get_relationship
    
-   if params[:rel_id]
+   if params[:rel_id] && params[:rel_id] != ""
       @relationship = Relationship.find(params[:rel_id])
       @rel_references = @relationship.references
 
@@ -136,7 +136,12 @@ require 'backports'
          @rel_issue, @rel_cause = @rel_cause, @rel_issue  
       end
       @causal_sentence = params[:sentence]
-    end
+   
+   elsif params[:issueid] 
+      @issue = Issue.find(params[:issueid])
+   end
+
+   
 
     respond_to do |format|
       format.html 

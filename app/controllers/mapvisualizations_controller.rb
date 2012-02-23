@@ -69,6 +69,7 @@ class MapvisualizationsController < ApplicationController
         return
       end
     end
+  end
 
 ############################################################
 ### OLD RESTFUL METHODS
