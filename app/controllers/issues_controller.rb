@@ -62,6 +62,7 @@ require 'backports'
     else
       @notice = @issue.errors.full_messages.join(", ")   
     end
+  end
 
   def get_selected_relations
     case @rel_type       
