@@ -140,7 +140,7 @@ class User < ActiveRecord::Base
           	if cause_version.nil? || issue_version.nil?
             	activity[:what]='? (data untraceable)'
           	else
-            	activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            	activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
           	end
 
           	case relationship_version.get_object.relationship_type
@@ -152,14 +152,17 @@ class User < ActiveRecord::Base
 
       end #case item_type
 
-      !activity[:what].include?('untraceable') ? activity[:score]= \
-          Reputation::Utils.reputation(:action=>version.event.downcase.to_sym, \
-          :type=>version.item_type.downcase.to_sym, \
-          :id=>version.item_id.to_i, \
-          :me=>version.whodunnit.to_i, \
-          :you=>(version.get_object.attributes.has_key?("user_id") ? version.get_object.user_id.to_i : nil), \
-          :undo=>false, \
-          :calculate=>false)[0] : activity[:score]=nil
+			activity[:score] = nil
+
+			#since we don't show the score in the activity table, let's skip this function call
+      #!activity[:what].include?('untraceable') ? activity[:score]= \
+      #    Reputation::Utils.reputation(:action=>version.event.downcase.to_sym, \
+      #    :type=>version.item_type.downcase.to_sym, \
+      #    :id=>version.item_id.to_i, \
+      #    :me=>version.whodunnit.to_i, \
+      #    :you=>(version.get_object.attributes.has_key?("user_id") ? version.get_object.user_id.to_i : nil), \
+      #    :undo=>false, \
+      #    :calculate=>false)[0] : activity[:score]=nil
 
     
     return activity
