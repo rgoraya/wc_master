@@ -69,10 +69,11 @@ $(".relationship_partial_toggle").live('click',function(){
 		
 		$(".relationship_thumb .issue_linkout").removeAttr('style');
 		$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
+
 	
 		//return false;
 	});
-	
+	                                                                                      
 
 	$(".relationship_addnew .poplight").live('click',function(){
 		initialize_addNew();

@@ -18,17 +18,21 @@ require 'backports'
   # GET /issues/1.xml
   def show
     @issue = Issue.find(params[:id]) 
-    
+
+    if @issue.suggestions == [] 
+      load_suggestions
+    end
+
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
     else
       @rel_type = "is caused by"
     end
-    
+
     # Call to retrieve the corresponding relationships based on the params
     get_selected_relations
-    
+
     # Default params to "causes" for initial load
     if params[:rel_id]
       @relationship = Relationship.find(params[:rel_id])
@@ -37,21 +41,31 @@ require 'backports'
       @rel_cause = Issue.find(@relationship.cause_id)
       @issue_id = params[:issueid]
       if @issue.id == @rel_cause.id # then swap!
-         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
+        @rel_issue, @rel_cause = @rel_cause, @rel_issue  
       end
       @causal_sentence = @rel_type
     end
 
     @references = Issue.rel_references(params[:rel_id])
-    
+
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @issue }
       format.js
-     
+
     end
   end
-  
+
+  def load_suggestions
+    Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])  # Suggestions for new issue  
+    if @issue.save      
+      initialize_suggestion_object
+      remove_duplicate_suggestions
+    else
+      @notice = @issue.errors.full_messages.join(", ")   
+    end
+  end
+
   def get_selected_relations
     case @rel_type       
 
@@ -189,13 +203,10 @@ require 'backports'
         add_already_existent_issue
       else
         add_new_issue
-        Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])  # Suggestions for new issue 
       end
     else
       respond_to do |format|     
         if @issue.save
-          initialize_suggestion_object
-
 					Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:issue, \
                                    :me=>@issue.user_id, \
