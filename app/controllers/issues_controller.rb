@@ -335,6 +335,7 @@ require 'backports'
 
   def save_relationship
     if @relationship.save
+      remove_duplicate_suggestions
       update_img_if_applicable 
       Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:relationship, \
