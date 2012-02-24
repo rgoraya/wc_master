@@ -55,16 +55,16 @@
   - if @suggestions.length > 0
     - @suggestions.each do |suggestion|
       
-      %div.relationship_thumb
+      %div.relationship_thumb.suggestion_thumb
   
         .relationship_suggestion_title
           = suggestion.title
         .relationship_thumb_suggestion
-              
-        /= link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
-        
-        /%span.relationship_id_store{:style=>"display:none;"}
-        /  = relation.wiki_url       
+        .issue_linkout.suggestion_accept
+          %img{:src=>'/images/system/button_check.png', :width=>"20px"}      
+        .issue_linkout.suggestion_reject
+          %img{:src=>'/images/system/button_reject.png', :width=>"20px"} 
+               
   
   - if !(@suggestions.length + @issue_relations.length > 0)
     .relationship_none_found

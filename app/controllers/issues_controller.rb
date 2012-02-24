@@ -100,7 +100,7 @@ require 'backports'
 
   def set_selected_relations_common_data(causality, relationship_type, add_btn_id, causal_sentence)
 
-    @issue_suggestions = @issue.suggestions.where(:causality => causality,:status => 'N')
+    #@issue_suggestions = @issue.suggestions.where(:causality => causality,:status => 'N')
     @issue_relations.each do |relation|
       if(causality.eql? 'E' or causality.eql? 'R' or causality.eql? 'S')
         @rel_id = Relationship.where(:issue_id=>relation.id, :cause_id=>@issue.id, :relationship_type=>relationship_type).select('id').first.id
@@ -242,9 +242,9 @@ require 'backports'
 
 		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
 			vs.last.restore
-			@notice = "An identical relationship used to exist. It is now reverted back to existence!"
+			@notice = "An identical relationship used to exist. It is now restored!"
 		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
-			@notice = "An identical relationship used to exist. Please login to have sufficient privilege to re-create this relationship!"
+			@notice = "An identical relationship used to exist. Please login to restore this relationship."
 		end
 
 		return !vs.empty?
@@ -322,8 +322,10 @@ require 'backports'
 
     @notice = if already_exists
                 "New #{args[2]} linked Successfully"
+              elsif params[:is_suggestion] == "Y"
+                "Suggestion accepted as a #{args[1]}"     
               else
-                "New Issue was created and linked as #{args[1]}"
+                "New Issue was created and linked as a #{args[1]}"
               end
   end
 

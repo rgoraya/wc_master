@@ -970,8 +970,9 @@ z-index:0;
 	text-align: left;	
 }
 
-#issue_title_dynamic{
+#issue_title_dynamic, #relationship_title_dynamic{
 	text-transform:uppercase;
+	color:#4DB8DB;
 }
 
 .map_toggle{
@@ -3160,8 +3161,13 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 	box-shadow: rgba(0, 0, 0, 0.5) 0 1px 4px;	
 }
 
+.gravatar_anchor{
+	text-decoration:none;float:right;margin:0px;height:45px; width:45px;	
+}
+
 .gravatar_text{
 	float:right; margin:2px 5px -5px 0px; text-align:right;
+	overflow:hidden; text-overflow: ellipsis; white-space: nowrap;max-width:102px;
 }
 
 .reference_gravatar, .comment_gravatar{
@@ -3389,6 +3395,11 @@ cursor:default;
 	border:5px solid #2f2f2f;
 }
 
+.suggested_causality{
+	color:#FFAA00;
+	font-weight:bold;
+}
+
 .relationship_partial_toggle{
 	width: 102px;
 	color: #6A6A6A;
@@ -3493,6 +3504,12 @@ cursor:default;
 	background-color:#434343;
 }
 
+.suggestion_selected{
+	background-size:auto 90px; 
+	background-position:center center; 
+	background-color:#fcfcfc;
+}
+
 .relationship_suggestion_title{
 	width:86px;
 	padding:4px 1px;
@@ -3509,6 +3526,7 @@ cursor:default;
 	white-space:nowrap;
 }
 
+.suggestion_thumb{cursor:pointer;}
 
 .relationship_thumb_addnew{
 	height:90px; border:4px solid #2f2f2f;
@@ -3762,6 +3780,12 @@ cursor:default;
 .relation_descr_container{float:left;}
 .relation_controls_container{float:right;}
 .relation_controls{width:154px; border:1px solid #f5f5f5; padding:10px; background:#fcfcfc; margin-bottom:15px;}
+
+#system_generated{display:none;}
+.system_generated_message_top{float:right; width:80px; text-align:center; margin-right:5px; width:104px;}
+.system_generated_message{margin-top:10px;}
+.system_generated_img{margin:0px;vertical-align:baseline; width:12px;}
+
 
 .relation_discussion{
 	float:left;
@@ -4077,6 +4101,11 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 }
 
 .issue_thumb_blanket .issue_linkout{display:block;cursor:pointer;}
+
+.suggestion_accept{
+	float: left;
+	margin: -33px 0px -33px 4px;
+}
 
 .poplight, .closebutton{
 	cursor:pointer;

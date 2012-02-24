@@ -32,18 +32,22 @@
            
           %span#issue_descr_dynamic
             = @rel_issue.description.html_safe
-          %img.linkout{:src=>"/images/system/linkout.png"}
-          %a{:href=>@rel_issue.wiki_url, :target => "_blank"} more on Wikipedia
-    
+          %span#issue_linkout_dynamic
+            %img.linkout{:src=>"/images/system/linkout.png"}
+          %span#issue_link_dynamic
+            %a{:href=>@rel_issue.wiki_url, :target => "_blank"} more on Wikipedia
+
         %p  
           %b
-            %span#issue_title_dynamic
+            %span#relationship_title_dynamic
               = link_to @rel_cause.title + ':', @rel_cause, :title=>"View this Issue"
                
-          %span#issue_descr_dynamic
+          %span#relationship_descr_dynamic
             = @rel_cause.description.html_safe
-          %img.linkout{:src=>"/images/system/linkout.png"}
-          %a{:href=>@rel_cause.wiki_url, :target => "_blank"} more on Wikipedia
+          %span#relationship_linkout_dynamic
+            %img.linkout{:src=>"/images/system/linkout.png"}
+          %span#relationship_link_dynamic
+            %a{:href=>@rel_cause.wiki_url, :target => "_blank"} more on Wikipedia
 
 
       .relation_discussion
@@ -72,7 +76,7 @@
         #relation_owner
           - if @relationship.user       
             - @rel_owner = Digest::MD5.hexdigest(@relationship.user.email).to_s
-            %a{:href=>"/users/#{@relationship.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
+            %a.gravatar_anchor{:href=>"/users/#{@relationship.user.id}"}
               %img{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
             .gravatar_text
               %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'           
@@ -145,7 +149,24 @@
   
           #issue_image_edit
             = render 'issue_image_edit'
-              
+
+      .relation_controls#system_generated
+        %img.gravatar{:src=> "/images/system/system.png", :style=>"margin:0px;float:right"}
+        
+        .system_generated_message_top
+          This is a 
+          .suggested_causality
+            suggested causal link.
+             
+        .clearboth
+        
+        .system_generated_message
+        Please use
+        %img.system_generated_img{:src=> "/images/system/button_check.png"}
+        or
+        %img.system_generated_img{:src=> "/images/system/button_reject.png"}
+        buttons above, to accept or reject this suggestion.
+
     .clearboth
     
 
@@ -154,6 +175,9 @@
     #title_dynamic_text{:style=>"text-align:left;"}
       %span#title_issue
         = @issue.title
+      %span#title_causality{:style=>"font-size:16px;"}
+      %span#title_relationship
+
         
   .rationale_container
     .relation_descr_container
@@ -169,8 +193,17 @@
            
           %span#issue_descr_dynamic
             = @issue.description.html_safe
-          %img.linkout{:src=>"/images/system/linkout.png"}
-          %a{:href=>@issue.wiki_url, :target => "_blank"} more on Wikipedia
+          %span#issue_linkout_dynamic
+            %img.linkout{:src=>"/images/system/linkout.png"}
+          %span#issue_link_dynamic
+            %a{:href=>@issue.wiki_url, :target => "_blank"} more on Wikipedia
+
+        %p  
+          %b
+            %span#relationship_title_dynamic   
+          %span#relationship_descr_dynamic
+          %span#relationship_linkout_dynamic            
+          %span#relationship_link_dynamic
     
     .relation_controls_container           
       .relation_controls 
@@ -210,7 +243,24 @@
   
           #issue_image_edit
             = render 'issue_image_edit'
-                      
+       
+      .relation_controls#system_generated
+        %img.gravatar{:src=> "/images/system/system.png", :style=>"margin:0px;float:right"}
+        
+        .system_generated_message_top
+          This is a 
+          .suggested_causality
+            suggested causal link.
+             
+        .clearboth
+        
+        .system_generated_message
+        Please use
+        %img.system_generated_img{:src=> "/images/system/button_check.png"}
+        or
+        %img.system_generated_img{:src=> "/images/system/button_reject.png"}
+        buttons above, to accept or reject this suggestion.
+        
     .clearboth
     
 
