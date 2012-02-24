@@ -1,6 +1,6 @@
 class Issue < ActiveRecord::Base
 
-	attr_accessor :changes
+
 
 
 	has_paper_trail :on=>[:create, :destroy]

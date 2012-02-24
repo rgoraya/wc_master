@@ -11,7 +11,7 @@
         %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=26&d=mm"}
       - else
         %img.reference_gravatar{:src=> "http://www.gravatar.com/avatar?s=26&d=mm"}              
-      = f.text_field :reference_content, {:class=>"discussion_input", :placeholder=>"Please enter a valid URL &#8230;".html_safe, :id=>"ref_content_field"}              
+      = f.text_field :reference_content, {:class=>"discussion_input", :placeholder=>"Please enter a valid URL &#8230;".html_safe, :id=>"ref_content_field", :autocomplete=>"off"}              
       
     .actions
       = f.submit '', :class=>"search_appl_submit", :id=>"reference_collector", :style=>"margin:0px;"
@@ -51,7 +51,8 @@
         %span.date_time
           = time_ago_in_words(reference.created_at) + ' ago'
 
-    - if current_user.id == reference.user_id 
-      .reference_delete
-        = link_to image_tag('/images/system/close1.png', :width=>"12px", :border=>0), reference_path(reference), :method => :delete, :remote=>true, :class=>"del-reference"
+    -if current_user
+      - if current_user.id == reference.user_id 
+        .reference_delete
+          = link_to image_tag('/images/system/close1.png', :width=>"12px", :border=>0), reference_path(reference), :method => :delete, :remote=>true, :class=>"del-reference"
     .clearboth

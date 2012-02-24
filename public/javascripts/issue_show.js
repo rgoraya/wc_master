@@ -33,7 +33,7 @@ $(function() {
 $(".relationship_partial_toggle").live('click',function(){
 	
 	// Hide the currently displayed relationships
-	$(".relationship_thumb, .relationship_none_found, #get_relationships, #title_dynamic_text, .rationale_container").hide();
+	$(".relationship_thumb, .relationship_none_found").hide();
 	// Show spinner
 	$(".relationship_addnew_wait").show();
 
@@ -70,7 +70,7 @@ $(".relationship_partial_toggle").live('click',function(){
 		$(".relationship_thumb .issue_linkout").removeAttr('style');
 		$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
 	
-		return false;
+		//return false;
 	});
 	
 
@@ -380,6 +380,7 @@ $(".relationship_partial_toggle").live('click',function(){
 	  valueCollect();
 	  // Initialize the Modal
 	  initialize_addNew();
+	  close_addNew();
   	  // S U B M I T    T H E    F O R M
   	  ("form#relationship_form").submit();	  
 	  return false;

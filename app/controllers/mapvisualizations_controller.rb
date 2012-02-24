@@ -1,5 +1,5 @@
 class MapvisualizationsController < ApplicationController
-    
+
   # GET /mapvisualizations
   def index
     @default_width = 900*1.0 #defaults
@@ -18,7 +18,7 @@ class MapvisualizationsController < ApplicationController
       format.html do #on html calls
 
         @verbose = !params[:v].nil?
-        puts "verbose", @verbose
+        puts "verbose: "+@verbose.to_s
 
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
@@ -29,7 +29,6 @@ class MapvisualizationsController < ApplicationController
         session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
-
 
       format.js do #respond to ajax calls
 
@@ -70,7 +69,6 @@ class MapvisualizationsController < ApplicationController
         return
       end
     end
-  
   end
 
 ############################################################

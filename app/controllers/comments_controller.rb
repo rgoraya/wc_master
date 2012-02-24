@@ -35,7 +35,7 @@ class CommentsController < ApplicationController
 
     @comment.destroy
 
-    Reputation::Utils.reputation(:action=>:create, :type=>:comment, :id=>@comment.id, :me=>current_user.id, :you=>@comment.user_id, :undo=>false, :calculate=>true)
+
 
     @comnotice = "comment Deleted!"
     respond_to do |format|
