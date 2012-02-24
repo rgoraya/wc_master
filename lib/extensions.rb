@@ -38,13 +38,14 @@ class Version
 			if self.item_type.eql?("Relationship")
 				Version.find(:all, :conditions=>["item_type = ? AND event = ?", "Comment", "destroy"]).each do |v|
 					if v.get_object.relationship_id == rel.id
-						v.reify.save
-						v.destroy #why keep multiple 'destroy' events of a comment? I just need the lastest to revert back.
+						v.reify.save 
+						Version.destroy_all(["item_type = ? AND item_id = ? AND id > ?", "Comment", v.item_id, v.sibling_versions.first]) #why keep multiple 'destroy' events of a comment? I just need the lastest to revert back.
 					end
 				end
 				Version.find(:all, :conditions=>["item_type = ? AND event = ?", "Reference", "destroy"]).each do |v|
 					if v.get_object.relationship_id == rel.id
 						v.reify.save
+						Version.destroy_all(["item_type = ? AND item_id = ? AND id > ?", "Reference", v.item_id, v.sibling_versions.first])
 					end
 				end
 			end

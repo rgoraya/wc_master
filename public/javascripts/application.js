@@ -69,8 +69,8 @@ $(function() {
     var ignore_keys_array = [18,20,17,35,13,27,36,45,37,93,91,34,33,39,16,9,40,38];
     if ($.inArray(e.keyCode, ignore_keys_array) == -1 && $('#search_visible_input').val().trim() != ""){
 			$('#issue_search').html('');
-			$('#search_visible_input').val($('#search_visible_input').val().trim());
 			searchDelay(function(){
+					$('#search_visible_input').val($('#search_visible_input').val().trim());
     			$('#issue_search').html('<div class="search_result_wait"></div>');    		
     			$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
 			}, 500);

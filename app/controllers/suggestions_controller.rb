@@ -83,9 +83,11 @@ class SuggestionsController < ApplicationController
         @notice = "Suggestion rejected!"
         
         format.html { redirect_to(:back, :notice => @notice) }
+        format.js  
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
+        format.js  
         format.xml  { render :xml => @suggestion.errors, :status => :unprocessable_entity }
       end
     end
