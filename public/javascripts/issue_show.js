@@ -617,7 +617,7 @@ $(".relationship_partial_toggle").live('click',function(){
 			$('.rationale_headers:first').html('Wikipedia Description');
 			$('#relationship_descr_dynamic').html(text_preview);  
 			$('#relationship_linkout_dynamic').html('<img class="linkout" src="/images/system/linkout.png">')
-			var linkSrc = "http://en.wikipedia.org/wiki/" + encodeURIComponent(JData_sugg.parse.title).split(' ').join('_');
+			var linkSrc = "http://en.wikipedia.org/wiki/" + (JData_sugg.parse.title).split(' ').join('_');
 			$('#relationship_link_dynamic').html('<a href="' + linkSrc + '" target="_blank">more on Wikipedia</a>');
 			  	
 			// find the image from Json
@@ -711,9 +711,15 @@ $(".relationship_partial_toggle").live('click',function(){
 		// ALREADY POPULATED ABOVE
 		// 6.   I S S U E    I D
 		$("#frm_type_id").val($("#issue_id_store").text().trim());
-		// P A S S    I S    S U G G E S T I O N    P A R A M
-		$("#frm_is_suggestion").val('Y')
+		// P A S S    S U G G E S T I O N    I D    P A R A M
+		$("#frm_is_suggestion").val(suggestion_thumb_to_update.siblings(".suggestion_id_store").text().trim())
+	
 	}
+	
+
+	$(".suggestion_reject").live('click', function(){
+		return false;
+	})
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  

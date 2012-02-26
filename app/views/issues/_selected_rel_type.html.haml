@@ -47,7 +47,7 @@
         
         = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
 
-        %span.relationship_id_store{:style=>"display:none;"}
+        %span.relationship_id_store
           = relation.wiki_url       
 
   - if @suggestions.length > 0
@@ -62,11 +62,12 @@
           %img{:src=>'/images/system/button_check.png', :width=>"20px"}      
         .issue_linkout.suggestion_reject
           = link_to image_tag('/images/system/button_reject.png', :width=>"20px"), suggestion_path(suggestion,:suggestion => {:status => 'D'}), :method => :put, :title=>"reject suggestion", :remote=>true
-               
-  
+        %span.suggestion_id_store        
+          = suggestion.id
+          
   - if !(@suggestions.length + @issue_relations.length > 0)
     .relationship_none_found
-      No such causal links found. You can add new here 
+      No such causal links found. Add new here 
       %span
         &#9654;
   

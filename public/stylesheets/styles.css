@@ -4110,3 +4110,8 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 .poplight, .closebutton{
 	cursor:pointer;
 }
+
+.suggestion_id_store, .relationship_id_store, #issue_id_store{
+	display:none;
+}
+
