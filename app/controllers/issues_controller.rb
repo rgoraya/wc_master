@@ -58,12 +58,8 @@ require 'backports'
 
   def load_suggestions
     Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])  # Suggestions for new issue  
-    if @issue.save      
-      initialize_suggestion_object
-      remove_duplicate_suggestions
-    else
-      @notice = @issue.errors.full_messages.join(", ")   
-    end
+    initialize_suggestion_object
+    remove_duplicate_suggestions
   end
 
   def get_selected_relations
@@ -280,8 +276,6 @@ require 'backports'
 
   def add_new_issue
     if @issue.save
-      initialize_suggestion_object    
-
       Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:issue, \
                                    :me=>@issue.user_id, \
