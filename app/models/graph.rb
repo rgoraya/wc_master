@@ -18,11 +18,14 @@ class Graph
 	end	
 
 	class Edge
-		def initialize(id, a, b, rel_type)
-			@relationship_id = id
+		def initialize(a, b, rel_type)
 			@cause_id = a
 			@issue_id = b
 			@rel_type = rel_type
+		end
+
+		def edge_to_s
+			return "#{@cause_id} #{@rel_type} #{@issue_id}"
 		end
 	end
 
@@ -45,29 +48,40 @@ class Graph
 	end
 
 	def update_graph_contents(issues)
-		# Clear existing nodes, regenerate from input issues
+		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = []
-		issues.each do |issue|
-			@nodes << Node.new(issue.id, issue.title, issue.wiki_url)
-		end
-	
-		# Clear existing edges, retrieve relationships for them
 		@edges = []
 
+		# Build issues and retrieve their relationships
+		issues.each do |issue|
+			relationships = Relationship.where("cause_id == ?", issue.id)
+
+			@nodes << Node.new(issue.id, issue.title, issue.wiki_url)
+			relationships.each do |r|			
+				@edges << Edge.new(r.cause_id, r.issue_id, r.relationship_type)
+			end
+		end
 	end
 
 	def get_nodes()
 		return @nodes
 	end
 
+	def get_edges()
+		return @edges
+	end
+
 	# Custom graph generation
 	def get_graph_of_path(src, dest, limit)
+		# On hold, might move
 	end
 
-	def get_graph_of_effects(issue, steps, limit)
+	def get_graph_of_effects(issue, steps=1)
+		# On hold
 	end
 
-	def get_graph_where (condition, limit)
+	def get_graph_where (condition, limit=50)
+		# Placeholder - Will spice this up later
 	end
 
 	def get_graph_of_most_recent(limit=50)
@@ -77,6 +91,7 @@ class Graph
 	end
 
 	def get_graph_of_earliest(limit=50)
+		# Creates a graph of the earliest created issues (default limit 50)
 		issues = Issue.order("created_at ASC").limit(limit)
 		update_graph_contents(issues)
 	end
@@ -86,21 +101,8 @@ class Graph
 	end
 
 	def get_graph_of_all
+		# Creates a graph of all of the issues
 		issues = Issue.find :all
 		update_graph_contents(issues)
 	end
-
-	### Demo Methods ###
-	def demo_all
-		get_graph_of_all()
-	end
-
-	def demo_original_hundred
-		get_graph_of_earliest(100)
-	end
-
-	def demo_most_recent_hundred
-		get_graph_of_most_recent(100)
-	end
-	### End Demo Methods ###	
 end
