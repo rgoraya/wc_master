@@ -1,6 +1,6 @@
 <div style="height:50px"></div>
 <h1>Source = <%= @src %></h1>
 
-<% @paths.each do |path| %>
-	<h3><%= path.title %></h3>
+<% @g.get_nodes().each do |node| %>
+	<h4><%= node.get_name() %></h4>
 <% end %>

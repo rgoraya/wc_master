@@ -2,7 +2,6 @@ class PathsController < ApplicationController
   # GET /paths
   # GET /paths.xml
   def index
-	@paths = Issue.order("created_at ASC").limit(5)
 	@src = 1
 	@g = Graph.new
 

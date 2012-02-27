@@ -11,6 +11,10 @@ class Graph
 			@name = name
 			@url = url
 		end
+
+		def get_name
+			return @name		
+		end
 	end	
 
 	class Edge
@@ -30,9 +34,6 @@ class Graph
 	attr_accessor :nodes, :edges
 
 	def initialize(issues)
-		# input issues should be
-		@nodes = []
-		@edges = []
 		issues_to_graph = Issue.find(issues)
 		update_graph_contents(issues_to_graph)
 	end
@@ -44,12 +45,19 @@ class Graph
 	end
 
 	def update_graph_contents(issues)
-		# Clear existing nodes, create issues for them
+		# Clear existing nodes, regenerate from input issues
 		@nodes = []
+		issues.each do |issue|
+			@nodes << Node.new(issue.id, issue.title, issue.wiki_url)
+		end
 	
 		# Clear existing edges, retrieve relationships for them
 		@edges = []
 
+	end
+
+	def get_nodes()
+		return @nodes
 	end
 
 	# Custom graph generation
