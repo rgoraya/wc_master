@@ -3,6 +3,7 @@ class PathFinder
 
 	validates_presence_of :source
 	attr_accessor :source, :destination
+
 	def initialize(source, destination=0)
 		@source = source
 		@destination = destination

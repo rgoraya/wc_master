@@ -1,6 +1,3 @@
-require 'rubygems'
-require 'active_model'
-
 class Graph
 	include ActiveModel::Validations
 
