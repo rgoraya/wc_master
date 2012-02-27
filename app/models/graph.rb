@@ -76,4 +76,18 @@ class Graph
 		issues = Issue.find :all
 		update_graph_contents(issues)
 	end
+
+	### Demo Methods ###
+	def demo_all
+
+	end
+
+	def demo_original_hundred
+
+	end
+
+	def demo_most_recent
+
+	end
+	### End Demo Methods ###	
 end
