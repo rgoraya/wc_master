@@ -67,8 +67,13 @@ class Graph
 		issues = Issue.order("updated_at DESC").limit(limit)
 		update_graph_contents(issues)
 	end
+
+	def get_graph_of_earliest(limit=50)
+		issues = Issue.order("created_at ASC").limit(limit)
+		update_graph_contents(issues)
+	end
 	
-	def get_graph_of_most_connected (limit)	
+	def get_graph_of_most_connected (limit=50)	
 		# Placeholder - functionality available in an unmerged branch...
 	end
 
@@ -79,15 +84,15 @@ class Graph
 
 	### Demo Methods ###
 	def demo_all
-
+		get_graph_of_all()
 	end
 
 	def demo_original_hundred
-
+		get_graph_of_earliest(100)
 	end
 
-	def demo_most_recent
-
+	def demo_most_recent_hundred
+		get_graph_of_most_recent(100)
 	end
 	### End Demo Methods ###	
 end
