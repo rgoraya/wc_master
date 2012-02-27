@@ -1,0 +1,15 @@
+%p#notice= notice
+
+%p
+  %b User:
+  = @vote.user_id
+%p
+  %b Relationship:
+  = @vote.relationship_id
+%p
+  %b Vote type:
+  = @vote.vote_type
+
+= link_to 'Edit', edit_vote_path(@vote)
+\|
+= link_to 'Back', votes_path

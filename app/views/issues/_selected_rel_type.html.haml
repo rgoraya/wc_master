@@ -68,8 +68,7 @@
   - if !(@suggestions.length + @issue_relations.length > 0)
     .relationship_none_found
       No such causal links found. Add new here 
-      %span
-        &#9654;
+      %img.none_found_arrow{:src=>'/images/issues/arrow_right.png'} 
   
   
   %div.relationship_addnew

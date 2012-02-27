@@ -14,6 +14,13 @@ class User < ActiveRecord::Base
 
 	has_many :feedbacks
 
+  has_many :votes
+  # all relationships the user endorses
+  has_many :endorsed_relationships, :through => :votes, :source => :relationship, :conditions => ['vote_type = "E"']
+  # all relationships the user contests
+  has_many :contested_relationships, :through => :votes, :source => :relationship, :conditions => ['vote_type = "C"']
+
+
   # search functionality
   def self.search(search)
     if search

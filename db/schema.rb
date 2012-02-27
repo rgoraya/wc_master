@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120222043522) do
+ActiveRecord::Schema.define(:version => 20120227052640) do
 
   create_table "comments", :force => true do |t|
     t.string   "content"
@@ -113,5 +113,13 @@ ActiveRecord::Schema.define(:version => 20120222043522) do
   add_index "versions", ["event"], :name => "index_versions_on_event"
   add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
   add_index "versions", ["whodunnit"], :name => "index_versions_on_whodunnit"
+
+  create_table "votes", :force => true do |t|
+    t.string   "user_id"
+    t.string   "relationship_id"
+    t.string   "vote_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end

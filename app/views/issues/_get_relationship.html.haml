@@ -102,15 +102,23 @@
         .discussion_submit
           %a.perm-relation{:href=>"#{@permalink}", :target=>"_blank"}
             Go to Permalink
-        
-        #permalink_display
-          = @permalink
-        
-        - if current_user
-          .relationship_delete
-            = link_to "Delete Relationship", "../relationships/#{@relationship.id}", :confirm => "Are you sure you want to delete the relationship?", :method => :delete, :remote=>true,:title=>"delete this causal link", :class=>"del-relation"
+            
+        / Uncomment the following to display Permalink 
+        /#permalink_display
+        /  = @permalink
+
+        .relationship_delete
+          = link_to "Delete Relationship", "../relationships/#{@relationship.id}", :confirm => "Are you sure you want to delete the relationship?", :method => :delete, :remote=>true,:title=>"delete this causal link", :class=>"del-relation"
+
 
       .clearboth         
+      
+      - if current_user  
+        .relation_controls
+
+          #get_votes
+            = render 'get_votes', :relationship => @relationship
+                                  
   
       .relation_controls 
   

@@ -15,6 +15,15 @@ class Relationship < ActiveRecord::Base
 
   has_paper_trail :on=>[:create, :destroy]
 
+  has_many :votes
+  has_many :endorsements, :through => :votes, :conditions => ['vote_type = "E"'], :order => 'votes.created_at DESC'  
+  has_many :contestations, :through => :votes, :conditions => ['vote_type = "C"'], :order => 'votes.created_at DESC'  
+
+  has_many :endorsers, :through => :votes, :conditions => ['vote_type = "E"'], :order => 'votes.created_at DESC'  
+  has_many :contesters, :through => :votes, :conditions => ['vote_type = "C"'], :order => 'votes.created_at DESC'  
+
+
+
 def validate
   errors.add_to_base('Cannot be a cause/effect of itself!') if issue_id == cause_id 
 end
