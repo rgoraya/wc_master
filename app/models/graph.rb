@@ -31,10 +31,10 @@ class Graph
 
 	# End subclass definitions
 
-	validates_presence_of :nodes, :edges
+	validates_presence_of :nodes, :edges, :source
 
 	# Initialization and Attributes
-	attr_accessor :nodes, :edges
+	attr_accessor :nodes, :edges, :source
 
 	def initialize(issues)
 		issues_to_graph = Issue.find(issues)
@@ -45,12 +45,14 @@ class Graph
 		# Generates empty graph which can be filled later
 		@nodes = []
 		@edges = []
+		@source = -1
 	end
 
-	def update_graph_contents(issues)
+	def update_graph_contents(issues, source = -1)
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = []
 		@edges = []
+		@source = source
 
 		# Build issues and retrieve their relationships
 		issues.each do |issue|
