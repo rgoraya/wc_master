@@ -28,6 +28,7 @@ class Graph
 
 	# Initialization and Attributes
 	attr_accessor :nodes, :edges
+
 	def initialize(issues)
 		# input issues should be
 		@nodes = []
@@ -43,8 +44,12 @@ class Graph
 	end
 
 	def update_graph_contents(issues)
+		# Clear existing nodes, create issues for them
 		@nodes = []
-		@edges = []		
+	
+		# Clear existing edges, retrieve relationships for them
+		@edges = []
+
 	end
 
 	# Custom graph generation
@@ -64,6 +69,7 @@ class Graph
 	end
 	
 	def get_graph_of_most_connected (limit)	
+		# Placeholder - functionality available in an unmerged branch...
 	end
 
 	def get_graph_of_all
