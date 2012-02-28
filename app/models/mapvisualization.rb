@@ -70,6 +70,10 @@ class Mapvisualization #< ActiveRecord::Base
     @edges = args[:edges] || Array.new()
     @adjacency = args[:adjancecy] || Hash.new(0)
 
+    ### EUGENIA ###
+    # This is where empty graph initialization would go.
+    ###
+
     puts "===mapvisualization initialize args===" #debugging
     puts args
 
@@ -86,6 +90,13 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
+          ### EUGENIA ###
+          # This is where we build a graph around a particular node or set of nodes (fetched out the param above)
+          # This is probably what "get_graph_of_effects" was meant to do, basically fetch the nodes that are 
+          # connected to the nodes whose id is in "static" above.
+          # We need to set @nodes and @edges in here, before calling the last two lines of this block
+          ###
+
           issues, relationships = build_graph(static,30) #why would this get called later than the default-layout??
       
           convert_activerecords(issues,relationships)
@@ -94,6 +105,15 @@ class Mapvisualization #< ActiveRecord::Base
         
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
+
+          ### EUGENIA ###
+          # This is where we build a graph around a particular edge or set of edges (fetched out the param above)
+          # This is probably what "get_graph_of_effects" was meant to do, basically fetch the nodes that are 
+          # connected to the nodes who are part of the relationships in "static_rel_ids" above.
+          # note the cheap "get relationships from nodes" call below before we build the graph exactly as above.
+          # We need to set @nodes and @edges in here, before calling the last two lines of this block
+          ###
+
           rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids) #can we clean this up??
           static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
 
@@ -108,6 +128,13 @@ class Mapvisualization #< ActiveRecord::Base
 
       ### TOP 40 ###
       elsif params[:q] == 'last40'
+        ### EUGENIA ###
+        # This is where we show the most recent 40 nodes
+        # This is where get_graph_of_most_recent would go
+        # We need to set @nodes and @edges in here, before calling the last line of this block.
+        # This functionality is less important than the above blocks
+        ###
+        
         limit = 40
         issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit) #get 40 most recent issues
         #get all relationships between those nodes
@@ -119,23 +146,34 @@ class Mapvisualization #< ActiveRecord::Base
 
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
+        ### EUGENIA ###
+        # This is where we show the most cited references
+        # We probably want a get_graph_of_most_cited method to call
+        # We need to set @nodes and @edges in here, before calling the last line of this block.
+        # This functionality is less important than the above blocks.
+        ###
+
         limit = 40
         relationships = Relationship.select("id,cause_id,issue_id,relationship_type").order("references_count DESC,updated_at DESC").limit(limit) #get top rated/most recent relationships
         #get all nodes linked by those relationships
         subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit).flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
-        #puts "===NUMBER OF ISSUES"
-        #puts subquery_list.length
         issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
 
         convert_activerecords(issues,relationships)
         default_layout
 
       elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
+        ### EUGENIA ###
+        # This is where we show all of the nodes
+        # This is where get_graph_of_all would go
+        # We need to set @nodes and @edges in here, before calling the last two line of this block.
+        ###
+        
         issues = Issue.select("id,title,wiki_url")
         relationships = Relationship.select("id,cause_id,issue_id,relationship_type")
 
-        @compact_display = true #use compact display
         convert_activerecords(issues,relationships)
+        @compact_display = true #use compact display
         place_randomly
 
       ### RANDOM TEST GRAPH ###
@@ -166,6 +204,13 @@ class Mapvisualization #< ActiveRecord::Base
   # fetch a default graph if options missing??
   # alternatively, display an error/message somehow??
   def default_graph
+    ### EUGENIA ###
+    # This is where we get a "default" set of nodes to show, currently defaulting to the first 40 for testing
+    # This is where get_graph_of_earliest would go.
+    # Note that this method returns a set of activerecords that we then convert in "convert_activerecords()", 
+    # but such a functionality need not exist (we can just set @nodes and @edges from here)
+    ###
+
     #default to first 40 (cause they are connected)? or to what?
     limit = 40
     issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
@@ -178,11 +223,16 @@ class Mapvisualization #< ActiveRecord::Base
   # builds a graph centered around a starting set of nodes.
   # starting_nodes is a list of node ids; limit is up to how many things we should get
   def build_graph(starting_nodes, limit)
-    #puts "IN BUILD GRAPH"
+    ### EUGENIA ###
+    # This is the function where we do the equivalent of "get_graph_of_effects" by building up a set of connections to
+    # the given starting nodes.
+    # Note that this method returns a set of activerecords that we then convert in "convert_activerecords()", 
+    # but such a functionality need not exist (we can just set @nodes and @edges from here)
+    ###
+
     ids = Array.new(starting_nodes)
     while ids.length < limit
       new_ids = Relationship.select("issue_id, cause_id").where("(relationships.issue_id IN (?) OR relationships.cause_id IN (?)) AND NOT (relationships.issue_id IN (?) AND relationships.cause_id IN (?))", ids, ids, ids, ids).map {|i| [i.issue_id, i.cause_id]}
-      #puts "IDS",ids,"NEW_IDS", new_ids, "len",new_ids.length   
       break if new_ids.length == 0
       ids = (ids + new_ids).flatten.uniq
     end
@@ -195,6 +245,11 @@ class Mapvisualization #< ActiveRecord::Base
   
   #converts activerecord arrays into the instance variables we want to use, separate function so we can do further processing later
   def convert_activerecords(issues,relationships)
+    ### EUGENIA ###
+    # This is the function where we do convert the active records that we've fetched from the database into 
+    # nodes and edges, storing them in @nodes and @edges
+    ###
+
     issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
     relationships.each do |rel| 
       node_a = @nodes[rel.cause_id] #note these are the opposite of what I expected
