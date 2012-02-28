@@ -1,8 +1,5 @@
 class Issue < ActiveRecord::Base
 
-
-
-
 	has_paper_trail :on=>[:create, :destroy]
 
   # --------------------
@@ -12,17 +9,17 @@ class Issue < ActiveRecord::Base
   # -------------------------------------------------------------
   # Relations that go forward - CAUSES, INHIBITORS AND SUPERSETS 
   # -------------------------------------------------------------
-  has_many :relationships, :dependent => :destroy
-  has_many :causes, :through => :relationships, :conditions => ['relationship_type IS NULL'], :order => 'relationships.created_at DESC, relationships.references_count DESC'  
-  has_many :inhibitors, :source=> :cause ,:through => :relationships, :conditions => ['relationship_type = "I"'], :order => 'relationships.created_at DESC, relationships.references_count DESC'
-  has_many :supersets, :source=> :cause, :through => :relationships, :conditions => ['relationship_type = "H"'], :order => 'relationships.created_at DESC, relationships.references_count DESC'
+  has_many :relationships
+  has_many :causes, :through => :relationships, :conditions => ['relationship_type IS NULL'], :order => 'relationships.updated_at DESC, relationships.references_count DESC'  
+  has_many :inhibitors, :source=> :cause ,:through => :relationships, :conditions => ['relationship_type = "I"'], :order => 'relationships.updated_at DESC, relationships.references_count DESC'
+  has_many :supersets, :source=> :cause, :through => :relationships, :conditions => ['relationship_type = "H"'], :order => 'relationships.updated_at DESC, relationships.references_count DESC'
   # -------------------------------------------------------------
   # Relations that go backwards - EFFECTS, INHIBITEDS AND SUBSETS 
   # -------------------------------------------------------------  
-  has_many :inverse_relationships,:class_name=>"Relationship", :foreign_key=>"cause_id", :dependent => :destroy
-  has_many :effects,   :through=> :inverse_relationships, :source=>:issue, :conditions => ['relationship_type IS NULL'], :order => 'relationships.created_at DESC, relationships.references_count DESC'
-  has_many :inhibiteds,:through=> :inverse_relationships, :source=>:issue, :conditions => ['relationship_type = "I"'], :order => 'relationships.created_at DESC, relationships.references_count DESC'  
-  has_many :subsets,   :through=> :inverse_relationships, :source=>:issue, :conditions => ['relationship_type = "H"'], :order => 'relationships.created_at DESC, relationships.references_count DESC'  
+  has_many :inverse_relationships,:class_name=>"Relationship", :foreign_key=>"cause_id"
+  has_many :effects,   :through=> :inverse_relationships, :source=>:issue, :conditions => ['relationship_type IS NULL'], :order => 'relationships.updated_at DESC, relationships.references_count DESC'
+  has_many :inhibiteds,:through=> :inverse_relationships, :source=>:issue, :conditions => ['relationship_type = "I"'], :order => 'relationships.updated_at DESC, relationships.references_count DESC'  
+  has_many :subsets,   :through=> :inverse_relationships, :source=>:issue, :conditions => ['relationship_type = "H"'], :order => 'relationships.updated_at DESC, relationships.references_count DESC'  
   # ------------
   # Suggestions
   # ------------
@@ -44,7 +41,7 @@ class Issue < ActiveRecord::Base
   
   
   # Do the following on Destroy
-  after_destroy :cleanup_relationships
+  #after_destroy :cleanup_relationships
   
   # create friendly URL before saving
   before_validation :generate_slug  

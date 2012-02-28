@@ -133,10 +133,10 @@ class User < ActiveRecord::Base
           case version.event
             when 'create' 
               activity[:action]='Commented'
-              activity[:icon_position]='0px -40px'
+              activity[:icon_position]='0px -80px'
             when 'destroy' 
-              activity[:action]='Removed'
-              activity[:icon_position]='-40px -40px'
+              activity[:action]='Deleted comment'
+              activity[:icon_position]='-40px -80px'
           end
           relationship_version=Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first
           if relationship_version.nil?

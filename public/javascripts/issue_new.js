@@ -84,13 +84,12 @@ $(function() {
 		  //  Initialize the suggestion box with a spinner		
 		  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
 		  //  Talk to mediawiki API to fetch suggestions 
-		  $.getJSON(url+encodeURIComponent(query)+'&callback=?',function(data){
+		  $.getJSON(url_query+encodeURIComponent(query)+'&callback=?',function(data){
 		  	  
 		  	  // Populate Array of search results
-			  search_results = data[1];
-			  //  Limiting the suggestions to a maximum of 5
-			  if (search_results.length <= 4) {
-			  	arr_length = search_results.length - 1;
+			  //  Limiting the suggestions to a maximum of 10
+			  if (data.query.search.length <= 4) {
+			  	arr_length = data.query.search.length - 1;
 			  } else {
 			  	arr_length = 4;
 			  }
@@ -100,7 +99,7 @@ $(function() {
   
 			  //  Loop through first 5 (maximum) suggestions and show 'em
 			  for(var i = 0; i<=arr_length; i++){
-			  	$("#results").append('<div class="suggestion" >'+search_results[i]+'</div>');
+			  	$("#results").append('<div class="suggestion" >'+data.query.search[i].title+'</div>');
   			  }   //  End of for loop
   		  }); //  End of getJSON function
   	   }  //  End of If structure

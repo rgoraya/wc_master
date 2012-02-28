@@ -81,15 +81,19 @@ class RelationshipsController < ApplicationController
   # DELETE /relationships/1.xml
   def destroy
     @relationship = Relationship.find(params[:id])
-    @relationship.destroy
-
-		Reputation::Utils.reputation(:action=>:destroy, \
+		version = Version.find(:last, :conditions=>["item_type = ? AND item_id = ?", "Relationship", @relationship.id])
+		if version.event.eql?("create") && !version.reverted_from.nil?
+			version.restore
+		else
+			@relationship.destroy
+			Reputation::Utils.reputation(:action=>:destroy, \
 																		:type=>:relationship, \
 																		:id=>@relationship.id, \
 																		:me=>current_user.id, \
 																		:you=>@relationship.user_id, \
 																		:undo=>false, \
 																		:calculate=>true)
+		end
 
     @notice = "Relationship Deleted!"
     respond_to do |format|

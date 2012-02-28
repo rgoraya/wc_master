@@ -439,17 +439,14 @@ require 'backports'
                                  :me=>current_user.id, \
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
-                                 :calculate=>false)
-    
-    
-    
+                                 :calculate=>true)
+   
     @notice = "Issue Deleted!"
     
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
-      format.js
-      
+      format.js     
     end
   end
 
@@ -469,7 +466,7 @@ require 'backports'
     @issue = Issue.find(params[:id])
 		@versions = []
 		if Version.last.id - params[:more].to_i >= 0
-			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id - params[:more].to_i, "Relationship"]).each do |version|
+			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id-params[:more].to_i, "Relationship"]).each do |version|
 				relationship = version.get_object
 				if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
 					@versions << version
