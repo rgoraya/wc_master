@@ -27,7 +27,10 @@
 
     
     %div{:style=>"float:right;padding-top:5px;"}
-      //Removed issue delete button
+      // Only show Edit and Delete if the Issue belongs to current user
+      -if current_user
+        -if current_user.id == slice[0].user_id  
+          = link_to "Delete", issue_path(slice[0], :called_from=>"userissues"), :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
     
       // author
       - if slice[0].user

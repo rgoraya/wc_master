@@ -35,9 +35,9 @@ class CommentsController < ApplicationController
 
     @comment.destroy
 
+		Version.destroy_all(["item_type = ? AND item_id = ?", "Comment", @comment.id])
 
-
-    @comnotice = "comment Deleted!"
+    @comnotice = "Comment Deleted!"
     respond_to do |format|
       format.html { redirect_to(comments_url) }
       format.xml  { head :ok }

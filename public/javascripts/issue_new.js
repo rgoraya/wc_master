@@ -47,8 +47,9 @@ $(function() {
 // ------------------------------------------------------------------------------- 
 // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
 // -------------------------------------------------------------------------------   
-  
-	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
+ 
+	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search='; //opensearch
+		var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch='
 	  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
 	  var query;
 	  var arr_length = 0;
@@ -83,13 +84,12 @@ $(function() {
 		  //  Initialize the suggestion box with a spinner		
 		  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
 		  //  Talk to mediawiki API to fetch suggestions 
-		  $.getJSON(url+encodeURIComponent(query)+'&callback=?',function(data){
+		  $.getJSON(url_query+encodeURIComponent(query)+'&callback=?',function(data){
 		  	  
 		  	  // Populate Array of search results
-			  search_results = data[1];
-			  //  Limiting the suggestions to a maximum of 5
-			  if (search_results.length <= 4) {
-			  	arr_length = search_results.length - 1;
+			  //  Limiting the suggestions to a maximum of 10
+			  if (data.query.search.length <= 4) {
+			  	arr_length = data.query.search.length - 1;
 			  } else {
 			  	arr_length = 4;
 			  }
@@ -99,7 +99,7 @@ $(function() {
   
 			  //  Loop through first 5 (maximum) suggestions and show 'em
 			  for(var i = 0; i<=arr_length; i++){
-			  	$("#results").append('<div class="suggestion" >'+search_results[i]+'</div>');
+			  	$("#results").append('<div class="suggestion" >'+data.query.search[i].title+'</div>');
   			  }   //  End of for loop
   		  }); //  End of getJSON function
   	   }  //  End of If structure

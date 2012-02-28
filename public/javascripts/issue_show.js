@@ -57,6 +57,9 @@ $(".relationship_partial_toggle").live('click',function(){
 		
 		$(this).parents('.relationship_thumb').animate({'opacity': '1'});
 		$('.relationship_thumb').not($(this).parents('.relationship_thumb')).animate({'opacity': '0.3'});
+		
+		// Remove any existing stle attributes/backgrounds from the thumbnails
+		$(".relationship_thumb_suggestion").removeAttr('style').removeClass('suggestion_selected');	
 					
 		$("#relationship_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
   		
@@ -69,10 +72,11 @@ $(".relationship_partial_toggle").live('click',function(){
 		
 		$(".relationship_thumb .issue_linkout").removeAttr('style');
 		$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
+
 	
 		//return false;
 	});
-	
+	                                                                                      
 
 	$(".relationship_addnew .poplight").live('click',function(){
 		initialize_addNew();
@@ -210,6 +214,7 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------   
   
 	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
+		var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch=';
 	  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
 	  var query;
 	  var arr_length = 0;
@@ -244,13 +249,11 @@ $(".relationship_partial_toggle").live('click',function(){
 		  //  Initialize the suggestion box with a spinner		
 		  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
 		  //  Talk to mediawiki API to fetch suggestions 
-		  $.getJSON(url+encodeURIComponent(query)+'&callback=?',function(data){
+		  $.getJSON(url_query+encodeURIComponent(query)+'&callback=?',function(data){
 		  	  
-		  	  // Populate Array of search results
-			  search_results = data[1];
-			  //  Limiting the suggestions to a maximum of 5
-			  if (search_results.length <= 4) {
-			  	arr_length = search_results.length - 1;
+			  //  Limiting the suggestions to a maximum of 10
+			  if (data.query.search.length <= 4) {
+			  	arr_length = data.query.search.length - 1;
 			  } else {
 			  	arr_length = 4;
 			  }
@@ -260,7 +263,7 @@ $(".relationship_partial_toggle").live('click',function(){
   
 			  //  Loop through first 5 (maximum) suggestions and show 'em
 			  for(var i = 0; i<=arr_length; i++){
-			  	$("#results").append('<div class="suggestion" >'+search_results[i]+'</div>');
+			  	$("#results").append('<div class="suggestion" >'+data.query.search[i].title+'</div>');
   			  }   //  End of for loop
   		  }); //  End of getJSON function
   	   }  //  End of If structure
@@ -452,7 +455,8 @@ $(".relationship_partial_toggle").live('click',function(){
 	  $('#text_preview').removeAttr('style');
 	  $("#wait").empty();
 	  $('#form_container').css("display", "none");
-	  $("#query").val(''); 		
+	  $("#query").val('');
+	  $("#frm_is_suggestion").val(''); 		
 	}
 
 // -------------------------------------------------------------------------------
@@ -489,6 +493,8 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------
 
 	$('.btn_image_edit').live('click', function(){
+	  // Default inner HTML		
+	  $(this).html('Edit Issue image');	
 	  // Display the Modal for image options
 	  $(".edit_image_modal").toggle();
 	  
@@ -501,13 +507,17 @@ $(".relationship_partial_toggle").live('click',function(){
 			  	$('#image_edit_option' + (i+1)).css({'background-image': 'url("'+item.tbUrl+'")'});
 			  	$('.check_empty_edit').show();
 			  	if ( i == 2 ) return false;
+			  	  // Show an up arrow	
+				  				  	
 			  	});  
 			  // Select the first image option by default	
 			  $(".image_edit_container_wait").hide();
+			  $('.btn_image_edit').html('Edit Issue image &#9650;');
 			  $(".image_edit_container").show();
 			  $(".check_clicked_edit:first").show();
 			  // Set the background of this first selected as the default value
 			  $("#frm_img_update").val(extractUrl($("#image_edit_option1").css("background-image")))
+
 		  });
 		}
 	});
@@ -523,6 +533,192 @@ $(".relationship_partial_toggle").live('click',function(){
 		$("#frm_img_update").val(extractUrl($(this).parents(".image_edit_option").css("background-image")))
 	});
 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// S U G G E S T I O N S     M E D I A W I K I     D A T A 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+	var queryEncoded_sugg = ""
+	var suggestion_thumb_to_update
+	
+	$(".suggestion_thumb").live('click', function(){
+		// Opacity changes to highlight the one that is clicked
+		$('.relationship_thumb').not($(this)).animate({'opacity': '0.3'});
+		$(this).animate({'opacity': '1'});
+		
+		// Hide Linkout class if shown anywhere 		
+		$(".issue_linkout").removeAttr('style');
+		
+		// Remove any existing stle attributes/backgrounds from the thumbnails
+		$(".relationship_thumb_suggestion").removeAttr('style').removeClass('suggestion_selected');		
+		
+		// initialize the relationship
+		$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
+		// Show the spinner
+		$("#relationship_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+	 	
+	 	// DOM object for the thumbnail that will be updated
+	 	suggestion_thumb_to_update = $(this).children(".relationship_thumb_suggestion")
+	 	
+	 	// Form query
+	 	var queryRaw_sugg = $(this).children(".relationship_suggestion_title").text().trim()
+	    var queryEncoded_sugg = encodeURIComponent(queryRaw_sugg);
+	    var jsonData_sugg = (url_img_name + queryEncoded_sugg + "&callback=?") 		
+		
+		// Call ParseJSON fn
+		parseJSON_sugg(jsonData_sugg);
+	});
+
+// -------------------------------------------------------------------------------
+// P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
+// -------------------------------------------------------------------------------
+  function parseJSON_sugg(jsonData_sugg) {
+	// parse the json
+	  $.getJSON(jsonData_sugg, function (data_sugg) {
+	  	// call the getJson function
+	  	getContent_sugg(data_sugg);
+	  	// remove spinner
+	  	$("#relationship_wait").empty();
+	  });
+	 }
+  
+// -------------------------------------------------------------------------------  
+// R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T			
+// -------------------------------------------------------------------------------  		
+  function getContent_sugg(JData_sugg) {
+
+      var Jval_sugg = JData_sugg.parse.text["*"];
+	  	//  populate the description text
+	  	text_preview = $(Jval_sugg.replace(/<p><br \/><\/p>/gi,'')).filter('p:first').text().replace(/\[\d+\]/gi,'');
+	  
+		  //  Throw error if no text was received
+		  if(text_preview == ''){
+		  	text_preview = "No data! Please try a different keyword."
+  
+	  	  //  If the search was successful - 
+	  	} else {
+	  		if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
+	  		
+	  		// Make the Causal sentence 
+	  		$("#title_issue").html($(".main_thumb_title a").text().trim());
+	  		// call function to identify what should be the causal sentence?
+	  		write_causal_sentence($(".central_causality_container").text().trim())
+			$("#title_relationship").html(JData_sugg.parse.title); 
+			$("#title_dynamic_text").removeAttr('style');
+		  	
+		  	// Hide the Divs that are not required
+			$(".relation_controls, .relation_discussion").hide();
+			
+			// Show the Divs and replace HTML
+			$("#system_generated").show();
+			$('#relationship_title_dynamic').html(JData_sugg.parse.title + ":");
+			$('.rationale_headers:first').html('Wikipedia Description');
+			$('#relationship_descr_dynamic').html(text_preview);  
+			$('#relationship_linkout_dynamic').html('<img class="linkout" src="/images/system/linkout.png">')
+			var linkSrc = "http://en.wikipedia.org/wiki/" + (JData_sugg.parse.title).split(' ').join('_');
+			$('#relationship_link_dynamic').html('<a href="' + linkSrc + '" target="_blank">more on Wikipedia</a>');
+			  	
+			// find the image from Json
+			img_src = $(Jval_sugg).find('img.thumbimage').attr('src');  
+			
+			// if image not found from wikipedia, get it from google
+			if (img_src == null){
+					
+				  var google_imgquery = encodeURIComponent(JData_sugg.parse.title)
+				  // retrieve JSON from google images search and pull the url for first image result
+				  $.getJSON(url_google_img + google_imgquery + '&callback=?', function(data_sugg) {
+					  $.each(data_sugg.responseData.results, function(i,item){
+					  	// replace HTML of target Div
+					  	suggestion_thumb_to_update.css({'background-image': 'url("'+item.tbUrl+'")'}).addClass('suggestion_selected');;
+					  	if ( i == 1 ) return false;
+					  	});  
+					 // Show the accept or reject buttons once images are loaded
+					 suggestion_thumb_to_update.siblings(".issue_linkout").fadeIn(); 	
+				  });
+  
+			  	// if the image was found from WIKIPEDIA itself, then just go ahead and use that.
+			  	} else {
+				  // replace HTML of target Div 
+				  suggestion_thumb_to_update.css({'background-image': 'url("'+img_src+'")'}).addClass('suggestion_selected');
+				 // Show the accept or reject buttons once images are loaded
+				 suggestion_thumb_to_update.siblings(".issue_linkout").fadeIn();  
+  				
+  				}  // END of If structure (checking for Image Success from Wikipedia)	  
+  			}  // END of If structure (checking for Text Success from Wikipedia)
+  }  // END of function
+
+
+
+	function write_causal_sentence(current_sentence){
+
+	switch (current_sentence) { 
+	  case 'is caused by':
+		$("#title_causality").html('may be caused by')
+		$("#frm_action").val('C')
+	  break;
+	  case 'causes':
+		$("#title_causality").html('may cause')
+	  	$("#frm_action").val('E')
+	  break;
+	  case 'is reduced by':
+		$("#title_causality").html('may be reduced by')
+		$("#frm_action").val('I')
+	  break;
+	  case 'reduces':
+		$("#title_causality").html('may reduce')
+		$("#frm_action").val('R')
+	  break;
+	  case 'is a superset of':
+		$("#title_causality").html('may be a superset of')
+		$("#frm_action").val('S')
+	  break;
+	  case 'is a subset of':
+		$("#title_causality").html('may be a subset of')
+		$("#frm_action").val('P')
+	  break;
+	  }
+		
+		$("#title_causality").addClass('suggested_causality')
+		
+	}
+
+
+	$(".suggestion_accept").live('click', function(){
+	  	// Call the function to show the spinner and make space if required
+	  	showWait_makeSpace();
+		// collect the form values
+		sugg_valueCollect();
+		// Submit the form
+		$.post($("#new_issue").attr("action"), $("#new_issue").serialize(), null, "script");
+
+		return false;
+	});
+
+	function sugg_valueCollect(){
+		// 1.   I M A G E   U R L
+	  	$("#frm_img_url").val(extractUrl(suggestion_thumb_to_update.css("background-image")));
+	  	// 2.   W I K I P E D I A    U R L
+	  	$("#frm_wiki_url").val($("#relationship_link_dynamic a").attr('href')); 
+	  	// 3.   W I K I P E D I A    D E S C R I P T I O N 
+	  	$("#frm_descr").val($("#relationship_descr_dynamic").text().trim());
+	  	// 4.   W I K I P E D I A    T I T L E 
+	  	var title_raw    = $("#relationship_title_dynamic").text().trim()
+	  	var title_sliced = title_raw.substring(0, title_raw.length - 1)
+		$("#frm_title").val(title_sliced);
+		// 5.   C A U S A L I T Y    T Y P E
+		// ALREADY POPULATED ABOVE
+		// 6.   I S S U E    I D
+		$("#frm_type_id").val($("#issue_id_store").text().trim());
+		// P A S S    S U G G E S T I O N    I D    P A R A M
+		$("#frm_is_suggestion").val(suggestion_thumb_to_update.siblings(".suggestion_id_store").text().trim())
+	
+	}
+	
+
+	$(".suggestion_reject").live('click', function(){
+		return false;
+	})
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  

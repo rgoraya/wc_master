@@ -41,5 +41,5 @@
     -if current_user
       - if current_user.id == comment.user_id 
         .reference_delete
-          = link_to image_tag('/images/system/close1.png', :width=>"12px", :border=>0), comment, :method => :delete, :remote=>true, :class=>"del-comment"
+          = link_to "", comment, :method => :delete, :remote=>true, :class=>"del-comment"
     .clearboth

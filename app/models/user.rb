@@ -14,6 +14,13 @@ class User < ActiveRecord::Base
 
 	has_many :feedbacks
 
+  has_many :votes
+  # all relationships the user endorses
+  has_many :endorsed_relationships, :through => :votes, :source => :relationship, :conditions => ['vote_type = "E"']
+  # all relationships the user contests
+  has_many :contested_relationships, :through => :votes, :source => :relationship, :conditions => ['vote_type = "C"']
+
+
   # search functionality
   def self.search(search)
     if search
@@ -126,10 +133,10 @@ class User < ActiveRecord::Base
           case version.event
             when 'create' 
               activity[:action]='Commented'
-              activity[:icon_position]='0px -40px'
+              activity[:icon_position]='0px -80px'
             when 'destroy' 
-              activity[:action]='Removed'
-              activity[:icon_position]='-40px -40px'
+              activity[:action]='Deleted comment'
+              activity[:icon_position]='-40px -80px'
           end
           relationship_version=Version.find(:all, :conditions=>["item_type=? AND item_id=?", 'Relationship', version.get_object.relationship_id]).first
           if relationship_version.nil?
@@ -140,7 +147,7 @@ class User < ActiveRecord::Base
           	if cause_version.nil? || issue_version.nil?
             	activity[:what]='? (data untraceable)'
           	else
-            	activity[:what]=cause_version.get_object.title + ' &#x27a1; ' + issue_version.get_object.title
+            	activity[:what]=cause_version.get_object.title + ' &#9658; ' + issue_version.get_object.title
           	end
 
           	case relationship_version.get_object.relationship_type
@@ -152,14 +159,17 @@ class User < ActiveRecord::Base
 
       end #case item_type
 
-      !activity[:what].include?('untraceable') ? activity[:score]= \
-          Reputation::Utils.reputation(:action=>version.event.downcase.to_sym, \
-          :type=>version.item_type.downcase.to_sym, \
-          :id=>version.item_id.to_i, \
-          :me=>version.whodunnit.to_i, \
-          :you=>(version.get_object.attributes.has_key?("user_id") ? version.get_object.user_id.to_i : nil), \
-          :undo=>false, \
-          :calculate=>false)[0] : activity[:score]=nil
+			activity[:score] = nil
+
+			#since we don't show the score in the activity table, let's skip this function call
+      #!activity[:what].include?('untraceable') ? activity[:score]= \
+      #    Reputation::Utils.reputation(:action=>version.event.downcase.to_sym, \
+      #    :type=>version.item_type.downcase.to_sym, \
+      #    :id=>version.item_id.to_i, \
+      #    :me=>version.whodunnit.to_i, \
+      #    :you=>(version.get_object.attributes.has_key?("user_id") ? version.get_object.user_id.to_i : nil), \
+      #    :undo=>false, \
+      #    :calculate=>false)[0] : activity[:score]=nil
 
     
     return activity

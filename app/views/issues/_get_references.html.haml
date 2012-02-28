@@ -54,5 +54,5 @@
     -if current_user
       - if current_user.id == reference.user_id 
         .reference_delete
-          = link_to image_tag('/images/system/close1.png', :width=>"12px", :border=>0), reference_path(reference), :method => :delete, :remote=>true, :class=>"del-reference"
+          = link_to "", reference_path(reference), :method => :delete, :remote=>true, :class=>"del-reference"
     .clearboth

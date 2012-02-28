@@ -1,6 +1,6 @@
 class Reference < ActiveRecord::Base
 
-  has_paper_trail
+  has_paper_trail :on=>[:create, :destroy]
   
   belongs_to :relationship, :counter_cache => true 
   belongs_to :user
