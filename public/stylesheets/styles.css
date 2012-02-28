@@ -3192,8 +3192,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 
 .reference_gravatar, .comment_gravatar{
 	float:left;
-	border:1px solid #bebebe;
-	margin-right:-1px;
+	margin-right:-1px;	
 }
 
 .created_by{
@@ -3366,6 +3365,7 @@ cursor:default;
 	position: absolute;
 	opacity: 0.8;
 	border: 1px solid #4DB8DB;
+	cursor:pointer;
 }
 
 .main_thumb_title a{
@@ -3382,6 +3382,7 @@ cursor:default;
 	background-size:150px auto;
 	text-align:center;
 	background-color:#fcfcfc;
+	cursor:pointer;
 	}
 
 .issue_thumb_main a{
