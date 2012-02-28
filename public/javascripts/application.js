@@ -182,10 +182,12 @@ $(function() {
 				if ($('#search_visible_input').val().trim() != ""){
 		  		$('#search_invisible_input').val($('#search_visible_input').val().trim())
 		  		$('#search_form').submit();
+				return false
 				}
 			}
 			else{
 				window.location = $(".search_result_appl a").eq(searchBoxIndex).attr("href");
+				return false
 			} 
   	}
 		else if (f.keyCode == 40){
