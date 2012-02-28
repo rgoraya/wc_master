@@ -86,7 +86,7 @@ class ReferencesController < ApplicationController
 
     @reference.destroy
 
-		Version.destroy_all(["item_type = ? AND item_id = ?", "Reference", @reference.id])
+		#Version.destroy_all(["item_type = ? AND item_id = ?", "Reference", @reference.id])
 
     @refnotice = "Reference Deleted!"
     respond_to do |format|

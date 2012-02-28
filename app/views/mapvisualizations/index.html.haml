@@ -13,9 +13,10 @@
 -# specifies the data that we're going to be working with in javascript
 :javascript
   #{javascript_graph(@vis.nodes,@vis.edges)}
-  #{load_raphael(@vis.compact_display)}
   //var notice_msg = "#{escape_javascript(flash[:notice])}";
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
+:javascript
+  #{load_raphael(@vis.compact_display)}
 = javascript_include_tag "mapvisualization_index.js" #for interaction/ajax stuff
 
 #contentwrapper
