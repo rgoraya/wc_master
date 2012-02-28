@@ -86,7 +86,7 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-          issues, relationships = build_graph(static,40) #why would this get called later than the default-layout??
+          issues, relationships = build_graph(static,30) #why would this get called later than the default-layout??
       
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
@@ -97,7 +97,7 @@ class Mapvisualization #< ActiveRecord::Base
           rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids) #can we clean this up??
           static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
 
-          issues, relationships = build_graph(static,40)
+          issues, relationships = build_graph(static,30)
 
           convert_activerecords(issues,relationships)
           @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
@@ -248,7 +248,7 @@ class Mapvisualization #< ActiveRecord::Base
     if @nodes.length > 0
       set_static_nodes
       static_wheel_nodes
-      fruchterman_reingold(50) #fast, little bit of layout for now
+      fruchterman_reingold(100) #fast, little bit of layout for now
       normalize_graph
       #do_kamada_kawai
     else

@@ -3,10 +3,9 @@
 *****/
 
 var T_OFF = 9 //txt offset
-var ARROW_LENGTH = 20 // arrowhead length
-var ARROW_HEIGHT = 8 // arrowhead height
-var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BEBEBE'}
-var TORAD = Math.PI/360 //mult to convert from degrees to radians
+var ARROW_LENGTH = 15 // arrowhead length
+var ARROW_HEIGHT = 6 // arrowhead height
+var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#8F8F8F'}
 var DESEL_OP = 0.4
 
 //details on drawing/laying out a node
@@ -158,35 +157,6 @@ function getPath(edge)
 		return "M"+a.x+","+a.y+" Q "+control[0]+","+control[1]+" "+b.x+","+b.y
 	}
 
-
-	// //-----------------Calculate the third point of Equilateral Triangle on the coordinate as the control point------------------
-	// pivotPoint = (b.x > a.x) ? a : b
-	// dx = b.x - a.x
-	// dy = b.y - a.y 
-	// lengthAB = Math.sqrt(dx*dx + dy*dy)
-	// angleAB = Math.atan(dy/dx)
-	// 
-	// if(dx == 0){ //to fix vertical lines (probably due to the tangent in arctan)
-	// 	if(angleAB < 0)
-	// 		angleAB = -angleAB
-	// 	else {
-	// 		angleAB = (Math.PI/-4.0) //WHY DOES THIS NOT BEND RIGHT?
-	// 	}
-	// }
-	// 
-	// bend = 30 * Math.ceil(edge.n/2) //scale bend based on how many edges there are
-	// if(edge.n % 2 == 1){ //odd, curving up
-	// 	ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB + bend * TORAD) + pivotPoint.x
-	// 	ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB + bend * TORAD) + pivotPoint.y
-	// 	return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
-	// }
-	// 
-	// if(edge.n % 2 == 0){ //even, curving down
-	// 	ctrlx = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.cos(angleAB - bend * TORAD) + pivotPoint.x
-	// 	ctrly = lengthAB / (2 * Math.cos(bend * TORAD)) * Math.sin(angleAB - bend * TORAD) + pivotPoint.y
-	// 	return "M"+a.x+","+a.y+" Q " + ctrlx + ","+ctrly+" "+b.x+","+b.y
-	// }
-
 	return "" //in case we didn't get anything?
 }
 
@@ -213,16 +183,18 @@ function getArrowPath(point)
 //should this be a text function instead?
 function getArrowSymbolPath(point, reltype)
 {
-	symbolSize = 3;
+	symbolSize = 2;
+	x_off = -8
+	y_off = 1
 
 	if(reltype&INCREASES){
-		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize);
+		return "M " + (point.x+x_off) + " " + (point.y+y_off) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize);
 	}
 	else if(reltype&SUPERSET){
-		return "M " + (point.x-9) + " " + (point.y+2); //  should delete this object or make another icon !
+		return "M " + (point.x+x_off) + " " + (point.y+y_off); //  should delete this object or make another icon !
 	}
 	else{  //if decreases 
-		return "M " + (point.x-9) + " " + (point.y+2) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize*3) + " 0 l 0 " + symbolSize;
+		return "M " + (point.x+x_off) + " " + (point.y+y_off) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize*3) + " 0 l 0 " + symbolSize;
 	}
 	
 	return "" //if problem
@@ -234,7 +206,7 @@ function clickNode(node){
 	//do form submit without needing to make the form!
 	$.ajax({
 		url: '/mapvisualizations',
-		data: {"do":'get_issue',id:node.id, x:node.x, y:node.y},
+		data: {'do':'get_issue',id:node.id, x:node.x, y:node.y},
 		complete: function(data) {show_modal(data);},
 		dataType: 'script'
 	});
@@ -246,8 +218,8 @@ function clickNode(node){
 }
 
 function clickEdge(edge){
-	// curve = getPath(edge);
-	// midPoint = getPathCenter(curve);	
+	curve = getPath(edge);
+	midPoint = getPathCenter(curve);	
 	// arrowPath = getArrowPath(midPoint)
 	
 	$.ajax({
