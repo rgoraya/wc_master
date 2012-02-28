@@ -206,7 +206,7 @@ function clickNode(node){
 	//do form submit without needing to make the form!
 	$.ajax({
 		url: '/mapvisualizations',
-		data: {do:'get_issue',id:node.id, x:node.x, y:node.y},
+		data: {'do':'get_issue',id:node.id, x:node.x, y:node.y},
 		complete: function(data) {show_modal(data);},
 		dataType: 'script'
 	});
@@ -224,7 +224,7 @@ function clickEdge(edge){
 	
 	$.ajax({
 		url: '/mapvisualizations',
-		data: {do:'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
+		data: {"do":'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
 		complete: function(data) {show_modal(data);},
 		dataType: 'script'
 	});

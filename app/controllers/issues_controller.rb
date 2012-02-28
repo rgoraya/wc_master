@@ -18,17 +18,17 @@ require 'backports'
   # GET /issues/1.xml
   def show
     @issue = Issue.find(params[:id]) 
-    
+
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
     else
       @rel_type = "is caused by"
     end
-    
+
     # Call to retrieve the corresponding relationships based on the params
     get_selected_relations
-    
+
     # Default params to "causes" for initial load
     if params[:rel_id]
       @relationship = Relationship.find(params[:rel_id])
@@ -37,21 +37,32 @@ require 'backports'
       @rel_cause = Issue.find(@relationship.cause_id)
       @issue_id = params[:issueid]
       if @issue.id == @rel_cause.id # then swap!
-         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
+        @rel_issue, @rel_cause = @rel_cause, @rel_issue  
       end
       @causal_sentence = @rel_type
     end
 
     @references = Issue.rel_references(params[:rel_id])
-    
+
     respond_to do |format|
-      format.html # show.html.erb
+      format.html do
+        
+        # if this is an HTML load then check for suggestions and try pulling them if not found
+        if @issue.suggestions == [] 
+           load_suggestions
+        end
+      end
       format.xml  { render :xml => @issue }
       format.js
-     
+
     end
   end
-  
+
+  def load_suggestions
+    Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])  # Suggestions for new issue  
+    initialize_suggestion_object
+  end
+
   def get_selected_relations
     case @rel_type       
 
@@ -100,7 +111,7 @@ require 'backports'
 
   def set_selected_relations_common_data(causality, relationship_type, add_btn_id, causal_sentence)
 
-    @issue_suggestions = @issue.suggestions.where(:causality => causality,:status => 'N')
+    #@issue_suggestions = @issue.suggestions.where(:causality => causality,:status => 'N')
     @issue_relations.each do |relation|
       if(causality.eql? 'E' or causality.eql? 'R' or causality.eql? 'S')
         @rel_id = Relationship.where(:issue_id=>relation.id, :cause_id=>@issue.id, :relationship_type=>relationship_type).select('id').first.id
@@ -125,7 +136,7 @@ require 'backports'
 
   def get_relationship
    
-   if params[:rel_id]
+   if params[:rel_id] && params[:rel_id] != ""
       @relationship = Relationship.find(params[:rel_id])
       @rel_references = @relationship.references
 
@@ -138,7 +149,12 @@ require 'backports'
          @rel_issue, @rel_cause = @rel_cause, @rel_issue  
       end
       @causal_sentence = params[:sentence]
-    end
+   
+   elsif params[:issueid] 
+      @issue = Issue.find(params[:issueid])
+   end
+
+   
 
     respond_to do |format|
       format.html 
@@ -189,13 +205,10 @@ require 'backports'
         add_already_existent_issue
       else
         add_new_issue
-        Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])  # Suggestions for new issue 
       end
     else
       respond_to do |format|     
         if @issue.save
-          initialize_suggestion_object
-
 					Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:issue, \
                                    :me=>@issue.user_id, \
@@ -221,7 +234,8 @@ require 'backports'
     set_type_of_relationship(true)
 		if !check_if_same_relationship_existed       
     	save_relationship
-		end 
+		end
+		 
   end
 
 	def check_if_same_relationship_existed
@@ -231,15 +245,16 @@ require 'backports'
 			rel = version.get_object
 			if rel.issue_id == @relationship.issue_id && rel.cause_id == @relationship.cause_id && rel.relationship_type == @relationship.relationship_type
 				vs << version
+				@notice="Relationship already exists!"
 				break
 			end
 		end
 
 		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
 			vs.last.restore
-			@notice = "An identical relationship used to exist. It is now reverted back to existence!"
+			@notice = "An identical relationship used to exist. It is now restored!"
 		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
-			@notice = "An identical relationship used to exist. Please login to have sufficient privilege to re-create this relationship!"
+			@notice = "An identical relationship used to exist. Please login to restore this relationship."      
 		end
 
 		return !vs.empty?
@@ -269,8 +284,6 @@ require 'backports'
 
   def add_new_issue
     if @issue.save
-      initialize_suggestion_object    
-
       Reputation::Utils.reputation(:action=>:create, \
                                    :type=>:issue, \
                                    :me=>@issue.user_id, \
@@ -317,6 +330,8 @@ require 'backports'
 
     @notice = if already_exists
                 "New #{args[2]} linked Successfully"
+              elsif params[:rel_suggestion_id] != ""
+                "Suggestion accepted as a #{args[1]}"     
               else
                 "New Issue was created and linked as #{args[1]}"
               end
@@ -335,17 +350,27 @@ require 'backports'
 
       #redirect_to(:back, :notice => @notice)
     else
-      error_saving_causal_link
+      @notice = @relationship.errors.full_messages.join(", ")    
     end   
   end
 
   def remove_duplicate_suggestions
-    if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
-      @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
-      @suggestion = Suggestion.find(@suggestion_id)
+    
+    # if this is a case of user 'accepting' a suggestion 
+    if params[:rel_suggestion_id] != ""
+      @suggestion = Suggestion.find(params[:rel_suggestion_id])
       @suggestion.update_attributes('status' => 'A')
       @suggestion.save
-    end 
+    
+    else
+      # If not then check to remove the suggestions based on wikipedia URL and the Causality type
+      if Suggestion.exists?(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id)
+        @suggestion_id = Suggestion.where(:causality => @causality, :wiki_url => [@issue.wiki_url], :issue_id=>@causality_id).select('id').first.id
+        @suggestion = Suggestion.find(@suggestion_id)
+        @suggestion.update_attributes('status' => 'A')
+        @suggestion.save
+      end 
+    end
   end
 
   def error_saving_causal_link
@@ -414,17 +439,14 @@ require 'backports'
                                  :me=>current_user.id, \
                                  :you=>@issue.user_id, \
                                  :undo=>false, \
-                                 :calculate=>false)
-    
-    
-    
+                                 :calculate=>true)
+   
     @notice = "Issue Deleted!"
     
     respond_to do |format|
       format.html { redirect_to(:back, :notice => 'Issue was successfully deleted') }
       format.xml  { head :ok }
-      format.js
-      
+      format.js     
     end
   end
 
@@ -444,7 +466,7 @@ require 'backports'
     @issue = Issue.find(params[:id])
 		@versions = []
 		if Version.last.id - params[:more].to_i >= 0
-			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id - params[:more].to_i, "Relationship"]).each do |version|
+			Version.order("created_at DESC").find(:all, :conditions=>["id <= ? AND item_type = ?", Version.last.id-params[:more].to_i, "Relationship"]).each do |version|
 				relationship = version.get_object
 				if relationship.issue_id == @issue.id || relationship.cause_id == @issue.id
 					@versions << version

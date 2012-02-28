@@ -29,28 +29,43 @@ class Suggestion < ActiveRecord::Base
   def get_suggestions(url, issueid)
 
     if url.size > 10
-
-      this_issue         = Issue.find(issueid)
-      @current_suggested = {}
-      @accepted          = {}
-
-      retrieve_suggested_relations_for_issue(this_issue)
-      retrieve_accepted_relations_for_issue(this_issue)
-
-      # Get the page contents into a buffer
-      @buffer = Hpricot(open(url, "UserAgent" => "reader"+rand(10000).to_s).read)
-
-      causes     = search_type_of_relation_in_text(issueid, 'C')
-      effects    = search_type_of_relation_in_text(issueid, 'E')
-      inhibitors = search_type_of_relation_in_text(issueid, 'I') 
-      reduceds   = search_type_of_relation_in_text(issueid, 'R') 
-      parents    = search_type_of_relation_in_text(issueid, 'P') + search_superset_in_table(issueid)
-      subsets    = search_type_of_relation_in_text(issueid, 'S') 
+      
+      # wrapping the code below in a begin-rescue block to counter the 403 forbidden
+      begin
+        
+        this_issue         = Issue.find(issueid)
+        @current_suggested = {}
+        @accepted          = {}
+  
+        retrieve_suggested_relations_for_issue(this_issue)
+        retrieve_accepted_relations_for_issue(this_issue)
+  
+        # Get the page contents into a buffer
+        @buffer = Hpricot(open(url, "UserAgent" => "reader"+rand(10000).to_s).read)
+  
+        causes     = search_type_of_relation_in_text(issueid, 'C')
+        effects    = search_type_of_relation_in_text(issueid, 'E')
+        inhibitors = search_type_of_relation_in_text(issueid, 'I') 
+        reduceds   = search_type_of_relation_in_text(issueid, 'R') 
+        parents    = search_type_of_relation_in_text(issueid, 'P') + search_superset_in_table(issueid)
+        subsets    = search_type_of_relation_in_text(issueid, 'S') 
+        
+      rescue
+        causes, effects, inhibitors, reduceds, parents, subsets      = []        
+      end
 
     end
-
-    return causes.uniq, effects.uniq, inhibitors.uniq, reduceds.uniq, parents.uniq, subsets.uniq
-
+    
+    # If the suggestions were not found that was probably because of 403 forbidden Error
+    if causes.nil? && effects.nil? && inhibitors.nil? && reduceds.nil? && parents.nil? && subsets.nil?
+      return causes, effects, inhibitors, reduceds, parents, subsets
+      
+    # If found then send unique suggestions
+    else
+      return causes.uniq, effects.uniq, inhibitors.uniq, reduceds.uniq, parents.uniq, subsets.uniq
+    
+    end
+    
   end
 
   def retrieve_suggested_relations_for_issue(this_issue)

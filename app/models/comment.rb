@@ -1,6 +1,5 @@
 class Comment < ActiveRecord::Base
 
-  #has_paper_trail
 	
 	belongs_to :user
 	belongs_to :relationship
@@ -8,6 +7,6 @@ class Comment < ActiveRecord::Base
 	validates :content, :presence => {:message => 'Please enter your comment!'}
 	validates :relationship_id, :presence => true
 
-	#has_paper_trail :on=>[:destroy]
+	has_paper_trail :on=>[:create, :destroy]
 
 end
