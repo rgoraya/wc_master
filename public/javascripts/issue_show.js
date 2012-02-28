@@ -518,7 +518,7 @@ $(".relationship_partial_toggle").live('click',function(){
 	  // If the form was opened:
 	  if ($(".edit_image_modal").is(":visible")){
 		  // retrieve JSON from google images search and pull the url for first image result
-		  $.getJSON(url_google_img+encodeURIComponent($(".main_thumb_title a").text())+'&callback=?', function(data) {
+		  $.getJSON(url_google_img+encodeURIComponent($(".main_thumb_title").text())+'&callback=?', function(data) {
 			  $.each(data.responseData.results, function(i,item){
 			  	// replace HTML of target Div
 			  	$('#image_edit_option' + (i+1)).css({'background-image': 'url("'+item.tbUrl+'")'});

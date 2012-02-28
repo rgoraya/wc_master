@@ -3,7 +3,7 @@ $('#notice').html("<%= escape_javascript(@notice) %>")
 
 var n = ("<%= escape_javascript(@notice) %>")
 
-if (n.indexOf("linked") >= 0 || n.indexOf("accepted") >= 0 || n.indexOf("created") >= 0 )
+if (n.indexOf("linked") >= 0 || n.indexOf("accepted") >= 0 || n.indexOf("created") || n.indexOf("restored") >= 0 )
 { 
 	$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
 	$("#get_rel_sentence_input").val($(".central_causality_container").text().trim());
