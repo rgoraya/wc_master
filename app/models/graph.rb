@@ -70,26 +70,26 @@ class Graph
 
 	def initialize
 		# Generates empty graph which can be filled later
-		@nodes = []
-		@edges = []
+		@nodes = Hash.new()
+		@edges = Array.new()
 		@source = -1
 	end
 
 	def update_graph_contents(issues, source = -1)
 		# Clear existing nodes and edges, regenerate from input issues
-		@nodes = []
-		@edges = []
+		@nodes = Hash.new()
+		@edges = Array.new()
 		@source = source
 
-		# Build issues and retrieve their relationships
-		issues.each do |issue|
-			relationships = Relationship.where("cause_id == ?", issue.id)
+		# Build map of nodes from input issues
+		issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
 
-			@nodes << Node.new(issue.id, issue.title, issue.wiki_url)
-			relationships.each do |r|			
-				@edges << Edge.new(r.id, r.cause_id, r.issue_id, r.relationship_type)
-			end
-		end
+		# Build list of edges from relationships between existing nodes	
+		relationships = Relationship.where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", @nodes.keys, @nodes.keys)
+		relationships.each do |r|
+			type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
+			@edges << Edge.new(r.id, r.cause_id, r.issue_id, type)
+		end if !relationships.nil?
 	end
 
 	def get_nodes()
