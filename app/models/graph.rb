@@ -97,14 +97,6 @@ class Graph
 		end if !relationships.nil?
 	end
 
-	def get_nodes()
-		return @nodes
-	end
-
-	def get_edges()
-		return @edges
-	end
-
 	# Custom graph generation
 	def get_graph_of_path(src, dest, limit)
 		# On hold, might move
