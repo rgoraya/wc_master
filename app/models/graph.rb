@@ -27,12 +27,30 @@ class Graph
 	end	
 
 	class Edge
-		def initialize(a, b, rel_type)
+		include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
+		
+		attr_accessor :id, :a, :b, :rel_type
+
+		# A placeholder converter for building the edges
+		RELTYPE_TO_BITMASK = {nil=>MapvisualizationsHelper::INCREASES, 'I'=>MapvisualizationsHelper::DECREASES, 'H'=>MapvisualizationsHelper::SUPERSET}
+
+		def initialize(id, a, b, rel_type)
+			@id = id
 			@cause_id = a
 			@issue_id = b
 			@rel_type = rel_type
 		end
 
+		def to_s
+			"Edge "+@id.to_s+": "+name
+		end
+
+		def name
+			conn = @rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'increases' : (@rel_type & MapvisualizationsHelper::SUPERSET == 0 ? 'decreases' : 'includes')
+			@a.name+" "+conn+" "+@b.name
+		end
+
+		# Placeholder for debugging
 		def edge_to_s
 			return "#{@cause_id} #{@rel_type} #{@issue_id}"
 		end
