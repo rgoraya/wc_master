@@ -121,10 +121,6 @@ class Graph
 		# On hold, might move
 	end
 
-	def get_graph_of_effects(issue, steps=1)
-		# On hold
-	end
-
 	def get_graph_where (condition, limit=50)
 		# Placeholder - Will spice this up later
 	end
