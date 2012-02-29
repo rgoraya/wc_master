@@ -89,6 +89,10 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
+		  @graph.get_graph_of_issue_neighbors(static)
+
+
+
           ### EUGENIA ###
           # This is where we build a graph around a particular node or set of nodes (fetched out the param above)
           # This is probably what "get_graph_of_effects" was meant to do, basically fetch the nodes that are 
