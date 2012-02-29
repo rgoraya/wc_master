@@ -70,9 +70,8 @@ class Mapvisualization #< ActiveRecord::Base
     @edges = args[:edges] || Array.new()
     @adjacency = args[:adjancecy] || Hash.new(0)
 
-    ### EUGENIA ###
-    # This is where empty graph initialization would go.
-    ###
+	# Build a Graph of Nodes
+	@graph = Graph.new
 
     puts "===mapvisualization initialize args===" #debugging
     puts args
