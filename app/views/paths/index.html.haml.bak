@@ -1,0 +1,15 @@
+%h1 Path Builder
+
+%table
+  %tr
+    %th
+    %th
+    %th
+
+  - @paths.each do |path|
+    %tr
+      %td= link_to 'Show', path
+      %td= link_to 'Edit', edit_path_path(path)
+      %td= link_to 'Destroy', path, :confirm => 'Are you sure?', :method => :delete
+
+%br
