@@ -117,6 +117,12 @@ class Graph
 		update_graph_contents(issues + neighbors.sample(limit))
 	end
 
+	def get_graph_of_most_cited(limit=50)
+		# Generates graph of most cited / highly rated / recent relationships and their endpoints
+		#relationships = Relationship.order("references_count DESC, updated_at DESC").limit(limit)
+
+	end
+
 	def get_graph_of_relationship_endpoints(relationships, limit=50)
 		# Retrieves issues connected to relationship endpoints
 		# then retrieves random (for now) subset of neighbors of those issues
