@@ -104,14 +104,16 @@ class Graph
 		update_graph_contents(issues)
 	end
 
-	def get_graph_of_issue_neighbors(issue_ids, steps=1)
+	def get_graph_of_issue_neighbors(core_issues, steps=1, limit=50)
 		# Retrieves any nodes connected to node(s) in issues array
 		# currently only set up for one step, but optional to add more in the future		
-		issues = Issue.find(issue_ids)
-		neighbors = Issue.joins(:relationships)
-			.where("relationships.issue_id IN (:get_issues) OR relationships.cause_id in (:get_issues)", 
-			{:get_issues => issue_ids})
-		update_graph_contents(issues & neighbors)
+		issues = Issue.where("id" => core_issues)
+			
+		neighbors = Issue.where("issues.id NOT IN (?)", core_issues)
+			.joins(:relationships).where("relationships.issue_id IN (:get_issues) OR relationships.cause_id IN (:get_issues)", 
+			{:get_issues => core_issues})
+		
+		update_graph_contents(issues + neighbors.sample(limit))
 	end
 
 	def get_graph_of_path(src, dest, limit)
