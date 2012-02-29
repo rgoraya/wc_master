@@ -132,26 +132,12 @@ class Mapvisualization #< ActiveRecord::Base
 		limit = 40		
 		@graph.get_graph_of_most_recent(limit)
 		
+		# Temporary until full conversion
 		@nodes = @graph.nodes
 		@edges = @graph.edges
-		# Fixme: Need adjacency
+		# Fixme: Need adjacency conversion too...
 
 		default_layout
-
-        ### EUGENIA ###
-        # This is where we show the most recent 40 nodes
-        # This is where get_graph_of_most_recent would go
-        # We need to set @nodes and @edges in here, before calling the last line of this block.
-        # This functionality is less important than the above blocks
-        ###
-        
-        #issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit) #get 40 most recent issues
-        #get all relationships between those nodes
-        #subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
-        #relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
-
-        #convert_activerecords(issues,relationships)
-        default_layout
 
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
