@@ -87,7 +87,7 @@ class Graph
 
 			@nodes << Node.new(issue.id, issue.title, issue.wiki_url)
 			relationships.each do |r|			
-				@edges << Edge.new(r.cause_id, r.issue_id, r.relationship_type)
+				@edges << Edge.new(r.id, r.cause_id, r.issue_id, r.relationship_type)
 			end
 		end
 	end

@@ -11,7 +11,7 @@
 
 <h3>Graph Edges</h3>
 <% edge_print = "" %>
-<% @g.get_edges().each do |edge| %>
+<% @g.edges.each do |edge| %>
 	<% edge_print += edge.edge_to_s + ", " %>
 <% end %>
 <h4><%= edge_print %></h4>
