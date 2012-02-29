@@ -3,11 +3,27 @@ class Graph
 
 	# Begin subclass definitions
 	class Node
+		include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
+
+	    attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
+
 		def initialize(id, name, url)
+			# Basic node members
 			@id = id
 			@name = name
 			@url = url
+
+			# Visualization members
+			@location = Vector[0.0,0.0]
+			@static = false #should the node move or not
+			@highlighted = false
+			@d = Vector[0.0,0.0] #delta variable
+			@a = Vector[0.0,0.0] #acceleration variable
 		end
+
+		def to_s
+			@id.to_s + ": "+@location.to_s+" ("+@name.to_s + ")"
+	    end
 
 		def get_name
 			return @name		
