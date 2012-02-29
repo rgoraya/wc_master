@@ -90,21 +90,16 @@ class Mapvisualization #< ActiveRecord::Base
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
 		  @graph.get_graph_of_issue_neighbors(static)
+		  # Note: Need to implement limit...
 
-
-
-          ### EUGENIA ###
-          # This is where we build a graph around a particular node or set of nodes (fetched out the param above)
-          # This is probably what "get_graph_of_effects" was meant to do, basically fetch the nodes that are 
-          # connected to the nodes whose id is in "static" above.
-          # We need to set @nodes and @edges in here, before calling the last two lines of this block
-          ###
-
-          issues, relationships = build_graph(static,30) #why would this get called later than the default-layout??
-      
-          convert_activerecords(issues,relationships)
-          @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
-          default_layout
+		  # Temporary
+		  @nodes = @graph.nodes
+		  @edges = @graph.edges
+		  
+		  # Make static variables centered
+		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
+	
+		  default_layout
         
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
