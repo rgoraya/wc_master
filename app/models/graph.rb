@@ -61,7 +61,7 @@ class Graph
 	validates_presence_of :nodes, :edges, :adjacency, :source
 
 	# Initialization and Attributes
-	attr_accessor :nodes, :edges, :source
+	attr_accessor :nodes, :edges, :source, :adjacency
 
 	def initialize(issues)
 		issues_to_graph = Issue.find(issues)
@@ -80,6 +80,7 @@ class Graph
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = Hash.new()
 		@edges = Array.new()
+		@adjacency = Hash.new()
 		@source = source
 
 		# Build map of nodes from input issues

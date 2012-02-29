@@ -134,6 +134,9 @@ class Mapvisualization #< ActiveRecord::Base
 		
 		@nodes = @graph.nodes
 		@edges = @graph.edges
+		# Fixme: Need adjacency
+
+		default_layout
 
         ### EUGENIA ###
         # This is where we show the most recent 40 nodes
