@@ -104,7 +104,7 @@ class Graph
 		update_graph_contents(issues)
 	end
 
-	def get_graph_of_issue_neighbors(core_issues, steps=1, limit=50)
+	def get_graph_of_issue_neighbors(core_issues, limit=50, steps=1)
 		# Retrieves any nodes connected to node(s) in issues array
 		# currently only set up for one step, but optional to add more in the future		
 		issues = Issue.where("id" => core_issues)

@@ -89,8 +89,7 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-		  @graph.get_graph_of_issue_neighbors(static)
-		  # Note: Need to implement limit...
+		  @graph.get_graph_of_issue_neighbors(static, 30)
 
 		  # Temporary
 		  @nodes = @graph.nodes
