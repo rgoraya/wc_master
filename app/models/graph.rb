@@ -80,7 +80,7 @@ class Graph
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = Hash.new()
 		@edges = Array.new()
-		@adjacency = Hash.new()
+		@adjacency = Hash.new(0)
 		@source = source
 
 		# Build map of nodes from input issues
@@ -91,7 +91,9 @@ class Graph
 		relationships.each do |r|
 			type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
 			@edges.push(Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type))
-			@adjacency[ [r.cause_id, r.issue_id] ] += 1
+			if !@adjacency.has_key?([r.cause_id, r.issue_id])		
+				@adjacency[ [r.cause_id, r.issue_id] ] = 0
+			end
 		end if !relationships.nil?
 	end
 
