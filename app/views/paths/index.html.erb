@@ -4,8 +4,8 @@
 
 <h3>Graph Nodes</h3>
 <% node_print = "" %>
-<% @g.get_nodes().each do |node| %>
-	<% node_print += node.get_name() + ", " %>
+<% @g.nodes.each do |node| %>
+	<% node_print += node.name + ", " %>
 <% end %>
 <h4><%= node_print %></h4>
 

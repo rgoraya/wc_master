@@ -24,10 +24,6 @@ class Graph
 		def to_s
 			@id.to_s + ": "+@location.to_s+" ("+@name.to_s + ")"
 	    end
-
-		def get_name
-			return @name		
-		end
 	end	
 
 	class Edge
