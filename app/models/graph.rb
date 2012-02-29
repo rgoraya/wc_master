@@ -113,6 +113,7 @@ class Graph
 			.joins(:relationships).where("relationships.issue_id IN (:get_issues) OR relationships.cause_id IN (:get_issues)", 
 			{:get_issues => core_issues})
 		
+		# This is taking a random sample of n neighbors, along with the static/core issues...
 		update_graph_contents(issues + neighbors.sample(limit))
 	end
 
