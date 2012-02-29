@@ -118,6 +118,8 @@ class Graph
 	end
 
 	def get_graph_of_relationship_endpoints(relationships, limit=50)
+		# Retrieves issues connected to relationship endpoints
+		# then retrieves random (for now) subset of neighbors of those issues
 	end
 
 	def get_graph_of_path(src, dest, limit)
