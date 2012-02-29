@@ -1,0 +1,17 @@
+<div style="height:50px"></div>
+<h2>Demo Type: <%= @demo_type %></h2>
+<h2>Source = <%= @src %></h2>
+
+<h3>Graph Nodes</h3>
+<% node_print = "" %>
+<% @g.nodes.each_pair do |k, v| %>
+	<% node_print += v.name + ", " %>
+<% end %>
+<h4><%= node_print %></h4>
+
+<h3>Graph Edges</h3>
+<% edge_print = "" %>
+<% @g.edges.each do |edge| %>
+	<% edge_print += edge.edge_to_s + ", " %>
+<% end %>
+<h4><%= edge_print %></h4>

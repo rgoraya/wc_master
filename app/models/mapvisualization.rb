@@ -57,7 +57,7 @@ class Mapvisualization #< ActiveRecord::Base
 
 ######## END SUBCLASS DEFINITIONS #########  
 
-  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice
+  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice, :graph
   
   BAD_PARAM_ERROR = "Please specify what to visualize!"
   NO_ITEM_ERROR = "The item you requested could not be found"
@@ -70,9 +70,8 @@ class Mapvisualization #< ActiveRecord::Base
     @edges = args[:edges] || Array.new()
     @adjacency = args[:adjancecy] || Hash.new(0)
 
-    ### EUGENIA ###
-    # This is where empty graph initialization would go.
-    ###
+	# Build a Graph of Nodes
+	@graph = Graph.new
 
     puts "===mapvisualization initialize args===" #debugging
     puts args
@@ -90,18 +89,16 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-          ### EUGENIA ###
-          # This is where we build a graph around a particular node or set of nodes (fetched out the param above)
-          # This is probably what "get_graph_of_effects" was meant to do, basically fetch the nodes that are 
-          # connected to the nodes whose id is in "static" above.
-          # We need to set @nodes and @edges in here, before calling the last two lines of this block
-          ###
+		  @graph.get_graph_of_issue_neighbors(static, 30)
 
-          issues, relationships = build_graph(static,30) #why would this get called later than the default-layout??
-      
-          convert_activerecords(issues,relationships)
-          @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
-          default_layout
+		  # Temporary
+		  @nodes = @graph.nodes
+		  @edges = @graph.edges
+		  
+		  # Make static variables centered
+		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
+	
+		  default_layout
         
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
@@ -128,21 +125,17 @@ class Mapvisualization #< ActiveRecord::Base
 
       ### TOP 40 ###
       elsif params[:q] == 'last40'
-        ### EUGENIA ###
-        # This is where we show the most recent 40 nodes
-        # This is where get_graph_of_most_recent would go
-        # We need to set @nodes and @edges in here, before calling the last line of this block.
-        # This functionality is less important than the above blocks
-        ###
-        
-        limit = 40
-        issues = Issue.select("id,title,wiki_url").order("updated_at DESC").limit(limit) #get 40 most recent issues
-        #get all relationships between those nodes
-        subquery_list = Issue.select("issues.id").order("updated_at DESC").limit(limit).map {|i| i.id}
-        relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
 
-        convert_activerecords(issues,relationships)
-        default_layout
+		# Update graph nodes & edges to include most recent 40 nodes
+		limit = 40		
+		@graph.get_graph_of_most_recent(limit)
+		
+		# Temporary until full conversion
+		@nodes = @graph.nodes
+		@edges = @graph.edges
+		# Fixme: Need adjacency conversion too...
+
+		default_layout
 
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
