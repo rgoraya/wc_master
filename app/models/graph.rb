@@ -36,8 +36,8 @@ class Graph
 
 		def initialize(id, a, b, rel_type)
 			@id = id
-			@cause_id = a
-			@issue_id = b
+			@a = a
+			@b = b
 			@rel_type = rel_type
 		end
 
@@ -52,13 +52,13 @@ class Graph
 
 		# Placeholder for debugging
 		def edge_to_s
-			return "#{@cause_id} #{@rel_type} #{@issue_id}"
+			return "#{@a.name} #{@rel_type} #{@b.name}"
 		end
 	end
 
 	# End subclass definitions
 
-	validates_presence_of :nodes, :edges, :source
+	validates_presence_of :nodes, :edges, :adjacency, :source
 
 	# Initialization and Attributes
 	attr_accessor :nodes, :edges, :source
@@ -72,6 +72,7 @@ class Graph
 		# Generates empty graph which can be filled later
 		@nodes = Hash.new()
 		@edges = Array.new()
+		@adjacency = Hash.new(0)
 		@source = -1
 	end
 
@@ -88,7 +89,8 @@ class Graph
 		relationships = Relationship.where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", @nodes.keys, @nodes.keys)
 		relationships.each do |r|
 			type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
-			@edges << Edge.new(r.id, r.cause_id, r.issue_id, type)
+			@edges.push(Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type))
+			@adjacency[ [r.cause_id, r.issue_id] ] += 1
 		end if !relationships.nil?
 	end
 
