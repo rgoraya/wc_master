@@ -117,6 +117,9 @@ class Graph
 		update_graph_contents(issues + neighbors.sample(limit))
 	end
 
+	def get_graph_of_relationship_endpoints(relationships, limit=50)
+	end
+
 	def get_graph_of_path(src, dest, limit)
 		# On hold, might move
 	end
