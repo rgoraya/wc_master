@@ -57,7 +57,7 @@ class Mapvisualization #< ActiveRecord::Base
 
 ######## END SUBCLASS DEFINITIONS #########  
 
-  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice
+  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice, :graph
   
   BAD_PARAM_ERROR = "Please specify what to visualize!"
   NO_ITEM_ERROR = "The item you requested could not be found"
