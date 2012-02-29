@@ -97,7 +97,13 @@ class Graph
 		end if !relationships.nil?
 	end
 
-	# Custom graph generation
+	# Custom query based graph generation
+	def get_graph_of_most_recent(limit=50)
+		# Creates a graph of most recently updated issues (default limit 50)
+		issues = Issue.order("updated_at DESC").limit(limit)
+		update_graph_contents(issues)
+	end
+
 	def get_graph_of_path(src, dest, limit)
 		# On hold, might move
 	end
@@ -108,12 +114,6 @@ class Graph
 
 	def get_graph_where (condition, limit=50)
 		# Placeholder - Will spice this up later
-	end
-
-	def get_graph_of_most_recent(limit=50)
-		# Creates a graph of most recently updated issues (default limit 50)
-		issues = Issue.order("updated_at DESC").limit(limit)
-		update_graph_contents(issues)
 	end
 
 	def get_graph_of_earliest(limit=50)
