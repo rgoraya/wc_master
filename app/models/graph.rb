@@ -89,6 +89,7 @@ class Graph
 		# Build list of edges from relationships between existing nodes, if no relationships set is predefined	
 		if relationships.nil?
 			relationships = Relationship.where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", @nodes.keys, @nodes.keys)
+		end
 		
 		# Build graph edges from relationships
 		relationships.each do |r|
@@ -121,13 +122,13 @@ class Graph
 
 	def get_graph_of_most_cited(limit=50)
 		# Generates graph of most cited / highly rated / recent relationships and their endpoints
-		endpoints = Relationship.order("references_count DESC, updated_at DESC")
-			.limit(limit)
-			.flat_map {|r| [r.cause_id, r.issue_id]}
+		relationships = Relationship.order("references_count DESC, updated_at DESC").limit(limit)
+			
+		endpoints = relationships.flat_map {|r| [r.cause_id, r.issue_id]}
 
 		issues = Issue.where("id IN (?)", endpoints)
 
-		update_graph_contents(issues)
+		update_graph_contents(issues, relationships)
 	end
 
 	def get_graph_of_relationship_endpoints(relationships, limit=50)
