@@ -5,58 +5,6 @@ class Mapvisualization #< ActiveRecord::Base
   # include ActiveModel::Conversion
   # extend ActiveModel::Naming
 
-######## BEGIN SUBCLASS DEFINITIONS #########
-  ## Data structures for easier use 
-  class Node < Object
-    include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
-
-    attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
-
-    def initialize(id, name, url)
-      @id = id #db-level index
-      @name = name
-      @url = url
-      @location = Vector[0.0,0.0]
-      @static = false #should the node move or not
-      @highlighted = false
-      @d = Vector[0.0,0.0] #delta variable
-      @a = Vector[0.0,0.0] #acceleration variable
-    end
-
-    def to_s
-      @id.to_s + ": "+@location.to_s+" ("+@name.to_s + ")"
-    end
-  end  
-
-  class Edge < Object
-    attr_accessor :id, :a, :b, :rel_type
-    include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
-
-    ##a converter for building the edges; can eventually get moved into the db parser (what Eugenia is doing) ??
-    ## where should the bitmask constants be? should I just store rel_type as a string and not deal with it otherwise??
-    ##rel_type nil means increases, 'I' means inhibitor (decreases), 'H' means A-superset-B
-    RELTYPE_TO_BITMASK = {nil=>MapvisualizationsHelper::INCREASES, 'I'=>MapvisualizationsHelper::DECREASES, 'H'=>MapvisualizationsHelper::SUPERSET}
-
-    def initialize(id, a, b, rel_type=1)
-      @id = id #needed?
-      @a = a #reference to the node object (as opposed to just an index)
-      @b = b
-      @rel_type = rel_type  #specified edge.reltype
-    end
-
-    def to_s
-      "Edge "+@id.to_s+": "+name
-    end
-
-    def name
-      conn = @rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'increases' : (@rel_type & MapvisualizationsHelper::SUPERSET == 0 ? 'decreases' : 'includes')
-      @a.name+" "+conn+" "+@b.name
-    end
-
-  end
-
-######## END SUBCLASS DEFINITIONS #########  
-
   attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice, :graph
   
   BAD_PARAM_ERROR = "Please specify what to visualize!"
@@ -70,8 +18,8 @@ class Mapvisualization #< ActiveRecord::Base
     @edges = args[:edges] || Array.new()
     @adjacency = args[:adjancecy] || Hash.new(0)
 
-	# Build a Graph of Nodes
-	@graph = Graph.new
+  	# Build a Graph of Nodes
+  	@graph = Graph.new
 
     puts "===mapvisualization initialize args===" #debugging
     puts args
@@ -89,31 +37,31 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-		  @graph.get_graph_of_issue_neighbors(static, 30)
+    		  @graph.get_graph_of_issue_neighbors(static, limit=30)
 
-		  # Temporary
-		  @nodes = @graph.nodes
-		  @edges = @graph.edges
+    		  # Temporary
+    		  @nodes = @graph.nodes
+    		  @edges = @graph.edges
 		  
-		  # Make static variables centered
-		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
+    		  # Make static variables centered
+    		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
 	
-		  default_layout
+    		  default_layout
         
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
 
-		  # Generate graph of these relationships, their connected issues, and issues connected to those.
-		  @graph.get_graph_of_relationship_endpoints(static_rel_ids)
+    		  # Generate graph of these relationships, their connected issues, and issues connected to those.
+    		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=30)
 		  
-		  # Make endpoints of core relationships ("static") centered on the graph
-		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
+    		  # Make endpoints of core relationships ("static") centered on the graph
+    		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
 		  
-		  # Temporary
-		  @nodes = @graph.nodes
-		  @edges = @graph.edges
+    		  # Temporary
+    		  @nodes = @graph.nodes
+    		  @edges = @graph.edges
 
-		  default_layout
+    		  default_layout
 
         else
           @notice = BAD_PARAM_ERROR
@@ -122,18 +70,18 @@ class Mapvisualization #< ActiveRecord::Base
       ### TOP 40 ###
       elsif params[:q] == 'last30'
 
-		# Update graph nodes & edges to include most recent 40 nodes	
-		@graph.get_graph_of_most_recent
+    		# Update graph nodes & edges to include most recent 40 nodes	
+    		@graph.get_graph_of_most_recent(limit=30)
 		
-		# Temporary until full conversion
-		@nodes = @graph.nodes
-		@edges = @graph.edges
+    		# Temporary until full conversion
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
 
-		default_layout
+    		default_layout
 
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
-		    @graph.get_graph_of_most_cited
+		    @graph.get_graph_of_most_cited(limit=30)
 
       	# Temporary until full conversion
     		@nodes = @graph.nodes

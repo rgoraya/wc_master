@@ -5,9 +5,7 @@ class Graph
 
 	# Begin subclass definitions
 	class Node
-		include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
-
-	    attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
+	  attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
 
 		def initialize(id, name, url)
 			# Basic node members
@@ -29,8 +27,6 @@ class Graph
 	end	
 
 	class Edge
-		include	ActionView::Helpers::JavaScriptHelper #for javascript escaping
-		
 		attr_accessor :id, :a, :b, :rel_type
 
 		# A placeholder converter for building the edges
