@@ -84,7 +84,7 @@ class Graph
 
 		# Build list of edges from relationships between existing nodes, if no relationships set is predefined	
 		if relationships.nil?
-			relationships = Relationship.where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", @nodes.keys, @nodes.keys)
+			relationships = Relationship.where("issue_id IN (?) AND cause_id IN (?)", @nodes.keys, @nodes.keys)
 		end
 		
 		# Build graph edges from relationships
@@ -108,11 +108,12 @@ class Graph
 		# currently only set up for one step, but optional to add more in the future
 		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.		
 		issues = Issue.where("id" => core_issues)
-			
-		neighbors = Issue.where("issues.id NOT IN (?)", core_issues).joins(:relationships).where("relationships.issue_id IN (:get_issues) OR relationships.cause_id IN (:get_issues)", 
-			{:get_issues => core_issues}).limit(limit)
+
+		connections = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core_issues, core_issues)
+			.flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core_issues.include? c }
+
+		neighbors = Issue.where("id" => connections[1..limit])
 		
-		# This is taking a random sample of n neighbors, along with the static/core issues...
 		update_graph_contents(issues + neighbors)
 	end
 
