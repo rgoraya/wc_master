@@ -120,7 +120,7 @@ class Mapvisualization #< ActiveRecord::Base
         end               
 
       ### TOP 40 ###
-      elsif params[:q] == 'last40'
+      elsif params[:q] == 'last30'
 
 		# Update graph nodes & edges to include most recent 40 nodes	
 		@graph.get_graph_of_most_recent
@@ -133,24 +133,23 @@ class Mapvisualization #< ActiveRecord::Base
 
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
-
-		@graph.get_graph_of_most_cited
+		    @graph.get_graph_of_most_cited
 
       	# Temporary until full conversion
-		@nodes = @graph.nodes
-		@edges = @graph.edges
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
 
-		default_layout
+    		default_layout
 
       elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
-		# Generate a graph of all nodes
-		@graph.get_graph_of_all
+    		# Generate a graph of all nodes
+    		@graph.get_graph_of_all
 
-		# Temporary
-		@nodes = @graph.nodes
-		@edges = @graph.edges
+    		# Temporary
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
 
-		# Display all nodes compactly
+    		# Display all nodes compactly
         @compact_display = true
         place_randomly
 
@@ -173,12 +172,12 @@ class Mapvisualization #< ActiveRecord::Base
     
     ### DEFAULT ###
     else #if no params
-	  # Create graph of the first 40 issues, which are fairly interconnected
-	  @graph.get_default_graph
+  	  # Create graph of the first 40 issues, which are fairly interconnected
+  	  @graph.get_default_graph
 
-	  # Temporary
-	  @nodes = @graph.nodes
-	  @edges = @graph.edges
+  	  # Temporary
+  	  @nodes = @graph.nodes
+  	  @edges = @graph.edges
       
       default_layout
     end
