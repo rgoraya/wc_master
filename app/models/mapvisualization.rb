@@ -103,22 +103,19 @@ class Mapvisualization #< ActiveRecord::Base
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
 
-          ### EUGENIA ###
-          # This is where we build a graph around a particular edge or set of edges (fetched out the param above)
-          # This is probably what "get_graph_of_effects" was meant to do, basically fetch the nodes that are 
-          # connected to the nodes who are part of the relationships in "static_rel_ids" above.
-          # note the cheap "get relationships from nodes" call below before we build the graph exactly as above.
-          # We need to set @nodes and @edges in here, before calling the last two lines of this block
-          ###
+		  # Generate graph of these relationships, their connected issues, and issues connected to those.
+		  @graph.get_graph_of_relationship_endpoints(static_rel_ids)
+		  
+		  # Temporary
+		  @nodes = @graph.nodes
+		  @edges = @graph.edges
 
-          rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids) #can we clean this up??
-          static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
+		  default_layout
 
-          issues, relationships = build_graph(static,30)
-
-          convert_activerecords(issues,relationships)
-          @nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
-          default_layout          
+          # rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids)
+          #static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
+          #@nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
+                   
         else
           @notice = BAD_PARAM_ERROR
         end               

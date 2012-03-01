@@ -148,9 +148,26 @@ class Graph
 		update_graph_contents(issues)
 	end
 
-	def get_graph_of_relationship_endpoints(relationships, limit=40)
+	def get_graph_of_relationship_endpoints(relationships_ids, limit=40)
 		# Retrieves issues connected to relationship endpoints
 		# then retrieves random (for now) subset of neighbors of those issues
+		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.
+		core_relationships = Relationship.where("id IN (?)", relationships_ids)
+
+		# Retrieve relationship endpoint issues
+		endpoints = core_relationships.flat_map {|r| [r.cause_id, r.issue_id]}.uniq
+		issues = Issue.where("id IN (?)", endpoints)
+
+		# Retrieve neighbors to endpoints
+		neighbors = Issue.where("issues.id NOT IN (?)", endpoints)
+			.joins(:relationships).where("relationships.issue_id IN (:connected) OR relationships.cause_id IN (:connected)", 
+			{:connected => endpoints}).limit(limit)
+		endpoints += neighbors.flat_map {|n| [n.id, n.id]}.uniq
+		
+		# Extend relationships with those connected to endpoints and core issues
+		relationships = Relationship.where("cause_id IN (?) AND issue_id IN (?)", endpoints, endpoints)
+	
+		update_graph_contents(issues + neighbors, relationships)
 	end
 
 	def get_graph_of_path(src, dest, limit)
