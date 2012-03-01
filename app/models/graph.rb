@@ -101,13 +101,13 @@ class Graph
 
 	### Custom query based graph generation ###
 
-	def get_graph_of_most_recent(limit=50)
-		# Creates a graph of most recently updated issues (default limit 50)
+	def get_graph_of_most_recent(limit=40)
+		# Creates a graph of most recently updated issues (default limit 40)
 		issues = Issue.order("updated_at DESC").limit(limit)
 		update_graph_contents(issues)
 	end
 
-	def get_graph_of_issue_neighbors(core_issues, limit=50, steps=1)
+	def get_graph_of_issue_neighbors(core_issues, limit=40, steps=1)
 		# Retrieves any nodes connected to node(s) in issues array
 		# currently only set up for one step, but optional to add more in the future		
 		issues = Issue.where("id" => core_issues)
@@ -120,7 +120,7 @@ class Graph
 		update_graph_contents(issues + neighbors.sample(limit))
 	end
 
-	def get_graph_of_most_cited(limit=50)
+	def get_graph_of_most_cited(limit=40)
 		# Generates graph of most cited / highly rated / recent relationships and their endpoints
 		relationships = Relationship.order("references_count DESC, updated_at DESC").limit(limit)
 			
@@ -131,13 +131,13 @@ class Graph
 		update_graph_contents(issues, relationships)
 	end
 
-	def get_graph_of_earliest(limit=50)
-		# Creates a graph of the earliest created issues (default limit 50)
+	def get_graph_of_earliest(limit=40)
+		# Creates a graph of the earliest created issues (default limit 40)
 		issues = Issue.order("created_at ASC").limit(limit)
 		update_graph_contents(issues)
 	end
 
-	def get_graph_of_relationship_endpoints(relationships, limit=50)
+	def get_graph_of_relationship_endpoints(relationships, limit=40)
 		# Retrieves issues connected to relationship endpoints
 		# then retrieves random (for now) subset of neighbors of those issues
 	end
@@ -146,13 +146,11 @@ class Graph
 		# On hold, might move
 	end
 
-	def get_graph_where (condition, limit=50)
+	def get_graph_where (condition, limit=40)
 		# Placeholder - Will spice this up later
 	end
 
-	
-	
-	def get_graph_of_most_connected (limit=50)	
+	def get_graph_of_most_connected (limit=40)	
 		# Placeholder - functionality available in an unmerged branch...
 	end
 
