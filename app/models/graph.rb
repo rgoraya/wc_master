@@ -171,15 +171,8 @@ class Graph
 		update_graph_contents(issues + neighbors, relationships)
 	end
 
-	def get_graph_of_path(src, dest, limit)
-		# On hold, might move
-	end
-
-	def get_graph_where (condition, limit=40)
-		# Placeholder - Will spice this up later
-	end
-
-	def get_graph_of_most_connected (limit=40)	
-		# Placeholder - functionality available in an unmerged branch...
-	end
+	### Future Implementation ###
+	# get_graph_of_path(src, dest, limit)
+	# get_graph_where (condition, limit=40)
+	# get_graph_of_most_connected (limit=40)	
 end
