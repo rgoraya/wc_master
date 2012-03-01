@@ -180,7 +180,7 @@ class Mapvisualization #< ActiveRecord::Base
     ### DEFAULT ###
     else #if no params
 	  # Create graph of the first 40 issues, which are fairly interconnected
-	  @graph.get_graph_of_earliest
+	  @graph.get_default_graph
 
 	  # Temporary
 	  @nodes = @graph.nodes

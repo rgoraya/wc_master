@@ -137,6 +137,10 @@ class Graph
 		update_graph_contents(issues)
 	end
 
+	def get_default_graph
+		get_graph_of_earliest
+	end
+
 	def get_graph_of_relationship_endpoints(relationships, limit=40)
 		# Retrieves issues connected to relationship endpoints
 		# then retrieves random (for now) subset of neighbors of those issues
