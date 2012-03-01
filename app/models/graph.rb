@@ -138,7 +138,14 @@ class Graph
 	end
 
 	def get_default_graph
+		# Bridge for default case in MapVisualization Model
 		get_graph_of_earliest
+	end
+
+	def get_graph_of_all
+		# Creates a graph of all of the issues
+		issues = Issue.find :all
+		update_graph_contents(issues)
 	end
 
 	def get_graph_of_relationship_endpoints(relationships, limit=40)
@@ -156,11 +163,5 @@ class Graph
 
 	def get_graph_of_most_connected (limit=40)	
 		# Placeholder - functionality available in an unmerged branch...
-	end
-
-	def get_graph_of_all
-		# Creates a graph of all of the issues
-		issues = Issue.find :all
-		update_graph_contents(issues)
 	end
 end

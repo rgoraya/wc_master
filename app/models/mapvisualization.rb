@@ -147,17 +147,15 @@ class Mapvisualization #< ActiveRecord::Base
 		default_layout
 
       elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
-        ### EUGENIA ###
-        # This is where we show all of the nodes
-        # This is where get_graph_of_all would go
-        # We need to set @nodes and @edges in here, before calling the last two line of this block.
-        ###
-        
-        issues = Issue.select("id,title,wiki_url")
-        relationships = Relationship.select("id,cause_id,issue_id,relationship_type")
+		# Generate a graph of all nodes
+		@graph.get_graph_of_all
 
-        convert_activerecords(issues,relationships)
-        @compact_display = true #use compact display
+		# Temporary
+		@nodes = @graph.nodes
+		@edges = @graph.edges
+
+		# Display all nodes compactly
+        @compact_display = true
         place_randomly
 
       ### RANDOM TEST GRAPH ###
