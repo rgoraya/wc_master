@@ -127,7 +127,7 @@ class Graph
 			
 		endpoints = relationships.flat_map {|r| [r.cause_id, r.issue_id]}
 
-		issues = Issue.where("id IN (?)", endpoints)
+		issues = Issue.where("id" => endpoints)
 
 		update_graph_contents(issues, relationships)
 	end
@@ -153,11 +153,11 @@ class Graph
 		# Retrieves issues connected to relationship endpoints
 		# then retrieves random (for now) subset of neighbors of those issues
 		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.
-		core_relationships = Relationship.where("id IN (?)", relationships_ids)
+		core_relationships = Relationship.where("id" => relationships_ids)
 
 		# Retrieve relationship endpoint issues
 		endpoints = core_relationships.flat_map {|r| [r.cause_id, r.issue_id]}.uniq
-		issues = Issue.where("id IN (?)", endpoints)
+		issues = Issue.where("id" => endpoints)
 
 		# Retrieve neighbors to endpoints
 		neighbors = Issue.where("issues.id NOT IN (?)", endpoints)
