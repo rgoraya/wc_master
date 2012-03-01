@@ -184,29 +184,6 @@ class Mapvisualization #< ActiveRecord::Base
       default_layout
     end
   end
-
-  # builds a graph centered around a starting set of nodes.
-  # starting_nodes is a list of node ids; limit is up to how many things we should get
-  def build_graph(starting_nodes, limit)
-    ### EUGENIA ###
-    # This is the function where we do the equivalent of "get_graph_of_effects" by building up a set of connections to
-    # the given starting nodes.
-    # Note that this method returns a set of activerecords that we then convert in "convert_activerecords()", 
-    # but such a functionality need not exist (we can just set @nodes and @edges from here)
-    ###
-
-    ids = Array.new(starting_nodes)
-    while ids.length < limit
-      new_ids = Relationship.select("issue_id, cause_id").where("(relationships.issue_id IN (?) OR relationships.cause_id IN (?)) AND NOT (relationships.issue_id IN (?) AND relationships.cause_id IN (?))", ids, ids, ids, ids).map {|i| [i.issue_id, i.cause_id]}
-      break if new_ids.length == 0
-      ids = (ids + new_ids).flatten.uniq
-    end
-    ids = ids.slice(0,limit-1)
-    issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", ids)
-    subquery_list = issues.map {|i| i.id}
-    relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)
-    [issues, relationships]
-  end
   
   #converts activerecord arrays into the instance variables we want to use, separate function so we can do further processing later
   def convert_activerecords(issues,relationships)
