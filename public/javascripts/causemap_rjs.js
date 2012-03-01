@@ -81,19 +81,19 @@ function drawEdge(edge, paper){
 				.attr({stroke:'none'})
 				.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
 		}else if (edge.reltype&SUPERSET){
-			/*arrowPath = getSuperPath(midPoint)
+			arrowPath = getSuperPath(midPoint)
 			arrow = paper.path(arrowPath)
 				.attr({stroke:'#FFFFFF'})
 				.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-			*/
-			arrow = paper.set();
-			arrow.push(
-				paper.circle((midPoint.x-REC2_EDGE/2), midPoint.y, REC1_EDGE/2),
-				paper.circle((midPoint.x+REC1_EDGE/2), midPoint.y, REC2_EDGE/2)
-				
-			)
-				.attr({stroke:'#BBBBBB'})
-				.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
+			
+			// arrow = paper.set();
+			// arrow.push(
+			// 	paper.circle((midPoint.x-REC2_EDGE/2), midPoint.y, REC1_EDGE/2),
+			// 	paper.circle((midPoint.x+REC1_EDGE/2), midPoint.y, REC2_EDGE/2)
+			// 	
+			// )
+			// 	.attr({stroke:'#BBBBBB'})
+			// 	.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
 			
 			
 		} else {
@@ -118,7 +118,7 @@ function drawEdge(edge, paper){
 		else if(edge.reltype&SUPERSET){
 			e.attr({stroke:EDGE_COLORS['superset']})
 			//arrow.attr({fill:EDGE_COLORS['superset']})
-			arrow.attr({fill:'#FFFFFF'})	
+			arrow.attr({fill:'#BBBBBB'})	
 		}
 		else{ //if decreases
 			e.attr({stroke:EDGE_COLORS['decreases']})

@@ -207,7 +207,7 @@ class Mapvisualization #< ActiveRecord::Base
 
     # this is just the code from circle_nodes, without the "static" check (and swapped circle list). Not worth factoring out
     center = Vector[width/2, height/2]
-    radius = (static.length==0 ? 0 : [width,height].min/20)
+    radius = (static.length<=1 ? 0 : [width,height].min/5)
     static.each_with_index{|(key, node), i| static[key].location = Vector[
       center[0] + (radius * -1*Math.cos(2*Math::PI*i/static.length)), 
       center[1] + (radius * -1*Math.sin(2*Math::PI*i/static.length))]}
@@ -252,7 +252,7 @@ class Mapvisualization #< ActiveRecord::Base
             if u!=v
               dist = v.location - u.location
               distlen = dist.r.to_f
-              v.d += distlen != 0.0 ? (dist/distlen)*k2/distlen : Vector[0.0,0.0]
+              v.d += distlen != 0.0 ? (dist*(1/distlen))*(k2/distlen) : Vector[0.0,0.0]
             end
           end
         end
@@ -263,8 +263,8 @@ class Mapvisualization #< ActiveRecord::Base
           dist = e.a.location - e.b.location
           distlen = dist.r.to_f
           fa = distlen**2/k
-          e.a.d -= (dist/distlen)*fa if !e.a.static
-          e.b.d += (dist/distlen)*fa if !e.b.static
+          e.a.d -= (dist*(1/distlen))*fa if !e.a.static
+          e.b.d += (dist*(1/distlen))*fa if !e.b.static
         end
       end
       #puts nodeset
@@ -274,10 +274,10 @@ class Mapvisualization #< ActiveRecord::Base
           dist_center = v.location - Vector[width/2, height/2]
           distlen = dist_center.r.to_f
           fa = distlen**2/k
-          v.d -= (dist_center/distlen)*fa
+          v.d -= (dist_center*(1/distlen))*fa
           dlen = v.d.r.to_f
           if dlen > 0.0 #if we have a distance to move
-            v.location += (v.d/dlen)*[dlen,temperature].min
+            v.location += (v.d*(1/dlen))*[dlen,temperature].min
             nx = [[v.location[0],0].max, width].min #don't let outside of bounds (50px border)
             ny = [[v.location[1],0].max, height].min
             v.location = Vector[nx,ny]
@@ -285,7 +285,7 @@ class Mapvisualization #< ActiveRecord::Base
         end
       end
       temperature *= (1 - i/iterations.to_f) #cooling function from http://goo.gl/xcbXR
-      puts "finished iter "+i.to_s+" @ "+Time.now.to_s
+      #puts "finished iter "+i.to_s+" @ "+Time.now.to_s
     end
     puts "finished fruchterman_reingold @ "+Time.now.to_s
   end

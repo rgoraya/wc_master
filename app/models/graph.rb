@@ -109,8 +109,7 @@ class Graph
 		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.		
 		issues = Issue.where("id" => core_issues)
 			
-		neighbors = Issue.where("issues.id NOT IN (?)", core_issues)
-			.joins(:relationships).where("relationships.issue_id IN (:get_issues) OR relationships.cause_id IN (:get_issues)", 
+		neighbors = Issue.where("issues.id NOT IN (?)", core_issues).joins(:relationships).where("relationships.issue_id IN (:get_issues) OR relationships.cause_id IN (:get_issues)", 
 			{:get_issues => core_issues}).limit(limit)
 		
 		# This is taking a random sample of n neighbors, along with the static/core issues...
@@ -156,8 +155,7 @@ class Graph
 		issues = Issue.where("id" => endpoints)
 
 		# Retrieve neighbors to endpoints
-		neighbors = Issue.where("issues.id NOT IN (?)", endpoints)
-			.joins(:relationships).where("relationships.issue_id IN (:connected) OR relationships.cause_id IN (:connected)", 
+		neighbors = Issue.where("issues.id NOT IN (?)", endpoints).joins(:relationships).where("relationships.issue_id IN (:connected) OR relationships.cause_id IN (:connected)", 
 			{:connected => endpoints}).limit(limit)
 		extended_endpoints = endpoints + neighbors.flat_map {|n| [n.id, n.id]}.uniq
 		
