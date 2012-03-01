@@ -126,9 +126,8 @@ class Mapvisualization #< ActiveRecord::Base
       ### TOP 40 ###
       elsif params[:q] == 'last40'
 
-		# Update graph nodes & edges to include most recent 40 nodes
-		limit = 40		
-		@graph.get_graph_of_most_recent(limit)
+		# Update graph nodes & edges to include most recent 40 nodes	
+		@graph.get_graph_of_most_recent
 		
 		# Temporary until full conversion
 		@nodes = @graph.nodes
@@ -139,8 +138,7 @@ class Mapvisualization #< ActiveRecord::Base
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
 
-		limit = 40
-		@graph.get_graph_of_most_cited(limit)
+		@graph.get_graph_of_most_cited
 
       	# Temporary until full conversion
 		@nodes = @graph.nodes
@@ -182,7 +180,7 @@ class Mapvisualization #< ActiveRecord::Base
     ### DEFAULT ###
     else #if no params
 	  # Create graph of the first 40 issues, which are fairly interconnected
-	  @graph.get_graph_of_earliest(40)
+	  @graph.get_graph_of_earliest
 
 	  # Temporary
 	  @nodes = @graph.nodes
