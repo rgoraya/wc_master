@@ -192,25 +192,6 @@ class Mapvisualization #< ActiveRecord::Base
     end
   end
 
-  # fetch a default graph if options missing??
-  # alternatively, display an error/message somehow??
-  def default_graph
-    ### EUGENIA ###
-    # This is where we get a "default" set of nodes to show, currently defaulting to the first 40 for testing
-    # This is where get_graph_of_earliest would go.
-    # Note that this method returns a set of activerecords that we then convert in "convert_activerecords()", 
-    # but such a functionality need not exist (we can just set @nodes and @edges from here)
-    ###
-
-    #default to first 40 (cause they are connected)? or to what?
-    limit = 40
-    issues = Issue.select("id,title,wiki_url").order("updated_at ASC").limit(limit)
-    #get all relationships between those nodes
-    subquery_list = Issue.select("issues.id").order("updated_at ASC").limit(limit).map {|i| i.id}
-    relationships = Relationship.select("id,cause_id,issue_id,relationship_type").where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", subquery_list, subquery_list)      
-    return [issues,relationships]
-  end
-  
   # builds a graph centered around a starting set of nodes.
   # starting_nodes is a list of node ids; limit is up to how many things we should get
   def build_graph(starting_nodes, limit)
