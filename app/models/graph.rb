@@ -109,15 +109,16 @@ class Graph
 
 	def get_graph_of_issue_neighbors(core_issues, limit=40, steps=1)
 		# Retrieves any nodes connected to node(s) in issues array
-		# currently only set up for one step, but optional to add more in the future		
+		# currently only set up for one step, but optional to add more in the future
+		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.		
 		issues = Issue.where("id" => core_issues)
 			
 		neighbors = Issue.where("issues.id NOT IN (?)", core_issues)
 			.joins(:relationships).where("relationships.issue_id IN (:get_issues) OR relationships.cause_id IN (:get_issues)", 
-			{:get_issues => core_issues})
+			{:get_issues => core_issues}).limit(limit)
 		
 		# This is taking a random sample of n neighbors, along with the static/core issues...
-		update_graph_contents(issues + neighbors.sample(limit))
+		update_graph_contents(issues + neighbors)
 	end
 
 	def get_graph_of_most_cited(limit=40)
