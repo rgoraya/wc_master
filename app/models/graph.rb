@@ -77,7 +77,7 @@ class Graph
 		@source = -1
 	end
 
-	def update_graph_contents(issues, source = -1)
+	def update_graph_contents(issues, relationships=nil, source=-1)
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = Hash.new()
 		@edges = Array.new()
@@ -86,12 +86,16 @@ class Graph
 		# Build map of nodes from input issues
 		issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
 
-		# Build list of edges from relationships between existing nodes	
-		relationships = Relationship.where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", @nodes.keys, @nodes.keys)
+		# Build list of edges from relationships between existing nodes, if no relationships set is predefined	
+		if relationships.nil?
+			relationships = Relationship.where("relationships.issue_id IN (?) AND relationships.cause_id IN (?)", @nodes.keys, @nodes.keys)
+		
+		# Build graph edges from relationships
 		relationships.each do |r|
 			type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
 			@edges.push(Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type))
-		end if !relationships.nil?
+		end
+		
 	end
 
 	### Custom query based graph generation ###
