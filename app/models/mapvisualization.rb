@@ -106,16 +106,15 @@ class Mapvisualization #< ActiveRecord::Base
 		  # Generate graph of these relationships, their connected issues, and issues connected to those.
 		  @graph.get_graph_of_relationship_endpoints(static_rel_ids)
 		  
+		  # Make endpoints of core relationships ("static") centered on the graph
+		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
+		  
 		  # Temporary
 		  @nodes = @graph.nodes
 		  @edges = @graph.edges
 
 		  default_layout
 
-          # rels = Relationship.select("cause_id,issue_id").where("relationships.id IN (?)", static_rel_ids)
-          #static = rels.map {|rel| [rel.issue_id, rel.cause_id]}.flatten.uniq
-          #@nodes.each {|key,node| node.static = 'center' if static.include? key} #makes the "static" variables centered
-                   
         else
           @notice = BAD_PARAM_ERROR
         end               

@@ -163,12 +163,12 @@ class Graph
 		neighbors = Issue.where("issues.id NOT IN (?)", endpoints)
 			.joins(:relationships).where("relationships.issue_id IN (:connected) OR relationships.cause_id IN (:connected)", 
 			{:connected => endpoints}).limit(limit)
-		endpoints += neighbors.flat_map {|n| [n.id, n.id]}.uniq
+		extended_endpoints = endpoints + neighbors.flat_map {|n| [n.id, n.id]}.uniq
 		
 		# Extend relationships with those connected to endpoints and core issues
-		relationships = Relationship.where("cause_id IN (?) AND issue_id IN (?)", endpoints, endpoints)
+		relationships = Relationship.where("cause_id IN (?) AND issue_id IN (?)", extended_endpoints, extended_endpoints)
 	
-		update_graph_contents(issues + neighbors, relationships)
+		update_graph_contents(issues + neighbors, relationships, endpoints)
 	end
 
 	### Future Implementation ###
