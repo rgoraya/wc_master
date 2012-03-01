@@ -60,10 +60,10 @@ class Graph
 
 	# End subclass definitions
 
-	validates_presence_of :nodes, :edges, :source
+	validates_presence_of :nodes, :edges, :sources
 
 	# Initialization and Attributes
-	attr_accessor :nodes, :edges, :source
+	attr_accessor :nodes, :edges, :sources
 
 	def initialize(issues)
 		issues_to_graph = Issue.find(issues)
@@ -74,14 +74,14 @@ class Graph
 		# Generates empty graph which can be filled later
 		@nodes = Hash.new()
 		@edges = Array.new()
-		@source = -1
+		@sources = Array.new()
 	end
 
-	def update_graph_contents(issues, relationships=nil, source=-1)
+	def update_graph_contents(issues, relationships=nil, source_set=[])
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = Hash.new()
 		@edges = Array.new()
-		@source = source
+		@sources = source_set
 
 		# Build map of nodes from input issues
 		issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
