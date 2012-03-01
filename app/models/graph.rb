@@ -1,3 +1,5 @@
+require 'matrix'
+
 class Graph
 	include ActiveModel::Validations
 
@@ -92,7 +94,8 @@ class Graph
 		end if !relationships.nil?
 	end
 
-	# Custom query based graph generation
+	### Custom query based graph generation ###
+
 	def get_graph_of_most_recent(limit=50)
 		# Creates a graph of most recently updated issues (default limit 50)
 		issues = Issue.order("updated_at DESC").limit(limit)
@@ -114,8 +117,13 @@ class Graph
 
 	def get_graph_of_most_cited(limit=50)
 		# Generates graph of most cited / highly rated / recent relationships and their endpoints
-		#relationships = Relationship.order("references_count DESC, updated_at DESC").limit(limit)
+		endpoints = Relationship.order("references_count DESC, updated_at DESC")
+			.limit(limit)
+			.flat_map {|r| [r.cause_id, r.issue_id]}
 
+		issues = Issue.where("id IN (?)", endpoints)
+
+		update_graph_contents(issues)
 	end
 
 	def get_graph_of_relationship_endpoints(relationships, limit=50)

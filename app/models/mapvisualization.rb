@@ -133,27 +133,20 @@ class Mapvisualization #< ActiveRecord::Base
 		# Temporary until full conversion
 		@nodes = @graph.nodes
 		@edges = @graph.edges
-		# Fixme: Need adjacency conversion too...
 
 		default_layout
 
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
-        ### EUGENIA ###
-        # This is where we show the most cited references
-        # We probably want a get_graph_of_most_cited method to call
-        # We need to set @nodes and @edges in here, before calling the last line of this block.
-        # This functionality is less important than the above blocks.
-        ###
 
-        limit = 40
-        relationships = Relationship.select("id,cause_id,issue_id,relationship_type").order("references_count DESC,updated_at DESC").limit(limit) #get top rated/most recent relationships
-        #get all nodes linked by those relationships
-        subquery_list = Relationship.select("cause_id, issue_id").order("references_count DESC,updated_at DESC").limit(limit).flat_map {|i| [i.issue_id,i.cause_id]}.uniq.sort #sort here? making multiple array passes...
-        issues = Issue.select("id,title,wiki_url").where("issues.id IN (?)", subquery_list)
+		limit = 40
+		@graph.get_graph_of_most_cited(limit)
 
-        convert_activerecords(issues,relationships)
-        default_layout
+      	# Temporary until full conversion
+		@nodes = @graph.nodes
+		@edges = @graph.edges
+
+		default_layout
 
       elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
         ### EUGENIA ###
