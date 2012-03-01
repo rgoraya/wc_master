@@ -181,8 +181,13 @@ class Mapvisualization #< ActiveRecord::Base
     
     ### DEFAULT ###
     else #if no params
-      issues, relationships = default_graph
-      convert_activerecords(issues,relationships)
+	  # Create graph of the first 40 issues, which are fairly interconnected
+	  @graph.get_graph_of_earliest(40)
+
+	  # Temporary
+	  @nodes = @graph.nodes
+	  @edges = @graph.edges
+      
       default_layout
     end
   end

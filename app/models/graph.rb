@@ -131,6 +131,12 @@ class Graph
 		update_graph_contents(issues, relationships)
 	end
 
+	def get_graph_of_earliest(limit=50)
+		# Creates a graph of the earliest created issues (default limit 50)
+		issues = Issue.order("created_at ASC").limit(limit)
+		update_graph_contents(issues)
+	end
+
 	def get_graph_of_relationship_endpoints(relationships, limit=50)
 		# Retrieves issues connected to relationship endpoints
 		# then retrieves random (for now) subset of neighbors of those issues
@@ -144,11 +150,7 @@ class Graph
 		# Placeholder - Will spice this up later
 	end
 
-	def get_graph_of_earliest(limit=50)
-		# Creates a graph of the earliest created issues (default limit 50)
-		issues = Issue.order("created_at ASC").limit(limit)
-		update_graph_contents(issues)
-	end
+	
 	
 	def get_graph_of_most_connected (limit=50)	
 		# Placeholder - functionality available in an unmerged branch...
