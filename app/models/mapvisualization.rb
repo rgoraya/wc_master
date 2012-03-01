@@ -184,23 +184,6 @@ class Mapvisualization #< ActiveRecord::Base
       default_layout
     end
   end
-  
-  #converts activerecord arrays into the instance variables we want to use, separate function so we can do further processing later
-  def convert_activerecords(issues,relationships)
-    ### EUGENIA ###
-    # This is the function where we do convert the active records that we've fetched from the database into 
-    # nodes and edges, storing them in @nodes and @edges
-    ###
-
-    issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
-    relationships.each do |rel| 
-      node_a = @nodes[rel.cause_id] #note these are the opposite of what I expected
-      node_b = @nodes[rel.issue_id]      
-      type = Edge::RELTYPE_TO_BITMASK[rel.relationship_type]
-      @edges.push(Edge.new(rel.id, node_a, node_b, type))
-      @adjacency[ [node_a.id, node_b.id] ] += 1 #count the edges between those nodes
-    end if !relationships.nil?
-  end
 
   # generates a random graph
   def random_graph(node_count, edge_ratio)
