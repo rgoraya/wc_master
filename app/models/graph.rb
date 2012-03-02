@@ -109,8 +109,7 @@ class Graph
 		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.		
 		issues = Issue.where("id" => core_issues)
 
-		connections = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core_issues, core_issues)
-			.flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core_issues.include? c }
+		connections = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core_issues, core_issues).flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core_issues.include? c }
 
 		neighbors = Issue.where("id" => connections[1..limit])
 		
