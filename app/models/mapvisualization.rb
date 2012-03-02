@@ -16,7 +16,7 @@ class Mapvisualization #< ActiveRecord::Base
     @compact_display = false
     @nodes = args[:nodes] || Hash.new()
     @edges = args[:edges] || Array.new()
-    @adjacency = args[:adjancecy] || Hash.new(0)
+    @adjacency = args[:adjacency] || Hash.new(0)
 
   	# Build a Graph of Nodes
   	@graph = Graph.new
@@ -262,14 +262,14 @@ class Mapvisualization #< ActiveRecord::Base
         end
       end
       for e in edgeset do #calc attractive forces
-        #only changes 1/conn (assuming 1 edge each direction)
-        if e.a.id < e.b.id or adjacency[[e.a.id,e.b.id]]+adjacency[[e.b.id,e.a.id]] < 2
+        # #only changes 1/conn (assuming 1 edge each direction)
+        # if e.a.id < e.b.id or adjacency[[e.a.id,e.b.id]]+adjacency[[e.b.id,e.a.id]] < 2
           dist = e.a.location - e.b.location
           distlen = dist.r.to_f
           fa = distlen**2/k
           e.a.d -= (dist*(1/distlen))*fa if !e.a.static
           e.b.d += (dist*(1/distlen))*fa if !e.b.static
-        end
+        # end
       end
       #puts nodeset
       nodeset.each_value do |v| #move nodes

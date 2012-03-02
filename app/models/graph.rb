@@ -154,8 +154,7 @@ class Graph
 		issues = Issue.where("id" => endpoints)
 
 		# Retrieve neighbors to endpoints
-		step_endpoints = Relationship.where("issue_id IN (?) OR cause_id in (?)", endpoints, endpoints)
-			.flat_map {|r| [r.cause_id, r.issue_id]}.uniq.select {|e| !endpoints.include? e }
+		step_endpoints = Relationship.where("issue_id IN (?) OR cause_id in (?)", endpoints, endpoints).flat_map {|r| [r.cause_id, r.issue_id]}.uniq.select {|e| !endpoints.include? e }
 		neighbors = Issue.where("id" => step_endpoints).limit(limit)
 		
 		# Extend relationships with those connected to endpoints
