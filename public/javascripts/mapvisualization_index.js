@@ -22,9 +22,16 @@ $(document).ready(function(){
   //   show_modal(data);
   //   //$('#clickForm').children().not('#do').remove();
   // });
-  $('#modal_container .btn_close').click(function(){
+	//   $('#modal_container .btn_close').click(function(){
+	//     $('#modal_container').toggle(false);
+	// });
+	$('#modal_container .btn_close').live('click', function(){
+		$('#modal_container').toggle(false);
+	})
+	$('#modal_container .modal_linkout').live('click', function(){
     $('#modal_container').toggle(false);
-	});
+		//should then execute the primarily bound function
+	})
 });
 
 //show the modal window
@@ -62,3 +69,14 @@ function position_modal(click_x,click_y) {
   $('#modal_container').css('left',x);
   $('#modal_container').css('top',y);
 };
+
+//issues an ajax call to goto a particular spot on the map
+//type is either 'issue' or 'relationship'; id is the id of the element
+function goto(type, id){
+	cmd = 'goto_'+type
+	$.ajax({
+	  url: '/mapvisualizations',
+	  data: {"do":cmd,target:id},
+	  dataType: 'script'
+	});     
+}

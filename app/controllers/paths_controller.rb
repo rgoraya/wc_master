@@ -5,8 +5,10 @@ class PathsController < ApplicationController
 	@src = 1
 	@g = Graph.new
 	@demo_type = ""
-
-	@g.get_graph_of_most_cited(40)		
+	
+	arr = Array.new
+	arr << 47
+	@g.get_graph_of_issue_neighbors(arr)		
   end
 
 end
