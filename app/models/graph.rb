@@ -160,9 +160,8 @@ class Graph
 		
 		# Extend relationships with those connected to endpoints
 		extended_endpoints = endpoints + step_endpoints
-		relationships = Relationship.where("cause_id IN (?) AND issue_id IN (?)", extended_endpoints, extended_endpoints)
 	
-		update_graph_contents(issues + neighbors, relationships, endpoints)
+		update_graph_contents(issues + neighbors, nil, endpoints)
 	end
 
 	### Future Implementation ###
