@@ -121,7 +121,7 @@ class Graph
 		# Generates graph of most cited / highly rated / recent relationships and their endpoints
 		relationships = Relationship.order("references_count DESC, updated_at DESC").limit(limit)
 			
-		endpoints = relationships.flat_map {|r| [r.cause_id, r.issue_id]}
+		endpoints = relationships.flat_map {|r| [r.cause_id, r.issue_id]}.uniq
 
 		issues = Issue.where("id" => endpoints)
 
@@ -149,18 +149,18 @@ class Graph
 		# Retrieves issues connected to relationship endpoints
 		# then retrieves random (for now) subset of neighbors of those issues
 		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.
-		core_relationships = Relationship.where("id" => relationships_ids)
 
-		# Retrieve relationship endpoint issues
-		endpoints = core_relationships.flat_map {|r| [r.cause_id, r.issue_id]}.uniq
+		# Find source relationship endpoints		
+		endpoints = Relationship.where("id" => relationships_ids).flat_map {|r| [r.cause_id, r.issue_id]}.uniq
 		issues = Issue.where("id" => endpoints)
 
 		# Retrieve neighbors to endpoints
-		neighbors = Issue.where("issues.id NOT IN (?)", endpoints).joins(:relationships).where("relationships.issue_id IN (:connected) OR relationships.cause_id IN (:connected)", 
-			{:connected => endpoints}).limit(limit)
-		extended_endpoints = endpoints + neighbors.flat_map {|n| [n.id, n.id]}.uniq
+		step_endpoints = Relationship.where("issue_id IN (?) OR cause_id in (?)", endpoints, endpoints)
+			.flat_map {|r| [r.cause_id, r.issue_id]}.uniq.select {|e| !endpoints.include? e }
+		neighbors = Issue.where("id" => step_endpoints).limit(limit)
 		
-		# Extend relationships with those connected to endpoints and core issues
+		# Extend relationships with those connected to endpoints
+		extended_endpoints = endpoints + step_endpoints
 		relationships = Relationship.where("cause_id IN (?) AND issue_id IN (?)", extended_endpoints, extended_endpoints)
 	
 		update_graph_contents(issues + neighbors, relationships, endpoints)
