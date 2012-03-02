@@ -22,9 +22,12 @@ $(document).ready(function(){
   //   show_modal(data);
   //   //$('#clickForm').children().not('#do').remove();
   // });
-  $('#modal_container .btn_close').click(function(){
-    $('#modal_container').toggle(false);
-	});
+	//   $('#modal_container .btn_close').click(function(){
+	//     $('#modal_container').toggle(false);
+	// });
+	$('#modal_container .btn_close').live('click', function(){
+	    $('#modal_container').toggle(false);
+		})
 });
 
 //show the modal window
