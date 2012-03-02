@@ -115,8 +115,7 @@ class Graph
 		while core.size < max_issues
 
 			# Retrieve next step connections based on relationships connected to core
-			neighbors = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core, core)
-				.flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core.include? c }
+			neighbors = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core, core).flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core.include? c }
 
 			# Add neighbors if space remains below limit
 			space_remaining = [neighbors.size, max_issues - core.size].min
