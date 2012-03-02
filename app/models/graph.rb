@@ -106,21 +106,27 @@ class Graph
 	def get_graph_of_issue_neighbors(core_issues, limit=40, steps=1)
 		# Retrieves any nodes connected to node(s) in issues array
 		# currently only set up for one step, but optional to add more in the future
-		# TO DO: Currently neighbors are just the first 40 or so retrieved...need to determine best algorithm for this.		
-		issues = Issue.where("id" => core_issues)
 
-		connections = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core_issues, core_issues).flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core_issues.include? c }
+		# Initial core, neighbors, and seeded generation queue
+		core = Array.new(core_issues)
+		max_issues = limit + core_issues.size
+		
+		# Update core in successive steps outward from target issues
+		while core.size < max_issues
 
-		step_nodes = []
-		connections.each do |c|
-			if step_nodes.size < limit
-				step_nodes << c
-			end
-		end
+			# Retrieve next step connections based on relationships connected to core
+			neighbors = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core, core)
+				.flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core.include? c }
 
-		neighbors = Issue.where("id" => step_nodes)
+			# Add neighbors if space remains below limit
+			space_remaining = [neighbors.size, max_issues - core.size].min
+			neighbors.take(space_remaining).each{ |c| core << c }
+		end	
 
-		update_graph_contents(issues + neighbors)
+		# Generate graph base from latest core issues and neighbors
+		issues = Issue.where("id" => core)
+
+		update_graph_contents(issues)
 	end
 
 	def get_graph_of_most_cited(limit=40)
