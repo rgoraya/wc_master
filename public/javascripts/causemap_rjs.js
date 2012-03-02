@@ -43,6 +43,8 @@ function drawNode(node, paper){
 		.click(function() { clickNode(node)})
 		.mouseover(function() {this.node.style.cursor='pointer';})  
 
+		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
+
 		return icon;  
 	}
 }
@@ -56,56 +58,30 @@ function drawEdge(edge, paper){
 		curve = getPath(edge) //get the curve's path		
 		// console.log(edge.name)
 		// console.log(curve)
-
-		if (edge.reltype&INCREASES) { 
-			midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
-		} else if (edge.reltype&SUPERSET){
-			midPoint = getPathCenter(curve);
-		} else {
-			midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
-		}
+		e = paper.path(curve)
+			.attr({'stroke-width':2})
 		
+		if (edge.reltype&SUPERSET)
+			midPoint = getPathCenter(curve);
+		else
+			midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+
 		if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
 			if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
 				//console.log("flipped",edge.name)
 				midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
 				//console.log("alpha after flip",midPoint.alpha)
 		}}
-		e = paper.path(curve)
-			.attr({'stroke-width':2})
 
-		// WE MAY NEED TO COME UP WITH OTHER WAY TO MERGER INCREASE AND DECREASE CODE
-		if (edge.reltype&INCREASES) {	
-			arrowPath = getArrowPath(midPoint)
-			arrow = paper.path(arrowPath)
-				.attr({stroke:'none'})
-				.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-		}else if (edge.reltype&SUPERSET){
-			arrowPath = getSuperPath(midPoint)
-			arrow = paper.path(arrowPath)
-				.attr({stroke:'#FFFFFF'})
-				.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-			
-			// arrow = paper.set();
-			// arrow.push(
-			// 	paper.circle((midPoint.x-REC2_EDGE/2), midPoint.y, REC1_EDGE/2),
-			// 	paper.circle((midPoint.x+REC1_EDGE/2), midPoint.y, REC2_EDGE/2)
-			// 	
-			// )
-			// 	.attr({stroke:'#BBBBBB'})
-			// 	.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-			
-			
-		} else {
-			arrowPath = getArrowPath(midPoint)
-			arrow = paper.path(arrowPath)
-				.attr({stroke:'none'})
-				.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-		}
+		arrowPath = getArrowPath(midPoint, edge.reltype)
+		arrow = paper.path(arrowPath)
+			.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
+		if (edge.reltype&SUPERSET)
+			arrow.attr({stroke:'#FFFFFF'})
+		else
+			arrow.attr({stroke:'none'})
 
 		arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
-
-
 		arrowSymbol = paper.path(arrowSymbolPath, edge.reltype)
 			.attr({fill:'#FFFFFF', stroke:'none'})
 			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
@@ -117,8 +93,7 @@ function drawEdge(edge, paper){
 		}
 		else if(edge.reltype&SUPERSET){
 			e.attr({stroke:EDGE_COLORS['superset']})
-			//arrow.attr({fill:EDGE_COLORS['superset']})
-			arrow.attr({fill:'#BBBBBB'})	
+			arrow.attr({fill:EDGE_COLORS['superset']})
 		}
 		else{ //if decreases
 			e.attr({stroke:EDGE_COLORS['decreases']})
@@ -210,18 +185,12 @@ function getPathCenter(path, offset, flip)
 
 //gets the path of an arrow drawn at a particular point
 //point is a Raphael.getPointAtLength object {x,y,alpha}
-function getArrowPath(point)
+function getArrowPath(point, reltype)
 {
-		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
-	
-}
-
-//gets the path of an arrow drawn at a particular point
-//point is a Raphael.getPointAtLength object {x,y,alpha}
-function getSuperPath(point)
-{
-	
+	if(reltype&SUPERSET)
 		return "M" + point.x + " " + point.y + " l 0 " + (0 - REC2_EDGE/2) + " l "  + REC2_EDGE + " 0 l 0 " + REC2_EDGE  + " l " + (0 - REC2_EDGE)+" 0 l 0 "+(0 - (REC1_EDGE/2+REC2_EDGE/2))+" l "+(0 - REC1_EDGE)+" 0 l 0 "+REC1_EDGE+" l "+REC1_EDGE+" 0 z";
+	else
+		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
 	
 }
 
