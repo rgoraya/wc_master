@@ -111,8 +111,15 @@ class Graph
 
 		connections = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core_issues, core_issues).flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core_issues.include? c }
 
-		neighbors = Issue.where("id" => connections[1..limit])
-		
+		step_nodes = []
+		connections.each do |c|
+			if step_nodes.size < limit
+				step_nodes << c
+			end
+		end
+
+		neighbors = Issue.where("id" => step_nodes)
+
 		update_graph_contents(issues + neighbors)
 	end
 
