@@ -20,6 +20,10 @@ class Mapvisualization #< ActiveRecord::Base
 
   	# Build a Graph of Nodes
   	@graph = Graph.new
+    # @nodes = @graph.nodes 
+    # @edges = @graph.edges
+    ### EUGENIA: Doesn't work on its own, would need to make a container that doesn't change to hold these items inside the Graph class (so, for exampe, if you dropped the nodes hash inside a list or something, and then just changes the one value of that list. Or something).
+    ###
 
     puts "===mapvisualization initialize args===" #debugging
     puts args
@@ -40,8 +44,8 @@ class Mapvisualization #< ActiveRecord::Base
     		  @graph.get_graph_of_issue_neighbors(static, limit=30)
 
     		  # Temporary
-    		  @nodes = @graph.nodes
-    		  @edges = @graph.edges
+          @nodes = @graph.nodes
+          @edges = @graph.edges
 		  
     		  # Make static variables centered
     		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
@@ -136,12 +140,12 @@ class Mapvisualization #< ActiveRecord::Base
     @nodes = Hash.new()
     @edges = Array.new()
     @adjacency = Hash.new(0)
-    (1..node_count).each {|i| @nodes[i] = Node.new(i, "Node "+i.to_s, "myurl")} #make random nodes
+    (1..node_count).each {|i| @nodes[i] = Graph::Node.new(i, "Node "+i.to_s, "myurl")} #make random nodes
     for i in (1..node_count)
       for j in (1..node_count) #edges in both directions, chance of 1 each way
         if(i!=j and rand() < edge_ratio) #make random edges
           rel_type = (rand()*10).ceil #get a random set of attributes (rel_type) for that edge
-          @edges.push(Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type))
+          @edges.push(Graph::Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type))
           @adjacency[[i,j]] += 1 #count the edge
         end
       end
@@ -187,8 +191,8 @@ class Mapvisualization #< ActiveRecord::Base
     center = Vector[width/2, height/2]
     radius = [width,height].min/2
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
-      center[0] + (radius * Math.cos(2*Math::PI*i/nodeset.length)), 
-      center[1] + (radius * Math.sin(2*Math::PI*i/nodeset.length))] if !nodeset[key].static}
+      center[0] + (radius * Math.sin(Math::PI/4+2*Math::PI*i/nodeset.length)), 
+      center[1] - (radius * Math.cos(Math::PI/4+2*Math::PI*i/nodeset.length))] if !nodeset[key].static}
   end
 
   # puts the nodes in a circle with the static nodes in a smaller, centered circle
