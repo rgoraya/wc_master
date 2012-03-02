@@ -303,7 +303,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 						midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
 						//console.log("alpha after flip",midPoint.alpha)
 				}}
-				arrowPath = getArrowPath(midPoint)
+				arrowPath = getArrowPath(midPoint, toEdge.reltype)
 				arrowSymbolPath = getArrowSymbolPath(midPoint, toEdge.reltype)
 				transform = 'r'+midPoint.alpha+','+midPoint.x+','+midPoint.y
 
@@ -311,7 +311,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 				icon[1].attr({'path':arrowPath,'transform':transform,'opacity':0, 'fill-opacity':0})
 				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear') //hack because tranform doesn't animate smoothly
 				icon[2].attr({'path':arrowSymbolPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')			
+				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
 			}
 			else{
 				icon.animate({'path':getPath(toEdge)},1000,easing)

@@ -9,7 +9,7 @@ class MapvisualizationsController < ApplicationController
     @default_node_count = 5 #40
     @default_edge_ratio = 1.0 #0.08
     
-    @verbose = false
+    @verbose = false #unless specified otherwise in params
 
     # puts "===Controller Params==="
     # puts params
@@ -48,7 +48,13 @@ class MapvisualizationsController < ApplicationController
           relation_to_show = Relationship.find(params[:id])
           render :partial => "relation_modal", :content_type => 'text/html', 
             :locals => {:relation => relation_to_show, :location => [params[:x],params[:y]], :curve => params[:curve]}
-                
+        
+        elsif params[:do] == 'goto_issue'
+          @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :params => {:q => 'show', :i => params[:target]})
+          
+        elsif params[:do] == 'goto_relationship'
+          @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :params => {:q => 'show', :r => params[:target]})
+        
         elsif params[:layout_cmd]
           actions = %w[remove_edges foo bar] #etc
           begin

@@ -49,8 +49,8 @@ class Mapvisualization #< ActiveRecord::Base
 		  
     		  # Make static variables centered
     		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
-	
-    		  default_layout
+    		  
+  		    default_layout
         
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
@@ -262,13 +262,14 @@ class Mapvisualization #< ActiveRecord::Base
         end
       end
       for e in edgeset do #calc attractive forces
-        # #only changes 1/conn (assuming 1 edge each direction)
+        #only changes 1/conn (assuming 1 edge each direction)
         # if e.a.id < e.b.id or adjacency[[e.a.id,e.b.id]]+adjacency[[e.b.id,e.a.id]] < 2
           dist = e.a.location - e.b.location
           distlen = dist.r.to_f
           fa = distlen**2/k
-          e.a.d -= (dist*(1/distlen))*fa if !e.a.static
-          e.b.d += (dist*(1/distlen))*fa if !e.b.static
+          delta = (dist*(1/distlen))*fa
+          e.a.d -= delta if !e.a.static
+          e.b.d += delta if !e.b.static
         # end
       end
       #puts nodeset
