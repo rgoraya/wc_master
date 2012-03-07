@@ -95,6 +95,23 @@ class Graph
 		
 	end
 
+	### Query-Based Path Generation ###
+	def get_graph_of_path(src, dest)
+		# Creates a graph of a shortest path between two nodes based on query input
+
+	end
+
+	def highlight_path_in_graph(src, dest)
+		# Highlights a path, if it exists, in current graph structure.
+		# Updates "on-path" member of a Node 
+
+	end
+
+	def get_all_pairs_shortest_paths()
+		# Runs all pairs shortest path on current graph in system
+
+	end
+
 	### Custom query based graph generation ###
 
 	def get_graph_of_most_recent(limit=40)
