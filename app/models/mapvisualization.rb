@@ -41,7 +41,7 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-    		  @graph.get_graph_of_issue_neighbors(static, limit=30)
+    		  @graph.get_graph_of_issue_neighbors(static, limit=20)
 
     		  # Temporary
           @nodes = @graph.nodes
@@ -56,7 +56,7 @@ class Mapvisualization #< ActiveRecord::Base
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
-    		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=30)
+    		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
 		  
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
