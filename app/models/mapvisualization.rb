@@ -50,8 +50,9 @@ class Mapvisualization #< ActiveRecord::Base
     		  # Make static variables centered
     		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
     		  
-  		    default_layout
-        
+          target_layout(static)
+  		    #default_layout
+                  
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
 
@@ -161,17 +162,72 @@ class Mapvisualization #< ActiveRecord::Base
   #places the static nodes at their desired locations
   def set_static_nodes(width=@width, height=@height, nodeset=@nodes)
     nodeset.each_value do |node|
-      if node.static == 'center'
+      if node.static == 'center' #using ifthen instead of case so that we can break once we find something
         node.location = Vector[width/2,height/2]
-      elsif node.static == 'stationary' #just leave at location
       elsif node.static == 'left'
         node.location = Vector[0,height/2]
       elsif node.static == 'right'
         node.location = Vector[0,height/2]
+      elsif node.static == 'top'
+        node.location = Vector[width/2,0]
+      elsif node.static == 'bottom'
+        node.location = Vector[width/2,height]
+      elsif node.static == 'top_left'
+        node.location = Vector[0,0]
+      elsif node.static == 'top_right'
+        node.location = Vector[width,0]
+      elsif node.static == 'bottom_left'
+        node.location = Vector[0,height]
+      elsif node.static == 'bottom_right'
+        node.location = Vector[width,height]
+      elsif node.static == 'stationary' #just leave at location
       end
       #can add other handlers if needed
     end
   end
+  
+  # a layout for making a graph around a set of target nodes. target_ids is an array of numbers (ids)
+  def target_layout(target_ids, nodeset=@nodes, edgeset=@edges)
+    groups = {'inc_targ'=>{}, 'dec_targ'=>{}, 'targ_inc'=>{}, 'targ_dec'=>{}, 'sup_targ'=>{}, 'targ_sup'=>{}} #sup_targ = top
+
+    if nodeset.length > 0
+      nodeset.each do |id, node| #build our groupings
+        if !node.static
+          edgeset.each do |edge|
+            # check if node is related to something in target_ids
+            if (node == edge.a and target_ids.include? edge.b.id) # means that node points at target
+              g = edge.rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'inc_targ' : (edge.rel_type & 
+                  MapvisualizationsHelper::SUPERSET == 0 ? 'dec_targ' : 'sup_targ') #what group we go in
+              groups[g][node.id] = node
+              break #stop looking for edges for this node
+            elsif (node == edge.b and target_ids.include? edge.a.id) #means that target points at node
+              g = edge.rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'targ_inc' : (edge.rel_type & 
+                  MapvisualizationsHelper::SUPERSET == 0 ? 'targ_dec' : 'targ_sup') #what group we go in
+              groups[g][node.id] = node
+              break #stop looking for edges for this node
+            end
+          end
+        end
+      end 
+
+      set_static_nodes
+      static_wheel_nodes
+
+      radius = 10
+      circle_nodes_at_point(groups['inc_targ'], Vector[0,@height], radius)
+      circle_nodes_at_point(groups['dec_targ'], Vector[0,0], radius)
+      circle_nodes_at_point(groups['sup_targ'], Vector[@width/2,0], radius)
+      circle_nodes_at_point(groups['targ_inc'], Vector[@width,@height], radius)
+      circle_nodes_at_point(groups['targ_dec'], Vector[@width,0], radius)
+      circle_nodes_at_point(groups['targ_sup'], Vector[@width/2,@height], radius)
+            
+      fruchterman_reingold(100) #fast, little bit of layout for now
+      normalize_graph
+    else
+      @nodes = NO_ITEM_ERROR
+    end
+  end
+  
 
   # the default set of layout commands (hopefully not slow)
   def default_layout()
@@ -193,6 +249,14 @@ class Mapvisualization #< ActiveRecord::Base
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
       center[0] + (radius * Math.sin(Math::PI/4+2*Math::PI*i/nodeset.length)), 
       center[1] - (radius * Math.cos(Math::PI/4+2*Math::PI*i/nodeset.length))] if !nodeset[key].static}
+  end
+
+  # puts the specified nodes in a wheel at the specified point with a specified radius
+  # IGNORES STATIC PROPERTY
+  def circle_nodes_at_point(nodeset=@nodes, center=Vector[@width/2,@height/2], radius=[@width,@height].min/2, reverse=false, offset=0)
+    nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
+      center[0] + (radius * Math.sin(offset+2*Math::PI*i/nodeset.length)), 
+      center[1] - (radius * Math.cos(offset+2*Math::PI*i/nodeset.length))]}
   end
 
   # puts the nodes in a circle with the static nodes in a smaller, centered circle
@@ -562,7 +626,7 @@ class Mapvisualization #< ActiveRecord::Base
       # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
       #          [center[1]/(far_y-center[1]).abs, 1.0].min]
       scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
-               center[1]/(far_y-center[1]).abs]      
+               center[1]/(far_y-center[1]).abs]
       scale[0] = 1 if scale[0] == 1.0/0 #if we don't need to stretch, then don't!
       scale[1] = 1 if scale[1] == 1.0/0
 

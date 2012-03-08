@@ -2,8 +2,8 @@ class MapvisualizationsController < ApplicationController
 
   # GET /mapvisualizations
   def index
-    @default_width = 900*1.0 #defaults
-    @default_height = 675*1.0
+    @default_width = 900*0.8 #defaults
+    @default_height = 675*0.8
     # for large map, 900x900 looks good
     @default_border = 50
     @default_node_count = 5 #40
@@ -18,7 +18,7 @@ class MapvisualizationsController < ApplicationController
       format.html do #on html calls
 
         @verbose = !params[:v].nil?
-        puts "verbose: "+@verbose.to_s
+        #puts "verbose: "+@verbose.to_s
 
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
