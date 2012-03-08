@@ -22,10 +22,27 @@ $(function() {
 			return $(this).text().trim() == $("#title_relationship").text().trim();
          });
          
-        $('.relationship_thumb').not(opaqueDiv.parents('.relationship_thumb')).animate({'opacity': '0.3'}); 
-         	
-         
+        $('.relationship_thumb').not(opaqueDiv.parents('.relationship_thumb')).animate({'opacity': '0.3'});          	
 	}
+
+// -------------------------------------------------------------------------------
+// FUNCTION TO GO BACK TO DEFAULT STATE OF SHOW PAGE (ISSUE SPECIFIC INFO)
+// -------------------------------------------------------------------------------
+	$(".issue_thumb_container").live('click', function(){
+		// Set up the values of hidden fields for get_relationship form
+		$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
+		$("#get_rel_sentence_input").val("");
+		$("#get_relationship_input").val("");
+		// Revert styles (if any) to default 
+		$('.relationship_thumb').removeAttr('style');
+		$(".relationship_thumb_suggestion").removeAttr('style').removeClass('suggestion_selected');	
+		$(".relationship_thumb .issue_linkout").removeAttr('style');
+		// Show spinner
+		$("#relationship_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+		// Submit the form
+		$.get($("#get_relationship_form").attr("action"), $("#get_relationship_form").serialize(), null, "script");
+	})
+	
 	
 // -------------------------------------------------------------------------------
 // FUNCTION TO CYCLE THROUGH THE VARIOUS RELATIONSHIP TYPES BASED ON USER CLLICK 
@@ -501,7 +518,7 @@ $(".relationship_partial_toggle").live('click',function(){
 	  // If the form was opened:
 	  if ($(".edit_image_modal").is(":visible")){
 		  // retrieve JSON from google images search and pull the url for first image result
-		  $.getJSON(url_google_img+encodeURIComponent($(".main_thumb_title a").text())+'&callback=?', function(data) {
+		  $.getJSON(url_google_img+encodeURIComponent($(".main_thumb_title").text())+'&callback=?', function(data) {
 			  $.each(data.responseData.results, function(i,item){
 			  	// replace HTML of target Div
 			  	$('#image_edit_option' + (i+1)).css({'background-image': 'url("'+item.tbUrl+'")'});
@@ -601,7 +618,7 @@ $(".relationship_partial_toggle").live('click',function(){
 	  		if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 	  		
 	  		// Make the Causal sentence 
-	  		$("#title_issue").html($(".main_thumb_title a").text().trim());
+	  		$("#title_issue").html($(".main_thumb_title").text().trim());
 	  		// call function to identify what should be the causal sentence?
 	  		write_causal_sentence($(".central_causality_container").text().trim())
 			$("#title_relationship").html(JData_sugg.parse.title); 

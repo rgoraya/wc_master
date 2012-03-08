@@ -83,9 +83,11 @@
               %br
               %a{:href=>"/users/#{@relationship.user.id}"}
                 = @relationship.user.username
-              %span.reference_owner_reputation        
-                %b>= @relationship.user.reputation              
-              %br>= pluralize(@relationship.user.relationships.length(), "causal link")
+              .reference_owner_reputation        
+                %b
+                  = @relationship.user.reputation
+                points                
+              //%br>= pluralize(@relationship.user.relationships.length(), "causal link")
             .clearboth
           - else
             %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
@@ -226,9 +228,12 @@
               %span.date_time>= time_ago_in_words(@issue.created_at) + ' ago'           
               %br
               %a{:href=>"/users/#{@issue.user.id}"}= @issue.user.username
-              %span.reference_owner_reputation        
-                %b>= @issue.user.reputation
-              %br>= pluralize(@issue.user.issues.length(), "issue")
+              .reference_owner_reputation        
+                %b
+                  = @issue.user.reputation
+                points
+                  
+              //%br>= pluralize(@issue.user.issues.length(), "issue")
             .clearboth
           - else
             %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
