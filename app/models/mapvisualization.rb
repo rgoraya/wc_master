@@ -66,7 +66,8 @@ class Mapvisualization #< ActiveRecord::Base
     		  @nodes = @graph.nodes
     		  @edges = @graph.edges
 
-    		  default_layout
+          #target_layout(static_rel_ids) ##needs to have the list of nodes in the static_rel in order to do this
+  		    default_layout
 
         else
           @notice = BAD_PARAM_ERROR
@@ -221,7 +222,8 @@ class Mapvisualization #< ActiveRecord::Base
       circle_nodes_at_point(groups['targ_dec'], Vector[@width,0], radius)
       circle_nodes_at_point(groups['targ_sup'], Vector[@width/2,@height], radius)
             
-      fruchterman_reingold(100) #fast, little bit of layout for now
+      #fruchterman_reingold(100) #fast, little bit of layout for now
+      kamada_kawai
       normalize_graph
     else
       @nodes = NO_ITEM_ERROR
