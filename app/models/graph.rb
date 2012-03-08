@@ -116,7 +116,9 @@ class Graph
 
 			# Retrieve next step connections based on relationships connected to core
 			neighbors = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core, core).flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core.include? c }
-
+      
+      break if neighbors.length == 0 #break out if we have no more neighbors.
+      
 			# Add neighbors if space remains below limit
 			space_remaining = [neighbors.size, max_issues - core.size].min
 			neighbors.take(space_remaining).each{ |c| core << c }

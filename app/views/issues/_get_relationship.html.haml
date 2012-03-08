@@ -98,7 +98,7 @@
   
         .discussion_submit
           %a.med-relation{:href=>"/mapvisualizations?q=show&r=#{@relationship.id}"}
-            Visualize Relation
+            Visualize
         
         - @permalink = request.protocol + request.host_with_port + "/issues/" + @rel_issue.id.to_s + '-' + @rel_issue.permalink + '?rel_type=' + @causal_sentence.gsub(" ", "+") + '&rel_id=' + @relationship.id.to_s
         .discussion_submit
@@ -123,9 +123,9 @@
             = render 'get_votes', :relationship => @relationship
                                   
   
-      .relation_controls 
+        //.relation_controls 
   
-        // Uncomment below if Issue owner needs to displayed
+        // Uncomment below if Issue owner needs to displayed even while displaying relationship info!
         /#issue_owner
         /  - if @rel_issue.user       
         /    - @issue_owner = Digest::MD5.hexdigest(@rel_issue.user.email).to_s
@@ -145,21 +145,21 @@
         /    .clearboth
   
     
-        .discussion_submit
-          %a.med-relation{:href=>"/mapvisualizations?q=show&i=#{@rel_issue.id}"}
-            Visualize Issue
+        /.discussion_submit
+        /  %a.med-relation{:href=>"/mapvisualizations?q=show&i=#{@rel_issue.id}"}
+        /    Visualize Issue
         
-        - if current_user    
-          .discussion_submit
-            = link_to "View History", issue_versions_path(@rel_issue), :class=>"his-relation"
+        /- if current_user    
+        /  .discussion_submit
+        /    = link_to "View History", issue_versions_path(@rel_issue), :class=>"his-relation"
   
-        - if current_user
-          .discussion_submit
-            .btn_image_edit
-              Edit Issue image
+        /- if current_user
+        /  .discussion_submit
+        /    .btn_image_edit
+        /      Edit Issue image
   
-          #issue_image_edit
-            = render 'issue_image_edit'
+        /  #issue_image_edit
+        /    = render 'issue_image_edit'
 
       .relation_controls#system_generated
         %img.gravatar{:src=> "/images/system/system.png", :style=>"margin:0px;float:right"}
@@ -183,7 +183,7 @@
 
 - else
   .title
-    #title_dynamic_text{:style=>"text-align:left;"}
+    #title_dynamic_text
       %span#title_issue
         = @issue.title
       %span#title_causality{:style=>"font-size:16px;"}
@@ -222,7 +222,7 @@
         #issue_owner
           - if @issue.user       
             - @issue_owner = Digest::MD5.hexdigest(@issue.user.email).to_s
-            %a{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
+            %a.gravatar_anchor{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
               %img{:src=> "http://www.gravatar.com/avatar/#{@issue_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
             .gravatar_text
               %span.date_time>= time_ago_in_words(@issue.created_at) + ' ago'           
@@ -244,7 +244,7 @@
     
         .discussion_submit
           %a.med-relation{:href=>"/mapvisualizations?q=show&i=#{@issue.id}"}
-            Visualize Issue
+            Visualize
         
         - if current_user    
           .discussion_submit

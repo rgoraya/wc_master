@@ -945,11 +945,11 @@ z-index:0;
 	padding:10px 15px 10px 15px;
 	margin:0px -15px 10px -15px;
 	text-align:left;
-	text-shadow:0px 1px 1px #fff;
-	color: #434343; 
+	text-shadow:0px 1px -1px #2f2f2f;
+	color: #fcfcfc; 
 	text-transform:uppercase;
 	min-height:31px;
-	background-color:#fcfcfc;
+	background-color:#434343;
 }
 
 #title_filler_text{
@@ -3332,7 +3332,11 @@ cursor:default;
 .issue_thumbs_container{
 	background:#434343;
 	margin:0px -15px 0px -15px; 
-	
+	-webkit-box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	z-index:1;
+	position:relative;
 	}
 
 .issue_thumb_blanket{
@@ -3355,7 +3359,7 @@ cursor:default;
 }
 
 .main_thumb_title{
-	width: 136px;
+	width: 138px;
 	padding: 4px 1px;
 	margin: 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3364,7 +3368,6 @@ cursor:default;
 	background: #2F2F2F;
 	position: absolute;
 	opacity: 0.8;
-	border: 1px solid #4DB8DB;
 	cursor:pointer;
 }
 
@@ -3392,28 +3395,27 @@ cursor:default;
 }
 
 .causality_types{
-	font: bold 11px "lucida grande",tahoma,verdana,arial,sans-serif;		
+	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;		
 	float:left;
 	padding:15px 0px 0px 0px;
-	background-color:#434343;
 }	
 
 .central_causality_container{
 	color: #FCFCFC;
-	background-color:#434343;
+	padding: 1px;
 	text-align: center;
+	/*background-color:#434343;
 	font-size: 12px;
 	width: 102px;
-	padding: 4px 3px 4px 3px;
 	display: table-cell;
-	border: 1px solid #4DB8DB;
+	border: 1px solid #4DB8DB;*/
 }
 
 .central_causality_container:hover{
 }
 
 .causality_toggle_container{
-	border:5px solid #2f2f2f;
+	
 }
 
 .suggested_causality{
@@ -3425,15 +3427,13 @@ cursor:default;
 	width: 102px;
 	color: #6A6A6A;
 	cursor: pointer;
-	padding: 0px 4px 0px 4px;
+	padding: 1px;
 	text-align: center;
-	background: #f5f5f5;
 	display:none;
 }
 
 
 .relationship_partial_toggle:hover{
-	background:#2f2f2f;
 	color:#fcfcfc;
 }
 
@@ -3470,7 +3470,7 @@ cursor:default;
 }
 
 .relationship_thumb_title{
-	width:86px;
+	width:88px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3479,7 +3479,6 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;
 }
 
 .relationship_thumb_title a{
@@ -3532,7 +3531,7 @@ cursor:default;
 }
 
 .relationship_suggestion_title{
-	width:86px;
+	width:88px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3541,7 +3540,6 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;	
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;
@@ -3580,7 +3578,7 @@ cursor:default;
 .none_found_arrow{width:20px;margin-bottom:-2px;}
 
 .relationship_addnew_title{
-	width:86px;
+	width:88px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3589,7 +3587,6 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;
 }
 
 .relationship_addnew_title a{
@@ -4047,9 +4044,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;		
+	text-align: left;		
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4061,9 +4058,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4075,9 +4072,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4101,9 +4098,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4115,9 +4112,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
