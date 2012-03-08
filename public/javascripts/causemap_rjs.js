@@ -3,10 +3,17 @@
 *****/
 
 var T_OFF = 9 //txt offset
+
+var EXPAND_DIST_TO_ICON = 3 	// distance from EXPAND symbol to EDGE ICON
+var EXPAND_DIST_BETWEEN = 5 	// distance between dots 
+var EXPAND_RADIUS = 2.5     	// radius of EXPAND icon dots
+var NUM_OF_DOTS = 3		// number of dots each side of EXPAND symbol
+
 var REC1_EDGE = 9 // arrowhead length
-var REC2_EDGE = 5 // arrowhead height
+var REC2_EDGE = 6.5 // arrowhead height
 var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 6 // arrowhead height
+
 var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BBBBBB'}
 var DESEL_OP = 0.4
 
@@ -61,7 +68,9 @@ function drawEdge(edge, paper){
 		e = paper.path(curve)
 			.attr({'stroke-width':2})
 		
-		if (edge.reltype&SUPERSET)
+		if (edge.reltype&INCREASES)
+			midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+		else if (edge.reltype&SUPERSET)
 			midPoint = getPathCenter(curve);
 		else
 			midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
@@ -76,10 +85,14 @@ function drawEdge(edge, paper){
 		arrowPath = getArrowPath(midPoint, edge.reltype)
 		arrow = paper.path(arrowPath)
 			.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-		if (edge.reltype&SUPERSET)
-			arrow.attr({stroke:'#FFFFFF'})
+
+
+		if (edge.reltype&INCREASES)		
+			arrow.attr({stroke:'#FFFFFF', 'stroke-width': 2})
+		else if (edge.reltype&SUPERSET)
+			arrow.attr({stroke:'#FFFFFF', 'stroke-width': 2})
 		else
-			arrow.attr({stroke:'none'})
+			arrow.attr({stroke:'#FFFFFF', 'stroke-width': 2})
 
 		arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
 		arrowSymbol = paper.path(arrowSymbolPath, edge.reltype)
@@ -105,6 +118,54 @@ function drawEdge(edge, paper){
 				e.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
 				arrow.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
 		}}
+// Expandable Demo START
+
+	r = Math.floor(Math.random()*11);
+	if (r < 4) {
+		var expand_cr = [];
+		var expand_cl = [];
+		pathLength = Raphael.getTotalLength(curve);
+
+
+		if(edge.reltype&INCREASES){
+			for(i=0; i<NUM_OF_DOTS; i++) {
+				expand_cr[i] = Raphael.getPointAtLength(curve,pathLength/2 + ARROW_LENGTH/2 + EXPAND_DIST_TO_ICON + EXPAND_DIST_BETWEEN*i);
+				expand_cl[i] = Raphael.getPointAtLength(curve,pathLength/2 - ARROW_LENGTH/2 - EXPAND_DIST_TO_ICON - EXPAND_DIST_BETWEEN*i);
+			}
+		}
+		else if(edge.reltype&SUPERSET){
+			for(i=0; i<NUM_OF_DOTS; i++) {
+				expand_cr[i] = Raphael.getPointAtLength(curve,pathLength/2 + REC2_EDGE + EXPAND_DIST_TO_ICON + EXPAND_DIST_BETWEEN*i);
+				expand_cl[i] = Raphael.getPointAtLength(curve,pathLength/2 - REC1_EDGE - EXPAND_DIST_TO_ICON - EXPAND_DIST_BETWEEN*i);
+			}
+		}
+		else{ //if decreases
+			for(i=0; i<NUM_OF_DOTS; i++) {
+				expand_cr[i] = Raphael.getPointAtLength(curve,pathLength/2 + ARROW_LENGTH/2 + EXPAND_DIST_TO_ICON + EXPAND_DIST_BETWEEN*i);
+				expand_cl[i] = Raphael.getPointAtLength(curve,pathLength/2 - ARROW_LENGTH/2 - EXPAND_DIST_TO_ICON - EXPAND_DIST_BETWEEN*i);
+			}
+		}
+
+		var allDots = paper.set();
+		for(var i=0; i<NUM_OF_DOTS; i++) {
+			allDots.push(paper.circle(expand_cr[i].x, expand_cr[i].y, EXPAND_RADIUS),
+			paper.circle(expand_cl[i].x, expand_cl[i].y, EXPAND_RADIUS));
+		}
+
+
+		if(edge.reltype&INCREASES){
+			allDots.attr({stroke:"#FFFFFF",fill:EDGE_COLORS['increases'],'stroke-width': '2'})			
+		}
+		else if(edge.reltype&SUPERSET){
+			allDots.attr({stroke:"#FFFFFF",fill:EDGE_COLORS['superset'],'stroke-width': '2'})
+		}
+		else{ //if decreases
+			allDots.attr({stroke:"#FFFFFF",fill:EDGE_COLORS['decreases'],'stroke-width': '2'})
+		}
+		//st.attr({stroke:"#FFFFFF", fill:"#000000"});
+	}
+
+// END of Expandable Demo
 
 		icon = paper.set() //for storing pieces of the line as needed
 		.push(e, arrow, arrowSymbol)
@@ -187,7 +248,9 @@ function getPathCenter(path, offset, flip)
 //point is a Raphael.getPointAtLength object {x,y,alpha}
 function getArrowPath(point, reltype)
 {
-	if(reltype&SUPERSET)
+	if (reltype&INCREASES)
+		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
+	else if(reltype&SUPERSET)
 		return "M" + point.x + " " + point.y + " l 0 " + (0 - REC2_EDGE/2) + " l "  + REC2_EDGE + " 0 l 0 " + REC2_EDGE  + " l " + (0 - REC2_EDGE)+" 0 l 0 "+(0 - (REC1_EDGE/2+REC2_EDGE/2))+" l "+(0 - REC1_EDGE)+" 0 l 0 "+REC1_EDGE+" l "+REC1_EDGE+" 0 z";
 	else
 		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
