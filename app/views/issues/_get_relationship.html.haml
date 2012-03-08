@@ -13,9 +13,13 @@
         = @rel_issue.title
       %span#title_causality{:style=>"font-size:16px;"}
         = @causal_sentence
+      %span#title_causality_hover{:style=>"font-size:16px;"}  
       %span#title_relationship
         = @rel_cause.title
-        
+      %span#title_relationship_hover
+      %span#title_relationship_ellipsis
+        &#8230;  
+          
   .rationale_container
     
     .relation_descr_container
@@ -187,8 +191,11 @@
       %span#title_issue
         = @issue.title
       %span#title_causality{:style=>"font-size:16px;"}
+      %span#title_causality_hover{:style=>"font-size:16px;"}    
       %span#title_relationship
-
+      %span#title_relationship_hover
+      %span#title_relationship_ellipsis
+        &#8230;  
         
   .rationale_container
     .relation_descr_container

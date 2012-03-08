@@ -941,7 +941,7 @@ z-index:0;
 
 .title {
 	/*background-color:#4DB8DB;*/
-	font:bold 26px "lucida grande",tahoma,verdana,arial,sans-serif;
+	font:bold 22px "lucida grande",tahoma,verdana,arial,sans-serif;
 	padding:10px 15px 10px 15px;
 	margin:0px -15px 10px -15px;
 	text-align:left;
@@ -973,6 +973,16 @@ z-index:0;
 #issue_title_dynamic, #relationship_title_dynamic{
 	text-transform:uppercase;
 	color:#4DB8DB;
+}
+
+#title_relationship_hover, #title_causality_hover{
+	color:#888888;
+	display:none;
+}
+
+#title_relationship_ellipsis{
+	color:#888888;
+	font-size:16px;
 }
 
 .map_toggle{
@@ -1534,9 +1544,27 @@ word-wrap:break-word;
 }
 
 #notice, #error{
-	float:left;
 	width:188px;
+}
+
+#progress_container{
+	font: normal 14px "lucida grande",tahoma,verdana,arial,sans-serif;
+	text-align: center;
+	color: #434343;
+	padding: 10px 5px;
+	position: fixed;
+	z-index: 1;
+	top: 44px;
+	width: 400px;
+	left: 50%;
+	margin-left: -210px;
+}
+
+.progress_spinner{
+	border:0;
+	width:20px;
 	margin-right:5px;
+	margin-bottom:-4px;
 }
 
 .index_title1 {
@@ -3359,7 +3387,7 @@ cursor:default;
 }
 
 .main_thumb_title{
-	width: 138px;
+	width: 153px;
 	padding: 4px 1px;
 	margin: 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3379,10 +3407,10 @@ cursor:default;
 }
 
 .issue_thumb_main{
-	height:90px; width:140px; border:4px solid #2f2f2f;
+	height:90px; width:155px; border:4px solid #fcfcfc;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:150px auto;
+	background-size:160px auto;
 	text-align:center;
 	background-color:#fcfcfc;
 	cursor:pointer;
@@ -3399,17 +3427,6 @@ cursor:default;
 	float:left;
 	padding:15px 0px 0px 0px;
 }	
-
-.central_causality_container{
-	color: #FCFCFC;
-	padding: 1px;
-	text-align: center;
-	/*background-color:#434343;
-	font-size: 12px;
-	width: 102px;
-	display: table-cell;
-	border: 1px solid #4DB8DB;*/
-}
 
 .central_causality_container:hover{
 }
@@ -3429,12 +3446,17 @@ cursor:default;
 	cursor: pointer;
 	padding: 1px;
 	text-align: center;
-	display:none;
 }
 
 
 .relationship_partial_toggle:hover{
 	color:#fcfcfc;
+}
+
+.central_causality_container{
+	color: #FCFCFC;
+	padding: 1px;
+	text-align: center;
 }
 
 .issue_relationships_container{
@@ -3462,6 +3484,10 @@ cursor:default;
 	text-align:center;
 	background-color:#fcfcfc;
 	}
+
+.relationship_thumb_selected{
+	border:4px solid #fcfcfc;
+}
 
 .relationship_thumb_main a{
 	display: block;  
@@ -3570,7 +3596,7 @@ cursor:default;
 	float: left;
 	margin: 40px 0px 0px 15px;
 	color: #2C2C2C;
-	text-align: center;
+	text-align: left;
 	width: 645px;
 	text-shadow: 0px 1px 2px #505050;
 	}	

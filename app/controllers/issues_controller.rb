@@ -22,12 +22,9 @@ require 'backports'
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
-    else
-      @rel_type = "is caused by"
+      # Call to retrieve the corresponding relationships based on the params
+      get_selected_relations
     end
-
-    # Call to retrieve the corresponding relationships based on the params
-    get_selected_relations
 
     # Default params to "causes" for initial load
     if params[:rel_id]

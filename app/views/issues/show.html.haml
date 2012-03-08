@@ -2,7 +2,12 @@
   = stylesheet_link_tag "styles"
 
 - content_for(:title, @issue.title)
+-# specifies the data that we're going to be working with in javascript
+:javascript
+  var this_relationship_type = '#{@rel_type}'
 = javascript_include_tag "issue_show.js"
+
+
  
 #contentwrapper
 
