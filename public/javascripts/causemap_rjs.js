@@ -239,8 +239,13 @@ function getPathCenter(path, offset, flip)
 	flip = typeof offset !== 'undefined' ? flip : false;
 
 	pathLength = Raphael.getTotalLength(path);
-	midPoint = Raphael.getPointAtLength(path,pathLength/2 + offset);
 
+	try {
+		midPoint = Raphael.getPointAtLength(path,pathLength/2 + offset);
+	}
+	catch(err) { //catching an error if our path isn't long enough to find a point with the offset
+		midPoint = Raphael.getPointAtLength(path,pathLength/2)
+	}
 	return midPoint;
 }
 
