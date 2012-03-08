@@ -41,7 +41,7 @@ class Mapvisualization #< ActiveRecord::Base
         if params[:i] #show issues
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
-    		  @graph.get_graph_of_issue_neighbors(static, limit=30)
+    		  @graph.get_graph_of_issue_neighbors(static, limit=20)
 
     		  # Temporary
           @nodes = @graph.nodes
@@ -56,7 +56,7 @@ class Mapvisualization #< ActiveRecord::Base
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
-    		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=30)
+    		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
 		  
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
@@ -256,7 +256,7 @@ class Mapvisualization #< ActiveRecord::Base
             if u!=v
               dist = v.location - u.location
               distlen = dist.r.to_f
-              v.d += distlen != 0.0 ? (dist*(1/distlen))*(k2/distlen) : Vector[0.0,0.0]
+              v.d += distlen != 0.0 ? (dist/distlen)*(k2/distlen) : Vector[0.0,0.0]
             end
           end
         end
@@ -267,7 +267,7 @@ class Mapvisualization #< ActiveRecord::Base
           dist = e.a.location - e.b.location
           distlen = dist.r.to_f
           fa = distlen**2/k
-          delta = (dist*(1/distlen))*fa
+          delta = (dist/distlen)*fa
           e.a.d -= delta if !e.a.static
           e.b.d += delta if !e.b.static
         # end
@@ -279,10 +279,10 @@ class Mapvisualization #< ActiveRecord::Base
           dist_center = v.location - Vector[width/2, height/2]
           distlen = dist_center.r.to_f
           fa = distlen**2/k
-          v.d -= (dist_center*(1/distlen))*fa
+          v.d -= (dist_center/distlen)*fa
           dlen = v.d.r.to_f
           if dlen > 0.0 #if we have a distance to move
-            v.location += (v.d*(1/dlen))*[dlen,temperature].min
+            v.location += (v.d/dlen)*[dlen,temperature].min
             nx = [[v.location[0],0].max, width].min #don't let outside of bounds (50px border)
             ny = [[v.location[1],0].max, height].min
             v.location = Vector[nx,ny]

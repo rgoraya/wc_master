@@ -239,7 +239,9 @@ function clickEdge(edge){
 	
 	$.ajax({
 		url: '/mapvisualizations',
-		data: {"do":'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
+
+		data: {'do':'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
+
 		complete: function(data) {show_modal(data);},
 		dataType: 'script'
 	});
