@@ -1,10 +1,9 @@
-class PathFinder
+class Pathfinder
 	include ActiveModel::Validations
 
-	validates_presence_of :source
 	attr_accessor :source, :destination
 
-	def initialize(source, destination=0)
+	def initialize(source=0, destination=0)
 		@source = source
 		@destination = destination
 	end

@@ -60,14 +60,15 @@ class Graph
 
 	# End subclass definitions
 
-	validates_presence_of :nodes, :edges, :sources
+	validates_presence_of :nodes, :edges
 
 	# Initialization and Attributes
-	attr_accessor :nodes, :edges, :sources
+	attr_accessor :nodes, :edges, :sources, :pathfinder
 
 	def initialize(issues)
 		issues_to_graph = Issue.find(issues)
 		update_graph_contents(issues_to_graph)
+		@pathfinder = Pathfinder.new()
 	end
 
 	def initialize
@@ -75,6 +76,7 @@ class Graph
 		@nodes = Hash.new()
 		@edges = Array.new()
 		@sources = Array.new()
+		@pathfinder = Pathfinder.new()
 	end
 
 	def update_graph_contents(issues, relationships=nil, source_set=[])
