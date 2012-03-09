@@ -5,7 +5,7 @@ class Graph
 
 	# Begin subclass definitions
 	class Node
-	  attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
+	  attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a, :on_path
 
 		def initialize(id, name, url)
 			# Basic node members
@@ -19,6 +19,9 @@ class Graph
 			@highlighted = false
 			@d = Vector[0.0,0.0] #delta variable
 			@a = Vector[0.0,0.0] #acceleration variable
+
+			# Path-Tracking members	
+			@on_path = 0
 		end
 
 		def to_s
@@ -27,7 +30,7 @@ class Graph
 	end	
 
 	class Edge
-		attr_accessor :id, :a, :b, :rel_type
+		attr_accessor :id, :a, :b, :rel_type, :edge_on_path
 
 		# A placeholder converter for building the edges
 		RELTYPE_TO_BITMASK = {nil=>MapvisualizationsHelper::INCREASES, 'I'=>MapvisualizationsHelper::DECREASES, 'H'=>MapvisualizationsHelper::SUPERSET}
@@ -37,6 +40,7 @@ class Graph
 			@a = a
 			@b = b
 			@rel_type = rel_type
+			@edge_on_path = 0
 		end
 
 		def to_s
