@@ -941,15 +941,15 @@ z-index:0;
 
 .title {
 	/*background-color:#4DB8DB;*/
-	font:bold 26px "lucida grande",tahoma,verdana,arial,sans-serif;
+	font:bold 22px "lucida grande",tahoma,verdana,arial,sans-serif;
 	padding:10px 15px 10px 15px;
 	margin:0px -15px 10px -15px;
 	text-align:left;
-	text-shadow:0px 1px 1px #fff;
-	color: #434343; 
+	text-shadow:0px 1px -1px #2f2f2f;
+	color: #fcfcfc; 
 	text-transform:uppercase;
 	min-height:31px;
-	background-color:#fcfcfc;
+	background-color:#434343;
 }
 
 #title_filler_text{
@@ -973,6 +973,15 @@ z-index:0;
 #issue_title_dynamic, #relationship_title_dynamic{
 	text-transform:uppercase;
 	color:#4DB8DB;
+}
+
+#title_relationship_hover, #title_causality_hover{
+	color:#888888;
+	display:none;
+}
+
+#title_relationship_ellipsis{
+	color:#888888;
 }
 
 .map_toggle{
@@ -1534,9 +1543,27 @@ word-wrap:break-word;
 }
 
 #notice, #error{
-	float:left;
 	width:188px;
+}
+
+#progress_container{
+	font: normal 14px "lucida grande",tahoma,verdana,arial,sans-serif;
+	text-align: center;
+	color: #434343;
+	padding: 10px 5px;
+	position: fixed;
+	z-index: 1;
+	top: 44px;
+	width: 400px;
+	left: 50%;
+	margin-left: -210px;
+}
+
+.progress_spinner{
+	border:0;
+	width:20px;
 	margin-right:5px;
+	margin-bottom:-4px;
 }
 
 .index_title1 {
@@ -3332,7 +3359,11 @@ cursor:default;
 .issue_thumbs_container{
 	background:#434343;
 	margin:0px -15px 0px -15px; 
-	
+	-webkit-box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	z-index:1;
+	position:relative;
 	}
 
 .issue_thumb_blanket{
@@ -3355,7 +3386,7 @@ cursor:default;
 }
 
 .main_thumb_title{
-	width: 136px;
+	width: 153px;
 	padding: 4px 1px;
 	margin: 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3364,7 +3395,6 @@ cursor:default;
 	background: #2F2F2F;
 	position: absolute;
 	opacity: 0.8;
-	border: 1px solid #4DB8DB;
 	cursor:pointer;
 }
 
@@ -3376,10 +3406,10 @@ cursor:default;
 }
 
 .issue_thumb_main{
-	height:90px; width:140px; border:4px solid #2f2f2f;
+	height:90px; width:155px; border:4px solid #fcfcfc;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:150px auto;
+	background-size:160px auto;
 	text-align:center;
 	background-color:#fcfcfc;
 	cursor:pointer;
@@ -3392,28 +3422,16 @@ cursor:default;
 }
 
 .causality_types{
-	font: bold 11px "lucida grande",tahoma,verdana,arial,sans-serif;		
+	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;		
 	float:left;
 	padding:15px 0px 0px 0px;
-	background-color:#434343;
 }	
-
-.central_causality_container{
-	color: #FCFCFC;
-	background-color:#434343;
-	text-align: center;
-	font-size: 12px;
-	width: 102px;
-	padding: 4px 3px 4px 3px;
-	display: table-cell;
-	border: 1px solid #4DB8DB;
-}
 
 .central_causality_container:hover{
 }
 
 .causality_toggle_container{
-	border:5px solid #2f2f2f;
+	
 }
 
 .suggested_causality{
@@ -3425,16 +3443,19 @@ cursor:default;
 	width: 102px;
 	color: #6A6A6A;
 	cursor: pointer;
-	padding: 0px 4px 0px 4px;
+	padding: 1px;
 	text-align: center;
-	background: #f5f5f5;
-	display:none;
 }
 
 
 .relationship_partial_toggle:hover{
-	background:#2f2f2f;
 	color:#fcfcfc;
+}
+
+.central_causality_container{
+	color: #FCFCFC;
+	padding: 1px;
+	text-align: center;
 }
 
 .issue_relationships_container{
@@ -3448,20 +3469,23 @@ cursor:default;
 
 .relationship_thumb{
 	float:left;
-	margin:0px 0px 0px 10px;
-	border:1px solid #2c2c2c;
+	padding-left:10px;
 	opacity:1;
 	}
 
 
 .relationship_thumb_main{
-	height:90px; width:90px; border:4px solid #2f2f2f;
+	height:92px; width:92px; border:4px solid #2f2f2f;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:auto 90px;
+	background-size:auto 92px;
 	text-align:center;
 	background-color:#fcfcfc;
 	}
+
+.relationship_thumb_selected{
+	border:4px solid #fcfcfc;
+}
 
 .relationship_thumb_main a{
 	display: block;  
@@ -3470,7 +3494,7 @@ cursor:default;
 }
 
 .relationship_thumb_title{
-	width:86px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3479,11 +3503,10 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;
 }
 
 .relationship_thumb_title a{
-	width:84px;
+	width:90px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;		
@@ -3508,20 +3531,19 @@ cursor:default;
 .relationship_addnew{
 	float:left;
 	margin:0px 0px 0px 10px;
-	border:1px solid #2c2c2c;
 	opacity:1;
 	float:right;
 	margin-right:10px;
 	}
 
 .relationship_thumb_suggestion{
-	height:90px; border:4px solid #2f2f2f;
+	height:92px; border:4px solid #2f2f2f;
 	background-position:center 40px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
 	background-image:url('/images/issues/ques.png'); 
-	width:90px;
+	width:92px;
 	background-color:#434343;
 }
 
@@ -3532,7 +3554,7 @@ cursor:default;
 }
 
 .relationship_suggestion_title{
-	width:86px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3541,7 +3563,6 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;	
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;
@@ -3550,13 +3571,13 @@ cursor:default;
 .suggestion_thumb{cursor:pointer;}
 
 .relationship_thumb_addnew{
-	height:90px; border:4px solid #2f2f2f;
+	height:92px; border:4px solid #2f2f2f;
 	background-position:center 40px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
 	background-image:url('/images/issues/add_relation.png'); 
-	width:90px;
+	width:92px;
 	background-color:#434343;
 }
 
@@ -3572,7 +3593,7 @@ cursor:default;
 	float: left;
 	margin: 40px 0px 0px 15px;
 	color: #2C2C2C;
-	text-align: center;
+	text-align: left;
 	width: 645px;
 	text-shadow: 0px 1px 2px #505050;
 	}	
@@ -3580,7 +3601,7 @@ cursor:default;
 .none_found_arrow{width:20px;margin-bottom:-2px;}
 
 .relationship_addnew_title{
-	width:86px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3589,11 +3610,10 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;
 }
 
 .relationship_addnew_title a{
-	width:84px;
+	width:90px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;		
@@ -4047,9 +4067,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;		
+	text-align: left;		
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4061,9 +4081,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4075,9 +4095,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4101,9 +4121,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4115,9 +4135,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
