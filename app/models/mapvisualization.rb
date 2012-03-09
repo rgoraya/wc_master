@@ -115,7 +115,9 @@ class Mapvisualization #< ActiveRecord::Base
 			# PLACEHOLDER for format-checking / conversion
 
 			# Just show the nodes for now
-			@graph.get_graph_of_path(params[:psrc].to_i, params[:pdest].to_i)
+			path_found = @graph.get_graph_of_path(params[:psrc].to_i, params[:pdest].to_i)
+
+			#@notice = "No path found"
 
 			# Temporary
 			@nodes = @graph.nodes
