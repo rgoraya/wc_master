@@ -17,6 +17,8 @@ if ($("#get_rel_sentence_input").val() != "") {
 } 
 
 if ($("#get_rel_issueid_input").val() != ""){
+	$("#title_causality, #title_relationship").hide();
+	$("#title_relationship_ellipsis").show();
 	$("#get_relationship_btn").trigger('click');	
 }
 
@@ -31,10 +33,10 @@ if ($.trim($('#notice').text()) != "") {
   }
 
 
-
 $(".relationship_partial_toggle:contains(" + this_relationship_type + ")").filter(function(){
   $(this).addClass("central_causality_container")
 })
 
 $("#title_causality").html(this_relationship_type)
-
+$("#title_causality").removeClass('suggested_causality').show();;
+$("#title_causality_hover").hide();

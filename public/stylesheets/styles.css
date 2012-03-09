@@ -982,7 +982,6 @@ z-index:0;
 
 #title_relationship_ellipsis{
 	color:#888888;
-	font-size:16px;
 }
 
 .map_toggle{
@@ -3470,17 +3469,16 @@ cursor:default;
 
 .relationship_thumb{
 	float:left;
-	margin:0px 0px 0px 10px;
-	border:1px solid #2c2c2c;
+	padding-left:10px;
 	opacity:1;
 	}
 
 
 .relationship_thumb_main{
-	height:90px; width:90px; border:4px solid #2f2f2f;
+	height:92px; width:92px; border:4px solid #2f2f2f;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:auto 90px;
+	background-size:auto 92px;
 	text-align:center;
 	background-color:#fcfcfc;
 	}
@@ -3496,7 +3494,7 @@ cursor:default;
 }
 
 .relationship_thumb_title{
-	width:88px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3508,7 +3506,7 @@ cursor:default;
 }
 
 .relationship_thumb_title a{
-	width:84px;
+	width:90px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;		
@@ -3533,20 +3531,19 @@ cursor:default;
 .relationship_addnew{
 	float:left;
 	margin:0px 0px 0px 10px;
-	border:1px solid #2c2c2c;
 	opacity:1;
 	float:right;
 	margin-right:10px;
 	}
 
 .relationship_thumb_suggestion{
-	height:90px; border:4px solid #2f2f2f;
+	height:92px; border:4px solid #2f2f2f;
 	background-position:center 40px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
 	background-image:url('/images/issues/ques.png'); 
-	width:90px;
+	width:92px;
 	background-color:#434343;
 }
 
@@ -3557,7 +3554,7 @@ cursor:default;
 }
 
 .relationship_suggestion_title{
-	width:88px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3574,13 +3571,13 @@ cursor:default;
 .suggestion_thumb{cursor:pointer;}
 
 .relationship_thumb_addnew{
-	height:90px; border:4px solid #2f2f2f;
+	height:92px; border:4px solid #2f2f2f;
 	background-position:center 40px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
 	background-image:url('/images/issues/add_relation.png'); 
-	width:90px;
+	width:92px;
 	background-color:#434343;
 }
 
@@ -3604,7 +3601,7 @@ cursor:default;
 .none_found_arrow{width:20px;margin-bottom:-2px;}
 
 .relationship_addnew_title{
-	width:88px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3616,7 +3613,7 @@ cursor:default;
 }
 
 .relationship_addnew_title a{
-	width:84px;
+	width:90px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;		

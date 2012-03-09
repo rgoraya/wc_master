@@ -1,5 +1,3 @@
-%div{:style=>"float:right;margin:12px 0px -24px -24px;", :id=>"relationship_wait"}
-
 = form_tag "/issues/get_relationship", :id=>"get_relationship_form", :remote=>true, :style=>"display:none;", :method => 'get' do               
   = text_field_tag :rel_id, params[:rel_id], :align=>"top", :id=>"get_relationship_input"
   = hidden_field_tag :sentence, params[:sentence], :align=>"top", :id=>"get_rel_sentence_input"

@@ -27,15 +27,11 @@
 
 %div.issue_relationships_container
   
-  /%div.relationship_addnew_wait
-  
   - if @issue_relations
     - if @issue_relations.length > 0
     
       %div#relation_pagination
         = will_paginate (@issue_relations), :page_links=>false, :param_name => 'relationship_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
-      
-        %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"relations_wait"}
       
       - @issue_relations.each do |relation|
         %div.relationship_thumb
