@@ -31,7 +31,6 @@
           #modal_fill
             .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
           .down_pointer_arrow
-    = puts @verbose
     #interaction{:style => (@verbose ? "" : "display:none")}
       #reset_form
         = form_tag({:action => "index", :layout_cmd => 'reset_graph'}, {:remote => true, :method => :get}) do

@@ -214,7 +214,8 @@ class Mapvisualization #< ActiveRecord::Base
       set_static_nodes
       static_wheel_nodes
 
-      radius = 10
+      # put the groups into little circles in their respective corners, so they can come out fighting
+      radius = 5 
       circle_nodes_at_point(groups['inc_targ'], Vector[0,@height], radius)
       circle_nodes_at_point(groups['dec_targ'], Vector[0,0], radius)
       circle_nodes_at_point(groups['sup_targ'], Vector[@width/2,0], radius)
@@ -222,8 +223,8 @@ class Mapvisualization #< ActiveRecord::Base
       circle_nodes_at_point(groups['targ_dec'], Vector[@width,0], radius)
       circle_nodes_at_point(groups['targ_sup'], Vector[@width/2,@height], radius)
             
-      #fruchterman_reingold(100) #fast, little bit of layout for now
-      kamada_kawai
+      fruchterman_reingold(100) #fast, little bit of layout for now
+      #kamada_kawai
       normalize_graph
     else
       @nodes = NO_ITEM_ERROR
@@ -322,7 +323,13 @@ class Mapvisualization #< ActiveRecord::Base
             if u!=v
               dist = v.location - u.location
               distlen = dist.r.to_f
-              v.d += distlen != 0.0 ? (dist/distlen)*(k2/distlen) : Vector[0.0,0.0]
+              #v.d += distlen != 0.0 ? (dist/distlen)*(k2/distlen) : Vector[(-0.5+rand())*0.1,(-0.5+rand())*0.1]
+              if distlen != 0.0
+                v.d += (dist/distlen)*(k2/distlen)
+              else #at the same spot, so just splut them apart a little this run
+                v.d += Vector[0.01,0]
+                u.d += Vector[-0.01,0]
+              end
             end
           end
         end
