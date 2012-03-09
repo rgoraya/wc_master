@@ -20,13 +20,14 @@ $(function() {
   if ($.trim($('#notice').text()) != "") {
   	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
   	$('#notice').show;
-  }
-  
+
 	setTimeout(function() {
 	    $('#notice_container').fadeOut('slow');
 	    $('#notice').empty();	
 	}, 3000);
 
+  }
+  
 // -------------------------------------------------------------------------------
 // PAGINATION FUNCTIONS FOR ISSUE INDEX AND USER PAGE (DROPPING THEM 
 // IN TO APPLICATION js INSTEAD OF CREATING SEPERATE FILES FOR THEM)
