@@ -27,10 +27,7 @@
               
           .navigation{:style=>"float:left;"}
             %div{:class=>"search_container_appl"}
-              /= form_tag issues_path, :id=>"search_form", :style=>"display:none;", :method => 'get' do               
-              /  = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_invisible_input"
-              /  = submit_tag "", :name => nil, :class=>"search_appl_submit", :title=>"search"
-              
+
               = form_tag "/issues/auto_complete_search", :id=>"issue_search_form", :method => 'get' do               
                 = text_field_tag :query, params[:query], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_visible_input"
                 %input{:type=>"button", :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"search_submit_btn"}
@@ -47,7 +44,7 @@
 
               = link_to "Issues", :issues, :title=>"view all issues", :class=>"login_button", :style=>"background-image:url('/images/system/goto.png');"
                 
-              = link_to 'New Issue', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');" 
+              = link_to 'New Relationship', new_issue_path, :title=>"create new issue", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');" 
 
 
               - if current_user
