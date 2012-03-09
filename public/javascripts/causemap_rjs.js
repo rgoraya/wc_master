@@ -3,10 +3,13 @@
 *****/
 
 var T_OFF = 9 //txt offset
-var REC1_EDGE = 9 // arrowhead length
-var REC2_EDGE = 5 // arrowhead height
+
 var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 6 // arrowhead height
+var REC1_EDGE = 9 // big rectangle size (supersets)
+var REC2_EDGE = 6.5 // small rectangle size (supersets)
+var NUM_OF_DOTS = 3		// number of dots each side of EXPAND symbol
+
 var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BBBBBB'}
 var DESEL_OP = 0.4
 
@@ -56,8 +59,6 @@ function drawEdge(edge, paper){
 		b = edge.b;
 
 		curve = getPath(edge) //get the curve's path		
-		// console.log(edge.name)
-		// console.log(curve)
 		e = paper.path(curve)
 			.attr({'stroke-width':2})
 		
@@ -74,17 +75,15 @@ function drawEdge(edge, paper){
 		}}
 
 		arrowPath = getArrowPath(midPoint, edge.reltype)
-		arrow = paper.path(arrowPath)
-			.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
-		if (edge.reltype&SUPERSET)
-			arrow.attr({stroke:'#FFFFFF'})
-		else
-			arrow.attr({stroke:'none'})
-
+		arrow = paper.path(arrowPath) //draw the arrowhead
+			.attr({stroke:'#FFFFFF', 'stroke-width': 1.3})
+			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
 		arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
-		arrowSymbol = paper.path(arrowSymbolPath, edge.reltype)
+		arrowSymbol = paper.path(arrowSymbolPath, edge.reltype) //draw the symbol on the arrow
 			.attr({fill:'#FFFFFF', stroke:'none'})
 			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
+
+		dots = drawDots(edge, curve, paper)
 
 		//set attributes based on relationship type (bitcheck with constants)
 		if(edge.reltype&INCREASES){
@@ -104,10 +103,11 @@ function drawEdge(edge, paper){
 			if((edge.reltype&HIGHLIGHTED)==0){ //if not highlighted
 				e.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
 				arrow.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
+				dots.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
 		}}
 
 		icon = paper.set() //for storing pieces of the line as needed
-		.push(e, arrow, arrowSymbol)
+		.push(e, arrow, arrowSymbol, dots)
 		.click(function() { clickEdge(edge)})
 		.mouseover(function() {this.node.style.cursor='pointer';})
 
@@ -178,8 +178,10 @@ function getPathCenter(path, offset, flip)
 	flip = typeof offset !== 'undefined' ? flip : false;
 
 	pathLength = Raphael.getTotalLength(path);
-	midPoint = Raphael.getPointAtLength(path,pathLength/2 + offset);
 
+	//catching an error if our path isn't long enough to find a point with the offset
+	try {midPoint = Raphael.getPointAtLength(path,pathLength/2 + offset);}
+	catch(err) {midPoint = Raphael.getPointAtLength(path,pathLength/2)}
 	return midPoint;
 }
 
@@ -187,7 +189,9 @@ function getPathCenter(path, offset, flip)
 //point is a Raphael.getPointAtLength object {x,y,alpha}
 function getArrowPath(point, reltype)
 {
-	if(reltype&SUPERSET)
+	if (reltype&INCREASES)
+		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
+	else if(reltype&SUPERSET)
 		return "M" + point.x + " " + point.y + " l 0 " + (0 - REC2_EDGE/2) + " l "  + REC2_EDGE + " 0 l 0 " + REC2_EDGE  + " l " + (0 - REC2_EDGE)+" 0 l 0 "+(0 - (REC1_EDGE/2+REC2_EDGE/2))+" l "+(0 - REC1_EDGE)+" 0 l 0 "+REC1_EDGE+" l "+REC1_EDGE+" 0 z";
 	else
 		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
@@ -215,6 +219,41 @@ function getArrowSymbolPath(point, reltype)
 	return "" //if problem
 }
 
+// draws dots if the curve is expandable, and returns the set of dots. Otherwise, just returns an empty set
+function drawDots(edge, curve, paper)
+{
+	demo = false
+	dots = paper.set();
+	if(edge.reltype&EXPANDABLE || demo){ //if we expand, fill in the dots
+		expand_cr = [];
+		expand_cl = [];
+		pathLength = Raphael.getTotalLength(curve);
+		
+		offset_r = offset_l = ARROW_LENGTH/2
+		if(edge.reltype&SUPERSET){
+			offset_r = REC2_EDGE;
+			offset_l = REC1_EDGE;
+		}
+
+		for(i=0; i<NUM_OF_DOTS; i++) {
+			//expand_cr[i] = Raphael.getPointAtLength(curve,pathLength/2 + offset_r + EXPAND_DIST_TO_ICON + EXPAND_DIST_BETWEEN*i);
+			expand_cr[i] = Raphael.getPointAtLength(curve,pathLength/2 + offset_r + 3 + 5*i);
+			expand_cl[i] = Raphael.getPointAtLength(curve,pathLength/2 - offset_l - 3 - 5*i);
+			dots.push(paper.circle(expand_cr[i].x, expand_cr[i].y, 2.5),
+								paper.circle(expand_cl[i].x, expand_cl[i].y, 2.5));
+		}
+		dots.attr({stroke:"#FFFFFF",'stroke-width':'2'})
+
+		if(edge.reltype&INCREASES) //set color in here to clean up animation method
+			dots.attr({fill:EDGE_COLORS['increases']})
+		else if(edge.reltype&SUPERSET)
+			dots.attr({fill:EDGE_COLORS['superset']})
+		else //if decreases
+			dots.attr({fill:EDGE_COLORS['decreases']})
+	}
+
+	return dots
+}
 
 //Interaction functions, for when we click on things. Variables passed are things we're going to use
 function clickNode(node){
@@ -239,9 +278,7 @@ function clickEdge(edge){
 	
 	$.ajax({
 		url: '/mapvisualizations',
-
 		data: {'do':'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
-
 		complete: function(data) {show_modal(data);},
 		dataType: 'script'
 	});
@@ -294,9 +331,13 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		}
 		else{
 			if(!compact){ //not compact so we need to move arrows as well
+				//We really should clean up this method, or do something so that we have less code repetition...
 				//get the curves for the new path 
 				curve = getPath(toEdge) //get the curve's path
-				midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+				if (toEdge.reltype&SUPERSET)
+					midPoint = getPathCenter(curve);
+				else
+					midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
 				if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
 					if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
 						//console.log("flipped",edge.name)
@@ -312,6 +353,12 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear') //hack because tranform doesn't animate smoothly
 				icon[2].attr({'path':arrowSymbolPath,'transform':transform,'opacity':0, 'fill-opacity':0})
 				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
+				//for dots
+				icon[3].remove() //get rid of old to add the new
+				dots = drawDots(toEdge,curve,paper)
+				.attr({'opacity':0, 'fill-opacity':0})
+				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
+				icon.push(dots)
 			}
 			else{
 				icon.animate({'path':getPath(toEdge)},1000,easing)
