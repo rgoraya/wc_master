@@ -114,10 +114,9 @@ class Mapvisualization #< ActiveRecord::Base
 		if params[:psrc] and params[:pdest]
 			# PLACEHOLDER for format-checking / conversion
 
-			# Just show the nodes for now
+			# Try to find a path between source and destination in graph
 			path_found = @graph.get_graph_of_path(params[:psrc].to_i, params[:pdest].to_i)
-
-			#@notice = "No path found"
+			#@notice = path_found.to_s
 
 			# Temporary
 			@nodes = @graph.nodes

@@ -21,22 +21,23 @@ class Pathfinder
 
 		# Generate a connections hash based on graph edges
 		outgoing = Hash.new()
-		graph.edges.each do |edge|
-			# Probably a more graceful way to do this
-			if not outgoing.has_key?(edge.a)
-				outgoing[edge.a] = {}
-			end
+		result = Array.new()
 
+		graph.nodes.keys.each {|key| outgoing[key] = Hash.new() }
+		graph.edges.each do |edge|
 			# Is it possible for any two issues to have multiple links
 			# between them?
-			outgoing[edge.a][edge.b] = edge
+			outgoing[edge.a.id][edge.b.id] = edge		
 		end
 
 		# If an edge already exists in the graph from source to destination
-		if outgoing[src].has_key?(dest)
-			return Array[ outgoing[src][dest].id ]
+		if outgoing[@source].has_key?(@destination)
+			result.push(outgoing[@source][@destination].id)
+			return result
 		end
 				
-		return []
+		# Find the shortest path through the graph between source and destination
+		
+		return result
 	end
 end

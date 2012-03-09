@@ -27,6 +27,10 @@ class Graph
 		def to_s
 			@id.to_s + ": "+@location.to_s+" ("+@name.to_s + ")"
 	    end
+
+		def node_id
+			return @id
+		end
 	end	
 
 	class Edge
@@ -103,9 +107,33 @@ class Graph
 
 	### Query-Based Path Generation ###
 	def get_graph_of_path(src, dest)
-		# Creates a graph of a shortest path between two nodes based on query input
-		issues = Issue.where("id" => [src, dest])
+		# Retrieve all issues and update graph contents
+		issues = Issue.find :all
 		update_graph_contents(issues)
+
+		# Creates a graph of a shortest path between two nodes based on query input
+		relations = @pathfinder.path_from_src_to_dest(self, src, dest)
+		
+		if relations.length > 0
+			# Retrieve issue endpoints
+			endpoints = Relationship.where("id" => relations).flat_map {|r| [r.cause_id, r.issue_id]}.uniq
+			issues = Issue.where("id" => endpoints)
+			update_graph_contents(issues)
+
+			# Add nodes and edges to path
+			@edges.each {|edge| edge.edge_on_path = 1 }
+			@nodes.values.each {|node| node.on_path = 1 }
+
+			# Return success
+			return 1
+		else
+			issues = Issue.where("id" => [src, dest])
+			update_graph_contents(issues)	
+		end
+
+		# Default to no path found
+		# In the future, might want to add another case for "best effort"
+		return 0
 	end
 
 	def highlight_path_in_graph(src, dest)
