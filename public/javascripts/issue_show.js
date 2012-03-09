@@ -5,7 +5,7 @@ $(function() {
 // STUFF TO BE DONE ON THE INITIAL LOAD OF THE PAGE
 // -------------------------------------------------------------------------------
 	
-	// if the relationship_type is known then add class to the corresponding relationship_partial_toggle
+	// If the relationship_type is known then add class to the corresponding relationship_partial_toggle
 	if (this_relationship_type){
 		$(".relationship_partial_toggle:contains(" + this_relationship_type + ")").filter(function(){
 		  $(this).addClass("central_causality_container")
@@ -48,8 +48,7 @@ $(function() {
 		
 		// Submit the form
 		$.get($("#select_rel_form").attr("action"), $("#select_rel_form").serialize(), null, "script");
-		//$.get($("#get_relationship_form").attr("action"), $("#get_relationship_form").serialize(), null, "script");
-		
+
 	})
 	
 	
@@ -145,8 +144,8 @@ $(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseover', functio
 	
 	// Show causality
     $("#title_relationship_hover").html($(this).children(".relationship_suggestion_title").text().trim());	
-	$("#title_causality_hover").html(suggestion_hover_sentence());
-	$("#title_relationship_hover, #title_causality_hover").show();
+	$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+	$("#title_relationship_hover, #title_causality").show();
 });	
 
 $(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function(){
@@ -159,9 +158,16 @@ $(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function
 		$("#title_relationship_ellipsis").show();	
 	}
 
+	// If some suggestion was selected then
+	if ($(".selected_suggestion_thumb")[0]){
+   		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+	} else{
+		$("#title_causality").html($(".central_causality_container").text().trim()).removeClass('suggested_causality');
+	}
+
 	// Hide stuff
-    $("#title_relationship_hover, #title_causality_hover").html('');	
-	$("#title_relationship_hover, #title_causality_hover").hide();
+    $("#title_relationship_hover").html('');	
+	$("#title_relationship_hover").hide();
 });	
 
 // -------------------------------------------------------------------------------
