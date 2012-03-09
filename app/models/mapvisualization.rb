@@ -107,6 +107,24 @@ class Mapvisualization #< ActiveRecord::Base
         @compact_display = true
         place_randomly
 
+	  ### PATH GENERATION ###
+	  elsif params[:q] == 'path'
+		
+		# Basic source to destination graph
+		if params[:psrc] and params[:pdest]
+			# PLACEHOLDER for format-checking / conversion
+
+			# Just show the nodes for now
+			@graph.get_graph_of_path(params[:psrc].to_i, params[:pdest].to_i)
+
+			# Temporary
+			@nodes = @graph.nodes
+			@edges = @graph.edges
+
+			default_layout
+		
+		end
+
       ### RANDOM TEST GRAPH ###
       elsif params[:q] == 'test'
         reset_graph(args, @width, @height)
