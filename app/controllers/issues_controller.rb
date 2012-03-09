@@ -46,15 +46,12 @@ require 'backports'
 
     respond_to do |format|
       format.html do
-        
-        # if this is an HTML load then check for suggestions and try pulling them if not found
         if @issue.suggestions == [] 
-           load_suggestions
+          load_suggestions
         end
       end
       format.xml  { render :xml => @issue }
-      format.js
-
+      format.js {render :layout => false }
     end
   end
 
