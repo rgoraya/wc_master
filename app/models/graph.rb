@@ -231,6 +231,5 @@ class Graph
 
 	### Future Implementation ###
 	# get_graph_of_path(src, dest, limit)
-	# get_graph_where (condition, limit=40)
 	# get_graph_of_most_connected (limit=40)	
 end
