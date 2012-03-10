@@ -1153,6 +1153,24 @@ word-wrap:break-word;
 	font:bold 22px "lucida grande",tahoma,verdana,arial,sans-serif;	
 }
 
+.add_new_issue_modal {
+	width:320px; max-height:130px; position:relative;z-index:1;float:left;
+}
+
+.add_new_issue_modal .wikicontent_edit{box-shadow:none;}
+
+#add_new_issue_page #text_preview{background:none;}
+#add_new_issue_page .relation_descr{width:auto; display:none;margin-right:0px;font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; color:#434343;}
+#add_new_issue_page #text_preview{background-image: none;width: auto; height:auto;float: none;}
+#add_new_issue_page #form_container{float:right;padding:0px;}
+#add_new_issue_page .img_prev{float:left;margin:0px;margin-right:5px; width:68px; height:68px; background-size:auto 68px;}
+#add_new_issue_page #title_holder{text-align:center; color:#fcfcfc;font-size:22px;}
+#add_new_issue_page .title{text-align:center; font-size:22px;}
+#add_new_issue_page .discussion_submit, #add_new_issue_page .relationship_intermediate{width:65px;}
+#add_new_issue_page .title_edit{box-shadow: none;}
+#add_new_issue_page .checkcontainer{top:50px; left:50px;}
+#add_new_issue_page .relationship_none_found{margin-top:50px;}
+
 .bubble{
 	/*display:inline-block;*/
 	font:normal 13px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -4057,6 +4075,54 @@ input.relationship_endorse {
 }
 
 .relationship_endorse a:hover{
+	text-decoration:none;
+}
+
+
+.relationship_intermediate{
+	background: -webkit-gradient(linear, left bottom, left top, from(#45A6C5), to(#4DB8DB));
+	background: -moz-linear-gradient(center bottom, #45A6C5 0%, #4DB8DB 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#4DB8DB, endColorstr=#45A6C5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#4DB8DB', endColorstr='#45A6C5')";
+	cursor:pointer;
+	font:bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color: #f1f1f1;
+	border-top: 2px groove #94D4E9;
+	border-left: 2px groove #94D4E9;
+	border-bottom: 2px ridge #45A6C5;
+	border-right: 2px ridge #45A6C5;
+	-moz-border-right-colors: #2E6E83 #45A6C5;
+	-moz-border-left-colors: #2E6E83 #94D4E9;
+	-moz-border-top-colors: #2E6E83 #94D4E9;
+	-moz-border-bottom-colors: #2E6E83 #45A6C5;	
+	float:left;
+	margin-right:-1px;
+}
+
+input.relationship_intermediate {
+	margin:0px;
+	margin-right:-1px;
+	width:78px;
+	padding:5px;	
+}
+
+.relationship_intermediate:hover{
+	background:#45A6C5;
+}
+
+.relationship_intermediate:active{
+	background: -webkit-gradient(linear, left bottom, left top, from(#45A6C5), to(#4DB8DB));
+	background: -moz-linear-gradient(center bottom, #45A6C5 0%, #4DB8DB 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#4DB8DB, endColorstr=#45A6C5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#4DB8DB', endColorstr='#45A6C5')";
+}
+
+.relationship_intermediate a{
+	color:#fcfcfc;
+	text-decoration:none;
+}
+
+.relationship_intermediate a:hover{
 	text-decoration:none;
 }
 

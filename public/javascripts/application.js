@@ -28,6 +28,7 @@ $(function() {
 
   }
   
+
 // -------------------------------------------------------------------------------
 // PAGINATION FUNCTIONS FOR ISSUE INDEX AND USER PAGE (DROPPING THEM 
 // IN TO APPLICATION js INSTEAD OF CREATING SEPERATE FILES FOR THEM)
@@ -71,9 +72,10 @@ $(function() {
     if ($.inArray(e.keyCode, ignore_keys_array) == -1 && $('#search_visible_input').val().trim() != ""){
 			$('#issue_search').html('');
 			searchDelay(function(){
-					$('#search_visible_input').val($('#search_visible_input').val().trim());
-    			$('#issue_search').html('<div class="search_result_wait"></div>');    		
-    			$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
+				if ($('#search_visible_input').val().trim() != ""){
+    				$('#issue_search').html('<div class="search_result_wait"></div>');    		
+    				$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
+				}
 			}, 500);
 		}     
   });
