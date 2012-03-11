@@ -36,26 +36,24 @@ class Pathfinder
 			result.push(outgoing[@source][@destination].id)
 			return result
 		end
-				
+			
+		# Compute all paths from source
+		paths_tracer, relationships_on_paths = compute_paths_from_source(outgoing, nodes)
+		
 		# Find the shortest path through the graph between source and destination
-		if destination == 0
-			# If no destination specified find all pairs from source
-			return compute_paths_from_src(outgoing, nodes)
-
-		else
-			# If destination specified find that path
-			return compute_path_src_dest(outgoing, nodes)
-
+		if destination != 0
+			return trace_path_from_source(outgoing, paths_tracer)
 		end
 
+		return relationships_on_paths
 	end
 
-	def compute_path_src_dest(e, v)
+	def compute_paths_from_source(e, v)
 		# Computes shortest path given specific src/dest
 		return []
 	end
 
-	def compute_paths_from_src(e, v)
+	def trace_path_from_source(edges, tracer)
 		# Computes all paths given a source node
 		return []
 	end
