@@ -21,6 +21,7 @@ class Pathfinder
 
 		# Generate a connections hash based on graph edges
 		outgoing = Hash.new()
+		nodes = graph.nodes.keys
 		result = Array.new()
 
 		graph.nodes.keys.each {|key| outgoing[key] = Hash.new() }
@@ -39,5 +40,16 @@ class Pathfinder
 		# Find the shortest path through the graph between source and destination
 		
 		return result
+	end
+
+	def compute_path_src_dest(e, v, src, dest)
+		# Computes shortest path given specific src/dest
+	end
+
+	def compute_paths_from_src(e, v, src)
+		# Computes all paths given a source node
+	end
+
+	def compute_all_pairs_paths(e, v)
 	end
 end
