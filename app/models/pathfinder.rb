@@ -6,6 +6,8 @@ class Pathfinder
 	def initialize(source=0, destination=0)
 		@source = source
 		@destination = destination
+		
+		@distance = Hash.new
 	end
 
 	# Different types of generations (src/dest, all-pairs, etc)
@@ -42,18 +44,58 @@ class Pathfinder
 		
 		# Find the shortest path through the graph between source and destination
 		if destination != 0
-			return trace_path_from_source(outgoing, paths_tracer)
+			return trace_path_src_to_dst(outgoing, paths_tracer)
 		end
 
 		return relationships_on_paths
 	end
 
-	def compute_paths_from_source(e, v)
-		# Computes shortest path given specific src/dest
-		return []
+	def compute_paths_from_source(edges, nodes)
+		# Inputs: outgoing edges of each vertex, vertex array
+		
+		# Initializations
+		inf = 1/0.0	
+		@distance[@source] = {}
+		previous = {}		
+
+		nodes.each do |i|
+			@distance[@source][i] = inf
+			previous[i] = -1
+		end
+
+		@distance[@source][@source] = 0
+		queue = nodes.compact
+
+		# Find shortest paths
+		while (queue.length > 0)
+			# Check for accessible vertices
+			u = nil
+			queue.each do |min|
+				if (not u) or (@distance[@source][min] and @distance[@source][min] < @distance[@source][u])
+					u = min
+				end
+			end
+			
+			if (@distance[@source][u] == inf)
+				break
+			end
+
+			# Check neighbors
+			queue = queue - [u]
+			edges[u].keys.each do |v|
+				alt = @distance[@source][u] + 1 # Placeholder
+				if alt < @distance[@source][v]
+					@distance[@source][v] = alt
+					previous[v] = u
+				end
+			end
+		end
+
+		return previous, []
+
 	end
 
-	def trace_path_from_source(edges, tracer)
+	def trace_path_src_to_dest(edges, tracer)
 		# Computes all paths given a source node
 		return []
 	end
