@@ -105,6 +105,24 @@ class Graph
 		
 	end
 
+	def update_graph_contents_with_select_relationship(issues, relationships, source_set=[])
+		# Relationship-focused graph generation
+		@nodes = Hash.new()
+		@edges = Array.new()
+		@sources = source_set
+
+		# Build map of nodes from input issues
+		issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
+		connections = Relationship.where("issue_id IN (?) AND cause_id IN (?)", @nodes.keys, @nodes.keys)
+
+		connections.each do |r|
+			if relationships.include?(r.id)
+				type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
+				@edges.push(Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type))
+			end
+		end
+	end
+
 	### Query-Based Path Generation ###
 	def get_graph_of_path(src, dest)
 		# Retrieve all issues and update graph contents
@@ -116,9 +134,9 @@ class Graph
 		
 		if relations.length > 0
 			# Retrieve issue endpoints
-			endpoints = Relationship.where("id" => relations).flat_map {|r| [r.cause_id, r.issue_id]}.uniq
+			endpoints = Relationship.where("id" => relations).flat_map {|r| [r.issue_id, r.cause_id]}
 			issues = Issue.where("id" => endpoints)
-			update_graph_contents(issues)
+			update_graph_contents_with_select_relationship(issues, relations)
 
 			# Add nodes and edges to path
 			@edges.each {|edge| edge.edge_on_path = 1 }
