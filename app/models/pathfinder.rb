@@ -44,7 +44,7 @@ class Pathfinder
 		
 		# Find the shortest path through the graph between source and destination
 		if destination != 0
-			return trace_path_src_to_dst(outgoing, paths_tracer)
+			return trace_path_src_to_dest(outgoing, paths_tracer)
 		end
 
 		return relationships_on_paths
@@ -112,8 +112,18 @@ class Pathfinder
 	end
 
 	def trace_path_src_to_dest(edges, tracer)
-		# Computes all paths given a source node
-		return []
+		# Computes path from destination to source
+
+		path = []
+		current = @destination
+		while tracer[current] != -1
+			path << edges[ tracer[current] ][ current ].id
+			current = tracer[current]
+		end
+
+		# Check for source...
+
+		return path
 	end
 
 	def compute_all_pairs_paths(e, v)
