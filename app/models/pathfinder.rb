@@ -95,6 +95,22 @@ class Pathfinder
 
 	end
 
+	def get_relationships_by_tracer(tracer, edges)
+		# This method walks through a tracer (a list of "previous" nodes) by key,value,
+		# adding the relationship id of each to an array which is then returned.
+		# tracer[child] = parent
+		# On the paths from source to all of its destinations, some relationship parent->child exists.
+	
+		relationships = Array.new		
+		tracer.each do |key, value|
+			if value != -1
+				relationships << edges[value][key].id
+			end
+		end
+
+		return relationships
+	end
+
 	def trace_path_src_to_dest(edges, tracer)
 		# Computes all paths given a source node
 		return []
