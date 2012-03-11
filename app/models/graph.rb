@@ -170,7 +170,7 @@ class Graph
 		max_issues = limit + core_issues.size
 		
 		# Update core in successive steps outward from target issues
-		while core.size < max_issuesorder("updated_at DESC").limit(limit)
+		while core.size < max_issues
 
 			# Retrieve next step connections based on relationships connected to core
 			neighbors = Relationship.where("issue_id IN (?) OR cause_id IN (?)", core, core).flat_map {|r| [r.issue_id, r.cause_id]}.uniq.select {|c| !core.include? c }

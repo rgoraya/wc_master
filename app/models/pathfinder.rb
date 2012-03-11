@@ -91,7 +91,7 @@ class Pathfinder
 			end
 		end
 
-		return previous, []
+		return previous, get_relationships_by_tracer(previous, edges)
 
 	end
 
