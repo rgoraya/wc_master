@@ -38,16 +38,26 @@ class Pathfinder
 		end
 				
 		# Find the shortest path through the graph between source and destination
-		
-		return result
+		if destination == 0
+			# If no destination specified find all pairs from source
+			return compute_paths_from_src(outgoing, nodes)
+
+		else
+			# If destination specified find that path
+			return compute_path_src_dest(outgoing, nodes)
+
+		end
+
 	end
 
-	def compute_path_src_dest(e, v, src, dest)
+	def compute_path_src_dest(e, v)
 		# Computes shortest path given specific src/dest
+		return []
 	end
 
-	def compute_paths_from_src(e, v, src)
+	def compute_paths_from_src(e, v)
 		# Computes all paths given a source node
+		return []
 	end
 
 	def compute_all_pairs_paths(e, v)
