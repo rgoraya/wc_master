@@ -2,10 +2,24 @@ class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
 
-require 'backports'
+require 'backports' 
   
   def index
-    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+    if (params[:order_issues])
+       @order_issues = params[:order_issues]  
+     else 
+       @order_issues = "Alphabetical Order" 
+     end
+
+       case @order_issues
+       when "Alphabetical Order"
+          @issues = Issue.search(params[:search]).order("title").paginate(:per_page => 20, :page => params[:page]) 
+       when "Latest"  
+         @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+       when "Number of Relationships"
+         @issues = Issue.search(params[:search]).order("relationships_count DESC").paginate(:per_page => 20, :page => params[:page]) 
+     end
+     
     respond_to do |format|
       format.js {render :layout=>false}
       format.html # index.html.erb

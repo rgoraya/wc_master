@@ -4246,6 +4246,8 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 	opacity:1;
 }
 
+#order_form_select{width:190px; height:25px; padding:2px; float:right;font-size:13px; position:relative;left:15px; bottom:5px;}
+
 .issue_thumb_blanket .issue_linkout{display:block;cursor:pointer;}
 
 .suggestion_accept{
