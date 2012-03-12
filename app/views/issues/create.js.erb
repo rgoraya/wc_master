@@ -1,5 +1,6 @@
 // Display Notice if Ajax
-$('#notice').html("<%= escape_javascript(@notice) %>")
+
+$('#progress_message').html("<%= escape_javascript(@notice) %>")
 
 var n = ("<%= escape_javascript(@notice) %>")
 

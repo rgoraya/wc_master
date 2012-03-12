@@ -37,6 +37,7 @@ module MapvisualizationsHelper
     "name:'"+escape_javascript(edge.name)+"',"+
     "a:"+nodeset+"["+js_node_key(edge.a)+"],b:"+nodeset+"["+js_node_key(edge.b)+"]"+","+
     "reltype:"+edge.rel_type.to_s+","+
+    "expandable:"+edge.expandable.to_s+","+
     "n:"+count.to_s+"}"
   end
 
@@ -44,7 +45,7 @@ module MapvisualizationsHelper
   # a unique key for the edge (A-B) => (AiehB) / (AdB) / (AsB), etc
   def js_edge_key(edge)
       conn = edge.rel_type & INCREASES != 0 ? 'i' : (edge.rel_type & SUPERSET == 0 ? 'd' : 's')
-      conn += 'e'*[(edge.rel_type&EXPANDABLE),1].min + 'h'*[(edge.rel_type&HIGHLIGHTED),1].min
+      conn += 'e'*(edge.expandable ? 1:0) + 'h'*[(edge.rel_type&HIGHLIGHTED),1].min
       "'"+js_node_key(edge.a)+conn+js_node_key(edge.b)+"'"
   end
 

@@ -34,6 +34,7 @@ class Graph
 	end	
 
 	class Edge
+
 		attr_accessor :id, :a, :b, :rel_type, :edge_on_path, :expandable
 
 		# A placeholder converter for building the edges

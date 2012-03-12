@@ -239,7 +239,7 @@ class Mapvisualization #< ActiveRecord::Base
       static_wheel_nodes
 
       # put the groups into little circles in their respective corners, so they can come out fighting
-      radius = 5 
+      radius = 50
       circle_nodes_at_point(groups['inc_targ'], Vector[0,@height], radius)
       circle_nodes_at_point(groups['dec_targ'], Vector[0,0], radius)
       circle_nodes_at_point(groups['sup_targ'], Vector[@width/2,0], radius)

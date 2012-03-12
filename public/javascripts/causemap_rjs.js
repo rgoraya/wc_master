@@ -222,9 +222,8 @@ function getArrowSymbolPath(point, reltype)
 // draws dots if the curve is expandable, and returns the set of dots. Otherwise, just returns an empty set
 function drawDots(edge, curve, paper)
 {
-	demo = false
 	dots = paper.set();
-	if(edge.reltype&EXPANDABLE || demo){ //if we expand, fill in the dots
+	if(edge.expandable){ //if we expand, fill in the dots
 		expand_cr = [];
 		expand_cl = [];
 		pathLength = Raphael.getTotalLength(curve);
