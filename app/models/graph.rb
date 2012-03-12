@@ -190,7 +190,8 @@ class Graph
 
 		@distances.each do |src, dests|
 			dests.each do |k, v|
-				puts "DISTANCE #{src} to #{k}: #{v}"
+				# DEBUG
+				# puts "DISTANCE #{src} to #{k}: #{v}"
 			end 
 		end
 
