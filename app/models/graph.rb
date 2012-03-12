@@ -171,7 +171,7 @@ class Graph
 		
 	end
 
-	def get_all_pairs_paths_distances()
+	def get_all_pairs_paths_distances
 		# Runs all pairs shortest path on current graph in system
 		
 		# Check if this graph has nodes
@@ -184,13 +184,13 @@ class Graph
 		vertices = @nodes.keys
 
 		vertices.each { |key| connections[key] = Hash.new() }
-		connections.each { |edge| connections[edge.a.id][edge.b.id] = edge }
+		@edges.each { |edge| connections[edge.a.id][edge.b.id] = edge }
 
 		@distances = @pathfinder.compute_all_pairs_paths(connections, vertices)
 
 		@distances.each do |src, dests|
 			dests.each do |k, v|
-				puts "DISTANCE #{src} to #{k}"
+				puts "DISTANCE #{src} to #{k}: #{v}"
 			end 
 		end
 

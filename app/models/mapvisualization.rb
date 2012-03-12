@@ -38,10 +38,11 @@ class Mapvisualization #< ActiveRecord::Base
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
     		  @graph.get_graph_of_issue_neighbors(static, limit=20)
+				@graph.get_all_pairs_paths_distances
 
     		  # Temporary
-          @nodes = @graph.nodes
-          @edges = @graph.edges
+          	@nodes = @graph.nodes
+          	@edges = @graph.edges
 		  
     		  # Make static variables centered
     		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
@@ -50,10 +51,11 @@ class Mapvisualization #< ActiveRecord::Base
   		    #default_layout
                   
         elsif params[:r] #show relationships
-          static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
+          static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}  
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
     		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
+			  @graph.get_all_pairs_paths_distances
 		  
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
@@ -84,6 +86,7 @@ class Mapvisualization #< ActiveRecord::Base
       ### TOP RELATIONSHIPS AND THEIR NODES ###
       elsif params[:q] == 'mostcited' 
 		    @graph.get_graph_of_most_cited(limit=30)
+			# This is a very sparse graph, not recommended for all pairs paths.
 
       	# Temporary until full conversion
     		@nodes = @graph.nodes
@@ -94,6 +97,10 @@ class Mapvisualization #< ActiveRecord::Base
       elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
     		# Generate a graph of all nodes
     		@graph.get_graph_of_all
+
+			# DO NOT USE THIS METHOD HERE unless you want to cry alone in the night forever
+			# foreverAlone
+			# @graph.get_all_pairs_paths_distances
 
     		# Temporary
     		@nodes = @graph.nodes

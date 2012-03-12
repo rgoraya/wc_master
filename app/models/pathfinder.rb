@@ -128,6 +128,7 @@ class Pathfinder
 		distances = Hash.new()
 
 		v.each do |node|
+			@source = node
 			tmp1, distances[node], tmp2 = compute_paths_from_source(e, v)		
 		end	
 
