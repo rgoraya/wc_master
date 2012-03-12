@@ -200,7 +200,7 @@ require 'backports'
       
       # Check whether or not this Node exist as an issue already?
       # IMPORTANT: Keep the search case-insensitive
-      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.to_s.downcase).first
       if !@existing_issue.nil?
         add_already_existent_issue
       else
@@ -208,7 +208,7 @@ require 'backports'
       end
     else
       # Check whether this Issue already exists
-      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.to_s.downcase).first
       if !@existing_issue.nil?
         # if so then simply redirect to the Show page of that Issue
         redirect_to(@existing_issue)
