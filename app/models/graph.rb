@@ -27,7 +27,7 @@ class Graph
 	end	
 
 	class Edge
-		attr_accessor :id, :a, :b, :rel_type
+		attr_accessor :id, :a, :b, :rel_type, :expandable
 
 		# A placeholder converter for building the edges
 		RELTYPE_TO_BITMASK = {nil=>MapvisualizationsHelper::INCREASES, 'I'=>MapvisualizationsHelper::DECREASES, 'H'=>MapvisualizationsHelper::SUPERSET}
@@ -37,6 +37,7 @@ class Graph
 			@a = a
 			@b = b
 			@rel_type = rel_type
+			@expandable = false
 		end
 
 		def to_s
