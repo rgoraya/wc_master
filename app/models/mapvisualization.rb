@@ -20,11 +20,7 @@ class Mapvisualization #< ActiveRecord::Base
 
   	# Build a Graph of Nodes
   	@graph = Graph.new
-    # @nodes = @graph.nodes 
-    # @edges = @graph.edges
-    ### EUGENIA: Doesn't work on its own, would need to make a container that doesn't change to hold these items inside the Graph class (so, for exampe, if you dropped the nodes hash inside a list or something, and then just changes the one value of that list. Or something).
-    ###
-
+   
     puts "===mapvisualization initialize args===" #debugging
     puts args
 

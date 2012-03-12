@@ -68,7 +68,7 @@ class Graph
 	validates_presence_of :nodes, :edges
 
 	# Initialization and Attributes
-	attr_accessor :nodes, :edges, :sources, :pathfinder
+	attr_accessor :nodes, :edges, :sources, :pathfinder, :distances
 
 	def initialize(issues)
 		issues_to_graph = Issue.find(issues)
@@ -81,13 +81,17 @@ class Graph
 		@nodes = Hash.new()
 		@edges = Array.new()
 		@sources = Array.new()
+
+		# Pathfinder tool and shortesst distance placeholder
 		@pathfinder = Pathfinder.new()
+		@distances = Hash.new()
 	end
 
 	def update_graph_contents(issues, relationships=nil, source_set=[])
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = Hash.new()
 		@edges = Array.new()
+		@distances = Hash.new()
 		@sources = source_set
 
 		# Build map of nodes from input issues
@@ -110,6 +114,7 @@ class Graph
 		# Relationship-focused graph generation
 		@nodes = Hash.new()
 		@edges = Array.new()
+		@distances = Hash.new()
 		@sources = source_set
 
 		# Build map of nodes from input issues
@@ -166,9 +171,30 @@ class Graph
 		
 	end
 
-	def get_all_pairs_shortest_paths()
+	def get_all_pairs_paths_distances()
 		# Runs all pairs shortest path on current graph in system
+		
+		# Check if this graph has nodes
+		if (@nodes.length == 0 or @edges.length == 0)
+			return {}
+		end
 
+		# Generate connections and vertices
+		connections = Hash.new()
+		vertices = @nodes.keys
+
+		vertices.each { |key| connections[key] = Hash.new() }
+		connections.each { |edge| connections[edge.a.id][edge.b.id] = edge }
+
+		@distances = @pathfinder.compute_all_pairs_paths(connections, vertices)
+
+		@distances.each do |src, dests|
+			dests.each do |k, v|
+				puts "DISTANCE #{src} to #{k}"
+			end 
+		end
+
+		return @distances
 	end
 
 	### Custom query based graph generation ###
@@ -253,8 +279,4 @@ class Graph
 	
 		update_graph_contents(issues + neighbors, nil, endpoints)
 	end
-
-	### Future Implementation ###
-	# get_graph_of_path(src, dest, limit)
-	# get_graph_of_most_connected (limit=40)	
 end

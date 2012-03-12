@@ -1,13 +1,11 @@
 class Pathfinder
 	include ActiveModel::Validations
 
-	attr_accessor :source, :destination
+	attr_accessor :source, :destination, :all_pairs_distances
 
 	def initialize(source=0, destination=0)
 		@source = source
 		@destination = destination
-		
-		@distance = Hash.new
 	end
 
 	# Different types of generations (src/dest, all-pairs, etc)
@@ -40,7 +38,7 @@ class Pathfinder
 		end
 			
 		# Compute all paths from source
-		paths_tracer, relationships_on_paths = compute_paths_from_source(outgoing, nodes)
+		paths_tracer, paths_distances, relationships_on_paths = compute_paths_from_source(outgoing, nodes)
 		
 		# Find the shortest path through the graph between source and destination
 		if destination != 0
@@ -53,17 +51,17 @@ class Pathfinder
 	def compute_paths_from_source(edges, nodes)
 		# Inputs: outgoing edges of each vertex, vertex array
 		
-		# Initializations
+		# Initializations		
 		inf = 1/0.0	
-		@distance[@source] = {}
-		previous = {}		
+		distance = Hash.new()
+		previous = Hash.new()
 
 		nodes.each do |i|
-			@distance[@source][i] = inf
+			distance[i] = inf
 			previous[i] = -1
 		end
 
-		@distance[@source][@source] = 0
+		distance[@source] = 0
 		queue = nodes.compact
 
 		# Find shortest paths
@@ -71,27 +69,27 @@ class Pathfinder
 			# Check for accessible vertices
 			u = nil
 			queue.each do |min|
-				if (not u) or (@distance[@source][min] and @distance[@source][min] < @distance[@source][u])
+				if (not u) or (distance[min] and distance[min] < distance[u])
 					u = min
 				end
 			end
 			
-			if (@distance[@source][u] == inf)
+			if (distance[u] == inf)
 				break
 			end
 
 			# Check neighbors
 			queue = queue - [u]
 			edges[u].keys.each do |v|
-				alt = @distance[@source][u] + 1 # Placeholder
-				if alt < @distance[@source][v]
-					@distance[@source][v] = alt
+				alt = distance[u] + 1 # Placeholder
+				if alt < distance[v]
+					distance[v] = alt
 					previous[v] = u
 				end
 			end
 		end
 
-		return previous, get_relationships_by_tracer(previous, edges)
+		return previous, distance, get_relationships_by_tracer(previous, edges)
 
 	end
 
@@ -127,5 +125,12 @@ class Pathfinder
 	end
 
 	def compute_all_pairs_paths(e, v)
+		distances = Hash.new()
+
+		v.each do |node|
+			tmp1, distances[node], tmp2 = compute_paths_from_source(e, v)		
+		end	
+
+		return distances	
 	end
 end
