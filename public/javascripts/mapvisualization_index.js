@@ -34,6 +34,17 @@ $(document).ready(function(){
 	})
 });
 
+
+//show the details sidebar
+function show_details(data) {
+  $('#detail_fill').html(data.responseText);
+  $('#detail_container').toggle(true);
+}
+
+function hide_details() {
+  $('#detail_container').toggle(false);	
+}
+
 //show the modal window
 function show_modal(data) { 
   $('#modal_fill').html(data.responseText);
@@ -72,11 +83,35 @@ function position_modal(click_x,click_y) {
 
 //issues an ajax call to goto a particular spot on the map
 //type is either 'issue' or 'relationship'; id is the id of the element
-function goto(type, id){
+function recenter(type, id){
+	console.log(type, id)
 	cmd = 'goto_'+type
 	$.ajax({
 	  url: '/mapvisualizations',
 	  data: {"do":cmd,target:id},
 	  dataType: 'script'
 	});     
+}
+
+//gets the issue out of a "node", and applies given function to it (currently show_modal)
+function get_issue(node, func) {
+	// console.log(node.name);
+	$.ajax({
+		url: '/mapvisualizations',
+		data: {'do':'get_issue',id:node.id, x:node.x, y:node.y},
+		complete: function(data) {func(data);},
+		dataType: 'script'
+	});
+}
+
+//gets the relationship out of an edge (with the specified parameters {curve, midPoint}), 
+//and applies given function to it (currently show_modal)
+function get_relationship(edge, params, func) {
+	// console.log(edge.name+"\n"+params.curve);
+	$.ajax({
+		url: '/mapvisualizations',
+		data: {'do':'get_relation',id:edge.id, curve:params.curve, x:params.midPoint.x, y:params.midPoint.y},
+		complete: function(data) {func(data);},
+		dataType: 'script'
+	});	
 }

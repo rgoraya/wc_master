@@ -2,12 +2,12 @@ class MapvisualizationsController < ApplicationController
 
   # GET /mapvisualizations
   def index
-    @default_width = 900*0.8 #defaults
-    @default_height = 675*0.8
+    @default_width = 600#900*1.0 #defaults
+    @default_height = 600#675*1.0
     # for large map, 900x900 looks good
     @default_border = 50
-    @default_node_count = 5 #40
-    @default_edge_ratio = 1.0 #0.08
+    @default_node_count = 3 #40
+    @default_edge_ratio = 0.5 #0.08
     
     @verbose = false #unless specified otherwise in params
 

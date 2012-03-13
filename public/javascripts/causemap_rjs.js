@@ -13,6 +13,8 @@ var NUM_OF_DOTS = 3		// number of dots each side of EXPAND symbol
 var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BBBBBB'}
 var DESEL_OP = 0.4
 
+var now_detailing = 0 //status variable for what we're currently displaying on hover
+
 //details on drawing/laying out a node
 function drawNode(node, paper){
 	if(!compact){
@@ -23,15 +25,17 @@ function drawNode(node, paper){
 			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
 		})
 
-		icon = paper.set()
-		.push(circ,txt)
-		.click(function() { clickNode(node)})
-		.mouseover(function() {this.node.style.cursor='pointer'})
-
 		if(hasSelection){
 			if(!node.h) //if not highlighted
 				icon.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
 		}
+
+		icon = paper.set()
+		.push(circ,txt)
+		.click(function() { recenter('issue', node.id)})
+		//.click(function() { get_issue(node, show_modal)})
+		.mouseover(function() {this.node.style.cursor='pointer';hoverNode(node)})
+		// .mouseout(function() {unhoverNode(node)})
 
 		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
 
@@ -43,8 +47,8 @@ function drawNode(node, paper){
 
 		icon = paper.set()
 		.push(circ)
-		.click(function() { clickNode(node)})
-		.mouseover(function() {this.node.style.cursor='pointer';})  
+		.click(function() { get_issue(node, show_modal)})
+		.mouseover(function() {this.node.style.cursor='pointer';})
 
 		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
 
@@ -108,8 +112,9 @@ function drawEdge(edge, paper){
 
 		icon = paper.set() //for storing pieces of the line as needed
 		.push(e, arrow, arrowSymbol, dots)
-		.click(function() { clickEdge(edge)})
-		.mouseover(function() {this.node.style.cursor='pointer';})
+		//.click(function() { clickEdge(edge) })
+		.mouseover(function() { hoverEdge(edge) })
+		//.mouseout(function() { unhoverEdge(edge) })
 
 		$([e.node,arrow.node,arrowSymbol.node]).qtip({
 			content:{text:edge.name},
@@ -137,7 +142,7 @@ function drawEdge(edge, paper){
 
 		icon = paper.set() //for storing pieces of the line as needed
 		.push(e)
-		.click(function() { clickEdge(edge)})
+		.click(function() { clickEdge(edge) })
 		.mouseover(function() {this.node.style.cursor='pointer';})
 
 		$(e.node).qtip({
@@ -253,43 +258,6 @@ function drawDots(edge, curve, paper)
 
 	return dots
 }
-
-//Interaction functions, for when we click on things. Variables passed are things we're going to use
-function clickNode(node){
-	//do form submit without needing to make the form!
-	$.ajax({
-		url: '/mapvisualizations',
-		data: {'do':'get_issue',id:node.id, x:node.x, y:node.y},
-		complete: function(data) {show_modal(data);},
-		dataType: 'script'
-	});
-
-	console.log(node.name);
-	// $('#clickForm').children('#do').attr({value:'show_issue'});
-	// $('#clickForm').append('<input name="id" value='+node.id+'>');
-	// $('#clickForm').submit();//button.trigger("click");
-}
-
-function clickEdge(edge){
-	curve = getPath(edge);
-	midPoint = getPathCenter(curve);	
-	// arrowPath = getArrowPath(midPoint)
-	
-	$.ajax({
-		url: '/mapvisualizations',
-		data: {'do':'get_relation',id:edge.id, curve:curve, x:midPoint.x, y:midPoint.y},
-		complete: function(data) {show_modal(data);},
-		dataType: 'script'
-	});
-
-	console.log(edge.name+"\n"+curve);
-
-	// $('#clickForm').children('#do').attr({value:'get_relation'});
-	// $('#clickForm').append('<input name="id" value='+edge.id+'>');
-	// $('#clickForm').append('<input name="curve" value="'+curve+'">');
-	// $('#clickForm').submit();//button.trigger("click");
-}
-
 
 //a basic draw function
 //draw the given nodes and edges on the given paper (a Raphael object)
@@ -410,6 +378,32 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 } //animateNodes
 
 
+
+//convenience method to do the "click" calculations
+function clickEdge(edge){ 
+	curve = getPath(edge); 
+	midPoint = getPathCenter(curve);	
+	get_relationship(edge,{curve:curve,midPoint:midPoint},show_modal);
+}
+
+//convenience method to do the "hover" calculations
+function hoverNode(node){
+	if(now_detailing != node.id) {
+		get_issue(node, show_details)
+		now_detailing = node.id
+	}
+}
+
+//convenience method to do the "hover" calculations
+function hoverEdge(edge){
+	// console.log("hovering: "+node.name)
+	// curve = getPath(edge);
+	// midPoint = getPathCenter(curve);	
+	if(now_detailing != edge.id) {	
+		get_relationship(edge, {curve:"",midPoint:{x:0,y:0}},show_details)
+		now_detailing == edge.id
+	}
+}
 
 
 
