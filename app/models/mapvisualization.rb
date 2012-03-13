@@ -129,9 +129,9 @@ class Mapvisualization #< ActiveRecord::Base
 			@nodes = @graph.nodes
 			@edges = @graph.edges
 	
-			@compact_display = true
-        	place_randomly		
-			#default_layout
+			#@compact_display = true
+        	#place_randomly		
+			default_layout
 			
 		end
 

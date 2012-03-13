@@ -113,10 +113,10 @@ class Pathfinder
 	def trace_path_src_to_dest(edges, tracer)
 		# Computes path from destination to source
 
-		path = []
+		path = {}
 		current = @destination
 		while tracer[current] != -1
-			path << edges[ tracer[current] ][ current ].id
+			path [ edges[ tracer[current] ][ current ].id ] = false
 			current = tracer[current]
 		end
 
@@ -137,7 +137,44 @@ class Pathfinder
 		# 	and return in a map. The key of this map is the relationship ID, and its value
 		#	is whether or not it is an expandable relationship (it is "true" if it is not connected to the source)
 
+		# Initialize output paths
+		important_paths = Hash.new()
 
+		# Obtain ranking of all issues in graph
+		ranking = compute_all_issues_rank()
+
+		# Filter ranking by available relationships
+		# This isn't the most graceful way to do this, might be fine with a select statement
+		filtered_ranking = Hash.new()
+		distances.each do |target, dist|
+			if dist != 1/0.0 and dist != 0
+				filtered_ranking[target] = ranking[target]
+			end
+		end
+
+		# Apply gravity multiplier to each value in filtered ranking
+		filtered_ranking.keys.each {|key| filtered_ranking[key] *= (1.0 / (distances[key]*distances[key])) }
+
+		# Sort filtered ranking by gravity-adjusted ranking, descending
+		sorted_ranking = filtered_ranking.sort {|a,b| -1*(a[1] <=> b[1]) }
+
+		# Add each sorted ranking item to important paths, either to be expandable or not depending on its distance from source		
+		sorted_ranking[1..20].each do |pair|
+			to_expand = false
+			if distances[ pair[0] ] > 1
+				to_expand = true
+			end
+			important_paths[pair[0]] = to_expand
+		end
+		return important_paths
+	end
+
+	# Temporary fake ranking of 0.75 for everybody
+	def compute_all_issues_rank
+		issues = Issue.find :all
+		ranking = Hash.new()
+		issues.each {|i| ranking[i.id] = 0.75 }
+		return ranking
 	end
 
 	def compute_all_pairs_paths(e, v)

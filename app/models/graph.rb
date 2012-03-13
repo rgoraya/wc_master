@@ -139,11 +139,11 @@ class Graph
 		# Creates a graph of a shortest path between two nodes based on query input
 		relations = @pathfinder.path_from_src_to_dest(self, src, dest)
 		
-		if relations.length > 0
+		if relations.keys.length > 0
 			# Retrieve issue endpoints
-			endpoints = Relationship.where("id" => relations).flat_map {|r| [r.issue_id, r.cause_id]}
+			endpoints = Relationship.where("id" => relations.keys).flat_map {|r| [r.issue_id, r.cause_id]}
 			issues = Issue.where("id" => endpoints)
-			update_graph_contents_with_select_relationship(issues, relations)
+			update_graph_contents_with_select_relationship(issues, relations.keys)
 
 			# Add nodes and edges to path
 			@edges.each {|edge| edge.edge_on_path = 1 }
