@@ -114,11 +114,11 @@ class Mapvisualization #< ActiveRecord::Base
 	  elsif params[:q] == 'path'
 		
 		# Basic source to destination graph
-		if params[:psrc] and params[:pdest]
+		if params[:from] and params[:to]
 			# PLACEHOLDER for format-checking / conversion
 
 			# Try to find a path between source and destination in graph
-			path_found = @graph.get_graph_of_path(params[:psrc].to_i, params[:pdest].to_i)
+			path_found = @graph.get_graph_of_path(params[:from].to_i, params[:to].to_i)
 			#@notice = path_found.to_s
 
 			# Temporary
