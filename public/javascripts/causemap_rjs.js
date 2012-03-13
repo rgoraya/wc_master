@@ -3,9 +3,11 @@
 *****/
 
 var T_OFF = 9 //txt offset
+var REC1_EDGE = 9 // arrowhead length
+var REC2_EDGE = 5 // arrowhead height
 var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 6 // arrowhead height
-var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#8F8F8F'}
+var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BBBBBB'}
 var DESEL_OP = 0.4
 
 //details on drawing/laying out a node
@@ -41,6 +43,8 @@ function drawNode(node, paper){
 		.click(function() { clickNode(node)})
 		.mouseover(function() {this.node.style.cursor='pointer';})  
 
+		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
+
 		return icon;  
 	}
 }
@@ -54,22 +58,30 @@ function drawEdge(edge, paper){
 		curve = getPath(edge) //get the curve's path		
 		// console.log(edge.name)
 		// console.log(curve)
+		e = paper.path(curve)
+			.attr({'stroke-width':2})
 		
-		midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+		if (edge.reltype&SUPERSET)
+			midPoint = getPathCenter(curve);
+		else
+			midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+
 		if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
 			if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
 				//console.log("flipped",edge.name)
 				midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
 				//console.log("alpha after flip",midPoint.alpha)
 		}}
-		arrowPath = getArrowPath(midPoint)
-		arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
 
-		e = paper.path(curve)
-			.attr({'stroke-width':2})
+		arrowPath = getArrowPath(midPoint, edge.reltype)
 		arrow = paper.path(arrowPath)
-			.attr({stroke:'none'})
 			.rotate(midPoint.alpha, midPoint.x, midPoint.y) //draw the arrowhead
+		if (edge.reltype&SUPERSET)
+			arrow.attr({stroke:'#FFFFFF'})
+		else
+			arrow.attr({stroke:'none'})
+
+		arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
 		arrowSymbol = paper.path(arrowSymbolPath, edge.reltype)
 			.attr({fill:'#FFFFFF', stroke:'none'})
 			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
@@ -81,7 +93,7 @@ function drawEdge(edge, paper){
 		}
 		else if(edge.reltype&SUPERSET){
 			e.attr({stroke:EDGE_COLORS['superset']})
-			arrow.attr({fill:EDGE_COLORS['superset']})	
+			arrow.attr({fill:EDGE_COLORS['superset']})
 		}
 		else{ //if decreases
 			e.attr({stroke:EDGE_COLORS['decreases']})
@@ -173,18 +185,21 @@ function getPathCenter(path, offset, flip)
 
 //gets the path of an arrow drawn at a particular point
 //point is a Raphael.getPointAtLength object {x,y,alpha}
-function getArrowPath(point)
+function getArrowPath(point, reltype)
 {
-	return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
+	if(reltype&SUPERSET)
+		return "M" + point.x + " " + point.y + " l 0 " + (0 - REC2_EDGE/2) + " l "  + REC2_EDGE + " 0 l 0 " + REC2_EDGE  + " l " + (0 - REC2_EDGE)+" 0 l 0 "+(0 - (REC1_EDGE/2+REC2_EDGE/2))+" l "+(0 - REC1_EDGE)+" 0 l 0 "+REC1_EDGE+" l "+REC1_EDGE+" 0 z";
+	else
+		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
+	
 }
-
 
 //gets the path to draw the symbol inside an arrow
 //should this be a text function instead?
 function getArrowSymbolPath(point, reltype)
 {
 	symbolSize = 2;
-	x_off = -8
+	x_off = -7
 	y_off = 1
 
 	if(reltype&INCREASES){
@@ -288,7 +303,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 						midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
 						//console.log("alpha after flip",midPoint.alpha)
 				}}
-				arrowPath = getArrowPath(midPoint)
+				arrowPath = getArrowPath(midPoint, toEdge.reltype)
 				arrowSymbolPath = getArrowSymbolPath(midPoint, toEdge.reltype)
 				transform = 'r'+midPoint.alpha+','+midPoint.x+','+midPoint.y
 
@@ -296,7 +311,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 				icon[1].attr({'path':arrowPath,'transform':transform,'opacity':0, 'fill-opacity':0})
 				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear') //hack because tranform doesn't animate smoothly
 				icon[2].attr({'path':arrowSymbolPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')			
+				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
 			}
 			else{
 				icon.animate({'path':getPath(toEdge)},1000,easing)

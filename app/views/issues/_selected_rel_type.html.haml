@@ -11,16 +11,15 @@
 // *-*-*-*-*-*-*-*-*-*-*-*-*
 %div.causality_types
   %div.causality_toggle_container
-    %div.central_causality_container
-      = @rel_type         
+    
+    %div.relationship_partial_toggle#toggle_effects
+      causes              
     %div.relationship_partial_toggle#toggle_causes
       is caused by                     
-    %div.relationship_partial_toggle#toggle_effects
-      causes             
-    %div.relationship_partial_toggle#toggle_inhibitors
-      is reduced by            
     %div.relationship_partial_toggle#toggle_inhibiteds
       reduces             
+    %div.relationship_partial_toggle#toggle_inhibitors
+      is reduced by            
     %div.relationship_partial_toggle#toggle_subsets
       is a superset of                             
     %div.relationship_partial_toggle#toggle_supersets
@@ -28,53 +27,56 @@
 
 %div.issue_relationships_container
   
-  %div.relationship_addnew_wait
-  
-  - if @issue_relations.length > 0
-  
-    %div#relation_pagination
-      = will_paginate (@issue_relations), :page_links=>false, :param_name => 'relationship_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
+  - if @issue_relations
+    - if @issue_relations.length > 0
     
-      %div{:style=>"float:right; margin:2px 15px -12px 0px;", :id=>"relations_wait"}
-    
-    - @issue_relations.each do |relation|
-      %div.relationship_thumb
-  
-        %div.relationship_thumb_title
-          = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
-        %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
-          = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
-        
-        = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
-
-        %span.relationship_id_store
-          = relation.wiki_url       
-
-  - if @suggestions.length > 0
-    - @suggestions.each do |suggestion|
+      %div#relation_pagination
+        = will_paginate (@issue_relations), :page_links=>false, :param_name => 'relationship_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
       
-      %div.relationship_thumb.suggestion_thumb
-  
-        .relationship_suggestion_title
-          = suggestion.title
-        .relationship_thumb_suggestion
-        .issue_linkout.suggestion_accept
-          %img{:src=>'/images/system/button_check.png', :width=>"20px"}      
-        .issue_linkout.suggestion_reject
-          = link_to image_tag('/images/system/button_reject.png', :width=>"20px"), suggestion_path(suggestion,:suggestion => {:status => 'D'}), :method => :put, :title=>"reject suggestion", :remote=>true
-        %span.suggestion_id_store        
-          = suggestion.id
+      - @issue_relations.each do |relation|
+        %div.relationship_thumb
+    
+          %div.relationship_thumb_title
+            = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
+          %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
+            = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
           
-  - if !(@suggestions.length + @issue_relations.length > 0)
+          = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
+  
+          %span.relationship_id_store
+            = relation.wiki_url       
+  
+    - if @suggestions.length > 0
+      - @suggestions.each do |suggestion|
+        
+        %div.relationship_thumb.suggestion_thumb
+    
+          .relationship_suggestion_title
+            = suggestion.title
+          .relationship_thumb_suggestion
+          .issue_linkout.suggestion_accept
+            %img{:src=>'/images/system/button_check.png', :width=>"20px"}      
+          .issue_linkout.suggestion_reject
+            = link_to image_tag('/images/system/button_reject.png', :width=>"20px"), suggestion_path(suggestion,:suggestion => {:status => 'D'}), :method => :put, :title=>"reject suggestion", :remote=>true
+          %span.suggestion_id_store        
+            = suggestion.id
+            
+    - if !(@suggestions.length + @issue_relations.length > 0)
+      .relationship_none_found{:style=>"text-align:right;"}
+        No such relationships found. Add new here 
+        %img.none_found_arrow{:src=>'/images/issues/arrow_right.png'} 
+    
+    
+    %div.relationship_addnew
+      %div.relationship_addnew_title.poplight{:title => "add new", :id=>"#{@add_btn_id}"}
+        Add New
+                    
+      %div.relationship_thumb_addnew.poplight{:title => "add new", :id=>"#{@add_btn_id}"} 
+    .clearboth        
+
+  - else
     .relationship_none_found
-      No such causal links found. Add new here 
-      %img.none_found_arrow{:src=>'/images/issues/arrow_right.png'} 
-  
-  
-  %div.relationship_addnew
-    %div.relationship_addnew_title.poplight{:title => "add new", :id=>"#{@add_btn_id}"}
-      Add New
-                  
-    %div.relationship_thumb_addnew.poplight{:title => "add new", :id=>"#{@add_btn_id}"} 
-  .clearboth        
+      %img.none_found_arrow{:src=>'/images/issues/arrow_left.png'}
+      Select a relationship type here
+
 .clearboth 

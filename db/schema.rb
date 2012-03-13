@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120301035348) do
+ActiveRecord::Schema.define(:version => 20120312231615) do
 
   create_table "comments", :force => true do |t|
     t.string   "content"
@@ -63,7 +63,6 @@ ActiveRecord::Schema.define(:version => 20120301035348) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "relationship_type"
-    t.integer  "relationships_count"
     t.integer  "references_count",  :default => 0
     t.integer  "user_id"
   end

@@ -125,7 +125,9 @@ $(function() {
 		  $('#form_container').css("display", "none");
 		  // replace HTML of target Div
 		  $('#text_holder ').html('');
-		  $('#text_preview').removeAttr('style'); 
+		  $('#text_preview').removeAttr('style');
+		  $('.relation_descr').removeAttr('style'); 
+		  
 		  // show dummy image for image
 		  $('#image_preview1, #image_preview2, #image_preview3, .check_clicked, .check_empty, .checkmsg').removeAttr('style');
 		  parseJSON();
@@ -137,8 +139,8 @@ $(function() {
 // P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
 // -------------------------------------------------------------------------------
   function parseJSON() {
-	  // initialize spinner
-	  $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
+	  // Show the message
+	  show_progress_message("loading content from Wikipedia")    	
 	  // create the json url
 	  var queryRaw = $("#query").val()
 	  var queryEncoded = encodeURIComponent(queryRaw);
@@ -149,8 +151,8 @@ $(function() {
 	  	// call the getJson function
 	  	getContent(data);    
 	  
-	  	// remove spinner
-	  	$("#wait").empty();
+	  	// remove progress message
+	  	hide_progress_message();
 	  });
 	 }
   
@@ -177,6 +179,7 @@ $(function() {
 			  	$('#text_holder ').html(text_preview);
 			  	$('#text_preview').css({'background-image':'none','height':'auto'});   
 			  	form_descr = $("#text_holder ").html();
+			  	$('.relation_descr').show();
 			  	// show the form 
 			  	$("#form_container").css("display", "block");
 
@@ -289,6 +292,7 @@ $(function() {
 	  $('#text_holder ').html('');
 	  $('#title_holder').html('');
 	  $('#text_preview').removeAttr('style');
+	  $('.relation_descr').removeAttr('style');
 	  $("#wait").empty();
 	  $('#form_container').css("display", "none");
 	  $("#query").val(''); 		
@@ -318,6 +322,20 @@ $(function() {
 		  displayBoxIndex = -1; }
   });
 
+
+// -------------------------------------------------------------------------------
+// FUNCTIONS FOR SHOWING AND HIDING PROGRESS MESSAGES
+// -------------------------------------------------------------------------------
+	function show_progress_message(msg){
+		var spinner_html = '<img src="/images/system/spinnerf6.gif" class="progress_spinner"/>'
+		$("#progress_message").html(spinner_html + msg);
+		$("#progress_container").show();		
+	}
+
+	function hide_progress_message(){
+		$("#progress_message").html('');
+		$("#progress_container").hide();		
+	}
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  

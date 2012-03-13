@@ -21,7 +21,7 @@ require 'backports'
      end
      
     respond_to do |format|
-      format.js {render :layout=>false}
+      format.js 
       format.html # index.html.erb
       format.xml  { render :xml => @issues }
       format.json { render :json => @issues }
@@ -36,12 +36,9 @@ require 'backports'
     # Default params to "causes" for initial load
     if params[:rel_type]
       @rel_type = params[:rel_type];
-    else
-      @rel_type = "is caused by"
+      # Call to retrieve the corresponding relationships based on the params
+      get_selected_relations
     end
-
-    # Call to retrieve the corresponding relationships based on the params
-    get_selected_relations
 
     # Default params to "causes" for initial load
     if params[:rel_id]
@@ -227,21 +224,30 @@ require 'backports'
         add_new_issue
       end
     else
-      respond_to do |format|     
-        if @issue.save
-					Reputation::Utils.reputation(:action=>:create, \
-                                   :type=>:issue, \
-                                   :me=>@issue.user_id, \
-                                   :undo=>false, \
-                                   :calculate=>true)
-
-          format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
-          format.xml  { render :xml => @issue, :status => :created, :location => @issue }
-          format.js
-        else
-          format.html { render :action => "new" }
-          format.xml  { render :xml => @issue.errors, :status => :unprocessable_entity }
-          format.js
+      # Check whether this Issue already exists
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      if !@existing_issue.nil?
+        # if so then simply redirect to the Show page of that Issue
+        redirect_to(@existing_issue)
+        
+      # If not, go ahead and create a new one
+      else
+        respond_to do |format|     
+          if @issue.save
+  					Reputation::Utils.reputation(:action=>:create, \
+                                     :type=>:issue, \
+                                     :me=>@issue.user_id, \
+                                     :undo=>false, \
+                                     :calculate=>true)
+  
+            format.html { redirect_to(@issue, :notice => 'Issue was successfully created.') }
+            format.xml  { render :xml => @issue, :status => :created, :location => @issue }
+            format.js
+          else
+            format.html { render :action => "new" }
+            format.xml  { render :xml => @issue.errors, :status => :unprocessable_entity }
+            format.js
+          end
         end
       end      
     end

@@ -941,15 +941,15 @@ z-index:0;
 
 .title {
 	/*background-color:#4DB8DB;*/
-	font:bold 26px "lucida grande",tahoma,verdana,arial,sans-serif;
+	font:bold 22px "lucida grande",tahoma,verdana,arial,sans-serif;
 	padding:10px 15px 10px 15px;
 	margin:0px -15px 10px -15px;
 	text-align:left;
-	text-shadow:0px 1px 1px #fff;
-	color: #434343; 
+	text-shadow:0px 1px -1px #2f2f2f;
+	color: #fcfcfc; 
 	text-transform:uppercase;
 	min-height:31px;
-	background-color:#fcfcfc;
+	background-color:#434343;
 }
 
 #title_filler_text{
@@ -973,6 +973,15 @@ z-index:0;
 #issue_title_dynamic, #relationship_title_dynamic{
 	text-transform:uppercase;
 	color:#4DB8DB;
+}
+
+#title_relationship_hover, #title_causality_hover{
+	color:#888888;
+	display:none;
+}
+
+#title_relationship_ellipsis{
+	color:#888888;
 }
 
 .map_toggle{
@@ -1143,6 +1152,24 @@ word-wrap:break-word;
 	text-shadow: rgba(0,0,0,.1) 0 1px 0;
 	font:bold 22px "lucida grande",tahoma,verdana,arial,sans-serif;	
 }
+
+.add_new_issue_modal {
+	width:320px; max-height:130px; position:relative;z-index:1;float:left;
+}
+
+.add_new_issue_modal .wikicontent_edit{box-shadow:none;}
+
+#add_new_issue_page #text_preview{background:none;}
+#add_new_issue_page .relation_descr{width:auto; display:none;margin-right:0px;font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; color:#434343;}
+#add_new_issue_page #text_preview{background-image: none;width: auto; height:auto;float: none;}
+#add_new_issue_page #form_container{float:right;padding:0px;}
+#add_new_issue_page .img_prev{float:left;margin:0px;margin-right:5px; width:68px; height:68px; background-size:auto 68px;}
+#add_new_issue_page #title_holder{text-align:center; color:#fcfcfc;font-size:22px;}
+#add_new_issue_page .title{text-align:center; font-size:22px;}
+#add_new_issue_page .discussion_submit, #add_new_issue_page .relationship_intermediate{width:65px;}
+#add_new_issue_page .title_edit{box-shadow: none;}
+#add_new_issue_page .checkcontainer{top:50px; left:50px;}
+#add_new_issue_page .relationship_none_found{margin-top:50px;}
 
 .bubble{
 	/*display:inline-block;*/
@@ -1534,9 +1561,27 @@ word-wrap:break-word;
 }
 
 #notice, #error{
-	float:left;
 	width:188px;
+}
+
+#progress_container{
+	font: normal 14px "lucida grande",tahoma,verdana,arial,sans-serif;
+	text-align: center;
+	color: #434343;
+	padding: 10px 5px;
+	position: fixed;
+	z-index: 1;
+	top: 44px;
+	width: 400px;
+	left: 50%;
+	margin-left: -210px;
+}
+
+.progress_spinner{
+	border:0;
+	width:20px;
 	margin-right:5px;
+	margin-bottom:-4px;
 }
 
 .index_title1 {
@@ -3332,7 +3377,11 @@ cursor:default;
 .issue_thumbs_container{
 	background:#434343;
 	margin:0px -15px 0px -15px; 
-	
+	-webkit-box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	box-shadow: rgba(0, 0, 0, 0.6) 0 3px 15px;
+	z-index:1;
+	position:relative;
 	}
 
 .issue_thumb_blanket{
@@ -3355,7 +3404,7 @@ cursor:default;
 }
 
 .main_thumb_title{
-	width: 136px;
+	width: 153px;
 	padding: 4px 1px;
 	margin: 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3364,7 +3413,6 @@ cursor:default;
 	background: #2F2F2F;
 	position: absolute;
 	opacity: 0.8;
-	border: 1px solid #4DB8DB;
 	cursor:pointer;
 }
 
@@ -3376,10 +3424,10 @@ cursor:default;
 }
 
 .issue_thumb_main{
-	height:90px; width:140px; border:4px solid #2f2f2f;
+	height:90px; width:155px; border:4px solid #fcfcfc;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:150px auto;
+	background-size:160px auto;
 	text-align:center;
 	background-color:#fcfcfc;
 	cursor:pointer;
@@ -3392,28 +3440,16 @@ cursor:default;
 }
 
 .causality_types{
-	font: bold 11px "lucida grande",tahoma,verdana,arial,sans-serif;		
+	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;		
 	float:left;
 	padding:15px 0px 0px 0px;
-	background-color:#434343;
 }	
-
-.central_causality_container{
-	color: #FCFCFC;
-	background-color:#434343;
-	text-align: center;
-	font-size: 12px;
-	width: 102px;
-	padding: 4px 3px 4px 3px;
-	display: table-cell;
-	border: 1px solid #4DB8DB;
-}
 
 .central_causality_container:hover{
 }
 
 .causality_toggle_container{
-	border:5px solid #2f2f2f;
+	
 }
 
 .suggested_causality{
@@ -3425,16 +3461,19 @@ cursor:default;
 	width: 102px;
 	color: #6A6A6A;
 	cursor: pointer;
-	padding: 0px 4px 0px 4px;
+	padding: 1px;
 	text-align: center;
-	background: #f5f5f5;
-	display:none;
 }
 
 
 .relationship_partial_toggle:hover{
-	background:#2f2f2f;
 	color:#fcfcfc;
+}
+
+.central_causality_container{
+	color: #FCFCFC;
+	padding: 1px;
+	text-align: center;
 }
 
 .issue_relationships_container{
@@ -3448,20 +3487,23 @@ cursor:default;
 
 .relationship_thumb{
 	float:left;
-	margin:0px 0px 0px 10px;
-	border:1px solid #2c2c2c;
+	padding-left:10px;
 	opacity:1;
 	}
 
 
 .relationship_thumb_main{
-	height:90px; width:90px; border:4px solid #2f2f2f;
+	height:92px; width:92px; border:4px solid #2f2f2f;
 	background-position:center center;
 	background-repeat:no-repeat;
-	background-size:auto 90px;
+	background-size:auto 92px;
 	text-align:center;
 	background-color:#fcfcfc;
 	}
+
+.relationship_thumb_selected{
+	border:4px solid #fcfcfc;
+}
 
 .relationship_thumb_main a{
 	display: block;  
@@ -3470,7 +3512,7 @@ cursor:default;
 }
 
 .relationship_thumb_title{
-	width:86px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3479,11 +3521,10 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;
 }
 
 .relationship_thumb_title a{
-	width:84px;
+	width:90px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;		
@@ -3508,20 +3549,19 @@ cursor:default;
 .relationship_addnew{
 	float:left;
 	margin:0px 0px 0px 10px;
-	border:1px solid #2c2c2c;
 	opacity:1;
 	float:right;
 	margin-right:10px;
 	}
 
 .relationship_thumb_suggestion{
-	height:90px; border:4px solid #2f2f2f;
+	height:92px; border:4px solid #2f2f2f;
 	background-position:center 40px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
 	background-image:url('/images/issues/ques.png'); 
-	width:90px;
+	width:92px;
 	background-color:#434343;
 }
 
@@ -3532,7 +3572,7 @@ cursor:default;
 }
 
 .relationship_suggestion_title{
-	width:86px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3541,7 +3581,6 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;	
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;
@@ -3550,13 +3589,13 @@ cursor:default;
 .suggestion_thumb{cursor:pointer;}
 
 .relationship_thumb_addnew{
-	height:90px; border:4px solid #2f2f2f;
+	height:92px; border:4px solid #2f2f2f;
 	background-position:center 40px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
 	background-image:url('/images/issues/add_relation.png'); 
-	width:90px;
+	width:92px;
 	background-color:#434343;
 }
 
@@ -3572,7 +3611,7 @@ cursor:default;
 	float: left;
 	margin: 40px 0px 0px 15px;
 	color: #2C2C2C;
-	text-align: center;
+	text-align: left;
 	width: 645px;
 	text-shadow: 0px 1px 2px #505050;
 	}	
@@ -3580,7 +3619,7 @@ cursor:default;
 .none_found_arrow{width:20px;margin-bottom:-2px;}
 
 .relationship_addnew_title{
-	width:86px;
+	width:90px;
 	padding:4px 1px;
 	margin:4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
@@ -3589,11 +3628,10 @@ cursor:default;
 	background:#2f2f2f;
 	position:absolute;
 	opacity:0.8;
-	border: 1px solid #4DB8DB;
 }
 
 .relationship_addnew_title a{
-	width:84px;
+	width:90px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;		
@@ -4041,15 +4079,63 @@ input.relationship_endorse {
 }
 
 
+.relationship_intermediate{
+	background: -webkit-gradient(linear, left bottom, left top, from(#45A6C5), to(#4DB8DB));
+	background: -moz-linear-gradient(center bottom, #45A6C5 0%, #4DB8DB 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#4DB8DB, endColorstr=#45A6C5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#4DB8DB', endColorstr='#45A6C5')";
+	cursor:pointer;
+	font:bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color: #f1f1f1;
+	border-top: 2px groove #94D4E9;
+	border-left: 2px groove #94D4E9;
+	border-bottom: 2px ridge #45A6C5;
+	border-right: 2px ridge #45A6C5;
+	-moz-border-right-colors: #2E6E83 #45A6C5;
+	-moz-border-left-colors: #2E6E83 #94D4E9;
+	-moz-border-top-colors: #2E6E83 #94D4E9;
+	-moz-border-bottom-colors: #2E6E83 #45A6C5;	
+	float:left;
+	margin-right:-1px;
+}
+
+input.relationship_intermediate {
+	margin:0px;
+	margin-right:-1px;
+	width:78px;
+	padding:5px;	
+}
+
+.relationship_intermediate:hover{
+	background:#45A6C5;
+}
+
+.relationship_intermediate:active{
+	background: -webkit-gradient(linear, left bottom, left top, from(#45A6C5), to(#4DB8DB));
+	background: -moz-linear-gradient(center bottom, #45A6C5 0%, #4DB8DB 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#4DB8DB, endColorstr=#45A6C5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#4DB8DB', endColorstr='#45A6C5')";
+}
+
+.relationship_intermediate a{
+	color:#fcfcfc;
+	text-decoration:none;
+}
+
+.relationship_intermediate a:hover{
+	text-decoration:none;
+}
+
+
 
 .del-relation{
 	background:url("/images/issues/delete.png") no-repeat left;
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;		
+	text-align: left;		
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4061,9 +4147,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4075,9 +4161,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4101,9 +4187,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;
@@ -4115,9 +4201,9 @@ input.relationship_endorse {
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
-	padding-left:17px;	
+	padding-left:22px;	
 	width:128px;
-	text-align: center;	
+	text-align: left;	
 	display: list-item;
 	list-style-type: none;
 	color:#fcfcfc;

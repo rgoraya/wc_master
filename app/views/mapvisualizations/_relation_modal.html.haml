@@ -2,6 +2,7 @@
 
 :javascript
   position_modal(#{location[0]},#{location[1]});
+  $('.modal_linkout').click(function(){ goto('relationship',#{relation.id}); });
 
 #relation_modal
   -#I would like to be able to just = render "issues/get_relationship_descr", but would need to split that into a partial
@@ -33,3 +34,6 @@
         %a{:href=>relation.issue.wiki_url, :target => "_blank"} more on Wikipedia
 
       .clearboth
+      /%a.modal_linkout{:href=>"/mapvisualizations?q=show&r=#{relation.id}", :title => " Go to issue", :style => "margin-top:-28px;margin-right:30px"}
+      .modal_linkout{:title => " Go to issue", :style => "margin-top:-28px;margin-right:30px"}
+      .btn_close{:title => "Close Window", :style => "margin-top:-28px;margin-right:0px"}
