@@ -44,7 +44,9 @@ class Pathfinder
 			return trace_path_src_to_dest(outgoing, paths_tracer)
 		end
 
-		return relationships_on_paths
+		# This happens only if the destination is 0, as it would have returned otherwise.
+		# Return available relationships, distances, 
+		return important_relationships_from_source(paths_tracer, paths_distances, relationships_on_paths)
 	end
 
 	def compute_paths_from_source(edges, nodes)
@@ -121,6 +123,21 @@ class Pathfinder
 		# Check for source...
 
 		return path
+	end
+
+	def important_relationships_from_source(tracer, distances, relationships)
+		# This method limits paths from a source node by importance, so as to only
+		# show the paths from a given source that are of the most "value" to a user.
+		# First, a page-rank like importance score is computed for the entire graph.
+		# Second, the resulting list of scores is filtered by relationships that already exist in this graph.
+		# Third, the inverse of the distance squared ("gravity") is applied as a multiplier
+		# 	to this ranking score. This way, well-connected nodes far from our source
+		#	are not given an unfair advantage.
+		# Finally, upon sorting this list by rank, the top 20 relationships are selected
+		# 	and return in a map. The key of this map is the relationship ID, and its value
+		#	is whether or not it is an expandable relationship (it is "true" if it is not connected to the source)
+
+
 	end
 
 	def compute_all_pairs_paths(e, v)
