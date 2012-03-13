@@ -156,9 +156,10 @@ class Graph
 			edges = Relationship.where("issue_id IN (?) OR cause_id IN (?)", targets, targets).flat_map {|r| [r.issue_id, r.cause_id]}
 			neighbors = edges.uniq.select {|c| !targets.include? c }
 
-			issues = Issue.where("id IN (?) OR id IN (?)", targets, neighbors).order("created_at ASC").limit(20)
+			issues = Issue.where("id" => targets)
+			others = Issue.where("id" => neighbors).order("created_at ASC").limit(20)
 
-			update_graph_contents(issues)
+			update_graph_contents(issues + others)
 		end
 
 		# Default to no path found
