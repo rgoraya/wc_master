@@ -256,8 +256,8 @@ class Mapvisualization #< ActiveRecord::Base
       circle_nodes_at_point(groups['targ_dec'], Vector[@width,0], radius)
       circle_nodes_at_point(groups['targ_sup'], Vector[@width/2,@height], radius)
             
-      fruchterman_reingold(100) #fast, little bit of layout for now
-      #kamada_kawai
+      #fruchterman_reingold(100) #fast, little bit of layout for now
+      kamada_kawai
       normalize_graph
     else
       @nodes = NO_ITEM_ERROR
@@ -502,8 +502,30 @@ class Mapvisualization #< ActiveRecord::Base
       end
       #puts k.to_s + " "+Time.now.to_s
     end
-    
     puts "(found path distances) @ "+Time.now.to_s
+
+    ## stuff for maybe doing kamada with the current dist functions
+    # distances = @graph.get_all_pairs_paths_distances
+    # #puts distances
+    # k = 1.0 #spring constant
+    # tolerance = 0.001 #epsilon for energy
+    # maxlen = 0
+    # inf = 1.0/0
+    # distances.values.each {|h| h.values.each {|v| maxlen = [maxlen, v].max if v != inf}} #clean this up?
+    # l0 = [width,height].min/maxlen #optimal average length
+    # ideal_length = Hash.new(0)
+    # spring_strength = Hash.new(0)
+    # distances.each do |k1,d|
+    #   d.each do |k2,val|
+    #     if val != inf
+    #       ideal_length[[k1,k2]] = l0*val
+    #       spring_strength[[k1,k2]] = k/(val*val)
+    #     end
+    #   end
+    # end
+    #   
+    # puts maxlen
+    # #puts ideal_length
     
     k = 1.0 #spring constant
     tolerance = 0.001 #epsilon for energy

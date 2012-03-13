@@ -279,11 +279,22 @@ function drawElements(nodes, edges, paper)
 	}
 }
 
+var MOVE_TIME = 400
+var DISAPPEAR_TIME = 250
+var APPEAR_TIME = 250
+
 //animate change between old nodes/edges and new nodes/edges
 function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 {
 	paper.clear() //start blank
-	easing = "backOut" //either this or linear look nice
+	easing = "linear" //either this or backOut look nice IMO
+
+	//animations
+	disappear = Raphael.animation({'opacity':0, 'fill-opacity':0}, DISAPPEAR_TIME, 'linear', function(){this.remove()})
+	moveAppear = Raphael.animation({'opacity':1, 'fill-opacity':1}, MOVE_TIME, 'linear')
+		.delay(DISAPPEAR_TIME)
+	appear = Raphael.animation({'opacity':1, 'fill-opacity':1}, APPEAR_TIME, 'linear')
+		.delay(DISAPPEAR_TIME+MOVE_TIME)
 
 	//move old edges into the new
 	for(var i=0, len=fromEdges['keys'].length; i<len; i++)
@@ -294,7 +305,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		icon = drawEdge(fromEdge, paper)
 
 		if(typeof toEdge === 'undefined'){ //if no toEdge
-			icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear', function(){this.remove()}) //disappear
+			icon.animate(disappear) //disappear
 		}
 		else{
 			if(!compact){ //not compact so we need to move arrows as well
@@ -315,20 +326,25 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 				arrowSymbolPath = getArrowSymbolPath(midPoint, toEdge.reltype)
 				transform = 'r'+midPoint.alpha+','+midPoint.x+','+midPoint.y
 
-				icon[0].animate({'path':curve},1000,easing)
+				curveMovement = Raphael.animation({'path':curve},MOVE_TIME,easing)
+					.delay(DISAPPEAR_TIME)
+			
+				icon[0].animate(curveMovement)
 				icon[1].attr({'path':arrowPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear') //hack because tranform doesn't animate smoothly
+				.animate(moveAppear) //hack because tranform doesn't animate smoothly
 				icon[2].attr({'path':arrowSymbolPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
+				.animate(moveAppear)
 				//for dots
 				icon[3].remove() //get rid of old to add the new
 				dots = drawDots(toEdge,curve,paper)
 				.attr({'opacity':0, 'fill-opacity':0})
-				.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
+				.animate(moveAppear)
 				icon.push(dots)
 			}
 			else{
-				icon.animate({'path':getPath(toEdge)},1000,easing)
+				curveMovement = Raphael.animation({'path':getPath(toEdge)},MOVE_TIME,easing)
+					.delay(DISAPPEAR_TIME)
+				icon.animate(curveMovement)
 			}
 		}
 	}  
@@ -341,7 +357,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		if(typeof fromEdge === 'undefined'){ //if no fromEdge
 			drawEdge(toEdge, paper)
 			.attr({'opacity':0, 'fill-opacity':0})
-			.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
+			.animate(appear)
 		}
 	}  
 
@@ -354,11 +370,13 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		icon = drawNode(fromNode, paper)
 
 		if(typeof toNode === 'undefined'){ //if no toNode
-			icon.animate({'opacity':0, 'fill-opacity':0}, 1500, 'linear', function(){this.remove()}) //disappear
+			icon.animate(disappear) //disappear
 		}
 		else{
 			fromNode.x = toNode.x; fromNode.y = toNode.y; //change the stored location for future querying (interaction)
-			icon.animate({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+T_OFF }, 1000, easing)
+			move = Raphael.animation({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+T_OFF }, MOVE_TIME, easing)
+			//	.delay(DISAPPEAR_TIME*1) //not quite sure why this doesn't also need a delay (multiplier)? Maybe need animateWith?
+			icon.animate(move)
 		}
 	}
 
@@ -371,7 +389,7 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		if(typeof fromNode === 'undefined'){ //if no fromNode
 			drawNode(toNode, paper)    
 			.attr({'opacity':0, 'fill-opacity':0})
-			.animate({'opacity':1, 'fill-opacity':1}, 1000, 'linear')
+			.animate(appear)
 		}
 	}
 

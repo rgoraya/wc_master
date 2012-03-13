@@ -190,12 +190,12 @@ class Graph
 
 		@distances = @pathfinder.compute_all_pairs_paths(connections, vertices)
 
-		@distances.each do |src, dests|
-			dests.each do |k, v|
-        ### DEBUG
-        puts "DISTANCE #{src} to #{k}: #{v}"
-			end 
-		end
+    # @distances.each do |src, dests|
+    #   dests.each do |k, v|
+    #         ### DEBUG
+    #         puts "DISTANCE #{src} to #{k}: #{v}"
+    #   end 
+    # end
 
 		return @distances
 	end
