@@ -114,7 +114,11 @@ class Mapvisualization #< ActiveRecord::Base
 	  elsif params[:q] == 'path'
 		
 		# Basic source to destination graph
-		if params[:from] and params[:to]
+		if params[:from] or params[:to]
+			
+			params[:from] = 0 if not params[:from]
+			params[:to] = 0 if not params[:to]
+
 			# PLACEHOLDER for format-checking / conversion
 
 			# Try to find a path between source and destination in graph
@@ -125,10 +129,10 @@ class Mapvisualization #< ActiveRecord::Base
 			@nodes = @graph.nodes
 			@edges = @graph.edges
 	
-			#@compact_display = true
-        	#place_randomly		
-			default_layout
-		
+			@compact_display = true
+        	place_randomly		
+			#default_layout
+			
 		end
 
       ### RANDOM TEST GRAPH ###

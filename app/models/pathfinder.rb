@@ -13,9 +13,8 @@ class Pathfinder
 		# Update source and destination
 		@source, @destination = src, dest
 
-		# Check if source and destination are 0
-		# if so return empty path
-		if @source == 0 and @destination == 0
+		# Check if source is undefined, if so return empty path
+		if @source == 0
 			return []
 		end
 
