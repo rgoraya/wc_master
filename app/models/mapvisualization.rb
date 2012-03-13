@@ -38,11 +38,11 @@ class Mapvisualization #< ActiveRecord::Base
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
     		  @graph.get_graph_of_issue_neighbors(static, limit=20)
-				@graph.get_all_pairs_paths_distances
+				  @graph.get_all_pairs_paths_distances
 
     		  # Temporary
-          	@nodes = @graph.nodes
-          	@edges = @graph.edges
+        	@nodes = @graph.nodes
+        	@edges = @graph.edges
 		  
     		  # Make static variables centered
     		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
@@ -55,7 +55,7 @@ class Mapvisualization #< ActiveRecord::Base
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
     		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
-			  @graph.get_all_pairs_paths_distances
+			    @graph.get_all_pairs_paths_distances
 		  
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
@@ -71,36 +71,43 @@ class Mapvisualization #< ActiveRecord::Base
           @notice = BAD_PARAM_ERROR
         end               
 
-      ### TOP 40 ###
-      elsif params[:q] == 'last30'
+  	  ### PATH GENERATION ###
+  	  elsif params[:q] == 'path'
+				# Basic source to destination graph
+    		if params[:from] and params[:to]  
+    			# PLACEHOLDER for format-checking / conversion
+          
+          from_id = params[:from].to_i
+          to_id = params[:to].to_i
 
-    		# Update graph nodes & edges to include most recent 40 nodes	
-    		@graph.get_graph_of_most_recent(limit=30)
-		
-    		# Temporary until full conversion
-    		@nodes = @graph.nodes
-    		@edges = @graph.edges
+    			# Try to find a path between source and destination in graph
+    			path_found = @graph.get_graph_of_path(from_id, to_id)
+    			#@notice = path_found.to_s
 
-    		default_layout
+          puts path_found
 
-      ### TOP RELATIONSHIPS AND THEIR NODES ###
-      elsif params[:q] == 'mostcited' 
-		    @graph.get_graph_of_most_cited(limit=30)
-			# This is a very sparse graph, not recommended for all pairs paths.
+    		  @graph.nodes[from_id].static = 'left'
+    		  @graph.nodes[to_id].static = 'right'
 
-      	# Temporary until full conversion
-    		@nodes = @graph.nodes
-    		@edges = @graph.edges
+    			# Temporary
+    			@nodes = @graph.nodes
+    			@edges = @graph.edges
+	
+    			#@compact_display = true
+            	#place_randomly		
+    			default_layout
+        else
+          @notice = BAD_PARAM_ERROR
+        end
 
-    		default_layout
-
-      elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
+      ### EVERYTHING. DO NOT CALL THIS ###
+      elsif params[:q] == 'allthethings'
     		# Generate a graph of all nodes
     		@graph.get_graph_of_all
 
-			# DO NOT USE THIS METHOD HERE unless you want to cry alone in the night forever
-			# foreverAlone
-			# @graph.get_all_pairs_paths_distances
+  			# DO NOT USE THIS METHOD HERE unless you want to cry alone in the night forever
+  			# foreverAlone
+  			# @graph.get_all_pairs_paths_distances
 
     		# Temporary
     		@nodes = @graph.nodes
@@ -110,26 +117,28 @@ class Mapvisualization #< ActiveRecord::Base
         @compact_display = true
         place_randomly
 
-	  ### PATH GENERATION ###
-	  elsif params[:q] == 'path'
-		
-		# Basic source to destination graph
-		if params[:psrc] and params[:pdest]
-			# PLACEHOLDER for format-checking / conversion
+      ### TOP 40 ###
+      elsif params[:q] == 'last30'
 
-			# Try to find a path between source and destination in graph
-			path_found = @graph.get_graph_of_path(params[:psrc].to_i, params[:pdest].to_i)
-			#@notice = path_found.to_s
+    		# Update graph nodes & edges to include most recent 40 nodes	
+    		@graph.get_graph_of_most_recent(limit=30)
 
-			# Temporary
-			@nodes = @graph.nodes
-			@edges = @graph.edges
-	
-			#@compact_display = true
-        	#place_randomly		
-			default_layout
-		
-		end
+    		# Temporary until full conversion
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
+
+    		default_layout
+
+      ### TOP RELATIONSHIPS AND THEIR NODES ###
+      elsif params[:q] == 'mostcited' 
+  	    @graph.get_graph_of_most_cited(limit=30)
+  		  # This is a very sparse graph, not recommended for all pairs paths.
+
+      	# Temporary until full conversion
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
+
+    		default_layout
 
       ### RANDOM TEST GRAPH ###
       elsif params[:q] == 'test'
@@ -192,7 +201,7 @@ class Mapvisualization #< ActiveRecord::Base
       elsif node.static == 'left'
         node.location = Vector[0,height/2]
       elsif node.static == 'right'
-        node.location = Vector[0,height/2]
+        node.location = Vector[width,height/2]
       elsif node.static == 'top'
         node.location = Vector[width/2,0]
       elsif node.static == 'bottom'
