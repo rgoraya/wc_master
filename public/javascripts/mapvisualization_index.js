@@ -84,7 +84,7 @@ function position_modal(click_x,click_y) {
 //issues an ajax call to goto a particular spot on the map
 //type is either 'issue' or 'relationship'; id is the id of the element
 function recenter(type, id){
-	console.log(type, id)
+	console.log('recenter:', type, id)
 	cmd = 'goto_'+type
 	$.ajax({
 	  url: '/mapvisualizations',
