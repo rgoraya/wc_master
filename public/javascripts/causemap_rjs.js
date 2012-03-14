@@ -1,5 +1,6 @@
 /*****
 ** This file includes methods for drawing the graph on a Raphael.js canvas
+** NOTE that "paper" is not a global variable so we can access it in drags
 *****/
 
 var T_OFF = 9 //txt offset
@@ -13,9 +14,15 @@ var NUM_OF_DOTS = 3		// number of dots each side of EXPAND symbol
 var EDGE_COLORS = {'increases':'#C06B82','decreases':'#008FBD','superset':'#BBBBBB'}
 var DESEL_OP = 0.4
 
+//hashes to store the things we've drawn, so we can manipulate them. Keyed by id
+var nodeIcons = {} 
+var edgeIcons = {}
+
 var now_detailing = 0 //status variable for what we're currently displaying on hover
-var now_dragging = null
-var drag_origin = {cx:0, cy:0, x:0, y:0}
+var now_dragging = null //the thing we're dragging
+var drag_origin = {cx:0, cy:0, x:0, y:0, id:0} //the origin/info for the node before we started dragging
+var dragged_edges = [] //the edges connected to the thing we're dragging
+
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
@@ -41,7 +48,7 @@ function drawNode(node, paper){
 		.mousedown(function (e) {
 			// console.log("mousedown")
 			if(e.shiftKey){
-				now_dragging = icon;
+				now_dragging = {icon:icon, node:node};
 				// console.log("now_dragging:", icon)
 				// console.log(node.name)
 			}
@@ -75,60 +82,33 @@ function drawEdge(edge, paper){
 		var b = edge.b;
 
 		var curve = getPath(edge) //get the curve's path		
-		var e = paper.path(curve)
-			.attr({'stroke-width':2})
+		var e = paper.path(curve).attr({'stroke-width':2})
 		
-		if (edge.reltype&SUPERSET)
-			var midPoint = getPathCenter(curve);
-		else
-			var midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
-
-		if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
-			if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
-				//console.log("flipped",edge.name)
-				midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
-				//console.log("alpha after flip",midPoint.alpha)
-		}}
-
-		var arrowPath = getArrowPath(midPoint, edge.reltype)
-		var arrow = paper.path(arrowPath) //draw the arrowhead
-			.attr({stroke:'#FFFFFF', 'stroke-width': 1.3})
-			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
-		var arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
-		var arrowSymbol = paper.path(arrowSymbolPath, edge.reltype) //draw the symbol on the arrow
-			.attr({fill:'#FFFFFF', stroke:'none'})
-			.rotate(midPoint.alpha, midPoint.x, midPoint.y)
-
-		var dots = drawDots(edge, curve, paper)
-
 		//set attributes based on relationship type (bitcheck with constants)
-		if(edge.reltype&INCREASES){
+		if(edge.reltype&INCREASES)
 			e.attr({stroke:EDGE_COLORS['increases']})
-			arrow.attr({fill:EDGE_COLORS['increases']})
-		}
-		else if(edge.reltype&SUPERSET){
+		else if(edge.reltype&SUPERSET)
 			e.attr({stroke:EDGE_COLORS['superset']})
-			arrow.attr({fill:EDGE_COLORS['superset']})
-		}
-		else{ //if decreases
+		else //if decreases
 			e.attr({stroke:EDGE_COLORS['decreases']})
-			arrow.attr({fill:EDGE_COLORS['decreases']});	
-		}
+		
+		var arrow = drawArrow(edge, curve, paper)		
+		var dots = drawDots(edge, curve, paper)
 
 		if(hasSelection){
 			if((edge.reltype&HIGHLIGHTED)==0){ //if not highlighted
 				e.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
-				arrow.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
+				arrow[0].attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
 				dots.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
 		}}
 
 		var icon = paper.set() //for storing pieces of the line as needed
-		.push(e, arrow, arrowSymbol, dots)
+		.push(e, arrow[0], arrow[1], dots)
 		//.click(function() { clickEdge(edge) })
 		.mouseover(function() { hoverEdge(edge) })
 		//.mouseout(function() { unhoverEdge(edge) })
 
-		$([e.node,arrow.node,arrowSymbol.node]).qtip({
+		$([e.node,arrow[0].node,arrow[1].node]).qtip({
 			content:{text:edge.name},
 			position:{target: 'mouse', adjust:{y:5}}
 		});
@@ -236,6 +216,49 @@ function getArrowSymbolPath(point, reltype)
 	return "" //if problem
 }
 
+function drawArrow(edge, curve, paper)
+{
+	var a = edge.a
+	var b = edge.b
+	
+	if (edge.reltype&SUPERSET)
+		var midPoint = getPathCenter(curve);
+	else
+		var midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+
+	if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
+		if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
+			//console.log("flipped",edge.name)
+			midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
+			//console.log("alpha after flip",midPoint.alpha)
+	}}
+
+	var arrowPath = getArrowPath(midPoint, edge.reltype)
+	var arrow = paper.path(arrowPath) //draw the arrowhead
+		.attr({stroke:'#FFFFFF', 'stroke-width': 1.3})
+		.rotate(midPoint.alpha, midPoint.x, midPoint.y)
+	var arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
+	var arrowSymbol = paper.path(arrowSymbolPath, edge.reltype) //draw the symbol on the arrow
+		.attr({fill:'#FFFFFF', stroke:'none'})
+		.rotate(midPoint.alpha, midPoint.x, midPoint.y)
+
+	//set attributes based on relationship type (bitcheck with constants)
+	if(edge.reltype&INCREASES){
+		arrow.attr({fill:EDGE_COLORS['increases']})
+	}
+	else if(edge.reltype&SUPERSET){
+		arrow.attr({fill:EDGE_COLORS['superset']})
+	}
+	else{ //if decreases
+		arrow.attr({fill:EDGE_COLORS['decreases']});	
+	}
+
+	var icon = paper.set();
+	icon.push(arrow,arrowSymbol)
+	return icon
+}
+
+
 // draws dots if the curve is expandable, and returns the set of dots. Otherwise, just returns an empty set
 function drawDots(edge, curve, paper)
 {
@@ -282,13 +305,13 @@ function drawElements(nodes, edges, paper)
 	//draw edges (below the nodes)
 	for(var i=0, len=edges['keys'].length; i<len; i++){
 		var edge = edges[edges['keys'][i]]
-		drawEdge(edge, paper)
+		edgeIcons[edge.id] = drawEdge(edge, paper)
 	}
 
 	//draw nodes
 	for(var i=0, len=nodes['keys'].length; i<len; i++){
 		var node = nodes[nodes['keys'][i]] //easy access
-		drawNode(node, paper)
+		nodeIcons[node.id] = drawNode(node, paper)
 	}
 }
 
@@ -305,8 +328,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 
 	//standard animations
 	var disappear = Raphael.animation({'opacity':0, 'fill-opacity':0}, DISAPPEAR_TIME, 'linear', function(){this.remove()})
-	var moveAppear = Raphael.animation({'opacity':1, 'fill-opacity':1}, 10, 'linear')
-		.delay(DISAPPEAR_TIME+SEP_TIME+MOVE_TIME+SEP_TIME)
+	var tempVanish = Raphael.animation({'opacity':0, 'fill-opacity':0}, 1, 'linear', function(){this.remove()})
+		.delay(DISAPPEAR_TIME+SEP_TIME) //for temporary disappearing before move
 	var appear = Raphael.animation({'opacity':1, 'fill-opacity':1}, APPEAR_TIME, 'linear')
 		.delay(DISAPPEAR_TIME+SEP_TIME+MOVE_TIME+SEP_TIME)
 
@@ -322,52 +345,34 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 
 		if(typeof toEdge === 'undefined'){ //if no toEdge
 			toAnimate.push({el:icon, anim:disappear})
-			// icon.animate(disappear) //disappear
 		}
 		else{
 			if(!compact){ //not compact so we need to move arrows as well
-				//We really should clean up this method, or do something so that we have less code repetition...
-				//get the curves for the new path 
-				var curve = getPath(toEdge) //get the curve's path
-				if (toEdge.reltype&SUPERSET)
-					var midPoint = getPathCenter(curve);
-				else
-					var midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
-				if(toEdge.a.x <= toEdge.b.x && toEdge.b.y <= toEdge.a.y){ //sometimes we need to flip the alpha, seems to be covered by this
-					if(!(toEdge.b.y == toEdge.a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
-						//console.log("flipped",edge.name)
-						midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
-						//console.log("alpha after flip",midPoint.alpha)
-				}}
+				var curve = getPath(toEdge) //get the new curve's path
 
-				var arrowPath = getArrowPath(midPoint, toEdge.reltype)
-				var arrowSymbolPath = getArrowSymbolPath(midPoint, toEdge.reltype)
-				var transform = 'r'+midPoint.alpha+','+midPoint.x+','+midPoint.y
-				
-				var curveMovement = Raphael.animation({'path':curve},MOVE_TIME,easing)
-					.delay(DISAPPEAR_TIME+SEP_TIME)
-			
-				toAnimate.push({el:icon[0], anim:curveMovement})
-				// icon[0].animate(curveMovement)
-				icon[1].attr({'path':arrowPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				toAnimate.push({el:icon[1], anim:moveAppear})
-				// .animate(moveAppear) //hack because tranform doesn't animate smoothly
-				icon[2].attr({'path':arrowSymbolPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				toAnimate.push({el:icon[2], anim:moveAppear})
-				// .animate(moveAppear)
-				//for dots
-				icon[3].remove() //get rid of old to add the new
+				var arrow = drawArrow(toEdge,curve,paper) //just go ahead and redraw the arrow and dots
+				.attr({'opacity':0, 'fill-opacity':0})
+				icon.push(arrow[0],arrow[1])
 				var dots = drawDots(toEdge,curve,paper)
 				.attr({'opacity':0, 'fill-opacity':0})
-				toAnimate.push({el:dots, anim:moveAppear})
-				// .animate(moveAppear)
 				icon.push(dots)
+				
+				var curveMovement = Raphael.animation({'path':curve},MOVE_TIME,easing,
+					(function(arrow, dots) { return function() {
+						arrow.attr({'opacity':1, 'fill-opacity':1})
+						dots.attr({'opacity':1, 'fill-opacity':1})
+					}; })(arrow, dots)
+				).delay(DISAPPEAR_TIME+SEP_TIME)
+				toAnimate.push({el:icon[0], anim:curveMovement})
+
+				toAnimate.push({el:icon[1], anim:tempVanish})
+				toAnimate.push({el:icon[2], anim:tempVanish})
+				toAnimate.push({el:icon[3], anim:tempVanish})
 			}
 			else{
 				var curveMovement = Raphael.animation({'path':getPath(toEdge)},MOVE_TIME,easing)
 					.delay(DISAPPEAR_TIME+SEP_TIME)
 				toAnimate.push({el:icon, anim:curveMovement})
-				// icon.animate(curveMovement)
 			}
 		}
 	}
@@ -381,7 +386,6 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 			var icon = drawEdge(toEdge, paper)
 			.attr({'opacity':0, 'fill-opacity':0})
 			toAnimate.push({el:icon, anim:appear})
-			// .animate(appear)
 		}
 	}  
 
@@ -395,14 +399,12 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 
 		if(typeof toNode === 'undefined'){ //if no toNode
 			toAnimate.push({el:icon, anim:disappear})
-			// icon.animate(disappear) //disappear
 		}
 		else{
 			fromNode.x = toNode.x; fromNode.y = toNode.y; //change the stored location for future querying (interaction)
 			var move = Raphael.animation({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+T_OFF }, MOVE_TIME, easing)
-				.delay(DISAPPEAR_TIME+SEP_TIME) //not quite sure why this doesn't also need a delay (multiplier)? Maybe need animateWith?
+				.delay(DISAPPEAR_TIME+SEP_TIME)
 			toAnimate.push({el:icon, anim:move})
-			// icon.animate(move)
 		}
 	}
 
@@ -416,7 +418,6 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 			var icon = drawNode(toNode, paper)    
 			.attr({'opacity':0, 'fill-opacity':0})
 			toAnimate.push({el:icon, anim:appear})
-			// .animate(appear)
 		}
 	}
 	
@@ -430,26 +431,54 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 	}
 } //animateNodes
 
+//methods to control dragging
+var dragstart = function (x,y,event) 
+{
+	if(event.shiftKey && now_dragging) {
+		drag_origin.cx = now_dragging.icon[0].attr('cx'); //store the original locations
+	  drag_origin.cy = now_dragging.icon[0].attr('cy');
+		drag_origin.x = now_dragging.icon[1].attr('x');
+		drag_origin.y = now_dragging.icon[1].attr('y');
 
-var dragmove = function (dx,dy,x,y,event) {
-	// console.log("dragmove")
-	if(event.shiftKey) {
-		// console.log(now_dragging)
-		now_dragging.attr({cx: drag_origin.cx+dx, cy: drag_origin.cy+dy, x: drag_origin.x+dx, y: drag_origin.y+dy});
+		for(var i=0, len=currEdges['keys'].length; i<len; i++)
+		{
+			var edge = currEdges[currEdges['keys'][i]]
+			if(edge.a == now_dragging.node || edge.b == now_dragging.node){
+				dragged_edges.push(edge) //SHOULD THIS BE STORING THE ICONS RATHER THAN THE EDGES?? NO, SINCE WE'LL WANT TO ADJUST
+				edgeIcons[edge.id][1].attr({'opacity':0, 'fill-opacity':0}) //vanish the symbol, since we're not moving it
+				edgeIcons[edge.id][2].attr({'opacity':0, 'fill-opacity':0})
+				edgeIcons[edge.id][3].attr({'opacity':0, 'fill-opacity':0})
+			}
+		}
 	}
 };
-var dragstart = function (x,y,event) {
-	// console.log("dragstart")
-	// console.log(now_dragging)
-	if(now_dragging) {
-		drag_origin.cx = now_dragging[0].attr('cx'); //store the original locations
-	  drag_origin.cy = now_dragging[0].attr('cy');
-		drag_origin.x = now_dragging[1].attr('x');
-		drag_origin.y = now_dragging[1].attr('y');
-		// console.log("origin:",drag_origin)
+var dragmove = function (dx,dy,x,y,event) 
+{
+	if(event.shiftKey && now_dragging) {
+		now_dragging.node.x = drag_origin.cx+dx
+		now_dragging.node.y = drag_origin.cy+dy //move the node itself; this will move the appropriate edges
+		now_dragging.icon.attr({cx: drag_origin.cx+dx, cy: drag_origin.cy+dy, x: drag_origin.x+dx, y: drag_origin.y+dy});
+		
+		for(var i=0, len=dragged_edges.length; i<len; i++)
+		{
+			var curve = getPath(dragged_edges[i]) //get new curve
+			edgeIcons[dragged_edges[i].id].attr({'path':curve})
+		}
 	}
 };
-var dragend = function (x,y,event) {
+var dragend = function (x,y,event) 
+{	
+	for(var i=0, len=dragged_edges.length; i<len; i++) //redraw the icons on the edges
+	{
+		var curve = getPath(dragged_edges[i]) //get new curve
+		var arrow = drawArrow(dragged_edges[i],curve,paper) //just go ahead and redraw the arrow and dots
+		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
+		var dots = drawDots(dragged_edges[i],curve,paper)
+		edgeIcons[dragged_edges[i].id].push(dots)
+	}
+	//reset variables
+	drag_origin = {cx:0, cy:0, x:0, y:0, id:0} 
+	dragged_edges = []
 	now_dragging = null
 };
 
