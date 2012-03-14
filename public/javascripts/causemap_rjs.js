@@ -295,7 +295,7 @@ function drawElements(nodes, edges, paper)
 var MOVE_TIME = 400
 var DISAPPEAR_TIME = 250
 var APPEAR_TIME = 250
-var SEP_TIME = 0
+var SEP_TIME = 100
 
 //animate change between old nodes/edges and new nodes/edges
 function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
@@ -303,19 +303,14 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 	paper.clear() //start blank
 	easing = "linear" //either this or backOut look nice IMO
 
-	//animations
-	disappear = Raphael.animation({'opacity':0, 'fill-opacity':0}, DISAPPEAR_TIME, 'linear', function(){this.remove()})
-	moveAppear = Raphael.animation({'opacity':1, 'fill-opacity':1}, 10, 'linear')
+	//standard animations
+	var disappear = Raphael.animation({'opacity':0, 'fill-opacity':0}, DISAPPEAR_TIME, 'linear', function(){this.remove()})
+	var moveAppear = Raphael.animation({'opacity':1, 'fill-opacity':1}, 10, 'linear')
 		.delay(DISAPPEAR_TIME+SEP_TIME+MOVE_TIME+SEP_TIME)
-	appear = Raphael.animation({'opacity':1, 'fill-opacity':1}, APPEAR_TIME, 'linear')
+	var appear = Raphael.animation({'opacity':1, 'fill-opacity':1}, APPEAR_TIME, 'linear')
 		.delay(DISAPPEAR_TIME+SEP_TIME+MOVE_TIME+SEP_TIME)
 
-	//maybe what we need to do is draw everything, calculate the animations, then link them together and run all at once?
-	//so go through and draw everything at initial position (do we even need to redraw?? I guess so that we have references to things, unless we want to build that reference-set as we go (but we'll still need to redraw for new things...)), 
-	//basically we can get "from<things>" from the old bit, but since we're passing in might as well recalculate
-	//then construct an array/hash of objects where each object has the Element and the Animation to apply; then we can just apply animateWith to things we want to go together.
-		// can try just chaining together (or animateWith item 0)
-
+	var toAnimate = [] //the animations we want to run
 
 	//move old edges into the new
 	for(var i=0, len=fromEdges['keys'].length; i<len; i++)
@@ -326,7 +321,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		var icon = drawEdge(fromEdge, paper)
 
 		if(typeof toEdge === 'undefined'){ //if no toEdge
-			icon.animate(disappear) //disappear
+			toAnimate.push({el:icon, anim:disappear})
+			// icon.animate(disappear) //disappear
 		}
 		else{
 			if(!compact){ //not compact so we need to move arrows as well
@@ -351,25 +347,30 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 				var curveMovement = Raphael.animation({'path':curve},MOVE_TIME,easing)
 					.delay(DISAPPEAR_TIME+SEP_TIME)
 			
-				icon[0].animate(curveMovement)
+				toAnimate.push({el:icon[0], anim:curveMovement})
+				// icon[0].animate(curveMovement)
 				icon[1].attr({'path':arrowPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				.animate(moveAppear) //hack because tranform doesn't animate smoothly
+				toAnimate.push({el:icon[1], anim:moveAppear})
+				// .animate(moveAppear) //hack because tranform doesn't animate smoothly
 				icon[2].attr({'path':arrowSymbolPath,'transform':transform,'opacity':0, 'fill-opacity':0})
-				.animate(moveAppear)
+				toAnimate.push({el:icon[2], anim:moveAppear})
+				// .animate(moveAppear)
 				//for dots
 				icon[3].remove() //get rid of old to add the new
 				var dots = drawDots(toEdge,curve,paper)
 				.attr({'opacity':0, 'fill-opacity':0})
-				.animate(moveAppear)
+				toAnimate.push({el:dots, anim:moveAppear})
+				// .animate(moveAppear)
 				icon.push(dots)
 			}
 			else{
 				var curveMovement = Raphael.animation({'path':getPath(toEdge)},MOVE_TIME,easing)
 					.delay(DISAPPEAR_TIME+SEP_TIME)
-				icon.animate(curveMovement)
+				toAnimate.push({el:icon, anim:curveMovement})
+				// icon.animate(curveMovement)
 			}
 		}
-	}  
+	}
 
 	for(var i=0, len=toEdges['keys'].length; i<len; i++)
 	{
@@ -377,9 +378,10 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		var fromEdge = fromEdges[toEdges['keys'][i]] //see if there used to be an edge with the same key
 
 		if(typeof fromEdge === 'undefined'){ //if no fromEdge
-			drawEdge(toEdge, paper)
+			var icon = drawEdge(toEdge, paper)
 			.attr({'opacity':0, 'fill-opacity':0})
-			.animate(appear)
+			toAnimate.push({el:icon, anim:appear})
+			// .animate(appear)
 		}
 	}  
 
@@ -392,13 +394,15 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		var icon = drawNode(fromNode, paper)
 
 		if(typeof toNode === 'undefined'){ //if no toNode
-			icon.animate(disappear) //disappear
+			toAnimate.push({el:icon, anim:disappear})
+			// icon.animate(disappear) //disappear
 		}
 		else{
 			fromNode.x = toNode.x; fromNode.y = toNode.y; //change the stored location for future querying (interaction)
 			var move = Raphael.animation({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+T_OFF }, MOVE_TIME, easing)
 				.delay(DISAPPEAR_TIME+SEP_TIME) //not quite sure why this doesn't also need a delay (multiplier)? Maybe need animateWith?
-			icon.animate(move)
+			toAnimate.push({el:icon, anim:move})
+			// icon.animate(move)
 		}
 	}
 
@@ -409,12 +413,21 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		var fromNode = fromNodes[toNode['id']] //corresponding fromNode (one that has id as key; could just check if has the same key)
 
 		if(typeof fromNode === 'undefined'){ //if no fromNode
-			drawNode(toNode, paper)    
+			var icon = drawNode(toNode, paper)    
 			.attr({'opacity':0, 'fill-opacity':0})
-			.animate(appear)
+			toAnimate.push({el:icon, anim:appear})
+			// .animate(appear)
 		}
 	}
-
+	
+	//now... animate everyone!!
+	var el0 = toAnimate[0].el
+	var anim0 = toAnimate[0].anim
+	el0.animate(anim0)
+	for(var i=1, len=toAnimate.length; i<len; i++)
+	{
+		toAnimate[i].el.animateWith(el0, anim0, toAnimate[i].anim)
+	}
 } //animateNodes
 
 
