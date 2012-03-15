@@ -163,6 +163,9 @@ require 'backports'
 
   def auto_complete_search
     @search_results = Issue.search(params[:query]).first(5)
+
+    # if params[:data]
+    #   redirect_to params[:data]
     
       respond_to do |format|
         format.js 

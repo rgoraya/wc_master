@@ -46,17 +46,14 @@ function drawNode(node, paper){
 		.mouseover(function() {this.node.style.cursor='pointer';hoverNode(node)})
 		// .mouseout(function() {unhoverNode(node)})
 		.mousedown(function (e) {
-			// console.log("mousedown")
 			if(e.shiftKey){
 				now_dragging = {icon:icon, node:node};
-				// console.log("now_dragging:", icon)
-				// console.log(node.name)
 			}
 		})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
 
 
-		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
+		// $(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
 
 		return icon;  
 	}
@@ -108,10 +105,10 @@ function drawEdge(edge, paper){
 		.mouseover(function() { hoverEdge(edge) })
 		//.mouseout(function() { unhoverEdge(edge) })
 
-		$([e.node,arrow[0].node,arrow[1].node]).qtip({
-			content:{text:edge.name},
-			position:{target: 'mouse', adjust:{y:5}}
-		});
+		// $([e.node,arrow[0].node,arrow[1].node]).qtip({
+		// 	content:{text:edge.name},
+		// 	position:{target: 'mouse', adjust:{y:5}}
+		// });
 
 		return icon;
 	}

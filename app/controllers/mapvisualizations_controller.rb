@@ -77,6 +77,24 @@ class MapvisualizationsController < ApplicationController
     end
   end
 
+  def search_bars
+    puts "**********************************************************"
+    puts "************* GOT TO SEARCH_BARS CONTROLLER **************"
+    puts "**********************************************************"
+    puts params
+    @search_results = Issue.search(params[:query]).first(5)
+    
+      respond_to do |format|
+        format.js
+        # format.html do
+        #   #@issues = Issue.search(params[:query])
+        #   redirect_to :controller => 'issues', :action => 'index', :search => params[:query]
+        #   #redirect_to(:issues, params[:query] )
+        # end
+      end 
+  end
+
+
 ############################################################
 ### OLD RESTFUL METHODS
 ############################################################

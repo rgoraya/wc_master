@@ -1,6 +1,7 @@
 Wikicausality::Application.routes.draw do
 
 
+  match 'mapvisualizations/search_bars' => 'mapvisualizations#search_bars'
   resources :mapvisualizations
   resources :paths
   resources :feed_backs
@@ -51,7 +52,6 @@ Wikicausality::Application.routes.draw do
 	post "api" => "gate#post"
 
 	get "all/stats" => "pages#stats"
-  
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

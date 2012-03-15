@@ -67,17 +67,29 @@ $(function() {
 	})();
 
 	
-  $("#issue_search_form input").bind('keyup', function(e) { 
+  $(".issue_search_form input").on('keyup', function(e) {
+		var appl = $(this).parents('.search_container_appl') //the container we're inside
+		var searchform = appl.find('.issue_search_form')
+		var searchfield = appl.find('.searchfield_appl')
+		var issuesearch = appl.find('.issue_search')
+		// console.log('appl',appl)
+		// console.log("searchform:",searchform)
+		// console.log("searchfield:",searchfield)
+		// console.log("issuesearch:",issuesearch)
+		// console.log($(appl))
+		//search_visible_input has class 'searchfield_appl'
+		
     var ignore_keys_array = [18,20,17,35,13,27,36,45,37,93,91,34,33,39,16,9,40,38];
-    if ($.inArray(e.keyCode, ignore_keys_array) == -1 && $('#search_visible_input').val().trim() != ""){
-			$('#issue_search').html('');
+    if ($.inArray(e.keyCode, ignore_keys_array) == -1 && searchfield.val().trim() != ""){
+			issuesearch.html('');
 			searchDelay(function(){
-				if ($('#search_visible_input').val().trim() != ""){
-    				$('#issue_search').html('<div class="search_result_wait"></div>');    		
-    				$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
+				if (searchfield.val().trim() != ""){
+    				issuesearch.html('<div class="search_result_wait"></div>');    		
+    				$.get(searchform.attr("action"), searchform.serialize(), null, "script");
 				}
 			}, 500);
-		}     
+		}     
+
   });
 
 // -------------------------------------------------------------------------------
@@ -113,10 +125,9 @@ $(function() {
 // Function to HIDE OPEN ACCORDIONS when clicked elsewhere on the page
 // -------------------------------------------------------------------------------    
   $('html').click(function() {
+		
 	  var current_state = $(".nav_more_expansion").css("display");
 	  var current_state_login = $(".login_form_container").css("display");
-	  var current_state_search = $("#issue_search").css("display");
-  	 
 	  if (current_state == 'block')
 		  {
 		  $(".nav_more_click").removeAttr('style');
@@ -129,16 +140,22 @@ $(function() {
 		  $(".login_form_container").removeAttr('style');
 		  }
 
-	  if (current_state_search == 'block')
-		  {
-		  $("#issue_search").removeAttr('style');
-		  }
-		  });
+
+	  var searches = $(".issue_search");
+		for(var i=0, len=searches.length; i<len; i++){ //go through all the searches
+			var state = $(searches[i]).css("display");			
+		  if (state == 'block'){
+			  $(searches[i]).removeAttr('style');
+			}
+		}
+
+	});
 
 // -------------------------------------------------------------------------------  
 // STOP PROPOGATION to NOT hide if clicked within the accordions themselves
 // -------------------------------------------------------------------------------  
-  $('.nav_more, .login_main_container, .searchfield_appl, #issue_search').click(function(event){
+  $('.nav_more, .login_main_container, .searchfield_appl, .issue_search').click(function(event){
+		window.searchBoxIndex = -1 //reset the searchBoxIndex no matter what
 	  event.stopPropagation();
   });  
 
@@ -166,63 +183,68 @@ $(function() {
 // -------------------------------------------------------------------------------  
 // COPY VALUE OF SEARCH BOX AND SUBMIT (HIDDEN) SEARCH FORM
 // -------------------------------------------------------------------------------  
-  $("#search_submit_btn").click(function(){
-		if ($('#search_visible_input').val().trim() != ""){
+  $(".search_appl_submit").click(function(){
+		var form = $(this).parent()
+		if (form.children('.searchfield_appl').val().trim() != ""){
 			//$('#search_invisible_input').val($('#search_visible_input').val().trim())
-  			$('#issue_search_form').submit();
+  			form.submit();
 		}
-  });              
+  });
 
 // -------------------------------------------------------------------------------  
 // DO THE ABOVE ON HITTING THE RETURN KEY TOO
 // -------------------------------------------------------------------------------
 
-	window.searchBoxIndex = -1;
-  
-  $("#search_visible_input").bind("keyup", function(f){
+	window.searchBoxIndex = -1; //this may cause odd behavior with multiple searchboxes
+   
+  $(".searchfield_appl").bind("keyup", function(f){
 	  if (f.keyCode == 13){
 			if (searchBoxIndex < 0){
-				if ($('#search_visible_input').val().trim() != ""){
-		  			//$('#search_invisible_input').val($('#search_visible_input').val().trim())
-		  			$('#issue_search_form').submit();
+				if ($(this).val().trim() != ""){
+						$(this).parent().submit();
 				}
 			}
 			else{
-				window.location = $(".search_result_appl a").eq(searchBoxIndex).attr("href");
+				window.location = $(this).parents('.search_container_appl').find(".search_result_appl a").eq(searchBoxIndex).attr("href");
+				// form.data = ...
+				// form.submit()
 				return false;
 			}
   	}
 		else if (f.keyCode == 40){
-			Navigate(1);
+			Navigate(1, $(this).parents('.search_container_appl'));
 		}
 		else if (f.keyCode == 38){
-			Navigate(-1);
+			Navigate(-1, $(this).parents('.search_container_appl'));
 		}
   });
   
 // -------------------------------------------------------------------------------    
 // SHOW HIDE SEARCH RESULTS BOX
 // -------------------------------------------------------------------------------  
-  $("#search_visible_input").bind("keyup", function(){ 
-	if ($(this).val().trim() == "")
-  		$("#issue_search").empty();
+  $(".searchfield_appl").on("keyup", function(){
+		var appl = $(this).parents('.search_container_appl') //the container we're inside
+		if ($(this).val().trim() == "") //hide if empty string I think
+  		appl.find('.issue_search').empty();
   	else
-  		$("#issue_search").show();
+  		appl.find('.issue_search').show();
   });
 
                    
-  var Navigate = function(diff) {
+  var Navigate = function(diff, container) {
   	searchBoxIndex += diff;
-  	var oBoxCollection = $(".search_result_appl");
+  	var oBoxCollection = container.find(".search_result_appl");
   	if (searchBoxIndex >= oBoxCollection.length)
-  		searchBoxIndex = 0;
+			searchBoxIndex = oBoxCollection.length - 1; //to not wrap
+  		// searchBoxIndex = 0;
   	if (searchBoxIndex < 0)
-  		searchBoxIndex = oBoxCollection.length - 1;
+			searchBoxIndex = 0;
+  		// searchBoxIndex = oBoxCollection.length - 1;
   	var elem_class = "search_hover";
   	oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);
   }
 
-  $(".search_result_appl").live('mouseover', function(){
+  $(".search_result_appl").on('mouseover', function(){
 	  searchBoxIndex = $(this).index();
 	  var elem_class = "search_hover";
 	  var oBoxCollection = $(".search_result_appl");

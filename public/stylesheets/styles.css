@@ -2395,7 +2395,7 @@ a.issue-user:hover{
 	border-left:none;
 }
 
-#issue_search{
+.issue_search{
 	display:none; 
 	margin:-1px 0px -500px 1px;
 	width:268px; 
