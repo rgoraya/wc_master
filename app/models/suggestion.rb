@@ -2,6 +2,18 @@ class Suggestion < ActiveRecord::Base
 
   has_paper_trail :on=>[:update], :only=>[:status] 
 
+  validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" (wikipedia URL) provided was already used to create an existing Issue."
+  validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" duplicated."
+
+  validates :title, :presence => true 
+  validates :wiki_url, :presence => true
+  validates :causality, :presence => true
+  validates :status, :presence => true
+  validates_url_format_of :wiki_url,
+                          :allow_nil => true,
+                          :message => ' is not a valid URL'
+  
+
   belongs_to :issue
 
   KEYWORDS = {  #should be filled with several keywords related to each of the types
