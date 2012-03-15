@@ -4,9 +4,7 @@ require 'spec_helper'
 
 describe IssuesController do
   before do
-    @attributes = {'id' => 107, 'title' => "Electricity", 'description' => "Electricity is the science, engineering, technology...", 
-      'wiki_url' => "http://en.wikipedia.org/wiki/Electricity", 'short_url' => "http://upload.wikimedia.org/wikipedia/commons/thumb...", 'created_at' => "2012-03-08 12:17:56", 'updated_at' => "2012-03-08 12:17:56", 'permalink' => "electricity"}
-    @issue = mock_model(Issue)
+    @issue = Issue.find_by_title('Electricity')
     Issue.should_receive(:new).with(@attributes).once.and_return(@issue)
   end
 

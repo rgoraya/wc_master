@@ -32,11 +32,10 @@ class Issue < ActiveRecord::Base
   # VALIDATIONS
   # ------------
   validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" (wikipedia URL) provided was already used to create an existing Issue."
-
-  
-  # The wiki_url has to be unique else do not create
-  validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" duplicated."
-
+  validates_url_format_of :wiki_url,
+                          :allow_nil => true,
+                          :message => ' is not a valid URL'
+ 
   validates :title, :presence => {:message => ' cannot be blank, Issue not saved!'}
   validates :wiki_url, :presence => {:message => ' cannot be blank, Issue not saved!'}
   validates :short_url, :presence => {:message => ' cannot be blank, Issue not saved!'}
