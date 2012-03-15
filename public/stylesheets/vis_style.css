@@ -1,12 +1,20 @@
 #vis_container {
 	margin-top:10px;
-	margin-left:auto;
-	margin-right:auto
+/*	margin-left:auto;
+	margin-right:auto*/
+	float:left;
 }
 
 #canvas_container {
   border: 1px solid #bebebe;
   padding:0px;
+}
+
+#detail_container {
+	margin-top:10px;
+	float:right;
+	width:320px;
+/*	border:1px solid red;*/
 }
 
 #spinner {

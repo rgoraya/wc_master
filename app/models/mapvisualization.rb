@@ -38,12 +38,12 @@ class Mapvisualization #< ActiveRecord::Base
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
     		  @graph.get_graph_of_issue_neighbors(static, limit=20)
-				@graph.get_all_pairs_paths_distances
+				  @graph.get_all_pairs_paths_distances
 
     		  # Temporary
-          	@nodes = @graph.nodes
-          	@edges = @graph.edges
-		  
+        	@nodes = @graph.nodes
+        	@edges = @graph.edges
+
     		  # Make static variables centered
     		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
     		  
@@ -55,11 +55,11 @@ class Mapvisualization #< ActiveRecord::Base
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
     		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
-			  @graph.get_all_pairs_paths_distances
-		  
+			    @graph.get_all_pairs_paths_distances
+
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
-		  
+
     		  # Temporary
     		  @nodes = @graph.nodes
     		  @edges = @graph.edges
@@ -71,36 +71,43 @@ class Mapvisualization #< ActiveRecord::Base
           @notice = BAD_PARAM_ERROR
         end               
 
-      ### TOP 40 ###
-      elsif params[:q] == 'last30'
+  	  ### PATH GENERATION ###
+  	  elsif params[:q] == 'path'
+				# Basic source to destination graph
+    		if params[:from] and params[:to]  
+    			# PLACEHOLDER for format-checking / conversion
+          
+          from_id = params[:from].to_i
+          to_id = params[:to].to_i
 
-    		# Update graph nodes & edges to include most recent 40 nodes	
-    		@graph.get_graph_of_most_recent(limit=30)
-		
-    		# Temporary until full conversion
-    		@nodes = @graph.nodes
-    		@edges = @graph.edges
+    			# Try to find a path between source and destination in graph
+    			path_found = @graph.get_graph_of_path(from_id, to_id)
+    			#@notice = path_found.to_s
 
-    		default_layout
+          puts path_found
 
-      ### TOP RELATIONSHIPS AND THEIR NODES ###
-      elsif params[:q] == 'mostcited' 
-		    @graph.get_graph_of_most_cited(limit=30)
-			# This is a very sparse graph, not recommended for all pairs paths.
+    		  @graph.nodes[from_id].static = 'left'
+    		  @graph.nodes[to_id].static = 'right'
 
-      	# Temporary until full conversion
-    		@nodes = @graph.nodes
-    		@edges = @graph.edges
+    			# Temporary
+    			@nodes = @graph.nodes
+    			@edges = @graph.edges
 
-    		default_layout
+    			#@compact_display = true
+            	#place_randomly		
+    			default_layout
+        else
+          @notice = BAD_PARAM_ERROR
+        end
 
-      elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
+      ### EVERYTHING. DO NOT CALL THIS ###
+      elsif params[:q] == 'allthethings'
     		# Generate a graph of all nodes
     		@graph.get_graph_of_all
 
-			# DO NOT USE THIS METHOD HERE unless you want to cry alone in the night forever
-			# foreverAlone
-			# @graph.get_all_pairs_paths_distances
+  			# DO NOT USE THIS METHOD HERE unless you want to cry alone in the night forever
+  			# foreverAlone
+  			# @graph.get_all_pairs_paths_distances
 
     		# Temporary
     		@nodes = @graph.nodes
@@ -110,30 +117,28 @@ class Mapvisualization #< ActiveRecord::Base
         @compact_display = true
         place_randomly
 
-	  ### PATH GENERATION ###
-	  elsif params[:q] == 'path'
-		
-		# Basic source to destination graph
-		if params[:from] or params[:to]
-			
-			params[:from] = 0 if not params[:from]
-			params[:to] = 0 if not params[:to]
+      ### TOP 40 ###
+      elsif params[:q] == 'last30'
 
-			# PLACEHOLDER for format-checking / conversion
+    		# Update graph nodes & edges to include most recent 40 nodes	
+    		@graph.get_graph_of_most_recent(limit=30)
 
-			# Try to find a path between source and destination in graph
-			path_found = @graph.get_graph_of_path(params[:from].to_i, params[:to].to_i)
-			#@notice = path_found.to_s
+    		# Temporary until full conversion
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
 
-			# Temporary
-			@nodes = @graph.nodes
-			@edges = @graph.edges
-	
-			#@compact_display = true
-        	#place_randomly		
-			default_layout
-			
-		end
+    		default_layout
+
+      ### TOP RELATIONSHIPS AND THEIR NODES ###
+      elsif params[:q] == 'mostcited' 
+  	    @graph.get_graph_of_most_cited(limit=30)
+  		  # This is a very sparse graph, not recommended for all pairs paths.
+
+      	# Temporary until full conversion
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
+
+    		default_layout
 
       ### RANDOM TEST GRAPH ###
       elsif params[:q] == 'test'
@@ -196,7 +201,7 @@ class Mapvisualization #< ActiveRecord::Base
       elsif node.static == 'left'
         node.location = Vector[0,height/2]
       elsif node.static == 'right'
-        node.location = Vector[0,height/2]
+        node.location = Vector[width,height/2]
       elsif node.static == 'top'
         node.location = Vector[width/2,0]
       elsif node.static == 'bottom'
@@ -251,8 +256,8 @@ class Mapvisualization #< ActiveRecord::Base
       circle_nodes_at_point(groups['targ_dec'], Vector[@width,0], radius)
       circle_nodes_at_point(groups['targ_sup'], Vector[@width/2,@height], radius)
             
-      fruchterman_reingold(100) #fast, little bit of layout for now
-      #kamada_kawai
+      #fruchterman_reingold(100) #fast, little bit of layout for now
+      kamada_kawai
       normalize_graph
     else
       @nodes = NO_ITEM_ERROR
@@ -497,8 +502,30 @@ class Mapvisualization #< ActiveRecord::Base
       end
       #puts k.to_s + " "+Time.now.to_s
     end
-    
     puts "(found path distances) @ "+Time.now.to_s
+
+    ## stuff for maybe doing kamada with the current dist functions
+    # distances = @graph.get_all_pairs_paths_distances
+    # #puts distances
+    # k = 1.0 #spring constant
+    # tolerance = 0.001 #epsilon for energy
+    # maxlen = 0
+    # inf = 1.0/0
+    # distances.values.each {|h| h.values.each {|v| maxlen = [maxlen, v].max if v != inf}} #clean this up?
+    # l0 = [width,height].min/maxlen #optimal average length
+    # ideal_length = Hash.new(0)
+    # spring_strength = Hash.new(0)
+    # distances.each do |k1,d|
+    #   d.each do |k2,val|
+    #     if val != inf
+    #       ideal_length[[k1,k2]] = l0*val
+    #       spring_strength[[k1,k2]] = k/(val*val)
+    #     end
+    #   end
+    # end
+    #   
+    # puts maxlen
+    # #puts ideal_length
     
     k = 1.0 #spring constant
     tolerance = 0.001 #epsilon for energy

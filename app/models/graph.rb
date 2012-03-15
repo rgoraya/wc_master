@@ -156,15 +156,15 @@ class Graph
 			edges = Relationship.where("issue_id IN (?) OR cause_id IN (?)", targets, targets).flat_map {|r| [r.issue_id, r.cause_id]}
 			neighbors = edges.uniq.select {|c| !targets.include? c }
 
-			issues = Issue.where("id" => targets)
-			others = Issue.where("id" => neighbors).order("created_at ASC").limit(20)
-
-			update_graph_contents(issues + others)
+			issues = Issue.where("id IN (?) OR id IN (?)", targets, neighbors).order("created_at ASC").limit(20)
+     		issues += Issue.where("id in (?)",targets) ## THIS COULD PROBABLY BE CLEANER
+      
+			update_graph_contents(issues)
 		end
 
 		# Default to no path found
 		# In the future, might want to add another case for "best effort"
-		return 0
+		return 0 # if disconnected
 	end
 
 	def highlight_path_in_graph(src, dest)
@@ -190,12 +190,12 @@ class Graph
 
 		@distances = @pathfinder.compute_all_pairs_paths(connections, vertices)
 
-		@distances.each do |src, dests|
-			dests.each do |k, v|
-				# DEBUG
-				# puts "DISTANCE #{src} to #{k}: #{v}"
-			end 
-		end
+    # @distances.each do |src, dests|
+    #   dests.each do |k, v|
+    #         ### DEBUG
+    #         puts "DISTANCE #{src} to #{k}: #{v}"
+    #   end 
+    # end
 
 		return @distances
 	end
