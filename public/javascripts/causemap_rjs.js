@@ -315,16 +315,19 @@ function drawElements(nodes, edges, paper)
 	}
 }
 
-var MOVE_TIME = 400
-var DISAPPEAR_TIME = 250
-var APPEAR_TIME = 250
-var SEP_TIME = 100
+var MOVE_TIME = 200
+var DISAPPEAR_TIME = 125
+var APPEAR_TIME = 125
+var SEP_TIME = 50
 
 //animate change between old nodes/edges and new nodes/edges
 function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 {
 	paper.clear() //start blank
 	easing = "linear" //either this or backOut look nice IMO
+
+	nodeIcons = {} //reset the lists
+	edgeIcons = {}
 
 	//standard animations
 	var disappear = Raphael.animation({'opacity':0, 'fill-opacity':0}, DISAPPEAR_TIME, 'linear', function(){this.remove()})
@@ -350,13 +353,15 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 			if(!compact){ //not compact so we need to move arrows as well
 				var curve = getPath(toEdge) //get the new curve's path
 
+				oldSymbol = icon.splice(1,3) //get rid of old arrows and dots
+				toAnimate.push({el:oldSymbol, anim:tempVanish})
 				var arrow = drawArrow(toEdge,curve,paper) //just go ahead and redraw the arrow and dots
 				.attr({'opacity':0, 'fill-opacity':0})
 				icon.push(arrow[0],arrow[1])
 				var dots = drawDots(toEdge,curve,paper)
 				.attr({'opacity':0, 'fill-opacity':0})
 				icon.push(dots)
-				
+
 				var curveMovement = Raphael.animation({'path':curve},MOVE_TIME,easing,
 					(function(arrow, dots) { return function() {
 						arrow.attr({'opacity':1, 'fill-opacity':1})
@@ -364,16 +369,13 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 					}; })(arrow, dots)
 				).delay(DISAPPEAR_TIME+SEP_TIME)
 				toAnimate.push({el:icon[0], anim:curveMovement})
-
-				toAnimate.push({el:icon[1], anim:tempVanish})
-				toAnimate.push({el:icon[2], anim:tempVanish})
-				toAnimate.push({el:icon[3], anim:tempVanish})
 			}
 			else{
 				var curveMovement = Raphael.animation({'path':getPath(toEdge)},MOVE_TIME,easing)
 					.delay(DISAPPEAR_TIME+SEP_TIME)
 				toAnimate.push({el:icon, anim:curveMovement})
 			}
+			edgeIcons[toEdge.id] = icon //add to the list no matter what
 		}
 	}
 
@@ -386,6 +388,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 			var icon = drawEdge(toEdge, paper)
 			.attr({'opacity':0, 'fill-opacity':0})
 			toAnimate.push({el:icon, anim:appear})
+			edgeIcons[toEdge.id] = icon //add to the list
+			//console.log("adding",toEdge.name,"to edgeIcons with index",toEdge.id)
 		}
 	}  
 
@@ -395,16 +399,18 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		var fromNode = fromNodes[fromNodes['keys'][i]] //easy access
 		var toNode = toNodes[fromNode['id']] //corresponding toNode (one that has id as key; could also just check if has the same key)
 
-		var icon = drawNode(fromNode, paper)
-
 		if(typeof toNode === 'undefined'){ //if no toNode
+			var icon = drawNode(fromNode, paper)
 			toAnimate.push({el:icon, anim:disappear})
 		}
 		else{
-			fromNode.x = toNode.x; fromNode.y = toNode.y; //change the stored location for future querying (interaction)
+			var icon = drawNode(toNode, paper)
+			.attr({ cx: fromNode.x, cy: fromNode.y, x: fromNode.x, y: fromNode.y+T_OFF }) //put at old position initially
+			// fromNode.x = toNode.x; fromNode.y = toNode.y; //change the stored location for future querying (interaction)
 			var move = Raphael.animation({ cx: toNode.x, cy: toNode.y, x: toNode.x, y: toNode.y+T_OFF }, MOVE_TIME, easing)
 				.delay(DISAPPEAR_TIME+SEP_TIME)
 			toAnimate.push({el:icon, anim:move})
+			nodeIcons[toNode.id] = icon //add to the list
 		}
 	}
 
@@ -415,9 +421,10 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 		var fromNode = fromNodes[toNode['id']] //corresponding fromNode (one that has id as key; could just check if has the same key)
 
 		if(typeof fromNode === 'undefined'){ //if no fromNode
-			var icon = drawNode(toNode, paper)    
+			var icon = drawNode(toNode, paper)
 			.attr({'opacity':0, 'fill-opacity':0})
 			toAnimate.push({el:icon, anim:appear})
+			nodeIcons[toNode.id] = icon //add to the list
 		}
 	}
 	
@@ -429,6 +436,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 	{
 		toAnimate[i].el.animateWith(el0, anim0, toAnimate[i].anim)
 	}
+
+	//console.log(nodeIcons, edgeIcons)
 } //animateNodes
 
 //methods to control dragging
@@ -444,10 +453,10 @@ var dragstart = function (x,y,event)
 		{
 			var edge = currEdges[currEdges['keys'][i]]
 			if(edge.a == now_dragging.node || edge.b == now_dragging.node){
+				// console.log(edge.name, edge.id, edgeIcons[edge.id])
 				dragged_edges.push(edge) //SHOULD THIS BE STORING THE ICONS RATHER THAN THE EDGES?? NO, SINCE WE'LL WANT TO ADJUST
-				edgeIcons[edge.id][1].attr({'opacity':0, 'fill-opacity':0}) //vanish the symbol, since we're not moving it
-				edgeIcons[edge.id][2].attr({'opacity':0, 'fill-opacity':0})
-				edgeIcons[edge.id][3].attr({'opacity':0, 'fill-opacity':0})
+				oldSymbol = edgeIcons[edge.id].splice(1,3) //remove the symbol, since we're not moving it
+				oldSymbol.remove()
 			}
 		}
 	}
