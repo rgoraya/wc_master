@@ -3,7 +3,7 @@
   
 = javascript_include_tag "issue_new.js"  
   
-- content_for(:title, 'Create New Issue')
+- content_for(:title, 'New Relationship')
 %div{:id=>"error_container"}
   %div{:style=>"float:right;width:15px;"}
     %a{:href=>'#', :class=>'closebutton'}
@@ -20,7 +20,7 @@
     %div.white_space
     
     // Thumbcontainer
-    %div.issue_thumbs_container{:style=>"min-height:132px;"}
+    %div.issue_thumbs_container
       %div.add_new_issue_modal
             
         .title_edit
@@ -91,7 +91,7 @@
         %img.none_found_arrow{:src=>'/images/issues/arrow_left.png'}
         Create the first node of the relationship here          
           
-          
+      .clearboth    
           
     .title
       %span#title_holder

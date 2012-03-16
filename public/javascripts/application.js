@@ -174,7 +174,7 @@ $(function() {
   });              
 
 // -------------------------------------------------------------------------------  
-// DO THE ABOVE ON HITTING THE RETURN KEY TOO
+// DO THE ABOVE ON HITTING THE RETURN KEY AND ARROW KEY FUNCTION
 // -------------------------------------------------------------------------------
 
 	window.searchBoxIndex = -1;
@@ -230,13 +230,64 @@ $(function() {
   });
 
 
-
-
-
-
-
-// -------------------------------------------------------------------------------  
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  
 //******************   E N D    O F    D O M    L O A D   ************************
 });
 // *******************************************************************************
-// -------------------------------------------------------------------------------  
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+// S H O W I N G     A N D    H I D I N G    P R O G R E S S    M E S S A G E S 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+
+	function show_progress_message(msg){
+		var spinner_html = '<img src="/images/system/spinnerf6.gif" class="progress_spinner"/>'
+		$("#progress_message").html(spinner_html + msg);
+		$("#progress_container").show();		
+	}
+
+	function hide_progress_message(){
+		$("#progress_message").html('');
+		$("#progress_container").hide();		
+	}
+	
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+// T O O L T I P    D I S P L A Y    A N D    H I D E 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+
+  function showTooltip(tooltip_caller, tooltip_text){
+  	
+  	// Initialize tooltip text
+  	$(".txt-tooltip").html(tooltip_text);
+
+  	// Set CSS width first so that the top and left can be determined
+  	$("#tool_tip").css({
+  		"width" : tooltip_caller.width(),
+	});
+	
+  	// Set CSS properties
+  	$("#tool_tip").css({
+  		"top"   : tooltip_caller.offset().top  - $("#tool_tip").height(), 
+  		"left"  : tooltip_caller.offset().left + parseInt(tooltip_caller.css("padding-left").replace("px", ""))  		
+  	});
+
+  	// Show it	
+  	$("#tool_tip").show();
+
+  }
+
+  function hideTooltip(){
+  	$('.txt-tooltip').empty();
+  	$("#tool_tip").hide();  	
+  }	
+
+

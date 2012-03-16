@@ -1,13 +1,17 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
 
+// The title of this page
 - content_for(:title, @issue.title)
+
 -# specifies the data that we're going to be working with in javascript
 :javascript
   var this_relationship_type = '#{@rel_type}'
+  var issueTitle             = '#{@issue.title.to_s}'
+  var idofthisIssue          = '#{@issue.id}'
+  
+// Include the .js file  
 = javascript_include_tag "issue_show.js"
-
-
  
 #contentwrapper
 
@@ -57,12 +61,10 @@
       %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"discussion_submit", :style=>"float:none;"}
 
 #tool_tip
-  .arrow-tooltip
   .contents-tooltip
-    /.img-tooltip
     .txt-tooltip
-      random text
-      /.clearboth    
+      random text   
+  .arrow-tooltip
       
 #onetouch_image{:style=>"display:none;"}
 #onetouch_text{:style=>"display:none;"}     
