@@ -16,9 +16,12 @@ class User < ActiveRecord::Base
 
   has_many :votes
   # all relationships the user endorses
-  has_many :endorsed_relationships, :through => :votes, :source => :relationship, :conditions => ['vote_type = "E"']
+  has_many :endorsed_relationships,  :through => :votes, :source => :relationship, :conditions => ['vote_type = "E"']
   # all relationships the user contests
   has_many :contested_relationships, :through => :votes, :source => :relationship, :conditions => ['vote_type = "C"']
+  # all relationships the user accuses of being offensive
+  has_many :accused_relationships,   :through => :votes, :source => :relationship, :conditions => ['vote_type = "A"']
+
 
 
   # search functionality
