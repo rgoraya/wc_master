@@ -197,7 +197,7 @@ $(function() {
 
 	window.searchBoxIndex = -1; //this may cause odd behavior with multiple searchboxes
    
-  $(".searchfield_appl").bind("keyup", function(f){
+  $(".searchfield_appl").bind("keydown", function(f){
 	  if (f.keyCode == 13){
 			if (searchBoxIndex < 0){
 				if ($(this).val().trim() != ""){
@@ -205,17 +205,25 @@ $(function() {
 				}
 			}
 			else{
-				window.location = $(this).parents('.search_container_appl').find(".search_result_appl a").eq(searchBoxIndex).attr("href");
-				// form.data = ...
-				// form.submit()
-				return false;
+				var appl = $(this).parents('.search_container_appl')
+				var item = appl.find(".search_result_appl a").eq(searchBoxIndex);
+				//var location = appl.find(".search_result_appl a").eq(searchBoxIndex).attr("href");
+				appl.find('#selected_data').val(item.attr("href"));
+	  		appl.find('.issue_search').empty(); //hide the container for future searches
+				$(this).val(item.attr('name'))
+				// $(this).parent().submit() //why does this not submit data-remote forms??
+				// return false;
+
+				//clear out anything else that we already set??
+
+				// // window.location = $(this).parents('.search_container_appl').find(".search_result_appl a").eq(searchBoxIndex).attr("href");
 			}
   	}
 		else if (f.keyCode == 40){
-			Navigate(1, $(this).parents('.search_container_appl'));
+			Navigate(1, $(this));
 		}
 		else if (f.keyCode == 38){
-			Navigate(-1, $(this).parents('.search_container_appl'));
+			Navigate(-1, $(this));
 		}
   });
   
@@ -231,9 +239,9 @@ $(function() {
   });
 
                    
-  var Navigate = function(diff, container) {
+  var Navigate = function(diff, searcher) {
   	searchBoxIndex += diff;
-  	var oBoxCollection = container.find(".search_result_appl");
+  	var oBoxCollection = searcher.parents('.search_container_appl').find(".search_result_appl");
   	if (searchBoxIndex >= oBoxCollection.length)
 			searchBoxIndex = oBoxCollection.length - 1; //to not wrap
   		// searchBoxIndex = 0;
@@ -241,7 +249,7 @@ $(function() {
 			searchBoxIndex = 0;
   		// searchBoxIndex = oBoxCollection.length - 1;
   	var elem_class = "search_hover";
-  	oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);
+	  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);
   }
 
   $(".search_result_appl").on('mouseover', function(){
