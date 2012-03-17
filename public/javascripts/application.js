@@ -154,7 +154,7 @@ $(function() {
 // -------------------------------------------------------------------------------  
 // STOP PROPOGATION to NOT hide if clicked within the accordions themselves
 // -------------------------------------------------------------------------------  
-  $('.nav_more, .login_main_container, .searchfield_appl, .issue_search').click(function(event){
+  $('.nav_more, .login_main_container, .searchfield_appl').click(function(event){
 		window.searchBoxIndex = -1 //reset the searchBoxIndex no matter what
 	  event.stopPropagation();
   });  

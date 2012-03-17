@@ -7,7 +7,7 @@
 
 /= javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"
 /= javascript_include_tag :defaults #make sure we include the jquery we need, I guess
-= javascript_include_tag :defaults, "jquery_ujs.js"
+/= javascript_include_tag "jquery_ujs.js"
 = javascript_include_tag "jquery.qtip.min.js"
 = javascript_include_tag "raphael-min-2.0.2.js" #for drawing
 
@@ -66,6 +66,8 @@
         / = button_to "Springy Layout", {:action => "index", :layout_cmd => 'springy'}, {:remote => true, :method => :get}
         = button_to "Kamada Layout", {:action => "index", :layout_cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
         / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+        = link_to({:action=>"index", :do=>"goto_issue", :target=>"1"}, {:remote => true, :name => "deforestation"}) do
+          testing
       #interact_form
         = form_tag({:action => "index"}, {:id => "clickForm", :remote => true, :method => :get}) do
           = text_field_tag "do"
