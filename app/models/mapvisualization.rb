@@ -689,13 +689,11 @@ class Mapvisualization #< ActiveRecord::Base
       far_y = nodeset.max_by{|k,n| (n.location[1]-center[1]).abs}[1].location[1] #node with max y
       # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
       #          [center[1]/(far_y-center[1]).abs, 1.0].min]
-      # puts "*** scaling vars ***"
-      # puts far_x,far_y,center
             
-      scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
-               center[1]/(far_y-center[1]).abs]
-      # scale[0] = 1 if scale[0] == 1.0/0 #if we don't need to stretch, then don't!
-      # scale[1] = 1 if scale[1] == 1.0/0
+      scale = [center[0].to_f/(far_x-center[0]).abs, #currently stretches to fill
+               center[1].to_f/(far_y-center[1]).abs]
+      scale[0] = 1 if scale[0] == 1.0/0 #if we don't need to stretch, then don't!
+      scale[1] = 1 if scale[1] == 1.0/0
 
       nodeset.each_value {|n| n.location = Vector[scale[0]*(n.location[0]-center[0])+center[0],       
                                                   scale[1]*(n.location[1]-center[1])+center[1]] if !n.static}

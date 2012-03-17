@@ -1,0 +1,15 @@
+%div.search_content_wrapper
+  
+  - if !@search_results.nil?
+    - @search_results.each do |issue|
+      %div.search_result_appl
+        = link_to("/mapvisualizations?q=show&i=#{issue.id}", {:name => issue.title, :remote => true}) do
+          /%a{:href=>"/mapvisualizations?q=show&i=#{issue.id}", :name => issue.title, :remote => true}
+          %div{:class=>"search_img_box_sqr", :style=>"float:left;background-image:url(#{issue.short_url})"}
+          %div{:style=>"float:left"}
+            %div{:class=>"search_result_title"}
+              = issue.title
+            %div{:class=>"search_result_descr"}
+              = issue.description.html_safe  
+          .clearboth
+        
