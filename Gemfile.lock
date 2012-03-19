@@ -43,17 +43,21 @@ GEM
       rack-test (>= 0.5.4)
       selenium-webdriver (~> 2.0)
       xpath (~> 0.1.4)
+<<<<<<< HEAD
     childprocess (0.3.0)
+=======
+    childprocess (0.3.1)
+>>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
       ffi (~> 1.0.6)
-    cucumber (1.1.4)
+    cucumber (1.1.9)
       builder (>= 2.1.2)
       diff-lcs (>= 1.1.2)
-      gherkin (~> 2.7.1)
+      gherkin (~> 2.9.0)
       json (>= 1.4.6)
       term-ansicolor (>= 1.0.6)
-    cucumber-rails (1.2.1)
+    cucumber-rails (1.3.0)
       capybara (>= 1.1.2)
-      cucumber (>= 1.1.3)
+      cucumber (>= 1.1.8)
       nokogiri (>= 1.5.0)
     database_cleaner (0.7.1)
     diff-lcs (1.1.3)
@@ -62,7 +66,13 @@ GEM
     exception_notification (2.5.2)
       actionmailer (>= 3.0.4)
     ffi (1.0.11)
+<<<<<<< HEAD
     gherkin (2.7.6)
+=======
+    gherkin (2.9.0)
+      json (>= 1.4.6)
+    gherkin (2.9.0-x86-mingw32)
+>>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
       json (>= 1.4.6)
     haml (3.1.4)
     haml-rails (0.3.4)
@@ -85,8 +95,14 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.17.2)
+<<<<<<< HEAD
     multi_json (1.0.4)
     nokogiri (1.5.0)
+=======
+    multi_json (1.1.0)
+    nokogiri (1.5.0)
+    nokogiri (1.5.0-x86-mingw32)
+>>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
     paper_trail (2.5.2)
       rails (~> 3)
     polyglot (0.3.3)
@@ -104,7 +120,7 @@ GEM
       activesupport (= 3.0.7)
       bundler (~> 1.0)
       railties (= 3.0.7)
-    rails3-jquery-autocomplete (1.0.5)
+    rails3-jquery-autocomplete (1.0.6)
       rails (~> 3.0)
     railties (3.0.7)
       actionpack (= 3.0.7)
@@ -126,6 +142,7 @@ GEM
       activesupport (>= 3.0)
       railties (>= 3.0)
       rspec (~> 2.8.0)
+<<<<<<< HEAD
     rubyzip (0.9.5)
     selenium-webdriver (2.18.0)
       childprocess (>= 0.2.5)
@@ -133,6 +150,17 @@ GEM
       multi_json (~> 1.0.4)
       rubyzip
     spork (0.9.0)
+=======
+    rubyzip (0.9.6.1)
+    selenium-webdriver (2.20.0)
+      childprocess (>= 0.2.5)
+      ffi (~> 1.0)
+      multi_json (~> 1.0)
+      rubyzip
+    spork (0.9.0)
+    spork (0.9.0-x86-mingw32)
+      win32-process
+>>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
     sqlite3-ruby (1.3.2)
     term-ansicolor (1.0.7)
     thor (0.14.6)
@@ -141,6 +169,14 @@ GEM
       polyglot (>= 0.3.1)
     tzinfo (0.3.31)
     will_paginate (3.0.pre2)
+    win32-api (1.4.8-x86-mingw32)
+    win32-process (0.6.5)
+      windows-pr (>= 1.1.2)
+    windows-api (0.4.1)
+      win32-api (>= 1.4.5)
+    windows-pr (1.2.1)
+      win32-api (>= 1.4.5)
+      windows-api (>= 0.3.0)
     xpath (0.1.4)
       nokogiri (~> 1.3)
 

@@ -2,20 +2,20 @@
   = stylesheet_link_tag "styles"
 
 %div{:id=>"issues_head"}
-  - if @userissues.count > 0
-    .pageheading{:style=>"float:left; margin:16px 0px 20px -10px;"}
-      %div{:class=>"search_container_appl",}
-        - form_tag user_path, :id=>"search_form", :method => 'get' do               
-          = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Search #{@user.username}'s issues &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl"
-          = submit_tag "", :name => nil, :class=>"search_appl_submit", :title=>"search"
-                  
-
-  %div{:style=>"margin:20px 0px 0px 0px; float:right;"}
-    = will_paginate (@userissues) , :param_name => 'user_page', :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
   
-  %div{:style=>"float:right; margin:23px 15px -22px 0px;", :id=>"issues_wait"}
+  .pageheading{:style=>"float:left; margin:16px 0px 20px -10px;"}
+    %div{:class=>"search_container_appl",}
+      - form_tag user_path, :id=>"search_form", :method => 'get' do               
+        = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Search #{@user.username}'s issues &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl"
+        = submit_tag "", :name => nil, :class=>"search_appl_submit", :title=>"search"
+                  
+/- if @userissues.count > 0
+%div{:style=>"margin:20px 0px 0px 0px; float:right;"}
+  = will_paginate (@userissues) , :param_name => 'user_page', :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
+  
+%div{:style=>"float:right; margin:23px 15px -22px 0px;", :id=>"issues_wait"}
              
-  .clearboth
+.clearboth
 
 - @userissues.each_slice(2)do |slice|
   %div{:class=>"formcontentdiv", :style=>"margin-right:15px;float:left;width:485px;"}
@@ -28,9 +28,9 @@
     
     %div{:style=>"float:right;padding-top:5px;"}
       // Only show Edit and Delete if the Issue belongs to current user
-      /-if current_user
-      /  -if current_user.id == slice[0].user_id    
-      /    = link_to "Delete", slice[0], :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+      -if current_user
+        -if current_user.id == slice[0].user_id  
+          = link_to "Delete", issue_path(slice[0], :called_from=>"userissues"), :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
     
       // author
       - if slice[0].user
@@ -84,9 +84,9 @@
       
       %div{:style=>"float:right;padding-top:5px;"}
         // Only show Edit and Delete if the Issue belongs to current user
-        /-if current_user
-        /  -if current_user.id == slice[1].user_id    
-        /    = link_to "Delete", slice[1], :confirm => "Are you sure you want to delete the issue #{slice[1].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+        -if current_user
+          -if current_user.id == slice[1].user_id    
+            = link_to "Delete", issue_path(slice[1], :called_from=>"userissues"),:confirm => "Are you sure you want to delete the issue #{slice[1].title}", :method => :delete, :remote=>true, :class=>"del-issue"
       
         // author
         - if slice[1].user

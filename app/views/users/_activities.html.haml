@@ -19,8 +19,8 @@
       = time_ago_in_words(@activity[:time]) + ' ago' 
 
     // Score for this activity
-    %div.activity_score
-      = @activity[:score]
+    /%div.activity_score
+    /  = @activity[:score]
       
     // will display icon according to the action.
     %div.activity_icon{:style=>"background-position:#{@activity[:icon_position]}"}

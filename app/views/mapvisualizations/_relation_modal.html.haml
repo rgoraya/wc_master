@@ -1,0 +1,39 @@
+= puts "relation_modal loaded for relation #{relation.id}"
+
+:javascript
+  position_modal(#{location[0]},#{location[1]});
+  $('.modal_linkout').click(function(){ goto('relationship',#{relation.id}); });
+
+#relation_modal
+  -#I would like to be able to just = render "issues/get_relationship_descr", but would need to split that into a partial
+  .rationale_container
+    .relation_descr        
+      .rationale_headers
+        - causal_sentence_internal = (relation.relationship_type.nil? ? 'causes' : (relation.relationship_type == 'I' ? 'reduces' : 'is+a+superset+of'))
+        - causal_sentence_display = (relation.relationship_type.nil? ? 'increases' : (relation.relationship_type == 'I' ? 'decreases' : 'includes'))
+        - permalink = request.protocol + request.host_with_port + "/issues/" + relation.cause.id.to_s + '-' + relation.cause.permalink + '?rel_type=' + causal_sentence_internal + '&rel_id=' + relation.id.to_s
+        = link_to relation.cause.title+" "+causal_sentence_display+" "+relation.issue.title, permalink, :title=>"View this Relationship"
+      .clearboth
+      %p  
+        %b
+          %span#issue_title_dynamic
+            = link_to relation.cause.title + ':', relation.cause, :title=>"View this Issue"
+   
+        %span#issue_descr_dynamic
+          = relation.cause.description.html_safe
+        %img.linkout{:src=>"/images/system/linkout.png"}
+        %a{:href=>relation.cause.wiki_url, :target => "_blank"} more on Wikipedia
+      %p
+        %b
+          %span#issue_title_dynamic
+            = link_to relation.issue.title + ':', relation.issue, :title=>"View this Issue"
+
+        %span#issue_descr_dynamic
+          = relation.issue.description.html_safe
+        %img.linkout{:src=>"/images/system/linkout.png"}
+        %a{:href=>relation.issue.wiki_url, :target => "_blank"} more on Wikipedia
+
+      .clearboth
+      /%a.modal_linkout{:href=>"/mapvisualizations?q=show&r=#{relation.id}", :title => " Go to issue", :style => "margin-top:-28px;margin-right:30px"}
+      .modal_linkout{:title => " Go to issue", :style => "margin-top:-28px;margin-right:30px"}
+      .btn_close{:title => "Close Window", :style => "margin-top:-28px;margin-right:0px"}

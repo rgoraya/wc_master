@@ -1,4 +1,5 @@
 class Comment < ActiveRecord::Base
+
 	
 	belongs_to :user
 	belongs_to :relationship
@@ -8,6 +9,6 @@ class Comment < ActiveRecord::Base
 	validates :relationship_id, :presence => true
     validates_inclusion_of :content_type, :in ['Fixnum'], :message => "Error saving comment"
 
-	has_paper_trail :on=>[:destroy]
+	has_paper_trail :on=>[:create, :destroy]
 
 end

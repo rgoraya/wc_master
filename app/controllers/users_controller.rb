@@ -8,10 +8,10 @@ class UsersController < ApplicationController
   def show
     @user = User.find(params[:id])
 
-    @userissues = @user.issues.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:user_page])
-		
-    @activities = @user.contributions.order('created_at DESC').paginate(:per_page => 10, :page => params[:activity_page])
+    @userissues = @user.issues.search(params[:search].to_s.strip).order("created_at DESC").paginate(:per_page => 20, :page => params[:user_page])
 
+    @activities = @user.contributions.order('created_at DESC').paginate(:per_page => 10, :page => params[:activity_page])
+    
     respond_to do |format|
       format.js {render :layout=>false}
       format.html # index.html.erb

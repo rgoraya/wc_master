@@ -49,13 +49,6 @@ class ReferencesController < ApplicationController
     respond_to do |format|
       if @reference.save
 
-				Reputation::Utils.reputation(:action=>:create, \
-																				:type=>:reference, \
-																				:id=>@reference.id, \
-																				:me=>@reference.user_id, \
-																				:undo=>false, \
-																				:calculate=>true)
-
         format.html { redirect_to(:back, :notice => 'Reference was successfully added.') }
         format.xml  { render :xml => @reference, :status => :created, :location => @reference }
         format.js
@@ -88,14 +81,18 @@ class ReferencesController < ApplicationController
   # DELETE /references/1.xml
   def destroy
     @reference = Reference.find(params[:id])
+    
+    @relationship = Relationship.find(@reference.relationship_id)
+
     @reference.destroy
 
-		Reputation::Utils.reputation(:action=>:create, :type=>:reference, :id=>@reference.id, :me=>current_user.id, :you=>@reference.user_id, :undo=>false, :calculate=>true)
+		#Version.destroy_all(["item_type = ? AND item_id = ?", "Reference", @reference.id])
 
-
+    @refnotice = "Reference Deleted!"
     respond_to do |format|
       format.html { redirect_to(references_url) }
       format.xml  { head :ok }
+      format.js
     end
   end
 end

@@ -1,0 +1,117 @@
+.relationship_vote      
+
+  - if !(current_user.id == @relationship.user_id)
+
+    - if !current_user.endorsed_relationships.include?(@relationship)    
+      // Endorse the validity of a Relationship
+      = form_for Vote.new, :remote => true, :id=>"vote_form" do |f|
+        .field  
+          = f.hidden_field :relationship_id, :value=>@relationship.id
+        .field
+          = f.hidden_field :user_id, :value=>current_user.id
+        .field
+          = f.hidden_field :vote_type, :value=>"E"
+        .actions
+          = f.submit 'Endorse', :class=>"relationship_endorse", :id=>"endorse_collector"
+  
+    - else
+      - @message = "Endorse"
+      - @vote = @relationship.votes.where(:user_id => current_user.id).select('id').first.id
+      // Rollback Endorsement
+      = button_to 'Unendorse', vote_path(@vote), :method => :delete, :remote=>true, :class=>"relationship_endorse"
+  
+    
+    - if !current_user.contested_relationships.include?(@relationship)
+      // Contest the validity of a Relationship
+      = form_for Vote.new, :remote => true, :id=>"vote_form" do |f|
+        .field  
+          = f.hidden_field :relationship_id, :value=>@relationship.id
+        .field
+          = f.hidden_field :user_id, :value=>current_user.id
+        .field
+          = f.hidden_field :vote_type, :value=>"C"
+        .actions
+          = f.submit 'Contest', :class=>"relationship_contest", :id=>"contest_collector"
+      
+    - else
+      - @message = "Contest"
+      - @vote = @relationship.votes.where(:user_id => current_user.id).select('id').first.id
+      // Rollback contestation
+      = button_to 'Uncontest', vote_path(@vote), :method => :delete, :remote=>true, :class=>"relationship_contest"
+      
+    .clearboth
+  
+    - if !current_user.accused_relationships.include?(@relationship)
+      // Contest the validity of a Relationship
+      = form_for Vote.new, :remote => true, :id=>"vote_form" do |f|
+        .field  
+          = f.hidden_field :relationship_id, :value=>@relationship.id
+        .field
+          = f.hidden_field :user_id, :value=>current_user.id
+        .field
+          = f.hidden_field :vote_type, :value=>"A"
+        .actions.discussion_submit
+          = f.submit 'Flag as offensive', :id=>"report_offensive"
+      
+    - else
+      - @message = "Accuse"
+      - @vote = @relationship.votes.where(:user_id => current_user.id).select('id').first.id
+      // Rollback contestation
+      .discussion_submit
+        = button_to 'Unflag as offensive', vote_path(@vote), :method => :delete, :remote=>true, :id=>"report_unoffensive"
+
+  - else 
+    - @message = "Own and Endorse"    
+
+- if !@message.nil?
+  .user_vote_message
+    You
+    %b
+      = @message
+    this relation
+  
+- @totalvotes   = @relationship.endorsements.length + @relationship.contestations.length + @relationship.accusations.length  
+- if @totalvotes > 0
+  - @endorsevotes = @relationship.endorsements.length.to_f
+  - @contestvotes = @relationship.contestations.length.to_f
+  - @accusevotes  = @relationship.accusations.length.to_f
+  - @endorseperc  = (@endorsevotes/@totalvotes)*100
+  - @contestperc  = (@contestvotes/@totalvotes)*100
+  - @accuseperc   = (@accusevotes/@totalvotes)*100
+  
+  .voters
+    .endorseperc{:style=>"width:#{@endorseperc}%;"}
+    .contestperc{:style=>"width:#{@contestperc}%;"}
+    .accuseperc{:style=>"width:#{@accuseperc}%;"}
+    .clearboth
+    = @endorsevotes.to_i
+    endorse this
+    = @contestvotes.to_i
+    contest this
+    = @accusevotes.to_i
+    accuse this
+      
+- if @relationship.endorsements.length > 0
+
+  - @relationship.endorsers.each do |endorser|
+    - @rel_endorser = Digest::MD5.hexdigest(endorser.email).to_s
+    %a.gravatar_vote{:href=>"/users/#{endorser.id}"}
+      %img{:src=> "http://www.gravatar.com/avatar/#{@rel_endorser}?s=26&d=mm", :class=>"gravatar_endorse", :title=>"#{endorser.username}"}
+
+- if @relationship.contestations.length > 0
+   
+  - @relationship.contesters.each do |contester|  
+    - @rel_contester = Digest::MD5.hexdigest(contester.email).to_s
+    %a.gravatar_vote{:href=>"/users/#{contester.id}"}
+      %img{:src=> "http://www.gravatar.com/avatar/#{@rel_contester}?s=26&d=mm", :class=>"gravatar_contest", :title=>"#{contester.username}"}
+
+- if @relationship.accusations.length > 0
+   
+  - @relationship.accusers.each do |accuser|  
+    - @rel_accuser = Digest::MD5.hexdigest(accuser.email).to_s
+    %a.gravatar_vote{:href=>"/users/#{accuser.id}"}
+      %img{:src=> "http://www.gravatar.com/avatar/#{@rel_accuser}?s=26&d=mm", :class=>"gravatar_accuse", :title=>"#{accuser.username}"}
+ 
+ 
+.clearboth
+      

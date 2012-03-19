@@ -1,5 +1,8 @@
 Wikicausality::Application.routes.draw do
+
+
   resources :mapvisualizations
+  resources :paths
   resources :feed_backs
   resources :suggestions
 	resources :feedbacks
@@ -7,7 +10,9 @@ Wikicausality::Application.routes.draw do
   get "suggestions/:id/reject" => "suggestions#reject"
 
   resources :references
-	post "comments" => "comments#create"
+  resources :comments
+  resources :votes
+	#post "comments" => "comments#create"
 
   get "pages/home"
 
@@ -28,9 +33,9 @@ Wikicausality::Application.routes.draw do
   
   
   match 'issues/auto_complete_search' => 'issues#auto_complete_search'
+  match 'issues/get_relationship' => 'issues#get_relationship'
   resources :issues do
-    get  :get_relationship,     :on => :member
-    post :create_reference,     :on => :member
+    post :create_reference, :on => :member
   end
   
   get "issues/:id/versions" => "issues#versions", :as => "issue_versions"

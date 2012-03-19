@@ -1,19 +1,26 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
-
+= javascript_include_tag "order_form.js"
 %div{:id=>"issues_head"}
 
   %div.pageheading
     All issues
+    ="["  + @order_issues +"]" 
+  
+  %div{:style=>"float:left; margin: 19px 16px 13px  0px;", :id=>"order_form"}
+    - form_tag issues_path, :id=>"order_form", :remote => true, :method => 'get' do 
+      = select_tag :order_issues, options_for_select(["Select Order" ,"Latest", "Number of Relationships", "Alphabetical Order"] ), :id=> "order_form_select"
 
   %div{:style=>"margin:10px 0px 20px 0px; float:right;"}
     = will_paginate (@issues),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 
 
   %div{:style=>"float:right; margin:13px 15px -17px 0px;", :id=>"issues_wait"}
+
   
   .clearboth
 
   
+
 
 %div{:style=>"margin-top:0px"}
 - @issues.each_slice(2) do |slice|
@@ -30,9 +37,8 @@
       // Only show Edit and Delete if the Issue belongs to current user or an anonymous user
       -if current_user
         -if current_user.id == slice[0].user_id  
-          = link_to "Delete", slice[0], :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
-      /    /= link_to 'Delete', slice[0], {:action=>"destroy", :method=>:delete, :confirm => "Are you sure you want to delete the issue #{slice[0].title}?", :class=>"del-issue"} , :title=>"Delete this Issue"
-    
+          = link_to "Delete", issue_path(slice[0], :called_from=>"issues"), :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+      
       // author
       - if slice[0].user
         - @hash = Digest::MD5.hexdigest(slice[0].user.email).to_s
@@ -63,11 +69,10 @@
       - @description = slice[0].description
       - if @description.length > 200
         - @description = @description[0, 200] + "..."
-        = @description.html_safe
+        = @description
       - else
-        = @description.html_safe
+        = @description
       %br
-      %img.linkout{:src=>"/images/system/linkout.png"}
       %a{:href=> slice[0].wiki_url, :target=>"_blank"}
         Read more on Wikipedia
     
@@ -84,10 +89,11 @@
   
       
       %div{:style=>"float:right;padding-top:5px;"}
-        // Only show Edit and Delete if the Issue belongs to current user or an anonymous user
+        // Only show Edit and Delete if the Issue belongs to current user
         -if current_user
-          -if current_user.id == slice[1].user_id   
-            = link_to "Delete", slice[1], :confirm => "Are you sure you want to delete the issue #{slice[1].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+          -if current_user.id == slice[1].user_id  
+            = link_to "Delete", issue_path(slice[1], :called_from=>"issues"), :confirm => "Are you sure you want to delete the issue #{slice[1].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+
       
         // author
         - if slice[1].user
@@ -120,11 +126,10 @@
         - @description = slice[1].description
         - if @description.length > 200
           - @description = @description[0, 200] + "..."
-          = @description.html_safe
+          = @description
         - else
-          = @description.html_safe
+          = @description
         %br
-        %img.linkout{:src=>"/images/system/linkout.png"}
         %a{:href=> slice[1].wiki_url, :target=>"_blank"}
           Read more on Wikipedia
       

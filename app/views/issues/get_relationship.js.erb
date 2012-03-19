@@ -1,2 +1,12 @@
 $("#get_relationship").html("<%= escape_javascript(render('get_relationship'))%>")
-//$(".relation_descr, .relation_controls, .rationale_headers").effect("highlight", {color: '#4DB8DB'}, 500);
+$("#progress_partial").html("<%= escape_javascript(render('layouts/progress_partial'))%>")
+$("#title_relationship_ellipsis").hide();
+
+if ($("#title_relationship").text().trim() == "" ){
+	$("#title_causality").html($(".central_causality_container").text().trim());	
+	$("#title_relationship_ellipsis").show();
+}  
+
+// Initialize
+$("#get_rel_sentence_input").val("");
+$("#get_relationship_input").val("");

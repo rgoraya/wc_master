@@ -2,34 +2,10 @@
   %div.issue_thumb_container
       
     %div.main_thumb_title
-      = link_to @issue.title, @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
+      = @issue.title
+      
   
     %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@issue.short_url})"}
-      = link_to "", @issue.wiki_url, :title=>"view this issue on Wikipedia", :target=>"_blank"
-
-    .issue_linkout
-      .btn_image_edit
-     
-  .edit_image_modal
-    .add_new_relation_arrow
-    .image_edit_container_wait
-    .image_edit_container 
-      .image_edit_option#image_edit_option1
-        .checkcontainer
-          .check_empty_edit
-          .check_clicked_edit        
-      .image_edit_option#image_edit_option2
-        .checkcontainer
-          .check_empty_edit
-          .check_clicked_edit        
-      .image_edit_option#image_edit_option3
-        .checkcontainer
-          .check_empty_edit
-          .check_clicked_edit        
-      .clearboth
-      = form_for @issue, :remote=>true do |f|
-        .field
-          = f.hidden_field :short_url, :id=>"frm_img_update"
-        .action
-          = f.submit 'update', :class=>"discussion_submit", :name=>"update_image", :id=>"img_collector", :style=>"float:none; margin-top:5px;"
-          .clearboth
+      
+    %span#issue_id_store
+      = @issue.id  

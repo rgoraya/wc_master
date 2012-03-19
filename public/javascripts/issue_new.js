@@ -47,8 +47,9 @@ $(function() {
 // ------------------------------------------------------------------------------- 
 // F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
 // -------------------------------------------------------------------------------   
-  
-	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
+ 
+	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search='; //opensearch
+	  var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch=';
 	  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
 	  var query;
 	  var arr_length = 0;
@@ -66,7 +67,7 @@ $(function() {
 	  var form_image = '';  
 
 // -------------------------------------------------------------------------------   
-// Monitoring the keyUp action on the query textbox 
+// M O N I T O R I N G    T H E    K E Y U P    O N    S E A R C H F I E L D
 // ------------------------------------------------------------------------------- 
   $('#query').bind('keyup', function(e){
 	  
@@ -83,13 +84,12 @@ $(function() {
 		  //  Initialize the suggestion box with a spinner		
 		  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
 		  //  Talk to mediawiki API to fetch suggestions 
-		  $.getJSON(url+encodeURIComponent(query)+'&callback=?',function(data){
+		  $.getJSON(url_query+encodeURIComponent(query)+'&callback=?',function(data){
 		  	  
 		  	  // Populate Array of search results
-			  search_results = data[1];
-			  //  Limiting the suggestions to a maximum of 5
-			  if (search_results.length <= 4) {
-			  	arr_length = search_results.length - 1;
+			  //  Limiting the suggestions to a maximum of 10
+			  if (data.query.search.length <= 4) {
+			  	arr_length = data.query.search.length - 1;
 			  } else {
 			  	arr_length = 4;
 			  }
@@ -99,7 +99,7 @@ $(function() {
   
 			  //  Loop through first 5 (maximum) suggestions and show 'em
 			  for(var i = 0; i<=arr_length; i++){
-			  	$("#results").append('<div class="suggestion" >'+search_results[i]+'</div>');
+			  	$("#results").append('<div class="suggestion" >'+data.query.search[i].title+'</div>');
   			  }   //  End of for loop
   		  }); //  End of getJSON function
   	   }  //  End of If structure
@@ -125,7 +125,9 @@ $(function() {
 		  $('#form_container').css("display", "none");
 		  // replace HTML of target Div
 		  $('#text_holder ').html('');
-		  $('#text_preview').removeAttr('style'); 
+		  $('#text_preview').removeAttr('style');
+		  $('.relation_descr').removeAttr('style'); 
+		  
 		  // show dummy image for image
 		  $('#image_preview1, #image_preview2, #image_preview3, .check_clicked, .check_empty, .checkmsg').removeAttr('style');
 		  parseJSON();
@@ -137,8 +139,8 @@ $(function() {
 // P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
 // -------------------------------------------------------------------------------
   function parseJSON() {
-	  // initialize spinner
-	  $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
+	  // Show the message
+	  show_progress_message("loading content from Wikipedia")    	
 	  // create the json url
 	  var queryRaw = $("#query").val()
 	  var queryEncoded = encodeURIComponent(queryRaw);
@@ -149,8 +151,8 @@ $(function() {
 	  	// call the getJson function
 	  	getContent(data);    
 	  
-	  	// remove spinner
-	  	$("#wait").empty();
+	  	// remove progress message
+	  	hide_progress_message();
 	  });
 	 }
   
@@ -177,6 +179,7 @@ $(function() {
 			  	$('#text_holder ').html(text_preview);
 			  	$('#text_preview').css({'background-image':'none','height':'auto'});   
 			  	form_descr = $("#text_holder ").html();
+			  	$('.relation_descr').show();
 			  	// show the form 
 			  	$("#form_container").css("display", "block");
 
@@ -211,34 +214,20 @@ $(function() {
 
 
 // -------------------------------------------------------------------------------
-// WHEN THE USER HITS CREATE IN THE CREATE NEW RELATIONSHIP DIALOG:
+// W H E N    T H E    U S E R    H I T S    C R E A T E
 // -------------------------------------------------------------------------------
   $("#val_collector").live('click', function(){
-	  // Call the function to show the spinner and make space if required
-	  //showWait_makeSpace();
+	  
+	  // Show progress message
+	  show_progress_message("creating the first node")
+	  
 	  // Gather the values for the Form submission
 	  valueCollect();
-	  // Initialize the Modal
-	  //initialize_addNew();
+
   	  // S U B M I T    T H E    F O R M
   	  ("form#relationship_form").submit();	  
 	  return false;
   });
-
-// -------------------------------------------------------------------------------
-// Function to show the spinner and make space if required
-// -------------------------------------------------------------------------------
-	function showWait_makeSpace()
-  	{
-	  	// Show The Spinner and Hide the none_found message (if shown)
-		$('.relationship_addnew_wait').show();
-		$('.relationship_none_found').hide();
-		
-		// if more than 5 relationships are displayed then hide the last one to make space!!
-		if ($('.relationship_thumb:visible').length > 5){
-	 		$('.relationship_thumb:visible').last().hide();	
-		}  
-	}
 
 // -------------------------------------------------------------------------------
 // Gather the values for the Form submission
@@ -270,7 +259,7 @@ $(function() {
   }
 
 // -------------------------------------------------------------------------------
-// Extract the background-image url from the DIV
+// E X T R A C T   T H E    B A C K G R O U N D    I M A G E 
 // -------------------------------------------------------------------------------
 	function extractUrl(input)
   		{
@@ -278,24 +267,7 @@ $(function() {
   		}
 
 // -------------------------------------------------------------------------------
-// FUNCTIONS TO INITIALIZE AND TOGGLE ADD_NEW MODAL
-// -------------------------------------------------------------------------------	
-	function close_addNew() {
-	  $("#modal_form").removeAttr('style');			
-	}
-	
-	function initialize_addNew(){
-	  $('#image_preview1, #image_preview2, #image_preview3, .check_clicked, .check_empty, .checkmsg').removeAttr('style');
-	  $('#text_holder ').html('');
-	  $('#title_holder').html('');
-	  $('#text_preview').removeAttr('style');
-	  $("#wait").empty();
-	  $('#form_container').css("display", "none");
-	  $("#query").val(''); 		
-	}
-
-// -------------------------------------------------------------------------------
-// SELECT THE IMAGE FROM THE GOOGLE OPTIONS
+// S E L E C T    T H E    I M A G E    F R O M    G O O G L E    O P T I O N S
 // -------------------------------------------------------------------------------
 	$(".check_empty").click(function(){
 		$('.check_clicked').removeAttr('style');
@@ -303,7 +275,7 @@ $(function() {
 	});
 
 // -------------------------------------------------------------------------------
-// Close suggestions if clicked elsewhere
+// C L O S E    A U T O C O M P L E T E   I F   C L I C K E D    E L S E W H E R E 
 // -------------------------------------------------------------------------------	
   $('#results, #query').hover(function(){ 
 	  mouse_is_inside=true; 

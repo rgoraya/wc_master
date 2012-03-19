@@ -4,7 +4,11 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
 
   #lock
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
   private
 
   def current_user_session

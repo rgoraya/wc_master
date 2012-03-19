@@ -5,85 +5,357 @@ $(function() {
 // STUFF TO BE DONE ON THE INITIAL LOAD OF THE PAGE
 // -------------------------------------------------------------------------------
 	
-	$(".relationship_partial_toggle:contains(" + $(".central_causality_container").text() + ")").filter(function(){
-	    $(this).hide()
-	 })
+	// If the relationship_type is known then add class to the corresponding relationship_partial_toggle
+	if (this_relationship_type){
+		$(".relationship_partial_toggle:contains(" + this_relationship_type + ")").filter(function(){
+		  $(this).addClass("central_causality_container")
+		});		
+	}
 
-	$(".relationship_partial_toggle:not(:contains(" + $(".central_causality_container").text() + "))").filter(function(){
-	    $(this).show()
-	 })
-
+	// Form sentence 
 	if (!$("#title_dynamic_text").text().trim().length) {
 	    $("#title_filler_text").show();}
 
-
+	// Make the correct thumbnail opque
 	if ($("#title_relationship").text().trim().length) {
 		var opaqueDiv = $(".relationship_thumb_title").filter(function() {
 			return $(this).text().trim() == $("#title_relationship").text().trim();
          });
-         
+         // make the rest of the Divs transparent
         $('.relationship_thumb').not(opaqueDiv.parents('.relationship_thumb')).animate({'opacity': '0.3'}); 
-         	
-         
+        // Hide ellipsis
+        $("#title_relationship_ellipsis").hide();         	
 	}
+
+// -------------------------------------------------------------------------------
+// FUNCTION TO GO BACK TO DEFAULT STATE OF SHOW PAGE (ISSUE SPECIFIC INFO)
+// -------------------------------------------------------------------------------
+	$(".issue_thumb_container").live('click', function(){
+		
+		// Set up the values of hidden fields for get_relationship form
+		$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
+		$("#get_rel_sentence_input").val("");
+		$("#get_relationship_input").val("");
+		$("#select_rel_type").val("");
+		
+		// Revert styles (if any) to default 
+		$('.relationship_thumb').removeAttr('style');
+		$(".relationship_thumb_suggestion").removeAttr('style').removeClass('suggestion_selected');	
+		$(".relationship_thumb .issue_linkout").removeAttr('style');
+		
+		// Show progress message
+		show_progress_message('loading')
+		
+		// Submit the form
+		$.get($("#select_rel_form").attr("action"), $("#select_rel_form").serialize(), null, "script");
+
+	})
+	
 	
 // -------------------------------------------------------------------------------
 // FUNCTION TO CYCLE THROUGH THE VARIOUS RELATIONSHIP TYPES BASED ON USER CLLICK 
 // -------------------------------------------------------------------------------
-$(".relationship_partial_toggle").live('click',function(){
+$(".relationship_partial_toggle:not(.central_causality_container)").live('click',function(){
 	
-	// Hide the currently displayed relationships
-	$(".relationship_thumb, .relationship_none_found, #get_relationships, #title_dynamic_text, .rationale_container").hide();
-	// Show spinner
-	$(".relationship_addnew_wait").show();
-
-        	$("#select_rel_type").val($(this).text().trim())
-        	$("#select_rel_submit").trigger('click');
+	// Show message
+	show_progress_message("loading relationships");
+	
+	// Submit the form
+    $("#select_rel_type").val($(this).text().trim());
+    $("#select_rel_submit").trigger('click');
 
 });	
 
 // -------------------------------------------------------------------------------
-// FUNCTIONS TO PAGINATE CAUSES/EFFECTS/INHIBITORS/INHIBITEDS/SUBSETS/SUPERSETS
+// SENTENCE FORMATION ON HOVERING UPON RELATIONSHIP_TYPES
+// -------------------------------------------------------------------------------
+
+$(".relationship_partial_toggle:not(.central_causality_container)").live('mouseover', function(){
+	
+	// Hide Stuff:
+	$("#title_relationship, #title_causality").hide();
+	
+	// Show causality
+    $("#title_causality_hover").html($(this).text().trim())	
+	$("#title_causality_hover, #title_relationship_ellipsis").show();
+});	
+
+$(".relationship_partial_toggle:not(.central_causality_container)").live('mouseout', function(){
+	
+	// show Stuff:
+	$("#title_relationship, #title_causality").show();
+	
+	// hide causality
+    $("#title_causality_hover").html('');
+    $("#title_causality_hover").hide();
+	
+	// hide ellipsis if relationship span has some text
+	if ($("#title_relationship").text().trim() != "" ){
+		$("#title_relationship_ellipsis").hide();	
+	}    
+});	
+
+// -------------------------------------------------------------------------------
+// SENTENCE FORMATION ON HOVERING UPON RELATIONSHIP THUMBNAILS
+// -------------------------------------------------------------------------------
+
+$(".relationship_thumb:not(.selected_relationship_thumb, .selected_suggestion_thumb)").live('mouseover', function(){
+	
+	// Remove other classes 
+	$("#title_causality").removeClass('suggested_causality')
+	// Hide Stuff:
+	$("#title_relationship, #title_relationship_ellipsis").hide();
+	
+	// Show causality
+	$("#title_causality").html($(".central_causality_container").text().trim());
+    $("#title_relationship_hover").html($(this).children(".relationship_thumb_title").text().trim());	
+	$("#title_relationship_hover").show();
+});	
+
+$(".relationship_thumb:not(.selected_relationship_thumb, .selected_suggestion_thumb)").live('mouseout', function(){
+	
+	// Show stuff
+	$("#title_relationship").show();
+	
+	// Show ellipsis only if nothing's there in relationship span
+	if ($("#title_relationship").text().trim() == "" ){
+		$("#title_relationship_ellipsis").show();	
+	}
+	
+	// Hide stuff
+    $("#title_relationship_hover").html('');	
+	$("#title_relationship_hover").hide();
+	
+	// If some suggestion was selected then
+	if ($(".selected_suggestion_thumb")[0]){
+   		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+	}
+	
+});	
+
+// -------------------------------------------------------------------------------
+// SENTENCE FORMATION ON HOVERING UPON SUGGESTION THUMBNAILS
+// -------------------------------------------------------------------------------
+
+$(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseover', function(){
+	
+	// Hide Stuff:
+	$("#title_relationship, #title_relationship_ellipsis, #title_causality").hide();
+	
+	// Show causality
+    $("#title_relationship_hover").html($(this).children(".relationship_suggestion_title").text().trim());	
+	$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+	$("#title_relationship_hover, #title_causality").show();
+});	
+
+$(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function(){
+	
+	// Show stuff
+	$("#title_relationship, #title_causality").show();
+
+	// Show ellipsis only if nothing's there in relationship span
+	if ($("#title_relationship").text().trim() == "" ){
+		$("#title_relationship_ellipsis").show();	
+	}
+
+	// If some suggestion was selected then
+	if ($(".selected_suggestion_thumb")[0]){
+   		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+	} else{
+		$("#title_causality").html($(".central_causality_container").text().trim()).removeClass('suggested_causality');
+	}
+
+	// Hide stuff
+    $("#title_relationship_hover").html('');	
+	$("#title_relationship_hover").hide();
+});	
+
+// -------------------------------------------------------------------------------
+// CREATING SUGGESTION CAUSAL SENTENCE BASED ON CURRENT RELATIONSHIP TYPE
+// -------------------------------------------------------------------------------
+
+  function suggestion_hover_sentence(){
+  	
+  	var current_sentence = $(".central_causality_container").text().trim();
+	var suggestion_sentence = ""
+	
+	switch (current_sentence) { 
+	  case 'is caused by':
+		suggestion_sentence = 'may be caused by';
+	  break;
+	  case 'causes':
+		suggestion_sentence = 'may cause';
+	  break;
+	  case 'is reduced by':
+		suggestion_sentence = 'may be reduced by';
+	  break;
+	  case 'reduces':
+		suggestion_sentence = 'may reduce';
+	  break;
+	  case 'is a superset of':
+		suggestion_sentence = 'may be a superset of';
+	  break;
+	  case 'is a subset of':
+		suggestion_sentence = 'may be a subset of';
+	  break;
+	  }
+	
+	return suggestion_sentence;
+  	 
+  }
+
+// -------------------------------------------------------------------------------
+// FUNCTION TO PAGINATE CAUSES/EFFECTS/INHIBITORS/INHIBITEDS/SUBSETS/SUPERSETS
 // -------------------------------------------------------------------------------	
 
   $("#relation_pagination .pagination a").live("click", function() {
-	$("#relations_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+	show_progress_message("loading")
 	$.getScript(this.href);	
 	return false;
   });
 
+// -------------------------------------------------------------------------------
+// FUNCTIONS TO GET DATA FOR SELECTED RELATIONSHIP
+// -------------------------------------------------------------------------------	
 
-	$(".relationship_thumb_title a, .relationship_thumb_main a").live('click',function(){
-		
-		$(this).parents('.relationship_thumb').animate({'opacity': '1'});
-		$('.relationship_thumb').not($(this).parents('.relationship_thumb')).animate({'opacity': '0.3'});
-					
-		$("#relationship_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
-  		
-  		var relationship_id = $(this).parents('.relationship_thumb').children('.relationship_id_store').html().trim();
-		
-		$("#title_filler_text").hide();
-		
-		close_addNew();
-		$('.del-relation').attr('href', "../relationships/" + relationship_id);
-		
-		$(".relationship_thumb .issue_linkout").removeAttr('style');
-		$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
+$(".relationship_thumb_title a, .relationship_thumb_main a").live('click',function(){
 	
-		return false;
-	});
+	// Make this thumbnail opaque and add a white border
+	var parent_thumb = $(this).parents('.relationship_thumb')
+	// parent_thumb.children(".relationship_thumb_main").addClass("relationship_thumb_selected");
+	parent_thumb.animate({'opacity': '1'});
 	
+	// reduce opacity of the rest of the thumbnails
+	$('.relationship_thumb').not($(this).parents('.relationship_thumb')).animate({'opacity': '0.3'});
+	
+	// Remove any existing stle attributes/backgrounds from the thumbnails
+	$(".relationship_thumb_suggestion").removeAttr('style').removeClass('suggestion_selected');	
+	$(".relationship_thumb").removeClass('selected_relationship_thumb');
+	$(".suggestion_thumb").removeClass('selected_suggestion_thumb');
+	parent_thumb.addClass('selected_relationship_thumb');
+				
+	// show message
+	show_progress_message("loading relationship data");
+	
+	var relationship_id = $(this).parents('.relationship_thumb').children('.relationship_id_store').html().trim();
+	
+	$("#title_filler_text").hide();
+	
+	close_addNew();
+	$('.del-relation').attr('href', "../relationships/" + relationship_id);
+	
+	$(".relationship_thumb .issue_linkout").removeAttr('style');
+	$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
 
+});
+
+// -------------------------------------------------------------------------------
+// DISPLAYING AND HIDING THE MODAL WINDOW FOR ADDING NEW RELATIONSHIPS
+// -------------------------------------------------------------------------------                                                                      
 	$(".relationship_addnew .poplight").live('click',function(){
 		initialize_addNew();
 		$("#modal_form").toggle();		
 	});
 	
-	$('.btn_close, .relationship_partial_toggle').live('click', function(){
+	$('.btn_close, .relationship_partial_toggle, .suggestion_thumb').live('click', function(){
 		close_addNew();
 		$("#modal_form").hide();
 	});
 
+// -------------------------------------------------------------------------------
+// SETTING THE VALUE OF MODAL FORM ACTION AND ISSUE ID WHEN MODAL FORM IS OPENED
+// -------------------------------------------------------------------------------
+
+  $(".poplight").live('click', function(){
+  
+  	var idName = $(this).attr('id');
+	
+	  // Based on the DOM id, set action value and the text placeholder
+	  switch (idName) { 
+	  	case 'add_cause_btn':
+	  		$("#frm_action").val('C');
+	  		$("#query").attr('placeholder', 'Add a Cause of ' + issueTitle)
+	  		break;
+	  	case 'add_effect_btn':
+	  		$("#frm_action").val('E');
+	  		$("#query").attr('placeholder', 'Add an Effect of ' + issueTitle); 
+	  		break;
+	  	case 'add_inhibitor_btn':
+	  		$("#frm_action").val('I');
+	  		$("#query").attr('placeholder', 'Add something that reduces ' + issueTitle); 
+	  		break;
+	  	case 'add_inhibited_btn':
+	  		$("#frm_action").val('R');
+	  		$("#query").attr('placeholder', 'Add something reduced by ' + issueTitle); 
+	  		break;
+	  	case 'add_superset_btn':
+	  		$("#frm_action").val('P');
+	  		$("#query").attr('placeholder', 'Add a Superset of ' + issueTitle);
+	  		break;
+	  	case 'add_subset_btn':
+	  		$("#frm_action").val('S');
+	  		$("#query").attr('placeholder', 'Add a Subset of ' + issueTitle);
+	  		break;
+	  }
+  		
+  	// Set the value of issue ID	
+  	$("#frm_type_id").val(idofthisIssue);
+    
+  });
+
+// -------------------------------------------------------------------------------
+// M O D A L - D I V     S H O W 
+// -------------------------------------------------------------------------------  
+  //When you click on a link with class of poplight and the href starts with a # 
+  $('a.popup[href^=#]').live('click', function() {
+
+	  var popID = $(this).attr('rel'); //Get Popup Name
+	  var popURL = $(this).attr('href'); //Get Popup href to define size
+	
+	  //Pull Query & Variables from href URL
+	  var query= popURL.split('?');
+	  var dim= query[1].split('&');
+	  var popWidth = dim[0].split('=')[1]; //Gets the first query string value
+	
+	  //Fade in the Popup and add close button
+	  $('#' + popID).fadeIn().css({ 'width': Number( popWidth ) }).prepend('<a href="#" class="close"><div class="btn_close" title="Close Window"></div>');
+	
+	  //Define margin for center alignment (vertical   horizontal) - we add 80px to the height/width to accomodate for the padding  and border width defined in the css
+	  var popMargTop = ($('#' + popID).height() + 80) / 2;
+	  var popMargLeft = ($('#' + popID).width() + 80) / 2;
+
+	  //Apply Margin to Popup
+	  $('#' + popID).css({
+	  	'margin-top' : -popMargTop,
+	  	'margin-left' : -popMargLeft
+	  });
+
+	  //Fade in Background
+	  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
+	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies 
+	
+	  return false;
+  });
+
+// -------------------------------------------------------------------------------
+// M O D A L - D I V     H I D E   
+// ------------------------------------------------------------------------------- 
+  //Close Popups and Fade Layer When clicking on the close or fade layer...
+  $('a.close, #fade').live('click', function() {
+  	$('#fade , .popup_block').fadeOut(function() {
+	  	$('#fade, a.close').remove();  //fade them both out
+	  	$('#image_preview1,#image_preview2,#image_preview3').removeAttr('style');
+	  	$('#text_holder ').html('');
+	  	$('#title_holder').html('');
+	  	$('#text_preview').removeAttr('style');
+		$("#wait").empty();
+	  	$('#form_container').css("display", "none");
+	  	$("#query").val(''); 
+	  	$("#confirm_popup").fadeOut('slow');    
+	  	href_carrier = '';
+  	});
+  	return false;
+  });
 
 // -------------------------------------------------------------------------------
 // RELATIONSHIP DELETE FUNCTIONS
@@ -105,10 +377,21 @@ $(".relationship_partial_toggle").live('click',function(){
   
   //});
 
+// -------------------------------------------------------------------------------
+// FUNCTION TO DISPLAY THE CONFIRMATION POPUP
+// -------------------------------------------------------------------------------
+  function showPopup(title, msg) {
+	  $("#confirm_title").html(title);
+	  $("#confirm_msg").html(msg);
+	  $("#confirm_buttons").show();
+	  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
+	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies   
+	  $("#confirm_popup").fadeIn('slow');
+  }
 
 // -------------------------------------------------------------------------------
 // FUNCTION TO DELETE RELATIONSHIP IF YES WAS CLICKED
-// -------------------------------------------------------------------------------	
+// -------------------------------------------------------------------------------
   $("#confirm_yes").live('click', function() {
   	// Show the spinner
   	$("#confirm_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
@@ -145,11 +428,22 @@ $(".relationship_partial_toggle").live('click',function(){
   });
 
 // -------------------------------------------------------------------------------
-// SHOW SPINNER ON REFERENCE FORM SUBMISSION
+// SHOW SPINNER ON REFERENCE FORM and COMMENTS FORM SUBMISSION
 // -------------------------------------------------------------------------------	
-  $('#reference_collector').live('click', function(){
-  	$("#references_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+  $('#reference_collector').live('click', function(e){
+  	if ($("#ref_content_field").val().length == 0)
+  		{e.preventDefault();}
+  	else
+  		{ $("#references_wait").html('<img border="0" src="/images/system/spinnerf6.gif" width="22px"/>');}
   });	
+
+  $('#comment_collector').live('click', function(e){
+	if ($("#com_content_field").val().length == 0)
+  		{e.preventDefault();}
+  	else
+  		{$("#comments_wait").html('<img border="0" src="/images/system/spinnerf6.gif" width="22px"/>');}
+  });
+
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -199,6 +493,7 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------   
   
 	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
+	  var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch=';
 	  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
 	  var query;
 	  var arr_length = 0;
@@ -233,13 +528,11 @@ $(".relationship_partial_toggle").live('click',function(){
 		  //  Initialize the suggestion box with a spinner		
 		  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
 		  //  Talk to mediawiki API to fetch suggestions 
-		  $.getJSON(url+encodeURIComponent(query)+'&callback=?',function(data){
+		  $.getJSON(url_query+encodeURIComponent(query)+'&callback=?',function(data){
 		  	  
-		  	  // Populate Array of search results
-			  search_results = data[1];
-			  //  Limiting the suggestions to a maximum of 5
-			  if (search_results.length <= 4) {
-			  	arr_length = search_results.length - 1;
+			  //  Limiting the suggestions to a maximum of 10
+			  if (data.query.search.length <= 4) {
+			  	arr_length = data.query.search.length - 1;
 			  } else {
 			  	arr_length = 4;
 			  }
@@ -249,7 +542,7 @@ $(".relationship_partial_toggle").live('click',function(){
   
 			  //  Loop through first 5 (maximum) suggestions and show 'em
 			  for(var i = 0; i<=arr_length; i++){
-			  	$("#results").append('<div class="suggestion" >'+search_results[i]+'</div>');
+			  	$("#results").append('<div class="suggestion" >'+data.query.search[i].title+'</div>');
   			  }   //  End of for loop
   		  }); //  End of getJSON function
   	   }  //  End of If structure
@@ -364,30 +657,16 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------
   $("#val_collector").live('click', function(){
 	  // Call the function to show the spinner and make space if required
-	  showWait_makeSpace();
+	  show_progress_message("creating relationship")
 	  // Gather the values for the Form submission
 	  valueCollect();
 	  // Initialize the Modal
 	  initialize_addNew();
+	  close_addNew();
   	  // S U B M I T    T H E    F O R M
   	  ("form#relationship_form").submit();	  
 	  return false;
   });
-
-// -------------------------------------------------------------------------------
-// Function to show the spinner and make space if required
-// -------------------------------------------------------------------------------
-	function showWait_makeSpace()
-  	{
-	  	// Show The Spinner and Hide the none_found message (if shown)
-		$('.relationship_addnew_wait').show();
-		$('.relationship_none_found').hide();
-		
-		// if more than 5 relationships are displayed then hide the last one to make space!!
-		if ($('.relationship_thumb:visible').length > 5){
-	 		$('.relationship_thumb:visible').last().hide();	
-		}  
-	}
 
 // -------------------------------------------------------------------------------
 // Gather the values for the Form submission
@@ -440,7 +719,8 @@ $(".relationship_partial_toggle").live('click',function(){
 	  $('#text_preview').removeAttr('style');
 	  $("#wait").empty();
 	  $('#form_container').css("display", "none");
-	  $("#query").val(''); 		
+	  $("#query").val('');
+	  $("#frm_is_suggestion").val(''); 		
 	}
 
 // -------------------------------------------------------------------------------
@@ -477,25 +757,31 @@ $(".relationship_partial_toggle").live('click',function(){
 // -------------------------------------------------------------------------------
 
 	$('.btn_image_edit').live('click', function(){
+	  // Default inner HTML		
+	  $(this).html('Edit Issue image');	
 	  // Display the Modal for image options
 	  $(".edit_image_modal").toggle();
 	  
 	  // If the form was opened:
 	  if ($(".edit_image_modal").is(":visible")){
 		  // retrieve JSON from google images search and pull the url for first image result
-		  $.getJSON(url_google_img+encodeURIComponent($(".main_thumb_title a").text())+'&callback=?', function(data) {
+		  $.getJSON(url_google_img+encodeURIComponent($(".main_thumb_title").text())+'&callback=?', function(data) {
 			  $.each(data.responseData.results, function(i,item){
 			  	// replace HTML of target Div
 			  	$('#image_edit_option' + (i+1)).css({'background-image': 'url("'+item.tbUrl+'")'});
 			  	$('.check_empty_edit').show();
 			  	if ( i == 2 ) return false;
+			  	  // Show an up arrow	
+				  				  	
 			  	});  
 			  // Select the first image option by default	
 			  $(".image_edit_container_wait").hide();
+			  $('.btn_image_edit').html('Edit Issue image &#9650;');
 			  $(".image_edit_container").show();
 			  $(".check_clicked_edit:first").show();
 			  // Set the background of this first selected as the default value
 			  $("#frm_img_update").val(extractUrl($("#image_edit_option1").css("background-image")))
+
 		  });
 		}
 	});
@@ -511,6 +797,225 @@ $(".relationship_partial_toggle").live('click',function(){
 		$("#frm_img_update").val(extractUrl($(this).parents(".image_edit_option").css("background-image")))
 	});
 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// S U G G E S T I O N S     M E D I A W I K I     D A T A 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+	var queryEncoded_sugg = ""
+	var suggestion_thumb_to_update
+	
+	$(".suggestion_thumb").live('click', function(){
+		// Opacity changes to highlight the one that is clicked
+		$('.relationship_thumb').not($(this)).animate({'opacity': '0.3'});
+		$(this).animate({'opacity': '1'});
+		
+		// Hide Linkout class if shown anywhere 		
+		$(".issue_linkout").removeAttr('style');
+		
+		// Remove any existing stle attributes/backgrounds from the thumbnails
+		$(".relationship_thumb_suggestion").removeAttr('style').removeClass('suggestion_selected');		
+		$(".relationship_thumb").removeClass('selected_relationship_thumb');
+		$(".suggestion_thumb").removeClass('selected_suggestion_thumb');
+		$(this).addClass('selected_suggestion_thumb');
+
+		// initialize the relationship
+		$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
+		// Show the message
+		show_progress_message("loading content from Wikipedia")
+	 	
+	 	// DOM object for the thumbnail that will be updated
+	 	suggestion_thumb_to_update = $(this).children(".relationship_thumb_suggestion")
+	 	
+	 	// Form query
+	 	var queryRaw_sugg = $(this).children(".relationship_suggestion_title").text().trim()
+	    var queryEncoded_sugg = encodeURIComponent(queryRaw_sugg);
+	    var jsonData_sugg = (url_img_name + queryEncoded_sugg + "&callback=?") 		
+		
+		// Call ParseJSON fn
+		parseJSON_sugg(jsonData_sugg);
+	});
+
+// -------------------------------------------------------------------------------
+// P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
+// -------------------------------------------------------------------------------
+  function parseJSON_sugg(jsonData_sugg) {
+	// parse the json
+	  $.getJSON(jsonData_sugg, function (data_sugg) {
+	  	// call the getJson function
+	  	getContent_sugg(data_sugg);
+	  	// remove progress message
+	  	hide_progress_message();
+	  	// trigger the mouseout finction on suggestion_thumb
+	  	$(".suggestion_thumb:not(.selected_suggestion_thumb)").trigger('mouseout');
+	  });
+	 }
+  
+// -------------------------------------------------------------------------------  
+// R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T			
+// -------------------------------------------------------------------------------  		
+  function getContent_sugg(JData_sugg) {
+
+      var Jval_sugg = JData_sugg.parse.text["*"];
+	  	//  populate the description text
+	  	text_preview = $(Jval_sugg.replace(/<p><br \/><\/p>/gi,'')).filter('p:first').text().replace(/\[\d+\]/gi,'');
+	  
+		  //  Throw error if no text was received
+		  if(text_preview == ''){
+		  	text_preview = "No data! Please try a different keyword."
+  
+	  	  //  If the search was successful - 
+	  	} else {
+	  		if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
+	  		
+	  		// Make the Causal sentence 
+	  		$("#title_issue").html($(".main_thumb_title").text().trim());
+	  		// call function to identify what should be the causal sentence?
+	  		write_causal_sentence($(".central_causality_container").text().trim())
+			$("#title_relationship").html(JData_sugg.parse.title); 
+			$("#title_dynamic_text").removeAttr('style');
+		  	
+		  	// Hide the Divs that are not required
+			$(".relation_controls, .relation_discussion").hide();
+			
+			// Show the Divs and replace HTML
+			$("#system_generated").show();
+			$('#relationship_title_dynamic').html(JData_sugg.parse.title + ":");
+			$('.rationale_headers:first').html('Wikipedia Description');
+			$('#relationship_descr_dynamic').html(text_preview);  
+			$('#relationship_linkout_dynamic').html('<img class="linkout" src="/images/system/linkout.png">')
+			var linkSrc = "http://en.wikipedia.org/wiki/" + (JData_sugg.parse.title).split(' ').join('_');
+			$('#relationship_link_dynamic').html('<a href="' + linkSrc + '" target="_blank">more on Wikipedia</a>');
+			  	
+			// find the image from Json
+			img_src = $(Jval_sugg).find('img.thumbimage').attr('src');  
+			
+			// if image not found from wikipedia, get it from google
+			if (img_src == null){
+					
+				  var google_imgquery = encodeURIComponent(JData_sugg.parse.title)
+				  // retrieve JSON from google images search and pull the url for first image result
+				  $.getJSON(url_google_img + google_imgquery + '&callback=?', function(data_sugg) {
+					  $.each(data_sugg.responseData.results, function(i,item){
+					  	// replace HTML of target Div
+					  	suggestion_thumb_to_update.css({'background-image': 'url("'+item.tbUrl+'")'}).addClass('suggestion_selected');
+					  	if ( i == 1 ) return false;
+					  	});  
+					 // Show the accept or reject buttons once images are loaded
+					 suggestion_thumb_to_update.siblings(".issue_linkout").fadeIn(); 	
+				  });
+  
+			  	// if the image was found from WIKIPEDIA itself, then just go ahead and use that.
+			  	} else {
+				  // replace HTML of target Div 
+				  suggestion_thumb_to_update.css({'background-image': 'url("'+img_src+'")'}).addClass('suggestion_selected');
+				 // Show the accept or reject buttons once images are loaded
+				 suggestion_thumb_to_update.siblings(".issue_linkout").fadeIn();  
+  				
+  				}  // END of If structure (checking for Image Success from Wikipedia)	  
+  			}  // END of If structure (checking for Text Success from Wikipedia)
+  }  // END of function
+
+
+
+	function write_causal_sentence(current_sentence){
+
+	switch (current_sentence) { 
+	  case 'is caused by':
+		$("#title_causality").html('may be caused by')
+		$("#frm_action").val('C')
+	  break;
+	  case 'causes':
+		$("#title_causality").html('may cause')
+	  	$("#frm_action").val('E')
+	  break;
+	  case 'is reduced by':
+		$("#title_causality").html('may be reduced by')
+		$("#frm_action").val('I')
+	  break;
+	  case 'reduces':
+		$("#title_causality").html('may reduce')
+		$("#frm_action").val('R')
+	  break;
+	  case 'is a superset of':
+		$("#title_causality").html('may be a superset of')
+		$("#frm_action").val('S')
+	  break;
+	  case 'is a subset of':
+		$("#title_causality").html('may be a subset of')
+		$("#frm_action").val('P')
+	  break;
+	  }
+		
+		$("#title_causality").addClass('suggested_causality')
+		
+	}
+
+// -------------------------------------------------------------------------------
+// ACCEPT SUGGESTION
+// -------------------------------------------------------------------------------
+	$(".suggestion_accept").live('click', function(){
+	  	// Call the function to show the spinner and make space if required
+	  	show_progress_message("confirming suggestion as accepted")
+		// collect the form values
+		sugg_valueCollect();
+		// Submit the form
+		$.post($("#new_issue").attr("action"), $("#new_issue").serialize(), null, "script");
+
+		return false;
+	});
+
+	function sugg_valueCollect(){
+		// 1.   I M A G E   U R L
+	  	$("#frm_img_url").val(extractUrl(suggestion_thumb_to_update.css("background-image")));
+	  	// 2.   W I K I P E D I A    U R L
+	  	$("#frm_wiki_url").val($("#relationship_link_dynamic a").attr('href')); 
+	  	// 3.   W I K I P E D I A    D E S C R I P T I O N 
+	  	$("#frm_descr").val($("#relationship_descr_dynamic").text().trim());
+	  	// 4.   W I K I P E D I A    T I T L E 
+	  	var title_raw    = $("#relationship_title_dynamic").text().trim()
+	  	var title_sliced = title_raw.substring(0, title_raw.length - 1)
+		$("#frm_title").val(title_sliced);
+		// 5.   C A U S A L I T Y    T Y P E
+		// ALREADY POPULATED ABOVE
+		// 6.   I S S U E    I D
+		$("#frm_type_id").val($("#issue_id_store").text().trim());
+		// P A S S    S U G G E S T I O N    I D    P A R A M
+		$("#frm_is_suggestion").val(suggestion_thumb_to_update.siblings(".suggestion_id_store").text().trim())
+	
+	}
+	
+// -------------------------------------------------------------------------------
+// RETURN FALSE ON CLICK OF REJECT SUGGESTION
+// -------------------------------------------------------------------------------
+	$(".suggestion_reject a").live('click', function(){
+	  	// Call the function to show the spinner and make space if required
+	  	show_progress_message("removing suggestion")		
+		return false;
+	})
+
+// -------------------------------------------------------------------------------
+// FUNCTIONS FOR CALLING VARIOUS TOOLTIPS
+// -------------------------------------------------------------------------------
+
+  var tooltipMsg = {
+	   'rel_thumb': 'Expand this relationship',
+	   'sug_thumb': 'See what Wikipedia says',
+	   'iss_thumb': 'About this issue'
+  };
+
+  // TOOL-TIP FOR SUGGESTION THUMBNAILS
+  $(".issue_thumb_container").live('mouseover', function(){
+	  tooltip_caller = $(this);
+	  tooltip_text   = tooltipMsg.iss_thumb;
+	  showTooltip(tooltip_caller, tooltip_text);
+  });
+
+  $(".issue_thumb_container").live("mouseleave", function(){
+	  hideTooltip();
+  });
+
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  
@@ -519,109 +1024,3 @@ $(".relationship_partial_toggle").live('click',function(){
 // *******************************************************************************
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
-
-  // I N I T I A L    F O R M A T T I N G / P R O C E S S I N G
-  
-  /* (0.) Align the blobs and arrows Correctly based on height of the Issueblock
-  $('img.wikiimage').ready(function(){
-  var block_height = $('.issueblock').height();
-  var arrow_height = $('.arrow-carrier-right').height();
-  var blob_height  = $('.blob-carrier').height();
-  var right_height = $('.arrow-leftward').height();
-  
-  var arrow_marg_top = (block_height - arrow_height)/2
-  var blob_marg_top  = (block_height - blob_height - 42)/2
-  var right_marg_top = (block_height - right_height - 40)/2 
-  
-  $('.arrow-carrier-right, .arrow-carrier-left').animate({'margin-top': arrow_marg_top});
-  $('.blob-carrier').animate({'margin-top': blob_marg_top});
-  $('.arrow-leftward').animate({'margin-top': right_marg_top});
-  /$(".blue_banner").effect("highlight", {color: '#4DB8DB'}, 1000);
-  
-  // Ensure that the height of Map remains same as the rest of the content
-  var mapcontainer_height = $('.wikicontent').height();
-  $('#map_canvas').css({'height': mapcontainer_height});
-  });
-  // (3.) Show or Hide the Suggestion Scroll buttons if required
-
-  if ($(".cause_carousel").height() > 30){
-  $(".cause_scroller").css({display : 'inline'});
-  }
-
-  if ($(".effect_carousel").height() > 30){
-  $(".effect_scroller").css({display : 'inline'});
-  }
-
-  if ($(".inhibitor_carousel").height() > 30){
-  $(".inhibitor_scroller").css({display : 'inline'});
-  }
-  
-  if ($(".inhibited_carousel").height() > 30){
-  $(".inhibited_scroller").css({display : 'inline'});
-  }
-    
-
-  // (4.) Show or Hide the Accepted Scroll buttons if required
-  if ($(".accepted_causes").height() > 64){
-  $(".cause_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_effects").height() > 64){
-  $(".effect_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_inhibitors").height() > 64){
-  $(".inhibitor_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_inhibited").height() > 64){
-  $(".inhibited_scroll").css({display : 'block'});
-  }  
-  // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
-
-  // Animates the dimensional changes resulting from altering element contents
-  // Usage examples: 
-  //    $("#myElement").showHtml("new HTML contents");
-  //    $("div").showHtml("new HTML contents", 400);
-  //    $(".className").showHtml("new HTML contents", 400, 
-  //                    function() {/* on completion *//*});
-  (function($)
-  {
-  $.fn.showHtml = function(html, speed, callback)
-  {
-  return this.each(function()
-  {
-  // The element to be modified
-  var el = $(this);
-
-  // Preserve the original values of width and height - they'll need 
-  // to be modified during the animation, but can be restored once
-  // the animation has completed.
-  var finish = {width: this.style.width, height: this.style.height};
-
-  // The original width and height represented as pixel values.
-  // These will only be the same as `finish` if this element had its
-  // dimensions specified explicitly and in pixels. Of course, if that 
-  // was done then this entire routine is pointless, as the dimensions 
-  // won't change when the content is changed.
-  var cur = {width: el.width()+'px', height: el.height()+'px'};
-
-  // Modify the element's contents. Element will resize.
-  el.html(html);
-
-  // Capture the final dimensions of the element 
-  // (with initial style settings still in effect)
-  var next = {width: el.width()+'px', height: el.height()+'px'};
-
-  el .css(cur) 
-  el .animate(next, speed, function()  // animate to final dimensions
-  {
-  el.css(finish); // restore initial style settings
-  if ( $.isFunction(callback) ) callback();
-  });
-  });
-  };
-  })(jQuery);  
-  
-  */

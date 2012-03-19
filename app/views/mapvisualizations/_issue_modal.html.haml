@@ -1,0 +1,62 @@
+= puts "issue_modal loaded for #{issue.title}"
+
+:javascript
+  position_modal(#{location[0]},#{location[1]});
+  $('.modal_linkout').click(function(){ goto('issue',#{issue.id}); });
+
+#issue_modal
+  //Content copied from _issues.html. This could basically be a separate partial, no problem
+  .formcontentdiv
+
+    %div.formheading{:style=>"float:left;"}
+      
+      // Div containing the title and author
+      = link_to issue.title, issue, :title=>"View this Issue"
+
+    
+    %div{:style=>"float:right;padding-top:5px"}
+      // Only show Edit and Delete if the Issue belongs to current user or an anonymous user
+      -if current_user
+        -if current_user.id == issue.user_id  
+          = link_to 'Delete', issue, "data-confirm" => "Are you sure you want to delete the issue #{issue.title}?", "data-title" => "Delete Issue", :method => :delete, :class=>"del-issue", :title=>"Delete this Issue"
+    
+      // author
+      - if issue.user
+        - @hash = Digest::MD5.hexdigest(issue.user.email).to_s
+        %a{:href=>"/users/#{issue.user.id}", :style=>"text-decoration:none;", :title=>"view issues by this author"}
+          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
+        %a{:href=>"/users/#{issue.user.id}", :class=>"issue-user", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view issues by this author"}>= issue.user.username
+      - else
+        %img{:src=> "http://www.gravatar.com/avatar/?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
+        %span{:class=>"issue-user", :style=>"padding-left:0px; margin-left:0px; background-image:none;"}
+          Anonymous
+
+        // created at
+      %span{:class=>"date_time"}
+      
+        =  time_ago_in_words(issue.created_at) + ' ago'         
+    
+    .clearboth
+
+    // Image
+    // The corresponding image is set as background of the container div (to attain vertical centering)
+    // The link inside the div is 100% high so that it remains clickable. Pheww!  
+    %div{:class=>"index_img_box_sqr", :style=>"float:left;background-image:url(#{issue.short_url})"}
+      = link_to "", issue, :title=>"View this Issue"
+    
+  
+    // Text
+    %div{:style=>"margin-right:15px"}
+      - @description = issue.description
+      - if @description.length > 200
+        - @description = @description[0, 200] + "..."
+        = @description
+      - else
+        = @description
+      %br
+      %a{:href=> issue.wiki_url, :target=>"_blank"} Read more on Wikipedia      
+    .clearboth
+    /%a.modal_linkout{:href=>"/mapvisualizations?q=show&i=#{issue.id}", :title => " Go to issue", :style => "margin-top:-28px;margin-right:30px"}
+    .modal_linkout{:title => " Go to issue", :style => "margin-top:-28px;margin-right:30px"}
+    .btn_close{:title => "Close Window", :style => "margin-top:-28px;margin-right:0px"}
+    

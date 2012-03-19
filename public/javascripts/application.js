@@ -20,12 +20,14 @@ $(function() {
   if ($.trim($('#notice').text()) != "") {
   	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
   	$('#notice').show;
-  }
-  
+
 	setTimeout(function() {
 	    $('#notice_container').fadeOut('slow');
 	    $('#notice').empty();	
 	}, 3000);
+
+  }
+  
 
 // -------------------------------------------------------------------------------
 // PAGINATION FUNCTIONS FOR ISSUE INDEX AND USER PAGE (DROPPING THEM 
@@ -66,14 +68,16 @@ $(function() {
 
 	
   $("#issue_search_form input").bind('keyup', function(e) { 
-    var ignore_keys_array = [18,20,17,40,35,13,27,36,45,37,93,91,34,33,39,16,9,38];
-    if ($.inArray(e.keyCode, ignore_keys_array) == -1)
-		$('#issue_search').html('');
-		searchDelay(function(){
-    		$('#issue_search').html('<div class="search_result_wait"></div>');    		
-    		$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
-		}, 500);     
-    
+    var ignore_keys_array = [18,20,17,35,13,27,36,45,37,93,91,34,33,39,16,9,40,38];
+    if ($.inArray(e.keyCode, ignore_keys_array) == -1 && $('#search_visible_input').val().trim() != ""){
+			$('#issue_search').html('');
+			searchDelay(function(){
+				if ($('#search_visible_input').val().trim() != ""){
+    				$('#issue_search').html('<div class="search_result_wait"></div>');    		
+    				$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
+				}
+			}, 500);
+		}     
   });
 
 // -------------------------------------------------------------------------------
@@ -163,33 +167,127 @@ $(function() {
 // COPY VALUE OF SEARCH BOX AND SUBMIT (HIDDEN) SEARCH FORM
 // -------------------------------------------------------------------------------  
   $("#search_submit_btn").click(function(){
-	$('#search_invisible_input').val($('#search_visible_input').val())
-  	$('#search_form').submit();
+		if ($('#search_visible_input').val().trim() != ""){
+			//$('#search_invisible_input').val($('#search_visible_input').val().trim())
+  			$('#issue_search_form').submit();
+		}
   });              
 
 // -------------------------------------------------------------------------------  
-// DO THE ABOVE ON HITTING THE RETURN KEY TOO
-// -------------------------------------------------------------------------------  
+// DO THE ABOVE ON HITTING THE RETURN KEY AND ARROW KEY FUNCTION
+// -------------------------------------------------------------------------------
+
+	window.searchBoxIndex = -1;
+  
   $("#search_visible_input").bind("keyup", function(f){
 	  if (f.keyCode == 13){
-		  $('#search_invisible_input').val($('#search_visible_input').val())
-		  $('#search_form').submit(); 
-  		}
+			if (searchBoxIndex < 0){
+				if ($('#search_visible_input').val().trim() != ""){
+		  			//$('#search_invisible_input').val($('#search_visible_input').val().trim())
+		  			$('#issue_search_form').submit();
+				}
+			}
+			else{
+				window.location = $(".search_result_appl a").eq(searchBoxIndex).attr("href");
+				return false;
+			}
+  	}
+		else if (f.keyCode == 40){
+			Navigate(1);
+		}
+		else if (f.keyCode == 38){
+			Navigate(-1);
+		}
   });
   
 // -------------------------------------------------------------------------------    
 // SHOW HIDE SEARCH RESULTS BOX
 // -------------------------------------------------------------------------------  
   $("#search_visible_input").bind("keyup", function(){ 
-	if ($(this).val() == "")
-  		$("#issue_search").hide();
+	if ($(this).val().trim() == "")
+  		$("#issue_search").empty();
   	else
   		$("#issue_search").show();
   });
 
+                   
+  var Navigate = function(diff) {
+  	searchBoxIndex += diff;
+  	var oBoxCollection = $(".search_result_appl");
+  	if (searchBoxIndex >= oBoxCollection.length)
+  		searchBoxIndex = 0;
+  	if (searchBoxIndex < 0)
+  		searchBoxIndex = oBoxCollection.length - 1;
+  	var elem_class = "search_hover";
+  	oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);
+  }
 
-// -------------------------------------------------------------------------------  
+  $(".search_result_appl").live('mouseover', function(){
+	  searchBoxIndex = $(this).index();
+	  var elem_class = "search_hover";
+	  var oBoxCollection = $(".search_result_appl");
+	  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);  
+  });
+
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  
 //******************   E N D    O F    D O M    L O A D   ************************
 });
 // *******************************************************************************
-// -------------------------------------------------------------------------------  
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+
+
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+// S H O W I N G     A N D    H I D I N G    P R O G R E S S    M E S S A G E S 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+
+	function show_progress_message(msg){
+		var spinner_html = '<img src="/images/system/spinnerf6.gif" class="progress_spinner"/>'
+		$("#progress_message").html(spinner_html + msg);
+		$("#progress_container").show();		
+	}
+
+	function hide_progress_message(){
+		$("#progress_message").html('');
+		$("#progress_container").hide();		
+	}
+	
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+// T O O L T I P    D I S P L A Y    A N D    H I D E 
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
+// ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
+
+  function showTooltip(tooltip_caller, tooltip_text){
+  	
+  	// Initialize tooltip text
+  	$(".txt-tooltip").html(tooltip_text);
+
+  	// Set CSS width first so that the top and left can be determined
+  	$("#tool_tip").css({
+  		"width" : tooltip_caller.width(),
+	});
+	
+  	// Set CSS properties
+  	$("#tool_tip").css({
+  		"top"   : tooltip_caller.offset().top  - $("#tool_tip").height(), 
+  		"left"  : tooltip_caller.offset().left + parseInt(tooltip_caller.css("padding-left").replace("px", ""))  		
+  	});
+
+  	// Show it	
+  	$("#tool_tip").show();
+
+  }
+
+  function hideTooltip(){
+  	$('.txt-tooltip').empty();
+  	$("#tool_tip").hide();  	
+  }	
+
+
