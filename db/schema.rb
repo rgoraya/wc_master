@@ -10,11 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(:version => 20120213002708) do
-=======
-ActiveRecord::Schema.define(:version => 20120312231615) do
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
+ActiveRecord::Schema.define(:version => 20120315214008) do
 
   create_table "comments", :force => true do |t|
     t.string   "content"
@@ -43,10 +39,7 @@ ActiveRecord::Schema.define(:version => 20120312231615) do
     t.datetime "updated_at"
     t.string   "permalink"
     t.integer  "user_id"
-<<<<<<< HEAD
-=======
     t.integer  "relationships_count"
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
   end
 
   create_table "mapvisualizations", :force => true do |t|
@@ -61,10 +54,7 @@ ActiveRecord::Schema.define(:version => 20120312231615) do
     t.string   "reference_content"
     t.datetime "created_at"
     t.datetime "updated_at"
-<<<<<<< HEAD
-=======
     t.integer  "user_id"
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
   end
 
   create_table "relationships", :force => true do |t|
@@ -74,10 +64,7 @@ ActiveRecord::Schema.define(:version => 20120312231615) do
     t.datetime "updated_at"
     t.string   "relationship_type"
     t.integer  "references_count",  :default => 0
-<<<<<<< HEAD
-=======
     t.integer  "user_id"
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
   end
 
   add_index "relationships", ["cause_id"], :name => "index_relationships_on_cause_id"
@@ -128,9 +115,6 @@ ActiveRecord::Schema.define(:version => 20120312231615) do
   add_index "versions", ["item_type", "item_id"], :name => "index_versions_on_item_type_and_item_id"
   add_index "versions", ["whodunnit"], :name => "index_versions_on_whodunnit"
 
-<<<<<<< HEAD
-end
-=======
   create_table "votes", :force => true do |t|
     t.string   "user_id"
     t.string   "relationship_id"
@@ -140,4 +124,3 @@ end
   end
 
 end
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1

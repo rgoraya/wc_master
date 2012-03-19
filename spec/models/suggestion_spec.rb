@@ -27,7 +27,7 @@ describe Suggestion do
     @suggestion.should_not be_valid
     @suggestion.wiki_url = 'hfasal/ashla.com'
     @suggestion.should_not be_valid 
-    @suggestion.wiki_url = 'http://en.wikipedia.org'
+    @suggestion.wiki_url = 'http://en.wikipedia.org/wiki/Solar_cell'
     @suggestion.should be_valid          
     
   end               
@@ -36,5 +36,10 @@ describe Suggestion do
     @suggestion.causality = ''
     @suggestion.should_not be_valid
   end                    
+
+  it 'should not be valid if wrong causality' do
+    @suggestion.causality = 'asdjlkaX'
+    @suggestion.should_not be_valid
+  end                               
 
 end 

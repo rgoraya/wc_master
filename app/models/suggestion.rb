@@ -2,19 +2,10 @@ class Suggestion < ActiveRecord::Base
 
   has_paper_trail :on=>[:update], :only=>[:status] 
 
-  validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" (wikipedia URL) provided was already used to create an existing Issue."
-  validates_uniqueness_of :wiki_url, :case_sensitive => false, :message=>" duplicated."
-
-  validates :title, :presence => true 
-  validates :wiki_url, :presence => true
-  validates :causality, :presence => true
-  validates :status, :presence => true
-  validates_url_format_of :wiki_url,
-                          :allow_nil => true,
-                          :message => ' is not a valid URL'
-  
-
   belongs_to :issue
+  validates_presence_of  :title
+  validates_format_of :causality, :with => /\A[a-zA-Z]\z/
+  validates_format_of :wiki_url, :with => URI::regexp(%w(http https))
 
   KEYWORDS = {  #should be filled with several keywords related to each of the types
     :C => ['cause', 'proposed'],
@@ -84,7 +75,7 @@ class Suggestion < ActiveRecord::Base
     @current_suggested['supersets']  = this_issue.suggestions.where(:causality => 'P').collect{|x| x.wiki_url}
     @current_suggested['inhibited']  = this_issue.suggestions.where(:causality => 'R').collect{|x| x.wiki_url}
     @current_suggested['subsets']    = this_issue.suggestions.where(:causality => 'S').collect{|x| x.wiki_url}
-    {:title=>"Renewable energy", :wiki_url=>"http://en.wikipedia.org/wiki/Renewable_energy", :causality=>"P", :issue_id=>3, :status=>"N"}  end                    
+  end                    
 
   def retrieve_accepted_relations_for_issue(this_issue)
     @accepted['causes']     = this_issue.causes.collect{|x| x.wiki_url}
@@ -104,8 +95,6 @@ class Suggestion < ActiveRecord::Base
 
   def search_word(keyword, relation_type, issue_id)
     relation_occurrences = [ ]
-<<<<<<< HEAD
-=======
 
     @suggestions_counter = 0
 
@@ -114,15 +103,11 @@ class Suggestion < ActiveRecord::Base
     relation_suggestion_title          = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
     occurrence                         = create_relation_occurrence(relation_suggestion_title, relation_suggestion_url, relation_type, issue_id)
     @suggestions_counter += 1
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
 
-    @buffer.search(%Q{//p[text()*= "#{keyword}'"]/a}).each do |relation|
-      relation_suggestion_url            = "http://en.wikipedia.org#{relation.attributes['href']}"
-      relation_suggestion_title          = URI.unescape(relation.attributes['href'].gsub("_" , " ").gsub(/[\w\W]*\/wiki\//, ""))
-      occurrence                         = create_relation_occurrence(relation_suggestion_title, relation_suggestion_url, relation_type, issue_id)
+    relation_occurrences << occurrence
+    end end
 
-      relation_occurrences << occurrence
-    end 
+    @suggestions_counter = 0
 
     relation_occurrences
   end  
@@ -137,11 +122,11 @@ class Suggestion < ActiveRecord::Base
         :causality => relation_type,
         :issue_id  => issue_id
       }
-
+      
       @accepted[causality_type].include?(relation_suggestion_url) ? occurrence[:status] = 'A' : occurrence[:status] = 'N'
     end
 
-
+   
     occurrence
   end                               
 

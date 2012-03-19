@@ -1,7 +1,6 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    ZenTest (4.6.2)
     abstract (1.0.0)
     actionmailer (3.0.7)
       actionpack (= 3.0.7)
@@ -35,6 +34,7 @@ GEM
       activerecord (>= 3.0.7)
     backports (2.3.0)
     bcrypt-ruby (3.0.1)
+    bcrypt-ruby (3.0.1-x86-mingw32)
     builder (2.1.2)
     capybara (1.1.2)
       mime-types (>= 1.16)
@@ -43,11 +43,7 @@ GEM
       rack-test (>= 0.5.4)
       selenium-webdriver (~> 2.0)
       xpath (~> 0.1.4)
-<<<<<<< HEAD
-    childprocess (0.3.0)
-=======
     childprocess (0.3.1)
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
       ffi (~> 1.0.6)
     cucumber (1.1.9)
       builder (>= 2.1.2)
@@ -66,13 +62,9 @@ GEM
     exception_notification (2.5.2)
       actionmailer (>= 3.0.4)
     ffi (1.0.11)
-<<<<<<< HEAD
-    gherkin (2.7.6)
-=======
     gherkin (2.9.0)
       json (>= 1.4.6)
     gherkin (2.9.0-x86-mingw32)
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
       json (>= 1.4.6)
     haml (3.1.4)
     haml-rails (0.3.4)
@@ -95,14 +87,9 @@ GEM
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
     mime-types (1.17.2)
-<<<<<<< HEAD
-    multi_json (1.0.4)
-    nokogiri (1.5.0)
-=======
     multi_json (1.1.0)
     nokogiri (1.5.0)
     nokogiri (1.5.0-x86-mingw32)
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
     paper_trail (2.5.2)
       rails (~> 3)
     polyglot (0.3.3)
@@ -142,15 +129,6 @@ GEM
       activesupport (>= 3.0)
       railties (>= 3.0)
       rspec (~> 2.8.0)
-<<<<<<< HEAD
-    rubyzip (0.9.5)
-    selenium-webdriver (2.18.0)
-      childprocess (>= 0.2.5)
-      ffi (~> 1.0.9)
-      multi_json (~> 1.0.4)
-      rubyzip
-    spork (0.9.0)
-=======
     rubyzip (0.9.6.1)
     selenium-webdriver (2.20.0)
       childprocess (>= 0.2.5)
@@ -160,8 +138,8 @@ GEM
     spork (0.9.0)
     spork (0.9.0-x86-mingw32)
       win32-process
->>>>>>> 111a26f5851908ef98c7c363499fb664b1bdadb1
     sqlite3-ruby (1.3.2)
+    sqlite3-ruby (1.3.2-x86-mingw32)
     term-ansicolor (1.0.7)
     thor (0.14.6)
     treetop (1.4.10)
@@ -182,9 +160,9 @@ GEM
 
 PLATFORMS
   ruby
+  x86-mingw32
 
 DEPENDENCIES
-  ZenTest
   authlogic
   backports
   capybara

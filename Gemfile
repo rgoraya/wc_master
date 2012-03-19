@@ -57,7 +57,6 @@ group :development do
   gem "hpricot"
 end
 group :test do
-  gem 'ZenTest'
   gem 'rspec'
   gem 'rspec-rails'
   gem 'cucumber-rails'
