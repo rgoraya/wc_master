@@ -42,7 +42,7 @@ class VotesController < ApplicationController
   def create
     @vote = Vote.new(params[:vote])
     
-    @relationship = Relationship.find(@vote.relationship_id)
+    @relationship = Relationship.find(@vote.relationship_id) unless @vote.relationship_id.nil?
     
     # store the vote_type to create the notice
     @vote_type = @vote.vote_type
