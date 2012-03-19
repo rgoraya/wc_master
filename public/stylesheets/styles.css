@@ -805,8 +805,10 @@ z-index:0;
 
 #tool_tip{
 	z-index:200;
-	position:absolute; width:300px; display:none;
-
+	position:absolute; display:none;
+	color:#fcfcfc; 
+	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	text-align:center;	
 }
 
 .arrow-tooltip {
@@ -815,36 +817,19 @@ z-index:0;
 	height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-bottom: 8px solid #858585;		
+    border-top: 8px solid #2f2f2f;		
 }
 
 .contents-tooltip {
-	background-color:#f1f1f1; 
+	background-color:#2f2f2f; 
 	text-align:center;
-	border: 1px solid #858585;
 	padding:5px;
-	/* borders */
+	/* borders 
 	border-radius: 2px;
 	-moz-border-radius: 2px;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 3px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 3px;
-	box-shadow: rgba(0, 0, 0, 0.5) 0 1px 3px;	
-}
-
-/*.img-tooltip {
-	float:left;
-	background-color:#ffffff;
-	width:62px;
-	padding:3px ;
-	border:1px solid #ededed;	
-	margin-right:5px;
-	display:none;
-}*/
-
-.txt-tooltip{
-	color:#434343; 
-	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
-	text-align:left;
+	box-shadow: rgba(0, 0, 0, 0.5) 0 1px 3px;	*/
 }
 
 .white_banner {
@@ -3212,17 +3197,24 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 }
 
 .gravatar_endorse {
-	margin:1px;
+	margin:0px;
 	border:2px solid #5E9646;	
 }
 
 .gravatar_contest {
-	margin:1px;
+	margin:0px;
 	border:2px solid #FFAA00;
+}
+
+.gravatar_accuse{
+	margin:0px;
+	border:2px solid #b84030;	
 }
 
 .contestperc{height:6px; background:#FFAA00; float:left;margin-bottom:3px;}
 .endorseperc{height:6px; background:#5E9646; float:left;margin-bottom:3px;}
+.accuseperc{height:6px; background:#bd4030; float:left;margin-bottom:3px;}
+
 .voters{margin:10px 0px; width:154px; font-size:11px; color:#bebebe;}
 .user_vote_message{margin-top:5px;}
 
@@ -3462,18 +3454,22 @@ cursor:default;
 	color: #6A6A6A;
 	cursor: pointer;
 	padding: 1px;
-	text-align: center;
+	text-align: left;
 }
 
 
 .relationship_partial_toggle:hover{
 	color:#fcfcfc;
+	background:url("/images/issues/pointer.png") no-repeat right;
+	background-size:6px; 
 }
 
 .central_causality_container{
 	color: #FCFCFC;
 	padding: 1px;
-	text-align: center;
+	text-align: left;
+	background:url("/images/issues/pointer.png") no-repeat right;
+	background-size:6px; 	
 }
 
 .issue_relationships_container{
@@ -3934,6 +3930,42 @@ cursor:default;
 	margin-bottom:0px;	margin-top:5px;	float:none;	padding:5px;
 }
 
+#get_votes .discussion_submit{
+	margin-bottom:0px; float:none; box-shadow:none; position:relative; margin-top:-1px;
+}
+
+#report_offensive{
+	background:url("/images/issues/fire.png") no-repeat left;
+	background-size:16px;
+	margin-top:-1px;
+	background-position: 2px center;	
+	margin: 0px;
+	padding: 5px;
+	padding-left:22px;	
+	width: 100%;
+	border: 0;
+	font:bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color: #f1f1f1;
+	text-align: left;
+	cursor: pointer;
+}
+
+#report_unoffensive{
+	background:url("/images/issues/greenfire.png") no-repeat left;
+	background-size:16px;
+	margin-top:-1px;
+	background-position: 2px center;	
+	margin: 0px;
+	padding: 5px;
+	padding-left:22px;	
+	width: 100%;
+	border: 0;
+	font:bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
+	color: #f1f1f1;
+	text-align: left;
+	cursor: pointer;
+}
+
 .relationship_delete{ 
 	background: -webkit-gradient(linear, left bottom, left top, from(#B80000), to(#B84030));
 	background: -moz-linear-gradient(center bottom, #B80000 0%, #B84030 100%);
@@ -4181,7 +4213,6 @@ input.relationship_intermediate {
 	text-decoration:none;		
 }
 
-
 .btn_image_edit{
 	background:url("/images/issues/image_edit.png") no-repeat left;
 	background-size:12px;
@@ -4195,6 +4226,10 @@ input.relationship_intermediate {
 	color:#fcfcfc;
 	text-decoration:none;
 }
+
+
+
+
 
 .perm-relation, a.perm-relation{
 	background:url("/images/issues/permalink.png") no-repeat left;
@@ -4331,6 +4366,8 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#434343', endColorstr='#2f2f2f')";
 	opacity:1;
 }
+
+#order_form_select{width:190px; height:25px; padding:2px; float:right;font-size:13px; position:relative;left:15px; bottom:5px;}
 
 .issue_thumb_blanket .issue_linkout{display:block;cursor:pointer;}
 

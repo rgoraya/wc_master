@@ -2,12 +2,26 @@ class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
 
-require 'backports'
+require 'backports' 
   
   def index
-    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+    if (params[:order_issues])
+       @order_issues = params[:order_issues]  
+     else 
+       @order_issues = "Alphabetical Order" 
+     end
+
+       case @order_issues
+       when "Alphabetical Order"
+          @issues = Issue.search(params[:search]).order("title").paginate(:per_page => 20, :page => params[:page]) 
+       when "Latest"  
+         @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+       when "Number of Relationships"
+         @issues = Issue.search(params[:search]).order("relationships_count DESC").paginate(:per_page => 20, :page => params[:page]) 
+     end
+     
     respond_to do |format|
-      format.js {render :layout=>false}
+      format.js 
       format.html # index.html.erb
       format.xml  { render :xml => @issues }
       format.json { render :json => @issues }
@@ -282,7 +296,6 @@ require 'backports'
   end
 
   def update_img_if_applicable
-    #@existing_issue = Issue.find(@issueid)
     # if the image selected by the user is different than the one saved then update it.
     if !@existing_issue.nil?
       if @issue.short_url != @existing_issue.short_url 
@@ -348,6 +361,7 @@ require 'backports'
 
   def save_relationship
     if @relationship.save
+      self_endorse
       remove_duplicate_suggestions
       update_img_if_applicable 
       Reputation::Utils.reputation(:action=>:create, \
@@ -361,6 +375,12 @@ require 'backports'
     else
       @notice = @relationship.errors.full_messages.join(", ")    
     end   
+  end
+
+  def self_endorse
+    if @relationship.user
+      Vote.create(:user_id => @relationship.user_id, :relationship_id => @relationship.id, :vote_type => "E")
+    end    
   end
 
   def remove_duplicate_suggestions
