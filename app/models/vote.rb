@@ -15,5 +15,6 @@ class Vote < ActiveRecord::Base
 
   # validate uniqueness of the combination of relationship_id and user_is
   validates :relationship_id, :presence => true, :uniqueness => {:scope => [:user_id]}
+  validates :vote_type, :presence => true
 
 end
