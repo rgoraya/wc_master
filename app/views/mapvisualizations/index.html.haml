@@ -7,6 +7,7 @@
 
 /= javascript_include_tag "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"
 /= javascript_include_tag :defaults #make sure we include the jquery we need, I guess
+/= javascript_include_tag "jquery_ujs.js"
 = javascript_include_tag "jquery.qtip.min.js"
 = javascript_include_tag "raphael-min-2.0.2.js" #for drawing
 
@@ -31,8 +32,18 @@
           #modal_fill
             .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
           .down_pointer_arrow
-    #detail_container
-      #detail_fill
+    #detail_container{:class => "navigation"}
+      .search_container_appl
+        = form_tag({:action => "search_bars"}, {:class=> "issue_search_form", :id=>"vis_cause_search_form", :remote => true, :method => 'get'}) do
+          = hidden_field_tag :form_name, 'cause_form' #which form is this (for processing)
+          = text_field_tag :query, params[:query], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"vis_cause_search_visible_input"
+          = hidden_field_tag :selected_data #what thing we selected
+          %input{:type=>"button", :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"vis_cause_search_submit_btn"}
+          .clearboth
+        #vis_cause_issue_search{:class => "issue_search", :style=>"display:block;"}
+          = render 'issues/issue_search'
+    
+      #detail_fill{:style => "margin-top:200px"}
     .clearboth
     #interaction{:style => (@verbose ? "" : "display:none")}
       #reset_form
@@ -55,6 +66,8 @@
         / = button_to "Springy Layout", {:action => "index", :layout_cmd => 'springy'}, {:remote => true, :method => :get}
         = button_to "Kamada Layout", {:action => "index", :layout_cmd => 'do_kamada_kawai'}, {:remote => true, :method => :get}
         / = button_to "Remove Edges", {:action => "index", :cmd => 'remove_edges'}, {:remote => true, :method => :get}
+        = link_to({:action=>"index", :do=>"goto_issue", :target=>"1"}, {:remote => true, :name => "deforestation"}) do
+          testing
       #interact_form
         = form_tag({:action => "index"}, {:id => "clickForm", :remote => true, :method => :get}) do
           = text_field_tag "do"

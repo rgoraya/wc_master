@@ -11,15 +11,15 @@
 // *-*-*-*-*-*-*-*-*-*-*-*-*
 %div.causality_types
   %div.causality_toggle_container
-            
+    
+    %div.relationship_partial_toggle#toggle_effects
+      causes              
     %div.relationship_partial_toggle#toggle_causes
       is caused by                     
-    %div.relationship_partial_toggle#toggle_effects
-      causes             
-    %div.relationship_partial_toggle#toggle_inhibitors
-      is reduced by            
     %div.relationship_partial_toggle#toggle_inhibiteds
       reduces             
+    %div.relationship_partial_toggle#toggle_inhibitors
+      is reduced by            
     %div.relationship_partial_toggle#toggle_subsets
       is a superset of                             
     %div.relationship_partial_toggle#toggle_supersets
@@ -77,6 +77,6 @@
   - else
     .relationship_none_found
       %img.none_found_arrow{:src=>'/images/issues/arrow_left.png'}
-      Select a relationship type to start
+      Select a relationship type here
 
 .clearboth 

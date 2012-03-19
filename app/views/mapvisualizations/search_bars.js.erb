@@ -1,0 +1,13 @@
+console.log("loaded search_bars.js.erb")//, <%= params.to_s %>)
+
+
+//show the search forms
+<% if params[:form_name] = 'cause_form' %>
+	$("#vis_cause_issue_search").html("<%= escape_javascript(render("mapvisualizations/issue_search")) %>");
+<% elsif params[:form_name] = 'effect_form' %>
+	$("#vis_effect_issue_search").html("<%= escape_javascript(render("mapvisualizations/issue_search")) %>");
+<% end %>
+
+//and otherwise, handle the replacement stuff somehow?
+
+//woot! loading the issue_search, but now need to figure out how to respond to keyboard commands...

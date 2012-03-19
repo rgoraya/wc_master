@@ -14,15 +14,14 @@
   .clearboth 
 
 #contentwrapper
-  .contentmain
+  .contentmain#add_new_issue_page
 
-    %div.pageheading
-      Create New Issue
-    .clearboth     
+    // Some whitespace for pagination buttons 
+    %div.white_space
     
-    %div{:class => "formcontentdiv"}
-
-      %div.add_new_issue_modal{:style=>"width:320px;margin:0 auto;"}
+    // Thumbcontainer
+    %div.issue_thumbs_container{:style=>"min-height:132px;"}
+      %div.add_new_issue_modal
             
         .title_edit
           // Search text-field     
@@ -57,15 +56,11 @@
               .checkcontainer
                 .check_empty
                 .check_clicked
-            .checkmsg
-              Select one
+            .clearboth
+            /.checkmsg
+            /  Select one
                               
-          %div#text_preview
-            %div#title_holder
-            %div#text_holder  
-              
-          .clearboth
-          
+            
               
           %div{:id=>"form_container"}
             = form_for Issue.new, :id=>"relationship_form" do |f|
@@ -88,8 +83,27 @@
       
                       
               .actions
-                = f.submit 'Create', :class=>"discussion_submit", :name=>"save_issue_rel_button", :id=>"val_collector"
+                = f.submit 'Create', :class=>"relationship_intermediate", :name=>"save_issue_rel_button", :id=>"val_collector"
                 .clearboth
+          .clearboth
+          
+      .relationship_none_found
+        %img.none_found_arrow{:src=>'/images/issues/arrow_left.png'}
+        Create the first node of the relationship here          
+          
+          
+          
+    .title
+      %span#title_holder
+
+    .relation_descr
+          
+      .rationale_headers
+        Wikipedia Description
+      .clearboth
+      #text_preview
+        #text_holder 
+
 
 #clear{:style => "clear:left;"}
 

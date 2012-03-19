@@ -16,6 +16,7 @@ class MapvisualizationsController < ApplicationController
     
     respond_to do |format|
       format.html do #on html calls
+        puts "handing html in index"
 
         @verbose = !params[:v].nil?
         #puts "verbose: "+@verbose.to_s
@@ -31,6 +32,7 @@ class MapvisualizationsController < ApplicationController
       end
 
       format.js do #respond to ajax calls
+        puts "handling js in index"
 
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
@@ -51,6 +53,7 @@ class MapvisualizationsController < ApplicationController
         
         elsif params[:do] == 'goto_issue'
           @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :params => {:q => 'show', :i => params[:target]})
+          render "index.js.erb"
           
         elsif params[:do] == 'goto_relationship'
           @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :params => {:q => 'show', :r => params[:target]})
@@ -76,6 +79,34 @@ class MapvisualizationsController < ApplicationController
       end
     end
   end
+
+  def search_bars
+    puts "\n**********************************************************"
+    puts "************* GOT TO SEARCH_BARS CONTROLLER **************"
+    puts "**********************************************************"
+    puts params
+    
+    respond_to do |format|
+      format.js do
+        if params[:selected_data] and params[:selected_data]!=''
+          issue_id = params[:selected_data].slice(/\d+/)
+          # set the params we're going to need
+          params[:do] = 'goto_issue'
+          params[:target] = issue_id
+          index #call index, which will do the rest of the work
+        else
+          @search_results = Issue.search(params[:query]).first(5) #get some search results, and render
+        end
+      end
+
+        # format.html do
+        #   #@issues = Issue.search(params[:query])
+        #   redirect_to :controller => 'issues', :action => 'index', :search => params[:query]
+        #   #redirect_to(:issues, params[:query] )
+        # end
+      end 
+  end
+
 
 ############################################################
 ### OLD RESTFUL METHODS
