@@ -55,7 +55,7 @@ class Mapvisualization #< ActiveRecord::Base
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
     		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
-			    @graph.get_all_pairs_paths_distances
+			  @graph.get_all_pairs_paths_distances
 
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
