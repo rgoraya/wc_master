@@ -1,25 +1,34 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
-= javascript_include_tag "order_form.js"
+//= javascript_include_tag "order_form.js"
 %div{:id=>"issues_head"}
 
   %div.pageheading
     All issues
-    ="["  + @order_issues +"]" 
-  
-  %div{:style=>"float:left; margin: 19px 16px 13px  0px;", :id=>"order_form"}
-    - form_tag issues_path, :id=>"order_form", :remote => true, :method => 'get' do 
-      = select_tag :order_issues, options_for_select(["Select Order" ,"Latest", "Number of Relationships", "Alphabetical Order"] ), :id=> "order_form_select"
-
-  %div{:style=>"margin:10px 0px 20px 0px; float:right;"}
+      
+  #issue_index_controls
     = will_paginate (@issues),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 
+    
+    #sort_order.discussion_submit
+      Sort 
+      %span#sort_up_or_down
+        &#x25BC;
+      %span#sort_current_criteria  
+        = @sort_by 
 
-  %div{:style=>"float:right; margin:13px 15px -17px 0px;", :id=>"issues_wait"}
-
-  
+        
+    #sort_order_options
+      .sort_option
+        Most recent 
+      .sort_option
+        Relationship count
+      .sort_option  
+        Alphabetical order
+    
+    - form_tag issues_path, :id=>"order_form", :remote => true, :method => 'get' do 
+      = hidden_field_tag :sort_by, params[:sort_by],:id=>"order_form_select"
+    
   .clearboth
-
-  
 
 
 %div{:style=>"margin-top:0px"}
@@ -120,7 +129,6 @@
       %div{:class=>"index_img_box_sqr", :style=>"float:left;background-image:url(#{slice[1].short_url})"}
         = link_to "", slice[1], :title=>"View this Issue"
         
-    
       // Text
       %div{:style=>"margin-right:15px"}
         - @description = slice[1].description
@@ -132,17 +140,11 @@
         %br
         %a{:href=> slice[1].wiki_url, :target=>"_blank"}
           Read more on Wikipedia
-      
       .clearboth
-
   .clearboth  
-
 
 %div{:style=>"margin:20px 0px 5px 0px; float:right;"}
   = will_paginate (@issues), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
-
-%div{:style=>"float:right; margin:23px 15px -23px 0px;", :id=>"issues_wait"}
-
 
 .clearboth
 

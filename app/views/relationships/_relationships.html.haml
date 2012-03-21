@@ -1,0 +1,134 @@
+- content_for(:include_custom_stylesheet) do
+  = stylesheet_link_tag "styles"
+
+%div{:id=>"rel_head"}
+
+  %div.pageheading
+    Relationships
+
+  #issue_index_controls
+    = will_paginate (@relationships),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0     
+    
+    #sort_order.discussion_submit
+      Sort 
+      %span#sort_up_or_down
+        &#x25BC;
+      %span#sort_current_criteria  
+        = @sort_by
+        
+    #sort_order_options
+      .sort_option
+        Most recent 
+      .sort_option
+        Reference count
+    
+    - form_tag relationships_path, :id=>"order_form", :remote => true, :method => 'get' do 
+      = hidden_field_tag :sort_by, params[:sort_by],:id=>"order_form_select"
+
+  //%div{:style=>"margin:10px 0px 20px 0px; float:right;"}
+  //  = will_paginate (@relationships),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 
+
+  .clearboth
+
+%div{:style=>"margin-top:0px"}
+- @relationships.each do |relation|
+  // get the cause and effect issues
+  - @rel_issue = Issue.find(relation.issue_id)
+  - @rel_cause = Issue.find(relation.cause_id)
+  - @sentence, @css_id  = causality_of_this(relation) 
+
+  .formcontentdiv 
+
+    .formheading
+      
+      // Relationship heading
+      = link_to @rel_cause.title, @rel_cause, :rel=>"#{@rel_cause.title}"
+      %span.rel_center_title{:style=>"color:#bebebe;"} 
+        = @sentence  
+      = link_to @rel_issue.title, @rel_issue, :rel=>"#{@rel_issue.title}"      
+    
+    %div{:style=>"float:right;padding-top:5px;"}
+      // Only show Edit and Delete if the relationship belongs to current user
+      /-if current_user
+      /  -if current_user.id == @rel_cause.user_id  
+      /    = link_to "Delete", relationship_path(@rel_cause, :called_from=>"relationships"), :confirm => "Are you sure you want to delete the relationship #{@rel_cause.title}", :method => :delete, :remote=>true, :class=>"del-relationship"
+
+    
+      // author
+      - if relation.user
+        - @hash = Digest::MD5.hexdigest(relation.user.email).to_s
+        %a{:href=>"/users/#{relation.user.id}", :style=>"text-decoration:none;", :title=>"view relationships by this author"}
+          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
+        %a{:href=>"/users/#{relation.user.id}", :class=>"issue-user", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view relationships by this author"}>= relation.user.username
+      - else
+        %img{:src=> "http://www.gravatar.com/avatar/?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
+        %span{:class=>"issue-user", :style=>"padding-left:0px; margin-left:0px; background-image:none;"}
+          Anonymous
+
+
+        // created at
+      %span{:class=>"date_time"}
+      
+        =  time_ago_in_words(@rel_cause.created_at) + ' ago'         
+    
+    .clearboth
+    .column_left
+      // Image
+      // The corresponding image is set as background of the container div (to attain vertical centering)
+      // The link inside the div is 100% high so that it remains clickable. Pheww!  
+      %div{:class=>"index_img_box_sqr", :style=>"float:left;background-image:url(#{@rel_cause.short_url})"}
+        = link_to "", @rel_cause, :title=>"View this relationship"
+        
+    
+      // Text
+      %div
+        %b
+          = @rel_cause.title + ':'
+        - @description = @rel_cause.description.html_safe
+        - if @description.length > 200
+          - @description = @description[0, 200] + "..."
+          = @description
+        - else
+          = @description
+        %br
+        %a{:href=> @rel_cause.wiki_url, :target=>"_blank"}
+          Read more on Wikipedia
+      
+      .clearboth
+    
+    .relationship_symbol{:id=>@css_id}
+      
+    .column_right 
+
+      // Image
+      // The corresponding image is set as background of the container div (to attain vertical centering)
+      // The link inside the div is 100% high so that it remains clickable. Pheww!  
+      %div{:class=>"index_img_box_sqr", :style=>"float:left;background-image:url(#{@rel_issue.short_url})"}
+        = link_to "", @rel_issue, :title=>"View this relationship"
+      
+    
+      // Text
+      %div
+        %b
+          = @rel_issue.title + ':'        
+        - @description = @rel_issue.description.html_safe
+        - if @description.length > 200
+          - @description = @description[0, 200] + "..."
+          = @description
+        - else
+          = @description
+        %br
+        %a{:href=> @rel_issue.wiki_url, :target=>"_blank"}
+          Read more on Wikipedia
+      
+      .clearboth
+
+    .clearboth  
+
+
+%div{:style=>"margin:20px 0px 5px 0px; float:right;"}
+  = will_paginate (@relationships), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
+
+.clearboth
+
+         

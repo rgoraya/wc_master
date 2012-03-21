@@ -5,20 +5,23 @@ class IssuesController < ApplicationController
 require 'backports' 
   
   def index
-    if (params[:order_issues])
-       @order_issues = params[:order_issues]  
-     else 
-       @order_issues = "Alphabetical Order" 
-     end
+      
+      # setting the default sort criteria
+      if (params[:sort_by])
+        @sort_by = params[:sort_by]  
+      else 
+        @sort_by = "Alphabetical order" 
+      end
 
-       case @order_issues
-       when "Alphabetical Order"
+      # set the @issue for the sort criteria
+      case @sort_by
+        when "Alphabetical order"
           @issues = Issue.search(params[:search]).order("title").paginate(:per_page => 20, :page => params[:page]) 
-       when "Latest"  
-         @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
-       when "Number of Relationships"
-         @issues = Issue.search(params[:search]).order("relationships_count DESC").paginate(:per_page => 20, :page => params[:page]) 
-     end
+        when "Most recent"  
+          @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+        when "Relationship count"
+          @issues = Issue.search(params[:search]).order("relationships_count DESC").paginate(:per_page => 20, :page => params[:page]) 
+      end
      
     respond_to do |format|
       format.js 

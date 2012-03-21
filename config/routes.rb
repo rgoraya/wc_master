@@ -29,6 +29,7 @@ Wikicausality::Application.routes.draw do
 
   resources :user_sessions
   
+  match '/relationships/page/:page', :controller => 'relationships', :action => 'index'
   resources :relationships
   
   

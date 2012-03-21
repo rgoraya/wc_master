@@ -1,6 +1,5 @@
-$("#issues").html("<%= escape_javascript(render("issues")) %>");
+$("#relationships").html("<%= escape_javascript(render("relationships")) %>");
 $("#progress_partial").html("<%= escape_javascript(render('layouts/progress_partial'))%>")
-
 $(".formcontentdiv").effect("highlight", {color: '#f5f5f5'}, 1500);
 
 if ($.trim($('#notice').text()) != "") {

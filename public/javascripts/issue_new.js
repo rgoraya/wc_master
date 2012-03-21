@@ -121,6 +121,7 @@ $(function() {
 	  if ($("#query").val()){
 		  $("#results").empty();
 		  $("#title_holder").html('');
+		  $(".title").removeAttr('style');
 		  // hide the save button
 		  $('#form_container').css("display", "none");
 		  // replace HTML of target Div
@@ -172,7 +173,7 @@ $(function() {
 	  	  //  If the search was successful - 
 	  	} else {
 	  		$("#title_holder").html(JData.parse.title);
-  
+  			$(".title").show();
 		  	// shorten if beyond limit
 		  	if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 			  	// replace HTML of target Div
