@@ -100,6 +100,11 @@ class Mapvisualization #< ActiveRecord::Base
 				#@compact_display = true
 				#place_randomly		
 				default_layout
+			
+			elsif check == 0
+				# Degrade to all paths from a given source
+				@notice = "Path destination does not exist. Showing paths from source."
+
 			else
 				@notice = "Invalid path source or destination. Please try again."
 			end
