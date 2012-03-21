@@ -132,11 +132,40 @@ class Graph
 	end
 
 	### Query-Based Path Generation ###
+	def check_path_src_dest(src, dest)
+		# Check source validity
+		src_check = Issue.find_by_id(src)
+		if src_check.nil?
+			return -1
+		end
+
+		# Check destination validity
+		dest_check = Issue.find_by_id(dest)
+		if dest_check.nil?
+			return 0
+		end
+
+		# Source and Destination are valid
+		return 1
+
+	end
+
 	def get_graph_of_path(src, dest)
 		# Retrieve all issues and update graph contents
 		issues = Issue.find :all
 		update_graph_contents(issues)
 
+		# Possible situation: one or both of src and dest do not exist
+		# In this case, the graphing method will fail silently
+		src_check = Issue.find_by_id(src)
+		if src_check.nil?
+			src = 0
+		end
+		dest_check = Issue.find_by_id(dest)
+		if dest_check.nil?
+			dest = 0
+		end		
+		
 		# Creates a graph of a shortest path between two nodes based on query input
 		relations = @pathfinder.path_from_src_to_dest(self, src, dest)
 		

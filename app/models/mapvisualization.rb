@@ -73,29 +73,36 @@ class Mapvisualization #< ActiveRecord::Base
 
   	  ### PATH GENERATION ###
   	  elsif params[:q] == 'path'
-				# Basic source to destination graph
-    		if params[:from] and params[:to]  
-    			# PLACEHOLDER for format-checking / conversion
+		# Basic source to destination graph
+		if params[:from] and params[:to]  
+			# PLACEHOLDER for format-checking / conversion
           
-          from_id = params[:from].to_i
-          to_id = params[:to].to_i
+			from_id = params[:from].to_i
+			to_id = params[:to].to_i
 
-    			# Try to find a path between source and destination in graph
-    			path_found = @graph.get_graph_of_path(from_id, to_id)
-    			#@notice = path_found.to_s
+			# This could probably be a bit more graceful
+			check = @graph.check_path_src_dest(from_id, to_id)
+			if check == 1
+				
+				# Try to find a path between source and destination in graph
+				path_found = @graph.get_graph_of_path(from_id, to_id)
+				#@notice = path_found.to_s
 
-          puts path_found
+				puts path_found
 
-    		  @graph.nodes[from_id].static = 'left'
-    		  @graph.nodes[to_id].static = 'right'
+				@graph.nodes[from_id].static = 'left'
+				@graph.nodes[to_id].static = 'right'
 
-    			# Temporary
-    			@nodes = @graph.nodes
-    			@edges = @graph.edges
+				# Temporary
+				@nodes = @graph.nodes
+				@edges = @graph.edges
 
-    			#@compact_display = true
-            	#place_randomly		
-    			default_layout
+				#@compact_display = true
+				#place_randomly		
+				default_layout
+			else
+				@notice = "Invalid path source or destination. Please try again."
+			end
         else
           @notice = BAD_PARAM_ERROR
         end
