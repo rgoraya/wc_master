@@ -177,8 +177,15 @@ class Pathfinder
 		return ranking
 	end
 
-	def compute_all_pairs_paths(e, v)
+	### LAYOUT DISTANCE ONLY ###
+	def compute_all_pairs_undirected_paths(e, v)
+		# This method creates "opposite direction" edges for each directed edge, 
+		# if one does not already exist, so that the layout distance algorithm
+		# can have the "actual" physical distance between nodes in graph.
+
 		distances = Hash.new()
+
+		# Though vertices can stay the same, edges must be slightly modified
 
 		v.each do |node|
 			@source = node
