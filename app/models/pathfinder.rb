@@ -185,8 +185,6 @@ class Pathfinder
 
 		distances = Hash.new()
 
-		# Though vertices can stay the same, edges must be slightly modified
-
 		v.each do |node|
 			@source = node
 			tmp1, distances[node], tmp2 = compute_paths_from_source(e, v)		

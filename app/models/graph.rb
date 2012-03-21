@@ -187,7 +187,10 @@ class Graph
 		vertices = @nodes.keys
 
 		vertices.each { |key| connections[key] = Hash.new() }
-		@edges.each { |edge| connections[edge.a.id][edge.b.id] = edge }
+		@edges.each do |edge| 
+			connections[edge.a.id][edge.b.id] = edge
+			connections[edge.b.id][edge.a.id] = Edge.new(-1*edge.id, @nodes[edge.b.id], @nodes[edge.a.id], edge.rel_type)
+		end
 
 		@layout_distances = @pathfinder.compute_all_pairs_undirected_paths(connections, vertices)
 
