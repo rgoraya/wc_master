@@ -154,17 +154,6 @@ class Graph
 		# Retrieve all issues and update graph contents
 		issues = Issue.find :all
 		update_graph_contents(issues)
-
-		# Possible situation: one or both of src and dest do not exist
-		# In this case, the graphing method will fail silently
-		src_check = Issue.find_by_id(src)
-		if src_check.nil?
-			src = 0
-		end
-		dest_check = Issue.find_by_id(dest)
-		if dest_check.nil?
-			dest = 0
-		end		
 		
 		# Creates a graph of a shortest path between two nodes based on query input
 		relations = @pathfinder.path_from_src_to_dest(self, src, dest)
