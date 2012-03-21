@@ -191,12 +191,12 @@ class Graph
 
 		@layout_distances = @pathfinder.compute_all_pairs_paths(connections, vertices)
 
-    # @layout_distances.each do |src, dests|
-    #   dests.each do |k, v|
-    #         ### DEBUG
-    #         puts "DISTANCE #{src} to #{k}: #{v}"
-    #   end 
-    # end
+		@layout_distances.each do |src, dests|
+			dests.each do |k, v|
+			### DEBUG
+				puts "DISTANCE #{src} to #{k}: #{v}"
+			end 
+		end
 
 		return @layout_distances
 	end
