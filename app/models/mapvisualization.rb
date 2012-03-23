@@ -5,7 +5,7 @@ class Mapvisualization #< ActiveRecord::Base
   # include ActiveModel::Conversion
   # extend ActiveModel::Naming
 
-  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice, :graph
+  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice, :graph, :cause_issue, :effect_issue
   
   BAD_PARAM_ERROR = "Please specify what to visualize!"
   NO_ITEM_ERROR = "The item you requested could not be found"
@@ -20,6 +20,10 @@ class Mapvisualization #< ActiveRecord::Base
 
   	# Build a Graph of Nodes
   	@graph = Graph.new
+
+    #variables to tell the controller (and the non-vis parts of the view) what we're showing
+    @cause_issue = nil
+    @effect_issue = nil
    
     puts "===mapvisualization initialize args===" #debugging
     puts args
@@ -49,13 +53,16 @@ class Mapvisualization #< ActiveRecord::Base
     		  
           target_layout(static)
   		    #default_layout
+
+          @cause_issue = Issue.find(static.first) unless static.first.nil?
                   
         elsif params[:r] #show relationships
-          static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}  
+          static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
+          ### WHAT IS THE CAUSE_ID AND EFFECT_ID?
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
     		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
-			  @graph.get_all_pairs_paths_distances
+			    @graph.get_all_pairs_paths_distances
 
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
@@ -73,41 +80,44 @@ class Mapvisualization #< ActiveRecord::Base
 
   	  ### PATH GENERATION ###
   	  elsif params[:q] == 'path'
-		# Basic source to destination graph
-		if params[:from] and params[:to]  
-			# PLACEHOLDER for format-checking / conversion
+    		# Basic source to destination graph
+    		if params[:from] and params[:to]  
+    			# PLACEHOLDER for format-checking / conversion
           
-			from_id = params[:from].to_i
-			to_id = params[:to].to_i
+    			from_id = params[:from].to_i
+    			to_id = params[:to].to_i
 
-			# This could probably be a bit more graceful
-			check = @graph.check_path_src_dest(from_id, to_id)
-			if check == 1
+    			# This could probably be a bit more graceful
+    			check = @graph.check_path_src_dest(from_id, to_id)
+    			if check == 1
 				
-				# Try to find a path between source and destination in graph
-				path_found = @graph.get_graph_of_path(from_id, to_id)
-				#@notice = path_found.to_s
+    				# Try to find a path between source and destination in graph
+    				path_found = @graph.get_graph_of_path(from_id, to_id)
+    				#@notice = path_found.to_s
 
-				puts path_found
+    				puts "paths found", path_found
 
-				@graph.nodes[from_id].static = 'left'
-				@graph.nodes[to_id].static = 'right'
+    				@graph.nodes[from_id].static = 'left'
+    				@graph.nodes[to_id].static = 'right'
 
-				# Temporary
-				@nodes = @graph.nodes
-				@edges = @graph.edges
+    				# Temporary
+    				@nodes = @graph.nodes
+    				@edges = @graph.edges
 
-				#@compact_display = true
-				#place_randomly		
-				default_layout
+    				#@compact_display = true
+    				#place_randomly		
+    				default_layout
+
+            @cause_issue = Issue.find(from_id) unless from_id.nil?
+            @effect_issue = Issue.find(to_id) unless to_id.nil?
 			
-			elsif check == 0
-				# Degrade to all paths from a given source
-				@notice = "Path destination does not exist. Showing paths from source."
+    			elsif check == 0
+    				# Degrade to all paths from a given source
+    				@notice = "Path destination does not exist. Showing paths from source."
 
-			else
-				@notice = "Invalid path source or destination. Please try again."
-			end
+    			else
+    				@notice = "Invalid path source or destination. Please try again."
+    			end
         else
           @notice = BAD_PARAM_ERROR
         end
@@ -180,6 +190,12 @@ class Mapvisualization #< ActiveRecord::Base
       
       default_layout
     end
+  end
+
+  def get_cause_id
+  end
+  
+  def get_effect_id
   end
 
   # generates a random graph

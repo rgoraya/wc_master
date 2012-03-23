@@ -6,25 +6,19 @@ $(document).ready(function(){
 	//   	$("#notice_container").show();
 	//   	$("#notice_container").effect("bounce", { times:3 }, 200);
 	//   }
-  $("#spinner").css('left',$('#canvas_container').width()/2-32)
-    .css('top',$('#canvas_container').height()/2-32)
-    .toggle();
-	//console.log($("form.button_to"))
-  $("form.button_to") //anything formed by the button_to tag apparently
-		.bind("ajax:beforeSend", function(e) {
-		  $("#spinner").toggle()
-		})
-		.bind("ajax:complete", function(e) {
-		  $("#spinner").toggle()
-		})
 
-  // $("#clickForm").live('ajax:complete', function(evt, data) {
-  //   show_modal(data);
-  //   //$('#clickForm').children().not('#do').remove();
-  // });
-	//   $('#modal_container .btn_close').click(function(){
-	//     $('#modal_container').toggle(false);
-	// });
+	//   $("#spinner").css('left',$('#canvas_container').width()/2-32)
+	//     .css('top',$('#canvas_container').height()/2-32)
+	//     .toggle();
+	// //console.log($("form.button_to"))
+	//   $("form.button_to") //anything formed by the button_to tag apparently
+	// 	.bind("ajax:beforeSend", function(e) {
+	// 	  $("#spinner").toggle()
+	// 	})
+	// 	.bind("ajax:complete", function(e) {
+	// 	  $("#spinner").toggle()
+	// 	})
+
 	$('#modal_container .btn_close').live('click', function(){
 		$('#modal_container').toggle(false);
 	})
@@ -35,15 +29,15 @@ $(document).ready(function(){
 });
 
 
-//show the details sidebar
-function show_details(data) {
-  $('#detail_fill').html(data.responseText);
-  $('#detail_container').toggle(true);
-}
-
-function hide_details() {
-  $('#detail_container').toggle(false);	
-}
+// //show the details sidebar
+// function show_details(data) {
+//   $('#detail_fill').html(data.responseText);
+//   $('#detail_container').toggle(true);
+// }
+// 
+// function hide_details() {
+//   $('#detail_container').toggle(false);	
+// }
 
 //show the modal window
 function show_modal(data) { 

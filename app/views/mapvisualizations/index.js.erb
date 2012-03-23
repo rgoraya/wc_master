@@ -1,8 +1,13 @@
+console.log("in index.js.erb")
 <%# this is ruby code that gets called on most ajax-based loads; can use variables to determine what to do if needed.
     basically it should be used for changes to the graph in some way %>
 <%#= puts @vis.nodes, @vis.edges %>
+
 var oldNodes = currNodes
 var oldEdges = currEdges
 <%= javascript_graph(@vis.nodes, @vis.edges) %> //load the new nodeset into currNodes & currEdges (default values)
 // drawNodes(currNodes, currEdges, myPaper);
 animateElements(oldNodes, oldEdges, currNodes, currEdges, myPaper)
+
+//reload anything in the sidebar we want to change
+$("#cause_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.cause_issue})) unless @vis.cause_issue.nil? %>')

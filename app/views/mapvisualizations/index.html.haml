@@ -23,8 +23,8 @@
 #contentwrapper
   .contentmain
     #vis_container
-      #spinner
-        = image_tag "system/spinner.gif", :size => "64x64"
+      / #spinner
+      /   = image_tag "system/spinner.gif", :size => "64x64"
       #canvas_container
       .absolute_position
         #modal_container
@@ -32,18 +32,20 @@
           #modal_fill
             .btn_close{:title => "Close Window", :style => "margin-top:-30px;margin-right:0px"}
           .down_pointer_arrow
-    #detail_container{:class => "navigation"}
-      .search_container_appl
+    #sidebar_container{:class => "navigation"}
+      #cause_search_container{:class => 'search_container_appl'}
         = form_tag({:action => "search_bars"}, {:class=> "issue_search_form", :id=>"vis_cause_search_form", :remote => true, :method => 'get'}) do
           = hidden_field_tag :display_area_id, 'vis_cause_issue_search' #which form is this (for processing)
-          = text_field_tag :query, params[:query], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"vis_cause_search_visible_input"
+          = text_field_tag :query, params[:query], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"vis_cause_search_visible_input", :value => (@vis.cause_issue.nil? ? nil : @vis.cause_issue.title)
           = hidden_field_tag :selected_data #what thing we selected
           %input{:type=>"submit", :value=> '', :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"vis_cause_search_submit_btn"}
           .clearboth
         #vis_cause_issue_search{:class => "issue_search", :style=>"display:block;"}
           = render 'issues/issue_search'
-    
-      #detail_fill{:style => "margin-top:200px"}
+      #cause_detail_container{:style=>"margin-top:20px"}
+        #cause_detail_fill
+          = render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.cause_issue}) unless @vis.cause_issue.nil?
+      
     .clearboth
     #interaction{:style => (@verbose ? "" : "display:none")}
       #reset_form
