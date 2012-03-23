@@ -3,9 +3,22 @@ class RelationshipsController < ApplicationController
   # GET /relationships
   # GET /relationships.xml
   def index
-    @relationships = Relationship.all
+
+      if (params[:sort_by])
+        @sort_by = params[:sort_by]  
+      else 
+        @sort_by = "Most recent" 
+      end
+
+      case @sort_by
+        when "Most recent"  
+          @relationships = Relationship.find(:all, :order=>"updated_at DESC").paginate(:per_page => 20, :page => params[:page])
+        when "Reference count"
+          @relationships = Relationship.find(:all, :order=>"references_count DESC").paginate(:per_page => 20, :page => params[:page])
+      end
 
     respond_to do |format|
+      format.js
       format.html # index.html.erb
       format.xml  { render :xml => @relationships }
     end

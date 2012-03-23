@@ -4,28 +4,21 @@ require 'spec_helper'
 
 describe IssuesController do
   before do
-    @attributes = {'title' => 'example', 'wiki_url' => 'examplewiki',
-                      'short_url' => 'exampleshort', 'description' => 'exampledescription'}
-    @issue = mock_model(Issue)
-    Issue.should_receive(:new).with(@attributes).once.and_return(@issue)
+    @issue = Issue.find_by_title('Electricity')
   end
   
   it "redirects to the issue on successful save" do
-    @issue.should_receive(:save).with().once.and_return(true)
-    
-    post :create, :issue => @attributes
-    assigns[:issue].should be(@issue)
-    flash[:notice].should_not be(nil)    
+    post :create, :issue => @issue.attributes
+    @issue.id = nil
+    assigns[:issue].should == (@issue)
+    @issue.id = 1
     response.should redirect_to(@issue)
   end                                
 
   it "redirects to back on non-successful save" do
-    @issue.should_receive(:save).with().once.and_return(true)
-    
-    post :create, :issue => @attributes
-    assigns[:issue].should be(@issue)
-    flash[:notice].should_not be(nil)    
-    response.should redirect_to(:back)
+    post :create, :issue => @issue.attributes
+    @issue.id = nil
+    assigns[:issue].should == (@issue)
   end                                
 end                          
 

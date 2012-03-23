@@ -49,7 +49,7 @@ $(function() {
 // -------------------------------------------------------------------------------   
  
 	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search='; //opensearch
-		var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch='
+	  var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch=';
 	  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
 	  var query;
 	  var arr_length = 0;
@@ -67,7 +67,7 @@ $(function() {
 	  var form_image = '';  
 
 // -------------------------------------------------------------------------------   
-// Monitoring the keyUp action on the query textbox 
+// M O N I T O R I N G    T H E    K E Y U P    O N    S E A R C H F I E L D
 // ------------------------------------------------------------------------------- 
   $('#query').bind('keyup', function(e){
 	  
@@ -121,6 +121,7 @@ $(function() {
 	  if ($("#query").val()){
 		  $("#results").empty();
 		  $("#title_holder").html('');
+		  $(".title").removeAttr('style');
 		  // hide the save button
 		  $('#form_container').css("display", "none");
 		  // replace HTML of target Div
@@ -172,7 +173,7 @@ $(function() {
 	  	  //  If the search was successful - 
 	  	} else {
 	  		$("#title_holder").html(JData.parse.title);
-  
+  			$(".title").show();
 		  	// shorten if beyond limit
 		  	if(text_preview.length > 450){text_preview = text_preview.substring(0, 450) + '...';}
 			  	// replace HTML of target Div
@@ -214,34 +215,20 @@ $(function() {
 
 
 // -------------------------------------------------------------------------------
-// WHEN THE USER HITS CREATE IN THE CREATE NEW RELATIONSHIP DIALOG:
+// W H E N    T H E    U S E R    H I T S    C R E A T E
 // -------------------------------------------------------------------------------
   $("#val_collector").live('click', function(){
-	  // Call the function to show the spinner and make space if required
-	  //showWait_makeSpace();
+	  
+	  // Show progress message
+	  show_progress_message("creating the first node")
+	  
 	  // Gather the values for the Form submission
 	  valueCollect();
-	  // Initialize the Modal
-	  //initialize_addNew();
+
   	  // S U B M I T    T H E    F O R M
   	  ("form#relationship_form").submit();	  
 	  return false;
   });
-
-// -------------------------------------------------------------------------------
-// Function to show the spinner and make space if required
-// -------------------------------------------------------------------------------
-	function showWait_makeSpace()
-  	{
-	  	// Show The Spinner and Hide the none_found message (if shown)
-		$('.relationship_addnew_wait').show();
-		$('.relationship_none_found').hide();
-		
-		// if more than 5 relationships are displayed then hide the last one to make space!!
-		if ($('.relationship_thumb:visible').length > 5){
-	 		$('.relationship_thumb:visible').last().hide();	
-		}  
-	}
 
 // -------------------------------------------------------------------------------
 // Gather the values for the Form submission
@@ -273,7 +260,7 @@ $(function() {
   }
 
 // -------------------------------------------------------------------------------
-// Extract the background-image url from the DIV
+// E X T R A C T   T H E    B A C K G R O U N D    I M A G E 
 // -------------------------------------------------------------------------------
 	function extractUrl(input)
   		{
@@ -281,25 +268,7 @@ $(function() {
   		}
 
 // -------------------------------------------------------------------------------
-// FUNCTIONS TO INITIALIZE AND TOGGLE ADD_NEW MODAL
-// -------------------------------------------------------------------------------	
-	function close_addNew() {
-	  $("#modal_form").removeAttr('style');			
-	}
-	
-	function initialize_addNew(){
-	  $('#image_preview1, #image_preview2, #image_preview3, .check_clicked, .check_empty, .checkmsg').removeAttr('style');
-	  $('#text_holder ').html('');
-	  $('#title_holder').html('');
-	  $('#text_preview').removeAttr('style');
-	  $('.relation_descr').removeAttr('style');
-	  $("#wait").empty();
-	  $('#form_container').css("display", "none");
-	  $("#query").val(''); 		
-	}
-
-// -------------------------------------------------------------------------------
-// SELECT THE IMAGE FROM THE GOOGLE OPTIONS
+// S E L E C T    T H E    I M A G E    F R O M    G O O G L E    O P T I O N S
 // -------------------------------------------------------------------------------
 	$(".check_empty").click(function(){
 		$('.check_clicked').removeAttr('style');
@@ -307,7 +276,7 @@ $(function() {
 	});
 
 // -------------------------------------------------------------------------------
-// Close suggestions if clicked elsewhere
+// C L O S E    A U T O C O M P L E T E   I F   C L I C K E D    E L S E W H E R E 
 // -------------------------------------------------------------------------------	
   $('#results, #query').hover(function(){ 
 	  mouse_is_inside=true; 
@@ -322,20 +291,6 @@ $(function() {
 		  displayBoxIndex = -1; }
   });
 
-
-// -------------------------------------------------------------------------------
-// FUNCTIONS FOR SHOWING AND HIDING PROGRESS MESSAGES
-// -------------------------------------------------------------------------------
-	function show_progress_message(msg){
-		var spinner_html = '<img src="/images/system/spinnerf6.gif" class="progress_spinner"/>'
-		$("#progress_message").html(spinner_html + msg);
-		$("#progress_container").show();		
-	}
-
-	function hide_progress_message(){
-		$("#progress_message").html('');
-		$("#progress_container").hide();		
-	}
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  

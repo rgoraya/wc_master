@@ -205,7 +205,7 @@ $(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function
   }
 
 // -------------------------------------------------------------------------------
-// FUNCTIONS TO PAGINATE CAUSES/EFFECTS/INHIBITORS/INHIBITEDS/SUBSETS/SUPERSETS
+// FUNCTION TO PAGINATE CAUSES/EFFECTS/INHIBITORS/INHIBITEDS/SUBSETS/SUPERSETS
 // -------------------------------------------------------------------------------	
 
   $("#relation_pagination .pagination a").live("click", function() {
@@ -222,7 +222,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	
 	// Make this thumbnail opaque and add a white border
 	var parent_thumb = $(this).parents('.relationship_thumb')
-	//parent_thumb.children(".relationship_thumb_main").addClass("relationship_thumb_selected");
+	// parent_thumb.children(".relationship_thumb_main").addClass("relationship_thumb_selected");
 	parent_thumb.animate({'opacity': '1'});
 	
 	// reduce opacity of the rest of the thumbnails
@@ -247,11 +247,11 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	$(".relationship_thumb .issue_linkout").removeAttr('style');
 	$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
 
-
-	//return false;
 });
 
-                                                                                     
+// -------------------------------------------------------------------------------
+// DISPLAYING AND HIDING THE MODAL WINDOW FOR ADDING NEW RELATIONSHIPS
+// -------------------------------------------------------------------------------                                                                      
 	$(".relationship_addnew .poplight").live('click',function(){
 		initialize_addNew();
 		$("#modal_form").toggle();		
@@ -262,6 +262,100 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 		$("#modal_form").hide();
 	});
 
+// -------------------------------------------------------------------------------
+// SETTING THE VALUE OF MODAL FORM ACTION AND ISSUE ID WHEN MODAL FORM IS OPENED
+// -------------------------------------------------------------------------------
+
+  $(".poplight").live('click', function(){
+  
+  	var idName = $(this).attr('id');
+	
+	  // Based on the DOM id, set action value and the text placeholder
+	  switch (idName) { 
+	  	case 'add_cause_btn':
+	  		$("#frm_action").val('C');
+	  		$("#query").attr('placeholder', 'Add a Cause of ' + issueTitle)
+	  		break;
+	  	case 'add_effect_btn':
+	  		$("#frm_action").val('E');
+	  		$("#query").attr('placeholder', 'Add an Effect of ' + issueTitle); 
+	  		break;
+	  	case 'add_inhibitor_btn':
+	  		$("#frm_action").val('I');
+	  		$("#query").attr('placeholder', 'Add something that reduces ' + issueTitle); 
+	  		break;
+	  	case 'add_inhibited_btn':
+	  		$("#frm_action").val('R');
+	  		$("#query").attr('placeholder', 'Add something reduced by ' + issueTitle); 
+	  		break;
+	  	case 'add_superset_btn':
+	  		$("#frm_action").val('P');
+	  		$("#query").attr('placeholder', 'Add a Superset of ' + issueTitle);
+	  		break;
+	  	case 'add_subset_btn':
+	  		$("#frm_action").val('S');
+	  		$("#query").attr('placeholder', 'Add a Subset of ' + issueTitle);
+	  		break;
+	  }
+  		
+  	// Set the value of issue ID	
+  	$("#frm_type_id").val(idofthisIssue);
+    
+  });
+
+// -------------------------------------------------------------------------------
+// M O D A L - D I V     S H O W 
+// -------------------------------------------------------------------------------  
+  //When you click on a link with class of poplight and the href starts with a # 
+  $('a.popup[href^=#]').live('click', function() {
+
+	  var popID = $(this).attr('rel'); //Get Popup Name
+	  var popURL = $(this).attr('href'); //Get Popup href to define size
+	
+	  //Pull Query & Variables from href URL
+	  var query= popURL.split('?');
+	  var dim= query[1].split('&');
+	  var popWidth = dim[0].split('=')[1]; //Gets the first query string value
+	
+	  //Fade in the Popup and add close button
+	  $('#' + popID).fadeIn().css({ 'width': Number( popWidth ) }).prepend('<a href="#" class="close"><div class="btn_close" title="Close Window"></div>');
+	
+	  //Define margin for center alignment (vertical   horizontal) - we add 80px to the height/width to accomodate for the padding  and border width defined in the css
+	  var popMargTop = ($('#' + popID).height() + 80) / 2;
+	  var popMargLeft = ($('#' + popID).width() + 80) / 2;
+
+	  //Apply Margin to Popup
+	  $('#' + popID).css({
+	  	'margin-top' : -popMargTop,
+	  	'margin-left' : -popMargLeft
+	  });
+
+	  //Fade in Background
+	  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
+	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies 
+	
+	  return false;
+  });
+
+// -------------------------------------------------------------------------------
+// M O D A L - D I V     H I D E   
+// ------------------------------------------------------------------------------- 
+  //Close Popups and Fade Layer When clicking on the close or fade layer...
+  $('a.close, #fade').live('click', function() {
+  	$('#fade , .popup_block').fadeOut(function() {
+	  	$('#fade, a.close').remove();  //fade them both out
+	  	$('#image_preview1,#image_preview2,#image_preview3').removeAttr('style');
+	  	$('#text_holder ').html('');
+	  	$('#title_holder').html('');
+	  	$('#text_preview').removeAttr('style');
+		$("#wait").empty();
+	  	$('#form_container').css("display", "none");
+	  	$("#query").val(''); 
+	  	$("#confirm_popup").fadeOut('slow');    
+	  	href_carrier = '';
+  	});
+  	return false;
+  });
 
 // -------------------------------------------------------------------------------
 // RELATIONSHIP DELETE FUNCTIONS
@@ -283,10 +377,21 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
   
   //});
 
+// -------------------------------------------------------------------------------
+// FUNCTION TO DISPLAY THE CONFIRMATION POPUP
+// -------------------------------------------------------------------------------
+  function showPopup(title, msg) {
+	  $("#confirm_title").html(title);
+	  $("#confirm_msg").html(msg);
+	  $("#confirm_buttons").show();
+	  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
+	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies   
+	  $("#confirm_popup").fadeIn('slow');
+  }
 
 // -------------------------------------------------------------------------------
 // FUNCTION TO DELETE RELATIONSHIP IF YES WAS CLICKED
-// -------------------------------------------------------------------------------	
+// -------------------------------------------------------------------------------
   $("#confirm_yes").live('click', function() {
   	// Show the spinner
   	$("#confirm_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
@@ -388,7 +493,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 // -------------------------------------------------------------------------------   
   
 	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
-		var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch=';
+	  var url_query='http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&srsearch=';
 	  var url_google_img = 'http://ajax.googleapis.com/ajax/services/search/images?rsz=large&start=0&v=1.0&q=';
 	  var query;
 	  var arr_length = 0;
@@ -884,25 +989,32 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 // -------------------------------------------------------------------------------
 // RETURN FALSE ON CLICK OF REJECT SUGGESTION
 // -------------------------------------------------------------------------------
-	$(".suggestion_reject").live('click', function(){
+	$(".suggestion_reject a").live('click', function(){
 	  	// Call the function to show the spinner and make space if required
 	  	show_progress_message("removing suggestion")		
 		return false;
 	})
 
 // -------------------------------------------------------------------------------
-// FUNCTIONS FOR SHOWING AND HIDING PROGRESS MESSAGES
+// FUNCTIONS FOR CALLING VARIOUS TOOLTIPS
 // -------------------------------------------------------------------------------
-	function show_progress_message(msg){
-		var spinner_html = '<img src="/images/system/spinnerf6.gif" class="progress_spinner"/>'
-		$("#progress_message").html(spinner_html + msg);
-		$("#progress_container").show();		
-	}
 
-	function hide_progress_message(){
-		$("#progress_message").html('');
-		$("#progress_container").hide();		
-	}
+  var tooltipMsg = {
+	   'rel_thumb': 'Expand this relationship',
+	   'sug_thumb': 'See what Wikipedia says',
+	   'iss_thumb': 'About this issue'
+  };
+
+  // TOOL-TIP FOR SUGGESTION THUMBNAILS
+  $(".issue_thumb_container").live('mouseover', function(){
+	  tooltip_caller = $(this);
+	  tooltip_text   = tooltipMsg.iss_thumb;
+	  showTooltip(tooltip_caller, tooltip_text);
+  });
+
+  $(".issue_thumb_container").live("mouseleave", function(){
+	  hideTooltip();
+  });
 
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
@@ -912,109 +1024,3 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 // *******************************************************************************
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
-
-  // I N I T I A L    F O R M A T T I N G / P R O C E S S I N G
-  
-  /* (0.) Align the blobs and arrows Correctly based on height of the Issueblock
-  $('img.wikiimage').ready(function(){
-  var block_height = $('.issueblock').height();
-  var arrow_height = $('.arrow-carrier-right').height();
-  var blob_height  = $('.blob-carrier').height();
-  var right_height = $('.arrow-leftward').height();
-  
-  var arrow_marg_top = (block_height - arrow_height)/2
-  var blob_marg_top  = (block_height - blob_height - 42)/2
-  var right_marg_top = (block_height - right_height - 40)/2 
-  
-  $('.arrow-carrier-right, .arrow-carrier-left').animate({'margin-top': arrow_marg_top});
-  $('.blob-carrier').animate({'margin-top': blob_marg_top});
-  $('.arrow-leftward').animate({'margin-top': right_marg_top});
-  /$(".blue_banner").effect("highlight", {color: '#4DB8DB'}, 1000);
-  
-  // Ensure that the height of Map remains same as the rest of the content
-  var mapcontainer_height = $('.wikicontent').height();
-  $('#map_canvas').css({'height': mapcontainer_height});
-  });
-  // (3.) Show or Hide the Suggestion Scroll buttons if required
-
-  if ($(".cause_carousel").height() > 30){
-  $(".cause_scroller").css({display : 'inline'});
-  }
-
-  if ($(".effect_carousel").height() > 30){
-  $(".effect_scroller").css({display : 'inline'});
-  }
-
-  if ($(".inhibitor_carousel").height() > 30){
-  $(".inhibitor_scroller").css({display : 'inline'});
-  }
-  
-  if ($(".inhibited_carousel").height() > 30){
-  $(".inhibited_scroller").css({display : 'inline'});
-  }
-    
-
-  // (4.) Show or Hide the Accepted Scroll buttons if required
-  if ($(".accepted_causes").height() > 64){
-  $(".cause_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_effects").height() > 64){
-  $(".effect_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_inhibitors").height() > 64){
-  $(".inhibitor_scroll").css({display : 'block'});
-  }
-
-  if ($(".accepted_inhibited").height() > 64){
-  $(".inhibited_scroll").css({display : 'block'});
-  }  
-  // S M O O T H    D I V    S I Z E    T R A N S I T I O N S (this is cool!)
-
-  // Animates the dimensional changes resulting from altering element contents
-  // Usage examples: 
-  //    $("#myElement").showHtml("new HTML contents");
-  //    $("div").showHtml("new HTML contents", 400);
-  //    $(".className").showHtml("new HTML contents", 400, 
-  //                    function() {/* on completion *//*});
-  (function($)
-  {
-  $.fn.showHtml = function(html, speed, callback)
-  {
-  return this.each(function()
-  {
-  // The element to be modified
-  var el = $(this);
-
-  // Preserve the original values of width and height - they'll need 
-  // to be modified during the animation, but can be restored once
-  // the animation has completed.
-  var finish = {width: this.style.width, height: this.style.height};
-
-  // The original width and height represented as pixel values.
-  // These will only be the same as `finish` if this element had its
-  // dimensions specified explicitly and in pixels. Of course, if that 
-  // was done then this entire routine is pointless, as the dimensions 
-  // won't change when the content is changed.
-  var cur = {width: el.width()+'px', height: el.height()+'px'};
-
-  // Modify the element's contents. Element will resize.
-  el.html(html);
-
-  // Capture the final dimensions of the element 
-  // (with initial style settings still in effect)
-  var next = {width: el.width()+'px', height: el.height()+'px'};
-
-  el .css(cur) 
-  el .animate(next, speed, function()  // animate to final dimensions
-  {
-  el.css(finish); // restore initial style settings
-  if ( $.isFunction(callback) ) callback();
-  });
-  });
-  };
-  })(jQuery);  
-  
-  */

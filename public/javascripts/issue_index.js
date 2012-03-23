@@ -26,6 +26,7 @@ $(function() {
 //	  return false;
 //  });
 
+
 // -------------------------------------------------------------------------------
 // D E L E T E     C O N F I R M A T I O N      'Y E S' 
 // -------------------------------------------------------------------------------  
@@ -57,6 +58,21 @@ $(function() {
 	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer 
 	  $("#confirm_popup").fadeIn();
   }   
+
+// -------------------------------------------------------------------------------
+// I S S U E S    P A G I N A T I O N 
+// ------------------------------------------------------------------------------- 
+  $("#issues .pagination a").live("click", function() {
+	// show message to the user
+	show_progress_message("retrieving issues")
+	// call
+	$.getScript(this.href);
+	
+	// history management
+	window.history.ready = true;
+	history.pushState(null, document.title, this.href);	
+	return false;
+  });
 
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	

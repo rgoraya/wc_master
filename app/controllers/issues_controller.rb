@@ -2,12 +2,29 @@ class IssuesController < ApplicationController
   # GET /issues
   # GET /issues.xml
 
-require 'backports'
+require 'backports' 
   
   def index
-    @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+      
+      # setting the default sort criteria
+      if (params[:sort_by])
+        @sort_by = params[:sort_by]  
+      else 
+        @sort_by = "Alphabetical order" 
+      end
+
+      # set the @issue for the sort criteria
+      case @sort_by
+        when "Alphabetical order"
+          @issues = Issue.search(params[:search]).order("title").paginate(:per_page => 20, :page => params[:page]) 
+        when "Most recent"  
+          @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+        when "Relationship count"
+          @issues = Issue.search(params[:search]).order("relationships_count DESC").paginate(:per_page => 20, :page => params[:page]) 
+      end
+     
     respond_to do |format|
-      format.js {render :layout=>false}
+      format.js 
       format.html # index.html.erb
       format.xml  { render :xml => @issues }
       format.json { render :json => @issues }
@@ -43,15 +60,12 @@ require 'backports'
 
     respond_to do |format|
       format.html do
-        
-        # if this is an HTML load then check for suggestions and try pulling them if not found
         if @issue.suggestions == [] 
-           load_suggestions
+          load_suggestions
         end
       end
       format.xml  { render :xml => @issue }
-      format.js
-
+      format.js {render :layout => false }
     end
   end
 
@@ -208,7 +222,7 @@ require 'backports'
       
       # Check whether or not this Node exist as an issue already?
       # IMPORTANT: Keep the search case-insensitive
-      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.to_s.downcase).first
       if !@existing_issue.nil?
         add_already_existent_issue
       else
@@ -216,7 +230,7 @@ require 'backports'
       end
     else
       # Check whether this Issue already exists
-      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.downcase).first
+      @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.to_s.downcase).first
       if !@existing_issue.nil?
         # if so then simply redirect to the Show page of that Issue
         redirect_to(@existing_issue)
@@ -290,7 +304,6 @@ require 'backports'
   end
 
   def update_img_if_applicable
-    #@existing_issue = Issue.find(@issueid)
     # if the image selected by the user is different than the one saved then update it.
     if !@existing_issue.nil?
       if @issue.short_url != @existing_issue.short_url 
@@ -356,6 +369,7 @@ require 'backports'
 
   def save_relationship
     if @relationship.save
+      self_endorse
       remove_duplicate_suggestions
       update_img_if_applicable 
       Reputation::Utils.reputation(:action=>:create, \
@@ -369,6 +383,12 @@ require 'backports'
     else
       @notice = @relationship.errors.full_messages.join(", ")    
     end   
+  end
+
+  def self_endorse
+    if @relationship.user
+      Vote.create(:user_id => @relationship.user_id, :relationship_id => @relationship.id, :vote_type => "E")
+    end    
   end
 
   def remove_duplicate_suggestions
