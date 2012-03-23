@@ -51,6 +51,11 @@ function show_modal(data) {
   $('#modal_container').toggle(true);
 };
 
+function hide_modal() {
+  $('#modal_container').toggle(false);	
+  // $('#modal_fill').html('');
+}
+
 //put the modal window in the desired location (relative to parent of course)
 //has positioning information that is based off of the css classes
 function position_modal(click_x,click_y) {
@@ -65,16 +70,16 @@ function position_modal(click_x,click_y) {
   above = click_y > c_height/2 //if we clicked below the equator, place modal above
 
   if(above) { //set the arrows and such
-    y -= (5+25+m_height) //make room for arrow below
+    y -= (5+15+m_height) //make room for arrow below
     $('#modal_container .up_pointer_arrow').toggle(false);
     $('#modal_container .down_pointer_arrow').toggle(true);
-    $('#modal_container .down_pointer_arrow').css('margin-right',(m_width-20)-(click_x-x)); //set arrow's offset
+    $('#modal_container .down_pointer_arrow').css('margin-right',(m_width-10)-(click_x-x)); //set arrow's offset
   }
   else {
     y += 5
     $('#modal_container .up_pointer_arrow').toggle(true);
     $('#modal_container .down_pointer_arrow').toggle(false);
-    $('#modal_container .up_pointer_arrow').css('margin-right',(m_width-20)-(click_x-x)); //set arrow's offset
+    $('#modal_container .up_pointer_arrow').css('margin-right',(m_width-10)-(click_x-x)); //set arrow's offset
   }
   
   $('#modal_container').css('left',x);

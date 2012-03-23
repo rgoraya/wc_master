@@ -35,7 +35,7 @@
     #detail_container{:class => "navigation"}
       .search_container_appl
         = form_tag({:action => "search_bars"}, {:class=> "issue_search_form", :id=>"vis_cause_search_form", :remote => true, :method => 'get'}) do
-          = hidden_field_tag :form_name, 'cause_form' #which form is this (for processing)
+          = hidden_field_tag :display_area_id, 'vis_cause_issue_search' #which form is this (for processing)
           = text_field_tag :query, params[:query], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"vis_cause_search_visible_input"
           = hidden_field_tag :selected_data #what thing we selected
           %input{:type=>"submit", :value=> '', :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"vis_cause_search_submit_btn"}

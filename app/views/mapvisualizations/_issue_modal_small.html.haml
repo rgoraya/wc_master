@@ -1,0 +1,17 @@
+= puts "issue_modal_small loaded for #{issue.title}"
+
+:javascript
+  position_modal(#{location[0]},#{location[1]});
+  // $('.modal_linkout').click(function(){ goto('issue',#{issue.id}); });
+
+#issue_modal
+  //Content copied from _issues.html. This could basically be a separate partial, no problem
+  .formcontentdiv{:style => "padding:5px 5px 0px 5px;"}
+
+    %div{:class=>"index_img_box_sqr", :style=>"float:left;background-image:url(#{issue.short_url})"}
+      = link_to "", issue, :title=>"View this Issue"
+    %div.formheading{:style=>"float:left;"}
+      = link_to issue.title, issue, :title=>"View this issue's page"    
+
+    .clearboth
+

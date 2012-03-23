@@ -44,6 +44,7 @@ function drawNode(node, paper){
 		.click(function(e) {clickNode(node, e)})
 		//.click(function() { get_issue(node, show_modal)})
 		.mouseover(function() {this.node.style.cursor='pointer';hoverNode(node)})
+		// .mouseout(function() {unhover()})
 		// .mouseout(function() {unhoverNode(node)})
 		.mousedown(function (e) {
 			if(e.shiftKey){
@@ -504,10 +505,18 @@ function clickEdge(edge){
 //convenience method to do the "hover" calculations
 function hoverNode(node){
 	if(now_detailing != node.id) {
-		get_issue(node, show_details)
+		get_issue(node, show_modal)
+		//get_issue(node, show_details)
 		now_detailing = node.id
 	}
 }
+
+//what to do when we stop hoving over something
+function unhover(){
+	now_detailing = 0
+	hide_modal()
+}
+	
 
 //convenience method to do the "hover" calculations
 function hoverEdge(edge){
@@ -515,7 +524,10 @@ function hoverEdge(edge){
 	// curve = getPath(edge);
 	// midPoint = getPathCenter(curve);	
 	if(now_detailing != edge.id) {	
-		get_relationship(edge, {curve:"",midPoint:{x:0,y:0}},show_details)
+		var curve = getPath(edge); 
+		var midPoint = getPathCenter(curve);	
+		get_relationship(edge,{curve:curve,midPoint:midPoint},show_modal);
+		//get_relationship(edge, {curve:"",midPoint:{x:0,y:0}},show_details)
 		now_detailing == edge.id
 	}
 }
