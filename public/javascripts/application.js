@@ -258,7 +258,9 @@ $(function() {
 		var form = $(this).parent()
 		if (form.children('.searchfield_appl').val().trim() != ""){
 			//$('#search_invisible_input').val($('#search_visible_input').val().trim())
-  			form.submit();
+				//empty means that the form will just submit. We can add any extra handling here if we want, for when the form is submitted			
+				// //form.submit();
+				// //return false;
 		}
   });
 
@@ -270,7 +272,7 @@ $(function() {
    
   $(".searchfield_appl").bind("keydown", function(f){
 	  if (f.keyCode == 13){
-			if (searchBoxIndex < 0){
+			if (searchBoxIndex < 0){ //if no item selected
 				if ($(this).val().trim() != ""){
 						$(this).parent().submit();
 				}
@@ -279,13 +281,18 @@ $(function() {
 				var appl = $(this).parents('.search_container_appl')
 				var item = appl.find(".search_result_appl a").eq(searchBoxIndex);
 				//var location = appl.find(".search_result_appl a").eq(searchBoxIndex).attr("href");
-				appl.find('#selected_data').val(item.attr("href"));
+				data = appl.find('#selected_data')
+				data.val(item.attr("href"));
 	  		appl.find('.issue_search').empty(); //hide the container for future searches
 				$(this).val(item.attr('name'))
 				// $(this).parent().submit() //why does this not submit data-remote forms??
-				// return false;
+				appl.find('.search_appl_submit').trigger('click'); //click the button to submit the form
 
-				//clear out anything else that we already set??
+				data.val(''); //empty out the data for future
+				window.searchBoxIndex = -1
+
+				return false; //don't do anything else
+
 
 				// // window.location = $(this).parents('.search_container_appl').find(".search_result_appl a").eq(searchBoxIndex).attr("href");
 			}
