@@ -8,6 +8,7 @@ describe IssuesController do
                       'short_url' => 'exampleshort', 'description' => 'exampledescription'}
     @issue = mock_model(Issue)
     Issue.should_receive(:new).with(@attributes).once.and_return(@issue)
+    request.env["HTTP_REFERER"] = "/issues/1007"
   end
   
   it "redirects to the issue on successful save" do
@@ -25,7 +26,7 @@ describe IssuesController do
     post :create, :issue => @attributes
     assigns[:issue].should be(@issue)
     flash[:notice].should_not be(nil)    
-    response.should redirect_to(:back)
+    response.should redirect_to "/issues/1007" #this would only work with a certain test db
   end                                
 end                          
 
