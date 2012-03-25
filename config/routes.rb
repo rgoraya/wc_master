@@ -1,6 +1,6 @@
 Wikicausality::Application.routes.draw do
 
-
+  match '/signup', :to  => 'users#new' 
   resources :mapvisualizations
   resources :paths
   resources :feed_backs

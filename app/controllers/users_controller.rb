@@ -33,6 +33,7 @@ class UsersController < ApplicationController
   # GET /users/1/edit
   def edit
     @user = User.find(params[:id])
+    restrict_access if @user != current_user
   end
 
   # POST /users

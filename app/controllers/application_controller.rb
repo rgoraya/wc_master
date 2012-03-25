@@ -17,5 +17,7 @@ class ApplicationController < ActionController::Base
     @current_user = current_user_session && current_user_session.user
   end
 
-
+  def restrict_access
+    redirect_to '/issues', :alert => "Access denied"
+  end
 end
