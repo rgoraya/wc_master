@@ -26,7 +26,7 @@ describe IssuesController do
     post :create, :issue => @attributes
     assigns[:issue].should be(@issue)
     flash[:notice].should_not be(nil)    
-    response.should redirect_to "/issues/1007"
+    response.should redirect_to "/issues/1007" #this would only work with a certain test db
   end                                
 end                          
 
