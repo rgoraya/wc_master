@@ -107,6 +107,16 @@ class MapvisualizationsController < ApplicationController
       end 
   end
 
+  def qtip
+    if params[:t] == 'issue'
+      issue_to_show = Issue.find(params[:id])
+      render :partial => "issue_qtip", :content_type => 'text/html', :locals => {:issue => issue_to_show}
+    elsif params[:t] == 'relation'
+      relation_to_show = Relationship.find(params[:id])
+      render :partial => "relation_qtip", :content_type => 'text/html', :locals => {:relation => relation_to_show}
+    end
+  end
+
 
 ############################################################
 ### OLD RESTFUL METHODS

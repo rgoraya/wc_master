@@ -2,6 +2,7 @@ Wikicausality::Application.routes.draw do
 
 
   match 'mapvisualizations/search_bars' => 'mapvisualizations#search_bars'
+  match 'mapvisualizations/qtip' => 'mapvisualizations#qtip'
   resources :mapvisualizations
   resources :paths
   resources :feed_backs

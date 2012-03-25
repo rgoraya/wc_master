@@ -66,15 +66,36 @@
   border-top: 10px solid #2f2f2f;
 }
 
-#issue_modal {}
+#issue_qtip .formcontentdiv {
+  border:0px; 
+  padding: 0px 0px;
+	font-size: 12px;	
+}
+
+#issue_qtip .formheading {
+	margin:0px;
+	padding:5px 0px 0px 0px;
+}
+
+#relation_qtip .formcontentdiv {
+  border:0px; 
+  padding: 0px 0px;
+	font-size: 12px;	
+}
+
+#relation_qtip .heading {
+	text-decoration:none;
+	font:bold 14px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	text-shadow:0 0px 1px rgba(0,0,0,0.2);
+	color: #434343;
+}
+
 
 #issue_modal .formcontentdiv { /*overwrite base form*/
   border:0px; 
   padding: 5px 10px;
 	font-size: 12px;
 }
-
-#relation_modal {}
 
 #relation_modal .rationale_container {
   margin:0px;

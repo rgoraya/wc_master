@@ -1,0 +1,10 @@
+#issue_qtip
+  //Content copied from _issues.html. This could basically be a separate partial, no problem
+  .formcontentdiv
+
+    .index_img_box_sqr{:style=>"float:left;background-image:url(#{issue.short_url})"}
+      = link_to "", issue, :title=>"View this Issue"
+    .formheading{:style=>"float:left"}
+      = link_to issue.title, issue, :title=>"View this issue's page"
+
+    .clearboth

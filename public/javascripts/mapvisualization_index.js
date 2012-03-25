@@ -114,3 +114,49 @@ function get_relationship(edge, params, func) {
 		dataType: 'script'
 	});	
 }
+
+//layout details for the node qtip
+function get_node_qtip(node) {
+	return {
+		content:{
+			text: 'Loading '+node.name+'...',
+			ajax:{
+				url: 'mapvisualizations/qtip',
+				type: 'GET',
+				data: {t: 'issue', id: node.id}
+			}
+		},
+		position: {
+			// my: 'top center',  // Position my top left...
+			// at: 'bottom center', // at the bottom right of...
+			target: 'mouse',
+			adjust: {y:4}
+		},
+		style: {
+			classes: 'ui-tooltip-light ui-tooltip-shadow'
+		}
+	};
+}
+
+//layout details for the edge qtip
+function get_edge_qtip(edge) {
+	return {
+		content:{
+			text: 'Loading '+edge.name+'...',
+			ajax:{
+				url: 'mapvisualizations/qtip',
+				type: 'GET',
+				data: {t: 'relation', id: edge.id}
+			}
+		},
+		position: {
+			// my: 'top center',  // Position my top left...
+			// at: 'bottom center', // at the bottom right of...
+			target: 'mouse',
+			adjust: {y:4}
+		},
+		style: {
+			classes: 'ui-tooltip-light ui-tooltip-shadow'
+		}
+	};	
+}

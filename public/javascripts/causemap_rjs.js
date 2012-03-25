@@ -42,10 +42,9 @@ function drawNode(node, paper){
 		var icon = paper.set()
 		.push(circ,txt)
 		.click(function(e) {clickNode(node, e)})
-		//.click(function() { get_issue(node, show_modal)})
-		.mouseover(function() {this.node.style.cursor='pointer';hoverNode(node)})
-		// .mouseout(function() {unhover()})
-		// .mouseout(function() {unhoverNode(node)})
+		.mouseover(function() {this.node.style.cursor='pointer';})//hoverNode(node)})
+				// .mouseout(function() {unhover()})
+				// .mouseout(function() {unhoverNode(node)})
 		.mousedown(function (e) {
 			if(e.shiftKey){
 				now_dragging = {icon:icon, node:node};
@@ -53,8 +52,7 @@ function drawNode(node, paper){
 		})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
 
-
-		// $(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
+		$(circ.node).qtip(get_node_qtip(node)); //if we want a tooltip
 
 		return icon;  
 	}
@@ -67,7 +65,7 @@ function drawNode(node, paper){
 		.click(function() { get_issue(node, show_modal)})
 		.mouseover(function() {this.node.style.cursor='pointer';})
 
-		$(circ.node).qtip({content:{text:node.name}}); //if we want a tooltip
+		$(circ.node).qtip(get_node_qtip(node)); //if we want a tooltip
 
 		return icon;  
 	}
@@ -102,14 +100,10 @@ function drawEdge(edge, paper){
 
 		var icon = paper.set() //for storing pieces of the line as needed
 		.push(e, arrow[0], arrow[1], dots)
-		//.click(function() { clickEdge(edge) })
-		.mouseover(function() { hoverEdge(edge) })
-		//.mouseout(function() { unhoverEdge(edge) })
+		//.mouseover(function() { hoverEdge(edge) })
+			//.mouseout(function() { unhoverEdge(edge) })
 
-		// $([e.node,arrow[0].node,arrow[1].node]).qtip({
-		// 	content:{text:edge.name},
-		// 	position:{target: 'mouse', adjust:{y:5}}
-		// });
+		$([e.node,arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(edge));
 
 		return icon;
 	}
@@ -133,12 +127,9 @@ function drawEdge(edge, paper){
 		var icon = paper.set() //for storing pieces of the line as needed
 		.push(e)
 		.click(function() { clickEdge(edge) })
-		.mouseover(function() {this.node.style.cursor='pointer';})
+		// .mouseover(function() {this.node.style.cursor='pointer';})
 
-		$(e.node).qtip({
-			content:{text:edge.name},
-			position:{target: 'mouse', adjust:{y:5}}
-		});
+		$([e.node,arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(edge));
 
 		return icon;
 	}
@@ -516,7 +507,6 @@ function unhover(){
 	now_detailing = 0
 	hide_modal()
 }
-	
 
 //convenience method to do the "hover" calculations
 function hoverEdge(edge){
