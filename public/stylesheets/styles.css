@@ -496,6 +496,11 @@ z-index:0;
 	color:#434343;
 }
 
+.formheading a:visited{
+	text-decoration:none;
+	color:#434343;
+}
+
 .formheading a:hover{
 	text-decoration:underline;
 	color:#4DB8DB;

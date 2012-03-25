@@ -9,18 +9,15 @@ class MapvisualizationsController < ApplicationController
     @default_node_count = 3 #40
     @default_edge_ratio = 0.5 #0.08
     
-    @verbose = false #unless specified otherwise in params
+    # @verbose = false #unless specified otherwise in params
+    @verbose = !params[:v].nil?
+    #puts "verbose: "+@verbose.to_s
 
     # puts "===Controller Params==="
     # puts params
     
     respond_to do |format|
       format.html do #on html calls
-        puts "handing html in index"
-
-        @verbose = !params[:v].nil?
-        #puts "verbose: "+@verbose.to_s
-
         @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
           :params => params) #on new html--generate graph. Just pass in all the params for handling
@@ -32,8 +29,6 @@ class MapvisualizationsController < ApplicationController
       end
 
       format.js do #respond to ajax calls
-        puts "handling js in index"
-
         @vis = session[:vis] || Mapvisualization.new(:width => @default_width, :height => @default_height, 
           :node_count => @default_node_count, :edge_ratio => @default_edge_ratio, 
           :params => {:query => params[:q],:id_list => params[:i]}) #grab the old vis, or make a new one if needed
@@ -57,6 +52,10 @@ class MapvisualizationsController < ApplicationController
           
         elsif params[:do] == 'goto_relationship'
           @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :params => {:q => 'show', :r => params[:target]})
+        
+        elsif params[:do] == 'goto_path'
+          @vis = Mapvisualization.new(:width => @default_width, :height => @default_height, :params => {:q => 'path', :from => params[:from], :to => params[:to]})
+          render "index.js.erb"
         
         elsif params[:layout_cmd]
           actions = %w[remove_edges foo bar] #etc
@@ -88,11 +87,25 @@ class MapvisualizationsController < ApplicationController
     
     respond_to do |format|
       format.js do
-        if params[:selected_data] and params[:selected_data]!=''
-          issue_id = params[:selected_data].slice(/\d+/)
-          # set the params we're going to need
-          params[:do] = 'goto_issue'
-          params[:target] = issue_id
+        unless params[:selected_data].empty?
+          new_issue_id = params[:selected_data].slice(/\d+/)
+          
+          if params[:display_area_id] == 'vis_cause_issue_search'
+            if params[:effect_id].empty?
+              params[:do] = 'goto_issue'
+              params[:target] = new_issue_id
+            elsif
+              params[:do] = 'goto_path'
+              params[:from] = new_issue_id
+              params[:to] = params[:effect_id]
+            end
+          elsif params[:display_area_id] == 'vis_effect_issue_search'
+            ##should always have a cause value, so don't need to handle (in theory)...
+            params[:do] = 'goto_path'
+            params[:from] = params[:cause_id]
+            params[:to] = new_issue_id            
+          end
+                    
           index #call index, which will do the rest of the work
         else
           @search_results = Issue.search(params[:query]).first(5) #get some search results, and render

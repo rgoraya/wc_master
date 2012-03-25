@@ -215,7 +215,7 @@ class Graph
 		@layout_distances.each do |src, dests|
 			dests.each do |k, v|
 			### DEBUG
-				puts "DISTANCE #{src} to #{k}: #{v}"
+        # puts "DISTANCE #{src} to #{k}: #{v}"
 			end 
 		end
 

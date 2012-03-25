@@ -76,12 +76,6 @@ $(function() {
 		var searchform = appl.find('.issue_search_form')
 		var searchfield = appl.find('.searchfield_appl')
 		var issuesearch = appl.find('.issue_search')
-		// console.log('appl',appl)
-		// console.log("searchform:",searchform)
-		// console.log("searchfield:",searchfield)
-		// console.log("issuesearch:",issuesearch)
-		// console.log($(appl))
-		//search_visible_input has class 'searchfield_appl'
 		
     var ignore_keys_array = [18,20,17,35,13,27,36,45,37,93,91,34,33,39,16,9,40,38];
     if ($.inArray(e.keyCode, ignore_keys_array) == -1 && searchfield.val().trim() != ""){
@@ -259,8 +253,8 @@ $(function() {
 		if (form.children('.searchfield_appl').val().trim() != ""){
 			//$('#search_invisible_input').val($('#search_visible_input').val().trim())
 				//empty means that the form will just submit. We can add any extra handling here if we want, for when the form is submitted			
-				// //form.submit();
-				// //return false;
+				// // form.submit();
+				// // return false;
 		}
   });
 
@@ -304,6 +298,26 @@ $(function() {
 			Navigate(-1, $(this));
 		}
   });
+
+
+// -------------------------------------------------------------------------------  
+// SUBMIT SEARCH FORM WHEN WE CLICK A LINK IN SEARCH RESULTS
+// -------------------------------------------------------------------------------
+	
+	$(".search_result_appl a").live('click', function(){
+		appl = $(this).parents('.search_container_appl')
+		data = appl.find('#selected_data')
+		data.val($(this).attr("href"));
+		// appl.find('.issue_search').empty(); //hide the container for future searches
+		// $(this).val(item.attr('name'))
+		// $(this).parent().submit() //why does this not submit data-remote forms??
+		appl.find('.search_appl_submit').trigger('click'); //click the button to submit the form
+		data.val(''); //empty out the data for future
+		
+		return false
+	});
+
+
   
 // -------------------------------------------------------------------------------    
 // SHOW HIDE SEARCH RESULTS BOX
@@ -328,14 +342,15 @@ $(function() {
   		// searchBoxIndex = oBoxCollection.length - 1;
   	var elem_class = "search_hover";
 	  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);
-  }
+  };
 
-  $(".search_result_appl").on('mouseover', function(){
-	  searchBoxIndex = $(this).index();
-	  var elem_class = "search_hover";
-	  var oBoxCollection = $(".search_result_appl");
-	  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);  
-  });
+	//does this code not actually do anything anymore?
+  // $(".search_result_appl").on('mouseover', function(){
+  // 	  searchBoxIndex = $(this).index();
+  // 	  var elem_class = "search_hover";
+  // 	  var oBoxCollection = $(".search_result_appl");
+  // 	  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);  
+  // });
 
 
 

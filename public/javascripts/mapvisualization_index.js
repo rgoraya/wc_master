@@ -142,12 +142,14 @@ function get_node_qtip(node) {
 function get_edge_qtip(edge) {
 	return {
 		content:{
-			text: 'Loading '+edge.name+'...',
-			ajax:{
-				url: 'mapvisualizations/qtip',
-				type: 'GET',
-				data: {t: 'relation', id: edge.id}
-			}
+			text: '<div id="relation_qtip"><div class="formcontentdiv"><div class="heading"><a href="">' + 
+							edge.name + '</a></div></div></div>'
+			// text: 'Loading '+edge.name+'...',
+			// ajax:{
+			// 	url: 'mapvisualizations/qtip',
+			// 	type: 'GET',
+			// 	data: {t: 'relation', id: edge.id}
+			// }
 		},
 		position: {
 			// my: 'top center',  // Position my top left...
