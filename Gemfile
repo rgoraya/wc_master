@@ -57,6 +57,7 @@ group :development do
   gem "hpricot"
 end
 group :test do
+  gem 'webrat'
   gem 'rspec'
   gem 'rspec-rails'
   gem 'cucumber-rails'
