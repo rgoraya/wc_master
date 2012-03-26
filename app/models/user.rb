@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
 
   has_many :feedbacks
 
-  has_many :votes
+  has_many :votes             
   # all relationships the user endorses
   has_many :endorsed_relationships,  :through => :votes, :source => :relationship, :conditions => ['vote_type = "E"']
   # all relationships the user contests
@@ -22,6 +22,7 @@ class User < ActiveRecord::Base
   # all relationships the user accuses of being offensive
   has_many :accused_relationships,   :through => :votes, :source => :relationship, :conditions => ['vote_type = "A"']
 
+  validates :username, :length => { :within => 1..50 }
 
 
   # search functionality
