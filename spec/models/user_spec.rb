@@ -94,4 +94,27 @@ describe User do
         should_not be_valid
     end    
   end
+
+  describe "password encryption" do
+    before(:each) do
+      @user = User.create!(@attr)
+    end
+
+    it "should have an encrypted password attribute" do
+      @user.should respond_to(:crypted_password)
+    end
+
+    it "should set the encrypted password attribute" do 
+      @user.crypted_password.should_not be_blank
+    end
+
+    it "should have a password_salt" do 
+      @user.should respond_to(:password_salt)
+    end
+  
+    # Now we could test for authentication, password_salt and more stuff 
+    # here, but since we didn't use our own authentication but AUTHLOGIC's one,
+    # we'll trust how they tested it just like we trust ActiveRecord developer 
+    # tests.
+  end   
 end
