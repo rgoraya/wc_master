@@ -16,7 +16,7 @@ class GameController < ApplicationController
     
     respond_to do |format|
       format.html do #on html calls
-        @vis = Game.new(:width => @default_width, :height => @default_height, :params => params) #Just pass in all the params for handling
+        @vis = Game.new(:width => @default_width, :height => @default_height, :params => params) #Just pass in all the params
 
         flash[:notice] = @vis.notice
         

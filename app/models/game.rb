@@ -14,7 +14,8 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
     make_expert_graph
 
-    default_layout #will eventually have custom initial layout
+    #default_layout #will eventually have custom initial layout
+    grid_nodes_in_box(@nodes,Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
 
     #handle_params(args[:params],args) ##do the normal graphing command    
   end
@@ -22,7 +23,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   # make the nodes and edges for our expert graph
   def make_expert_graph
     ISSUE_NAMES.each_with_index {|name, i| @nodes[i] = Graph::Node.new(i, name, "") unless name.blank? }
-    EXPERT_ADJACENCY_1.each_with_index {|(key, value), i| @edges.push(Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES))) }
+    #EXPERT_ADJACENCY_1.each_with_index {|(key, value), i| @edges.push(Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES))) }
   end
 
 

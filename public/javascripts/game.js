@@ -1,5 +1,20 @@
 /// THIS FILE CONTAINS THE JAVASCRIPT FOR THE GAME, OVERWRITING causemap_rjs AND mapvizualization_index WHERE APPROPRIATE
 
+var startBox;
+
+//sets up initial boxes and stuff for the game
+function drawInitGame(paper){
+	startBox = paper.rect(paper_size.width-203,150,200,paper_size.height-150-3).attr({'stroke': '#000000', 'stroke-width':3})
+	var boxLabel = paper.text(paper_size.width-203+5,150+15,'Concepts').attr({
+		'text-anchor':'start', 
+		'font':'lucida grande',
+		'font-family':'sans-serif',
+		'font-size':24,
+		'font-weight':'bold',
+		'fill':'#BEBEBE'
+	})
+}
+
 //details on drawing/laying out a node
 function drawNode(node, paper){
 		var txt = paper.text(node.x, node.y+T_OFF, node.name)
@@ -7,11 +22,6 @@ function drawNode(node, paper){
 		.attr({
 			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
 		})
-
-		if(hasSelection){
-			if(!node.h) //if not highlighted
-				icon.attr({'opacity':DESEL_OP,'stroke-opacity':DESEL_OP})
-		}
 
 		var icon = paper.set()
 		.push(circ,txt)

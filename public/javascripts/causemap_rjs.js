@@ -289,7 +289,7 @@ function drawDots(edge, curve, paper)
 //nodes and edges are objects of objects; includes 'keys' as an array of the keys for iterating
 function drawElements(nodes, edges, paper)
 {
-	paper.clear() //clear out old drawings
+	// paper.clear() //clear out old drawings
 
 	//draw edges (below the nodes)
 	for(var i=0, len=edges['keys'].length; i<len; i++){
