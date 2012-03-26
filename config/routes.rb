@@ -1,8 +1,9 @@
 Wikicausality::Application.routes.draw do
 
+  match '/signup', :to  => 'users#new' 
+  resources :game
   match 'mapvisualizations/search_bars' => 'mapvisualizations#search_bars'
   match 'mapvisualizations/qtip' => 'mapvisualizations#qtip'
-  match '/signup', :to  => 'users#new' 
   resources :mapvisualizations
   resources :paths
   resources :feed_backs
