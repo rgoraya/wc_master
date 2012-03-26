@@ -27,13 +27,14 @@
               
           .navigation{:style=>"float:left;"}
             %div{:class=>"search_container_appl"}
-              = form_tag "/issues/auto_complete_search", :id=>"issue_search_form", :method => 'get' do               
+              = form_tag "/issues/auto_complete_search", :class=>"issue_search_form", :id=>"issue_search_form", :method => 'get' do               
                 = text_field_tag :query, params[:query], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl", :id=>"search_visible_input"
-                %input{:type=>"button", :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"search_submit_btn"}
+                = hidden_field_tag :selected_data #what thing we selected
+                %input{:type=>"submit", :value=>'', :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"search_submit_btn"}
               
                 .clearboth  
                                     
-              %div{:id=>"issue_search"}
+              %div{:id=>"issue_search", :class=>"issue_search"}
                 = render 'issues/issue_search'
             
           .navigation
