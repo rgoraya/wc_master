@@ -56,4 +56,14 @@ describe User do
     user_with_duplicate_email = User.new(@attr)
     user_with_duplicate_email.should_not be_valid
   end   
+
+  describe "password validations" do
+    before(:each) do 
+      @user = User.new(@attr)
+    end
+
+    it "should have a password attribute" do
+      @user.should respond_to(:password)
+    end      
+  end
 end
