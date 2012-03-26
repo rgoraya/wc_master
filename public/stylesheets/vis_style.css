@@ -1,12 +1,20 @@
 #vis_container {
 	margin-top:10px;
-	margin-left:auto;
-	margin-right:auto
+/*	margin-left:auto;
+	margin-right:auto*/
+	float:left;
 }
 
 #canvas_container {
   border: 1px solid #bebebe;
   padding:0px;
+}
+
+#sidebar_container {
+	margin-top:10px;
+	float:right;
+	width:320px;
+/*	border:1px solid red;*/
 }
 
 #spinner {
@@ -23,16 +31,14 @@
   /* popup window with things inside it */
   display:none; /*to start*/
   position: relative;
-  width:400px;
-  height:150px;
+	width:320px;
+	height:35px; /*these sizes help arrow positioning be consistent, but aren't strictly necessary.*/
 }
 
 #modal_fill {
   background-color: #FCFCFC;
   padding: 0px;
-  width:400px;
-  height:150px;
-  overflow:auto;
+	overflow:auto;
   clear:both;
   border: 1px solid #2F2F2F;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
@@ -44,9 +50,9 @@
 	width: 0px;
 	height: 0;
 	float:right;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 20px solid #2f2f2f;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #2f2f2f;
 }
 
 .down_pointer_arrow {
@@ -55,20 +61,41 @@
 	width: 0px;
 	height: 0;
 	float:right;
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-top: 20px solid #2f2f2f;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #2f2f2f;
 }
 
-#issue_modal {}
+#issue_qtip .formcontentdiv {
+  border:0px; 
+  padding: 0px 0px;
+	font-size: 12px;	
+}
+
+#issue_qtip .formheading {
+	margin:0px;
+	padding:5px 0px 0px 0px;
+}
+
+#relation_qtip .formcontentdiv {
+  border:0px; 
+  padding: 0px 0px;
+	font-size: 12px;	
+}
+
+#relation_qtip .heading {
+	text-decoration:none;
+	font:bold 14px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	text-shadow:0 0px 1px rgba(0,0,0,0.2);
+	color: #434343;
+}
+
 
 #issue_modal .formcontentdiv { /*overwrite base form*/
   border:0px; 
   padding: 5px 10px;
 	font-size: 12px;
 }
-
-#relation_modal {}
 
 #relation_modal .rationale_container {
   margin:0px;
@@ -140,6 +167,36 @@
 	display:none;
 	opacity: 0.9;*/
 }
+
+
+.index_img_box_sqr{
+	height:24px; width:24px; 
+	border:2px solid #fcfcfc;
+	margin:0px 7px 0px 0px;
+	background-color:#fcfcfc;
+	background-position:center center;
+	background-repeat:no-repeat;
+	background-size:auto 24px;
+	overflow:hidden;
+	text-align:center;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+}
+
+.index_img_box_sqr:hover{
+	-webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 4px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 4px;
+	box-shadow: rgba(0, 0, 0, 0.5) 0 1px 4px;
+}
+
+.index_img_box_sqr a{
+	display: block;  
+	height: 100%; 
+	text-indent: -9999em
+}
+
+
 
 /*** 
  *** LAYOUT BUTTONS 

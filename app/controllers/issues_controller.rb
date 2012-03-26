@@ -177,15 +177,20 @@ require 'backports'
 
   def auto_complete_search
     @search_results = Issue.search(params[:query]).first(5)
-    
-      respond_to do |format|
-        format.js 
-        format.html do
+
+    respond_to do |format|
+      format.js 
+      format.html do
+        
+        if params[:selected_data] and params[:selected_data] != '' #handle selected_data (a selected url) if available
+          redirect_to params[:selected_data]
+        else
           #@issues = Issue.search(params[:query])
           redirect_to :controller => 'issues', :action => 'index', :search => params[:query]
           #redirect_to(:issues, params[:query] )
         end
-      end 
+      end
+    end 
   end
 
   # GET /issues/new
