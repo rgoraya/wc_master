@@ -18,6 +18,22 @@ describe UsersController do
       get :show, :id => @user
       assigns(:user).should == @user    #:user is the one at the controller
     end      
+
+    it "should have the right title" do
+      get :show, :id => @user
+      response.should have_selector('title', :content => @user.username )
+    end 
+
+    it "should have a profile image" do
+      get :show, :id => @user
+      response.should have_selector('a>img', :class => "gravatar" )
+    end
+
+    it "should lead us to our gravatar profile or signup page" do
+      get :show, :id => @user
+      response.should have_selector('a', :href => "https://en.gravatar.com/emails")
+    end
+
   end
 
   describe "GET 'new'" do
