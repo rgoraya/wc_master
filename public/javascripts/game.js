@@ -1,5 +1,13 @@
 /// THIS FILE CONTAINS THE JAVASCRIPT FOR THE GAME, OVERWRITING causemap_rjs AND mapvizualization_index WHERE APPROPRIATE
 
+/* Random NOTES
+http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
+
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+    <path id="arrow" fill="#090BAB" d="M 50,100 L 0,0 L 50,30 L 100,0" />
+</svg>
+*/
+
 var startBox;
 
 //sets up initial boxes and stuff for the game
@@ -17,19 +25,26 @@ function drawInitGame(paper){
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
-		var txt = paper.text(node.x, node.y+T_OFF, node.name)
-		var circ = paper.circle(node.x, node.y, 5)//+(node.weight*6))
-		.attr({
+		// var circ = paper.circle(node.x, node.y, 20)//+(node.weight*6))
+		// .attr({
+		// 	fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
+		// })
+		var island_num = Math.floor(Math.random()*4)
+		var island = paper.path(ISLAND_PATHS[island_num]).attr({
 			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
 		})
+		var bb = island.getBBox();
+		// island.translate(node.x-(bb.x+bb.width/2),node.y-(bb.y+bb.height/2))
+		island.transform("t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2)))
+		var txt = paper.text(node.x, node.y+T_OFF, node.name)
 
 		var icon = paper.set()
-		.push(circ,txt)
+		.push(island,txt)
 		.mouseover(function() {this.node.style.cursor='pointer';})//hoverNode(node)})
 		.mousedown(function (e) {now_dragging = {icon:icon, node:node};})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
 
-		$(circ.node).qtip(get_node_qtip(node)); //if we want a tooltip
+		$(island.node).qtip(get_node_qtip(node)); //if we want a tooltip
 
 		return icon;  
 }
@@ -61,15 +76,12 @@ function drawEdge(edge, paper){
 		return icon;
 }
 
-
 //methods to control dragging
 var dragstart = function (x,y,event) 
 {
 	if(now_dragging) {
-		drag_origin.cx = now_dragging.icon[0].attr('cx'); //store the original locations
-	  drag_origin.cy = now_dragging.icon[0].attr('cy');
-		drag_origin.x = now_dragging.icon[1].attr('x');
-		drag_origin.y = now_dragging.icon[1].attr('y');
+		this.ox = 0;
+		this.oy = 0;
 
 		for(var i=0, len=currEdges['keys'].length; i<len; i++)
 		{
@@ -86,9 +98,13 @@ var dragstart = function (x,y,event)
 var dragmove = function (dx,dy,x,y,event) 
 {
 	if(now_dragging) {
-		now_dragging.node.x = drag_origin.cx+dx
-		now_dragging.node.y = drag_origin.cy+dy //move the node itself; this will move the appropriate edges
-		now_dragging.icon.attr({cx: drag_origin.cx+dx, cy: drag_origin.cy+dy, x: drag_origin.x+dx, y: drag_origin.y+dy});
+		trans_x = dx-this.ox
+		trans_y = dy-this.oy
+		now_dragging.node.x += trans_x
+		now_dragging.node.y += trans_y //move the node itself; this will move the appropriate edges
+		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
+		this.ox = dx;
+		this.oy = dy;		
 		
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
@@ -108,7 +124,6 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].push(dots)
 	}
 	//reset variables
-	drag_origin = {cx:0, cy:0, x:0, y:0, id:0} 
 	dragged_edges = []
 	now_dragging = null
 };
@@ -118,7 +133,7 @@ var dragend = function (x,y,event)
 function get_node_qtip(node) {
 	return {
 		content:{
-			text: '<div id="relation_qtip"><div class="formcontentdiv"><div class="heading">' + 
+			text: '<div id="relation_qtip"><div class="formcontentdiv"><div class="heading">Concept: ' + 
 							node.name + '</div></div></div>'
 		},
 		position: {
@@ -157,3 +172,11 @@ function get_edge_qtip(edge) {
 		}
 	};	
 }
+
+
+var ISLAND_PATHS = [
+	"m 0,0 c -1.91236,1.98339 -2.80708,3.61839 -5.61026,3.81571 -2.80316,0.19731 -4.31423,-1.70427 -6.79667,-3.14318 -2.48243,-1.43893 -6.42395,-1.98616 -7.70867,-4.3606 -1.28472,-2.37444 1.6344,-5.25816 2.13987,-7.95092 0.50547,-2.69276 -1.90255,-6.34614 0.0583,-8.26862 1.96082,-1.92249 6.30872,0.7799 9.18689,0.76381 2.87817,-0.016 6.79908,-2.90242 9.09492,-1.17821 2.29585,1.72422 0.79516,5.56878 1.48178,8.1391 0.68663,2.57031 2.58603,4.8535 1.98816,7.58076 -0.59787,2.72726 -1.92192,2.61877 -3.83429,4.60215 z",
+	"m 0,0 c -2.55529,-1.74975 -3.49186,-3.24455 -3.97569,-6.18062 -0.48384,-2.93608 8.4e-4,-2.69556 1.69371,-5.42447 1.69281,-2.72892 -2.342,-7.29109 0.77652,-8.10212 3.1185,-0.81105 4.87228,1.23266 7.67865,1.82399 2.80636,0.59134 10.6187,-2.64803 12.47562,-0.14235 1.85693,2.50569 -0.82957,2.34996 -0.69902,5.6157 0.13054,3.26575 2.79614,8.75285 1.97668,11.47121 -0.81946,2.71838 -6.85279,1.10439 -9.18567,3.31862 -2.33288,2.21422 -3.57679,2.18539 -6.52846,1.56554 -2.95166,-0.61986 -1.65707,-2.19576 -4.21234,-3.9455 z",
+	"m 0,0 c -1.48637,1.5628 -0.73525,2.93289 -2.83352,3.28257 -2.09825,0.34968 -5.81339,-1.59274 -7.90259,-1.78665 -2.0892,-0.19393 -4.52388,2.56908 -6.38447,1.51744 -1.86057,-1.05161 2.00929,-5.37364 0.96399,-7.25919 -1.04531,-1.88553 -3.28922,-2.68468 -3.6286,-4.85667 -0.33937,-2.172 1.77845,-2.78699 2.54256,-4.84833 0.7641,-2.06134 -2.18913,-4.70518 -0.66511,-6.22 1.52404,-1.51481 6.89374,2.06774 9.12329,1.81582 2.22954,-0.25193 3.04729,-2.91462 5.07328,-2.67444 2.02599,0.24019 2.10648,2.05826 3.71392,3.4869 1.60743,1.42865 3.64994,-0.24296 4.63342,1.66989 0.98348,1.91285 -2.56473,5.12155 -2.44593,7.27044 0.1188,2.14891 2.97378,5.01849 2.31651,7.05368 -0.65729,2.03519 -3.02038,-0.0143 -4.50675,1.54854 z",
+	"m 0,0 c -1.56443,1.50809 -2.12016,2.46473 -4.2006,3.14438 -2.08042,0.67966 -3.46726,-1.31608 -5.66384,-1.68055 -2.19658,-0.36447 -3.72518,2.37602 -5.23492,0.79678 -1.50975,-1.57924 -2.12979,-3.60796 -3.03127,-5.52163 -0.90148,-1.91367 -2.63688,-1.24025 -2.36471,-3.36832 0.27218,-2.12808 1.65957,-4.63604 2.68336,-6.46074 1.02379,-1.82469 0.7809,-5.1596 2.57971,-6.39225 1.79881,-1.23265 4.9418,0.88074 6.99592,0.38209 2.05412,-0.49866 1.8629,-2.76399 4.03571,-2.08593 2.1728,0.67807 2.18347,3.15114 3.74566,4.62981 1.5622,1.47866 3.16531,0.4639 4.11079,2.43625 0.94548,1.97235 -1.48818,4.39211 -1.67347,6.5347 -0.1853,2.14259 2.48874,4.50888 1.33492,6.38533 -1.15381,1.87644 -1.75284,-0.30801 -3.31726,1.20008 z",
+]

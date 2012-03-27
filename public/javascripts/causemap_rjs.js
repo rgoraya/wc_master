@@ -20,7 +20,6 @@ var edgeIcons = {}
 
 var now_detailing = 0 //status variable for what we're currently displaying on hover
 var now_dragging = null //the thing we're dragging
-var drag_origin = {cx:0, cy:0, x:0, y:0, id:0} //the origin/info for the node before we started dragging
 var dragged_edges = [] //the edges connected to the thing we're dragging
 
 
@@ -433,10 +432,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 var dragstart = function (x,y,event) 
 {
 	if(event.shiftKey && now_dragging) {
-		drag_origin.cx = now_dragging.icon[0].attr('cx'); //store the original locations
-	  drag_origin.cy = now_dragging.icon[0].attr('cy');
-		drag_origin.x = now_dragging.icon[1].attr('x');
-		drag_origin.y = now_dragging.icon[1].attr('y');
+		this.ox = 0;
+		this.oy = 0;
 
 		for(var i=0, len=currEdges['keys'].length; i<len; i++)
 		{
@@ -453,10 +450,14 @@ var dragstart = function (x,y,event)
 var dragmove = function (dx,dy,x,y,event) 
 {
 	if(event.shiftKey && now_dragging) {
-		now_dragging.node.x = drag_origin.cx+dx
-		now_dragging.node.y = drag_origin.cy+dy //move the node itself; this will move the appropriate edges
-		now_dragging.icon.attr({cx: drag_origin.cx+dx, cy: drag_origin.cy+dy, x: drag_origin.x+dx, y: drag_origin.y+dy});
-		
+		trans_x = dx-this.ox
+		trans_y = dy-this.oy
+		now_dragging.node.x += trans_x
+		now_dragging.node.y += trans_y //move the node itself; this will move the appropriate edges
+		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
+		this.ox = dx;
+		this.oy = dy;
+
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
 			var curve = getPath(dragged_edges[i]) //get new curve
@@ -475,7 +476,6 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].push(dots)
 	}
 	//reset variables
-	drag_origin = {cx:0, cy:0, x:0, y:0, id:0} 
 	dragged_edges = []
 	now_dragging = null
 };
