@@ -1,50 +1,64 @@
 /// THIS FILE CONTAINS THE JAVASCRIPT FOR THE GAME, OVERWRITING causemap_rjs AND mapvizualization_index WHERE APPROPRIATE
 
 /* Random NOTES
-http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
-
+//arrowhead svg
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
     <path id="arrow" fill="#090BAB" d="M 50,100 L 0,0 L 50,30 L 100,0" />
 </svg>
 */
 
 var startBox;
+var now_building = null //the thing we're dragging
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
 	startBox = paper.rect(paper_size.width-203,150,200,paper_size.height-150-3).attr({'stroke': '#000000', 'stroke-width':3})
 	var boxLabel = paper.text(paper_size.width-203+5,150+15,'Concepts').attr({
 		'text-anchor':'start', 
-		'font':'lucida grande',
-		'font-family':'sans-serif',
-		'font-size':24,
-		'font-weight':'bold',
+		'font':'lucida grande', 'font-family':'sans-serif',
+		'font-size':24, 'font-weight':'bold',
 		'fill':'#BEBEBE'
 	})
 }
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
-		// var circ = paper.circle(node.x, node.y, 20)//+(node.weight*6))
-		// .attr({
-		// 	fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
-		// })
 		var island_num = Math.floor(Math.random()*4)
+		// var coast = paper.path(ISLAND_PATHS[island_num]).attr({
+		// 	'stroke': '#b3eeee', 'stroke-width': 10,
+		// });
+		var coast = paper.circle(node.x,node.y,20).attr({
+			'fill': '#b3eeee','stroke-width':0
+		})
+		
 		var island = paper.path(ISLAND_PATHS[island_num]).attr({
 			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
-		})
+		});
 		var bb = island.getBBox();
-		// island.translate(node.x-(bb.x+bb.width/2),node.y-(bb.y+bb.height/2))
-		island.transform("t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2)))
-		var txt = paper.text(node.x, node.y+T_OFF, node.name)
+		var trans_string = "t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2))
+		island.transform(trans_string)
+		//coast.transform(trans_string)
+		
+
+		var content = node.name;
+		if(content.length > 15)
+			content = content.substring(0,15)+"..."
+		var txt = paper.text(node.x, node.y+T_OFF, content)
+		// _textWrapp(txt,80)
 
 		var icon = paper.set()
 		.push(island,txt)
-		.mouseover(function() {this.node.style.cursor='pointer';})//hoverNode(node)})
-		.mousedown(function (e) {now_dragging = {icon:icon, node:node};})
+		.mouseover(function() {this.node.style.cursor='move';})//hoverNode(node)})
+		.mousedown(function(e) {now_dragging = {icon:icon, node:node};})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
 
+		icon.push(coast)
+		coast.mouseover(function() {this.node.style.cursor='crosshair';})
+		.mousedown(function(e) {now_building = {start_node:node};})
+		.drag(buildmove, buildstart, buildend)
+
 		$(island.node).qtip(get_node_qtip(node)); //if we want a tooltip
+		$(coast.node).qtip("drag to create a path");
 
 		return icon;  
 }
@@ -55,7 +69,7 @@ function drawEdge(edge, paper){
 		var b = edge.b;
 
 		var curve = getPath(edge) //get the curve's path		
-		var e = paper.path(curve).attr({'stroke-width':2})
+		var e = paper.path(curve).attr({'stroke-width':2}).toBack()
 		
 		//set attributes based on relationship type (bitcheck with constants)
 		if(edge.reltype&INCREASES)
@@ -129,6 +143,107 @@ var dragend = function (x,y,event)
 };
 
 
+//methods to control building via dragging
+var buildstart = function (x,y,event) 
+{
+	// console.log("buildstart",x,y, event)
+	if(now_building) { //make sure we clicked something
+		now_building.target_node = {id:-1, x:x-CANVAS_OFFSET.left, y:y-CANVAS_OFFSET.top} //where we're drawing to, relative to canvas
+		now_building.edge = {id:-1, a:now_building.start_node, b:now_building.target_node, reltype:1, n:0} //the edge we're making
+
+		now_building.icon = drawEdge(now_building.edge,paper)
+		// paper.circle(x,y,5)
+		this.ox = 0;
+		this.oy = 0;
+	}
+};
+var buildmove = function (dx,dy,x,y,event) 
+{
+	// console.log("buildmove",dx,dy,x,y,event)
+	if(now_building) {
+		now_building.target_node.x = x-CANVAS_OFFSET.left //don't forget the offset to bring mouse in line!
+		now_building.target_node.y = y-CANVAS_OFFSET.top
+		now_building.selected_node = null;
+		
+		//snap to targets!!
+		for(var i=0, len=currNodes['keys'].length; i<len; i++){
+			var node = currNodes[currNodes['keys'][i]] //easy access
+			var icon = nodeIcons[node.id]
+			var bb = icon[2].getBBox() //compare to the bounding box of the circle currently
+			if(	now_building.start_node != node &&
+					now_building.target_node.x > bb.x && now_building.target_node.x < bb.x+bb.width &&
+					now_building.target_node.y > bb.y && now_building.target_node.y < bb.y+bb.height ){ //if inside the bounding box
+				// console.log("snapped to",node.name)
+				now_building.target_node.x = node.x
+				now_building.target_node.y = node.y
+				now_building.selected_node = node //store who we've 'selected'
+				break
+			}
+		}
+		
+		now_building.icon.remove()
+		now_building.icon = drawEdge(now_building.edge,paper) //redraw the edge (brute force redraw)
+	}
+};
+var buildend = function (x,y,event) 
+{	
+	// console.log("buildend")
+	if(now_building) {
+		if(now_building.selected_node){
+			//now_building.icon[0].toBack() //push the line to the back, to clean up display
+			
+			//set up the edge
+			var edge = now_building.edge
+			edge.b = now_building.selected_node;
+			edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n)
+			edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
+			var key = edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
+
+			if(currEdges[key]){ //if edge already exists
+				edge.id = currEdges[key].id; //replace the old id
+				edgeIcons[edge.id].remove() //get rid of the old icon
+			}
+			else{
+				currEdges['keys'].push(key) //only push the key if this is a new edge (and so we need to add it to the list)
+				edge.id = currEdges['keys'].length; //give id that's just a count (1...n)
+			}
+			currEdges[key] = edge
+
+			//set up the icon
+			var icon = now_building.icon
+			edgeIcons[edge.id] = icon
+			$([icon[0].node,icon[1].node,icon[2].node]).qtip(get_edge_qtip(edge)); //add handlers
+
+			//figure out if we need to adjust the 'n'
+			var tobend = []
+			for(var i=0, len=currEdges['keys'].length; i<len; i++){
+				var e = currEdges[currEdges['keys'][i]]
+				if( (e.a == edge.a && e.b == edge.b) || (e.a == edge.b && e.b == edge.a) )
+					tobend.push(e)
+			}
+			for(var i=1, len=tobend.length; i<=len; i++){
+				var e = tobend[i-1], oldn = e.n
+				if(i==len) //if last guy
+					e.n = (i%2==0 ? i : 0) //then he gets 0 if even, number otherwise
+				else
+					e.n = i //give them their count
+				if(e.n != oldn) { //if our n changed
+					edgeIcons[e.id].remove()
+					edgeIcons[e.id] = drawEdge(e, paper)
+				}
+			}
+		}
+		else {
+			now_building.icon.remove() //remove the icon, cause we didn't select anything
+		}
+	}
+
+	//reset variables
+	now_building = null
+};
+
+
+
 //layout details for the node qtip
 function get_node_qtip(node) {
 	return {
@@ -173,6 +288,38 @@ function get_edge_qtip(edge) {
 	};	
 }
 
+
+/**
+ * adapted from
+ * http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
+ * @param t a raphael text shape
+ * @param width - pixels to wrapp text width
+ * modify t text adding new lines characters for wrapping it to given width.
+ */
+_textWrapp = function(t, width, max_length) {
+		var wrapped = false;
+    var content = t.attr("text");
+    var abc="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    t.attr({'text-anchor': 'start', "text": abc});
+    var letterWidth=t.getBBox().width / abc.length;
+    t.attr({"text": content});
+    var words = content.split(" "), x=0, s=[];
+    for ( var i = 0; i < words.length; i++) {
+        var l = words[i].length;
+        if(x+l>width) {
+            s.push("\n")
+            x=0;
+						wrapped = true;
+        }
+        else {
+            x+=l*letterWidth;
+        }
+        s.push(words[i]+" ");
+    }
+    t.attr({"text": s.join("")});
+		// if(!wrapped)
+		t.attr({'text-anchor':'middle'});
+};
 
 var ISLAND_PATHS = [
 	"m 0,0 c -1.91236,1.98339 -2.80708,3.61839 -5.61026,3.81571 -2.80316,0.19731 -4.31423,-1.70427 -6.79667,-3.14318 -2.48243,-1.43893 -6.42395,-1.98616 -7.70867,-4.3606 -1.28472,-2.37444 1.6344,-5.25816 2.13987,-7.95092 0.50547,-2.69276 -1.90255,-6.34614 0.0583,-8.26862 1.96082,-1.92249 6.30872,0.7799 9.18689,0.76381 2.87817,-0.016 6.79908,-2.90242 9.09492,-1.17821 2.29585,1.72422 0.79516,5.56878 1.48178,8.1391 0.68663,2.57031 2.58603,4.8535 1.98816,7.58076 -0.59787,2.72726 -1.92192,2.61877 -3.83429,4.60215 z",
