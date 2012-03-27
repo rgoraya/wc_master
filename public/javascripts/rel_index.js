@@ -1,4 +1,4 @@
-/* Javascript for Issue Show page */
+/* Javascript for Relationship Index page */
 $(function() {
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -31,13 +31,21 @@ $(function() {
   var tooltipMsg = {
 	   'title_hover_msg': 'Relationships of',
 	   'sug_thumb': 'See what Wikipedia says',
-	   'iss_thumb': 'About this issue'
+	   'iss_thumb': 'About this issue',
+	   'rel_link' : 'View this relationship'
   };
 
   // TOOL-TIP FOR ISSUE LINKS
-  $(".formheading a").live('mouseover', function(){
+  $(".formheading a:not(.relationship_linkout)").live('mouseover', function(){
 	  tooltip_caller = $(this);
 	  tooltip_text   = tooltipMsg.title_hover_msg + " " + $(this).attr('rel');
+	  showTooltip(tooltip_caller, tooltip_text);
+  });
+
+  // TOOL-TIP FOR ISSUE LINKS
+  $(".relationship_linkout").live('mouseover', function(){
+	  tooltip_caller = $(this);
+	  tooltip_text   = tooltipMsg.rel_link;
 	  showTooltip(tooltip_caller, tooltip_text);
   });
 

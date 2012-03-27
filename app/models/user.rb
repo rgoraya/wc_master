@@ -15,13 +15,14 @@ class User < ActiveRecord::Base
 	has_many :feedbacks
 
   has_many :votes
+  # all relationships the user has voted on
+  has_many :voted_relationships,     :through => :votes, :source => :relationship  
   # all relationships the user endorses
   has_many :endorsed_relationships,  :through => :votes, :source => :relationship, :conditions => ['vote_type = "E"']
   # all relationships the user contests
   has_many :contested_relationships, :through => :votes, :source => :relationship, :conditions => ['vote_type = "C"']
   # all relationships the user accuses of being offensive
   has_many :accused_relationships,   :through => :votes, :source => :relationship, :conditions => ['vote_type = "A"']
-
 
 
   # search functionality
@@ -34,7 +35,7 @@ class User < ActiveRecord::Base
   end
 
 
-
+  # Getting the Activities by this user
   def formatted(contrib)
 
     version = contrib

@@ -1,9 +1,9 @@
 class IssuesController < ApplicationController
-  # GET /issues
-  # GET /issues.xml
-
 require 'backports' 
-  
+
+  #-------------------------------------------------------------------
+  # RESTFUL: ISSUE INDEX 
+  #-------------------------------------------------------------------    
   def index
       
       # setting the default sort criteria
@@ -13,7 +13,7 @@ require 'backports'
         @sort_by = "Alphabetical order" 
       end
 
-      # set the @issue for the sort criteria
+      # set the @issues for the sort criteria
       case @sort_by
         when "Alphabetical order"
           @issues = Issue.search(params[:search]).order("title").paginate(:per_page => 20, :page => params[:page]) 
@@ -31,78 +31,126 @@ require 'backports'
     end
   end
 
-  # GET /issues/1
-  # GET /issues/1.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: ISSUE SOW 
+  #-------------------------------------------------------------------  
   def show
+    # get the current issue
     @issue = Issue.find(params[:id]) 
 
-    # Default params to "causes" for initial load
-    if params[:rel_type]
-      @rel_type = params[:rel_type];
-      # Call to retrieve the corresponding relationships based on the params
-      get_selected_relations
-    end
-
-    # Default params to "causes" for initial load
-    if params[:rel_id]
-      @relationship = Relationship.find(params[:rel_id])
-      @rel_references = @relationship.references
-      @rel_issue = Issue.find(@relationship.issue_id)
-      @rel_cause = Issue.find(@relationship.cause_id)
-      @issue_id = params[:issueid]
-      if @issue.id == @rel_cause.id # then swap!
-        @rel_issue, @rel_cause = @rel_cause, @rel_issue  
-      end
-      @causal_sentence = @rel_type
-    end
-
-    @references = Issue.rel_references(params[:rel_id])
-
+    # respond according to the kind of request
     respond_to do |format|
-      format.html do
-        if @issue.suggestions == [] 
+      
+      format.html do   # html request
+        if @issue.suggestions == []   # if this issue does not have any suggestions, try populating them
           load_suggestions
         end
+      
+        if params[:rel_type]    # check for the requested relationship type
+          @rel_type = params[:rel_type]
+          get_selected_relations # Call to retrieve the corresponding relationships
+        end      
+
+        if params[:rel_id]      # if this request also wants info for a particular relationship
+          get_selected_relationship
+        end
+      
       end
-      format.xml  { render :xml => @issue }
-      format.js {render :layout => false }
+      
+      format.js do      # AJAX request (JS)
+        
+        if params[:rel_type]   # check for rel_type only if no particular relationship was requested
+          @rel_type = params[:rel_type]
+          get_selected_relations  # Call to retrieve the corresponding relationships
+        end
+
+        if params[:rel_id]      # if this request also wants info for a particular relationship
+          get_selected_relationship
+        end
+                
+      end
+      format.xml  { render :xml => @issue }   # XML request
     end
+
   end
 
-  def load_suggestions
-    Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])  # Suggestions for new issue  
-    initialize_suggestion_object
-  end
-
+  #-------------------------------------------------------------------
+  # SELECTED TYPE OF RELATIONSHIPS (THUMBNAILS ON THE SHOW PAGE)
+  #------------------------------------------------------------------- 
   def get_selected_relations
+    
+    # getting the page number if this call has the relationship_id parameter
+    # this means, the thumbnails would contain the requested relationship 
+    # even if it is not on the first page
+    if params[:rel_id] && params[:rel_id] != "" && !params[:page]
+      @rel_to_check = Relationship.find(params[:rel_id])
+      @page = get_page_number_of_this_rel(@rel_type, @rel_to_check)
+    else
+      @page = params[:page]
+    end
+    
+    # relationship type to be sent back    
     case @rel_type       
 
-    when "is caused by"
-      @issue_relations = @issue.causes.paginate(:per_page => 6, :page => params[:relationship_page])
-      set_selected_relations_common_data('C',nil,"add_cause_btn","causes")
-    when "causes"
-      @issue_relations = @issue.effects.paginate(:per_page => 6, :page => params[:relationship_page])
-      set_selected_relations_common_data('E',nil,"add_effect_btn","effects")
-           
-    when "is reduced by"
-      @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => params[:relationship_page])
-      set_selected_relations_common_data('I','I',"add_inhibitor_btn","inhibitors")
-          
-    when "reduces"
-      @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => params[:relationship_page])
-      set_selected_relations_common_data('R','I',"add_inhibited_btn","inhibiteds")
-           
-    when "is a subset of"
-      @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => params[:relationship_page])
-      set_selected_relations_common_data('P','H',"add_superset_btn","supersets")
-          
-    when "is a superset of"
-      @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => params[:relationship_page])
-      set_selected_relations_common_data('S','H',"add_subset_btn","subsets")
+      when "is caused by"
+        @issue_relations = @issue.causes.paginate(:per_page => 6, :page => @page)
+        set_selected_relations_common_data('C',nil,"add_cause_btn","causes")
+      when "causes"
+        @issue_relations = @issue.effects.paginate(:per_page => 6, :page => @page)
+        set_selected_relations_common_data('E',nil,"add_effect_btn","effects")
+             
+      when "is reduced by"
+        @issue_relations = @issue.inhibitors.paginate(:per_page => 6, :page => @page)
+        set_selected_relations_common_data('I','I',"add_inhibitor_btn","inhibitors")
             
+      when "reduces"
+        @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => @page)
+        set_selected_relations_common_data('R','I',"add_inhibited_btn","inhibiteds")
+             
+      when "is a subset of"
+        @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => @page)
+        set_selected_relations_common_data('P','H',"add_superset_btn","supersets")
+            
+      when "is a superset of"
+        @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => @page)
+        set_selected_relations_common_data('S','H',"add_subset_btn","subsets")
+         
    end
+   
   end
 
+  #-------------------------------------------------------------------
+  # METHOD TO FIND OUT THE PAGE NUMBER FOR THE PAGINATION 
+  #-------------------------------------------------------------------  
+  def get_page_number_of_this_rel(rel_type, rel_to_check)
+    
+    # number of items shown at a time
+    number_per_page = 6
+    
+    # find out how many items occur before this relationship
+    case rel_type       
+      when "is caused by"
+      records_before_this_one = @issue.causes.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
+      when "causes"
+      records_before_this_one = @issue.effects.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
+      when "is reduced by"
+      records_before_this_one = @issue.inhibitors.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
+      when "reduces"
+      records_before_this_one = @issue.inhibiteds.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
+      when "is a subset of"
+      records_before_this_one = @issue.supersets.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
+      when "is a superset of"
+      records_before_this_one = @issue.subsets.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
+    end
+
+    # the page number formula! 
+    page = (records_before_this_one / number_per_page) + 1
+  
+  end
+
+  #-------------------------------------------------------------------
+  # METHOD TO DISPLAY SUGGESTIONS BASED ON RELATIONSHIP TYPE 
+  #-------------------------------------------------------------------  
   def retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
     case type_of_suggestions
     when "causes"
@@ -120,76 +168,104 @@ require 'backports'
     end
   end
 
-  def set_selected_relations_common_data(causality, relationship_type, add_btn_id, causal_sentence)
+  #-------------------------------------------------------------------
+  # METHOD TO SET COMMON DATA 
+  #-------------------------------------------------------------------
+  def set_selected_relations_common_data(causality, relationship_type, add_btn_id, type_of_suggestions)
 
-    #@issue_suggestions = @issue.suggestions.where(:causality => causality,:status => 'N')
     @issue_relations.each do |relation|
       if(causality.eql? 'E' or causality.eql? 'R' or causality.eql? 'S')
-        @rel_id = Relationship.where(:issue_id=>relation.id, :cause_id=>@issue.id, :relationship_type=>relationship_type).select('id').first.id
-        relation.wiki_url = @rel_id 
+        @reltn_id = Relationship.where(:issue_id=>relation.id, :cause_id=>@issue.id, :relationship_type=>relationship_type).select('id').first.id
+        relation.wiki_url = @reltn_id
       else 
-        @rel_id = @issue.relationships.where(:cause_id=>relation.id, :relationship_type=>relationship_type).select('id').first.id
-        relation.wiki_url = @rel_id 
+        @reltn_id = @issue.relationships.where(:cause_id=>relation.id, :relationship_type=>relationship_type).select('id').first.id
+        relation.wiki_url = @reltn_id 
       end
     end
     @add_btn_id      = add_btn_id
-    @causal_sentence = causal_sentence
 
     if @issue_relations.length < 6
-      num_of_suggestions_to_pull = (6 - @issue_relations.length)
-      type_of_suggestions        = @causal_sentence          
+      num_of_suggestions_to_pull = (6 - @issue_relations.length)         
       retrieve_suggestions(type_of_suggestions, num_of_suggestions_to_pull)
 		else
 			@suggestions = []
     end  
   end 
 
-
-  def get_relationship
-   
-   if params[:rel_id] && params[:rel_id] != ""
-      @relationship = Relationship.find(params[:rel_id])
-      @rel_references = @relationship.references
-
-			@rel_comments = @relationship.comments
-
-      @rel_issue = Issue.find(@relationship.issue_id)
-      @rel_cause = Issue.find(@relationship.cause_id)
-      @issue_id = params[:issueid]
-      if @issue_id.to_i == @rel_cause.id # then swap!
-         @rel_issue, @rel_cause = @rel_cause, @rel_issue  
-      end
-      @causal_sentence = params[:sentence]
-   
-   elsif params[:issueid] 
-      @issue = Issue.find(params[:issueid])
-   end
-
-   
-
-    respond_to do |format|
-      format.html 
-      format.xml  { render :xml => @issue }
-      format.js
-      end 
+  #-------------------------------------------------------------------
+  # RETRIEVE THE REQUESTED RELATIONSHIP (PARTICULAR RELATIONSHIP ID)
+  #------------------------------------------------------------------- 
+  def get_selected_relationship    
+    @rel_id = params[:rel_id].to_s
+    @relationship = Relationship.find(params[:rel_id])  # relationship 
+    @rel_issue    = Issue.find(@relationship.issue_id)  # the issue on left side of the relation
+    @rel_cause    = Issue.find(@relationship.cause_id)  # the issue on right side of the relation
+    
+    if @issue.id == @rel_cause.id                       
+      @rel_issue, @rel_cause = @rel_cause, @rel_issue   # swap them depending upon the requested issue page
+      @causal_sentence = get_reverted_causal_sentence
+    else
+      @causal_sentence = get_causal_sentence
+    end
     
   end
+    
+  def get_reverted_causal_sentence
+    case @relationship.relationship_type
+      when nil
+        sentence = "causes"
+      when 'I'
+        sentence = "reduces"
+      when 'H'
+        sentence = "is a superset of" 
+     end
+  end  
 
+  def get_causal_sentence
+    case @relationship.relationship_type
+      when nil
+        sentence = "is caused by"
+      when 'I'
+        sentence = "is reduced by"
+      when 'H'
+        sentence = "is a subset of" 
+    end
+  end     
+
+  #-------------------------------------------------------------------
+  # LOAD SUGGESTIONS IF REQUESTED
+  #-------------------------------------------------------------------
+  def load_suggestions
+    Suggestion.new(params[:issue_id=>@issue.id, :wiki_url=>@issue.wiki_url])  # Suggestions for new issue  
+    initialize_suggestion_object
+  end
+
+  def initialize_suggestion_object
+    suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
+    Suggestion.create(suggested_causes)
+    Suggestion.create(suggested_effects)
+    Suggestion.create(suggested_inhibitors)
+    Suggestion.create(suggested_reduced)
+    Suggestion.create(suggested_parents)
+    Suggestion.create(suggested_subsets) 
+  end
+
+  #-------------------------------------------------------------------
+  # SITE WIDE AUTO-COMPLETE SEARCH
+  #-------------------------------------------------------------------
   def auto_complete_search
     @search_results = Issue.search(params[:query]).first(5)
-    
       respond_to do |format|
         format.js 
         format.html do
-          #@issues = Issue.search(params[:query])
           redirect_to :controller => 'issues', :action => 'index', :search => params[:query]
-          #redirect_to(:issues, params[:query] )
         end
       end 
   end
 
-  # GET /issues/new
-  # GET /issues/new.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: ISSUE NEW
+  #-------------------------------------------------------------------
   def new
     @issue = Issue.new
 
@@ -199,18 +275,21 @@ require 'backports'
     end
   end
 
-  # GET /issues/1/edit
+  #-------------------------------------------------------------------
+  # RESTFUL: ISSUE EDIT
+  #-------------------------------------------------------------------
   def edit
     @issue = Issue.find(params[:id])
   end
 
-  # POST /issues
-  # POST /issues.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: ISSUE CREATE
+  #-------------------------------------------------------------------
   def create
     @issue = Issue.new(params[:issue])
 
-    # A D D    N E W    C A U S E / E F F E C T
-    if params[:action_carrier]
+    if params[:action_carrier] # WE ARE HERE TO ADD NEW CAUSE/EFFECT
+      
       # Read in the :type passed with form to recognize Relationship Type
       @causality = params[:action_carrier].to_s
       @causality_id = params[:id_carrier]     
@@ -223,15 +302,16 @@ require 'backports'
       else
         add_new_issue
       end
-    else
+      
+    else                      # WE ARE HERE TO CREATE THE FIRST NODE ISSUE
+      
       # Check whether this Issue already exists
       @existing_issue = Issue.where('lower(wiki_url) = ?', @issue.wiki_url.to_s.downcase).first
       if !@existing_issue.nil?
-        # if so then simply redirect to the Show page of that Issue
-        redirect_to(@existing_issue)
         
-      # If not, go ahead and create a new one
-      else
+        redirect_to(@existing_issue)    # if so then simply redirect to the Show page of that Issue
+      
+      else                              # If not, go ahead and create a new one
         respond_to do |format|     
           if @issue.save
   					Reputation::Utils.reputation(:action=>:create, \
@@ -267,23 +347,24 @@ require 'backports'
 	def check_if_same_relationship_existed
 		vs = []
 
-		Version.order("created_at DESC").find(:all, :conditions=>["item_type=?","Relationship"]).each do |version|
-			rel = version.get_object
-			if rel.issue_id == @relationship.issue_id && rel.cause_id == @relationship.cause_id && rel.relationship_type == @relationship.relationship_type
-				vs << version
-				@notice="Relationship already exists!"
-				break
-			end
-		end
+  		Version.order("created_at DESC").find(:all, :conditions=>["item_type=?","Relationship"]).each do |version|
+  			rel = version.get_object
+  			@rel_id = rel.id.to_s
+  			if rel.issue_id == @relationship.issue_id && rel.cause_id == @relationship.cause_id && rel.relationship_type == @relationship.relationship_type
+  				vs << version
+  				@notice="Relationship already exists!"
+  				break
+  			end
+  		end
 
-		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
-			vs.last.restore
-			@notice = "An identical relationship used to exist. It is now restored!"
-		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
-			@notice = "An identical relationship used to exist. Please login to restore this relationship."      
-		end
+  		if current_user && !vs.empty? && vs.last.event.eql?("destroy")
+  			vs.last.restore
+  			@notice = "An identical relationship used to exist. It is now restored!"
+  		elsif !current_user && !vs.empty? && vs.last.event.eql?("destroy")
+  			@notice = "An identical relationship used to exist. Please login to restore this relationship."      
+  		end
 
-		return !vs.empty?
+		  return !vs.empty?
 	end
 
 
@@ -325,16 +406,6 @@ require 'backports'
     end  
   end
 
-  def initialize_suggestion_object
-    suggested_causes, suggested_effects, suggested_inhibitors, suggested_reduced, suggested_parents, suggested_subsets = Suggestion.new.get_suggestions(@issue.wiki_url, @issue.id)
-    Suggestion.create(suggested_causes)
-    Suggestion.create(suggested_effects)
-    Suggestion.create(suggested_inhibitors)
-    Suggestion.create(suggested_reduced)
-    Suggestion.create(suggested_parents)
-    Suggestion.create(suggested_subsets) 
-  end
-
   def set_type_of_relationship(already_exists)
     args = { 
         :C => [nil, 'a cause',    'cause'],
@@ -364,6 +435,7 @@ require 'backports'
 
   def save_relationship
     if @relationship.save
+      @rel_id = @relationship.id.to_s
       self_endorse
       remove_duplicate_suggestions
       update_img_if_applicable 
@@ -417,26 +489,27 @@ require 'backports'
     render :action => action
   end
 
-  # PUT /issues/1
-  # PUT /issues/1.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: ISSUE UPDATE
+  #------------------------------------------------------------------- 
   def update
 
     @issue = Issue.find(params[:id])
 
-    if params[:update_image]
+    if params[:update_image]   # WE ARE HERE TO UPDATE THE IMAGE OF THE ISSUE
       
       @issue.attributes = params[:issue]
       if @issue.save
         @notice = "Image replaced!"
         respond_to do |format|
           format.html 
-          format.js {render(:layout=>false, :notice => "Done!")}
+          format.js {render(:layout=>false)}
         end
       else
         @notice = "Cannot Replace!"
         respond_to do |format|
           format.html 
-          format.js {render(:layout=>false, :notice => "Done!")}
+          format.js {render(:layout=>false)}
         end        
       end
       
@@ -458,12 +531,30 @@ require 'backports'
 
   end
 
-  # DELETE /issues/1
-  # DELETE /issues/1.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: ISSUE DESTROY
+  #------------------------------------------------------------------- 
   def destroy
     @issue = Issue.find(params[:id])
     @called_from = params[:called_from]
     @issue.destroy
+
+    # setting the default sort criteria
+    if (params[:sort_by])
+      @sort_by = params[:sort_by]  
+    else 
+      @sort_by = "Alphabetical order" 
+    end
+
+    # set the @issues for the sort criteria
+    case @sort_by
+      when "Alphabetical order"
+        @issues = Issue.search(params[:search]).order("title").paginate(:per_page => 20, :page => params[:page]) 
+      when "Most recent"  
+        @issues = Issue.search(params[:search]).order("created_at DESC").paginate(:per_page => 20, :page => params[:page])
+      when "Relationship count"
+        @issues = Issue.search(params[:search]).order("relationships_count DESC").paginate(:per_page => 20, :page => params[:page]) 
+    end
     
     Reputation::Utils.reputation(:action=>:destroy, \
                                  :type=>:issue, \
@@ -482,16 +573,6 @@ require 'backports'
     end
   end
 
-
-  def causality
-
-    @issue = Issue.new(params[:issue])
-
-    if @issue.save
-      format.html { redirect_to(@index, :notice => 'Issue successfully added.') }
-    end
-
-  end
 
   #issues/:id/versions
   def versions
@@ -556,4 +637,6 @@ require 'backports'
       format.xml 
     end		
   end
+
+
 end

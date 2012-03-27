@@ -1,6 +1,5 @@
 Wikicausality::Application.routes.draw do
 
-
   resources :mapvisualizations
   resources :paths
   resources :feed_backs
@@ -24,15 +23,13 @@ Wikicausality::Application.routes.draw do
   match 'about' => 'pages#about', :as => :about
   match 'contact' => 'pages#contact', :as => :contact
   
-
   resources :users
-
   resources :user_sessions
   
   match '/relationships/page/:page', :controller => 'relationships', :action => 'index'
   resources :relationships
   
-  
+  match '/issues/page/:page', :controller => 'issues', :action => 'index'
   match 'issues/auto_complete_search' => 'issues#auto_complete_search'
   match 'issues/get_relationship' => 'issues#get_relationship'
   resources :issues do

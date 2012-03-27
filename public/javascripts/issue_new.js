@@ -1,4 +1,4 @@
-/* Javascript for Issue Show page */
+/* Javascript for Issue New page */
 $(function() {
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -8,13 +8,15 @@ $(function() {
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 
 // -------------------------------------------------------------------------------
-// A R R O W    K E Y    N A V I G A T I O N    F O R    T H E    M O D A L
+// ARROW KEY NAVIGATION FOR THE MODAL
 // -------------------------------------------------------------------------------  
   window.displayBoxIndex = -1;
   
   // Arrow keys pressed while being within the Query Box
   $("#query").keyup(function(e) 
-  	{
+  	{ 
+  	  if ($.inArray(e.keyCode, ignore_keys_array) == -1){
+  		displayBoxIndex = -1;}
 	  if (e.keyCode == 40){  
 	  	Navigate(1);}
 	  if(e.keyCode==38){
@@ -23,6 +25,7 @@ $(function() {
 		  $("#query").val($(".suggestion").eq(displayBoxIndex).html());
 		  $("#results").empty();
 		  displayBoxIndex = -1;
+		  start_populating_wikipedia_content();
   	}
   });
                    
@@ -45,7 +48,7 @@ $(function() {
   });  
 
 // ------------------------------------------------------------------------------- 
-// F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
+// FUNCTIONS CALLING MEDIAWIKI API
 // -------------------------------------------------------------------------------   
  
 	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search='; //opensearch
@@ -67,22 +70,22 @@ $(function() {
 	  var form_image = '';  
 
 // -------------------------------------------------------------------------------   
-// M O N I T O R I N G    T H E    K E Y U P    O N    S E A R C H F I E L D
+// MONITORING THE KEYUP ON SEARCH FIELD
 // ------------------------------------------------------------------------------- 
-  $('#query').bind('keyup', function(e){
+  $('#query').keyup(function(e){
 	  
 	  //  Get value of query from the textbox			
-	  query=$("#query").val();
-	  if (query =='' || e.keyCode == 27){
+	  query = $("#query").val();
+	  if (query.trim() == '' || e.keyCode == 27){
 	  	$("#results").empty(); }
 	
 	  //  If the user types in something and it is a valid key	
-	  if (query != '' && ($.inArray(e.keyCode, ignore_keys_array) == -1) ){
+	  if (query.trim() != '' && ($.inArray(e.keyCode, ignore_keys_array) == -1) ){
   
 		  //  Clear the suggestions
 		  $("#results").empty();  
 		  //  Initialize the suggestion box with a spinner		
-		  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
+		  $("#results").append('<img border="0" src="/images/system/spinnerf6.gif" class="result-spinner"  />');
 		  //  Talk to mediawiki API to fetch suggestions 
 		  $.getJSON(url_query+encodeURIComponent(query)+'&callback=?',function(data){
 		  	  
@@ -106,19 +109,25 @@ $(function() {
 	}); // End of keyUp function 
 
 // -------------------------------------------------------------------------------
-// G E T    Q U E R Y    F R O M    S E A R C H - B O X
+// GET QUERY FROM SEARCH-BOX
 // -------------------------------------------------------------------------------
   $('.suggestion').live('click',function(){
 	  $("#query").val($(this).html()); 
 	  $("#results").empty();
 	  displayBoxIndex = -1;
+	  start_populating_wikipedia_content();
   });
 
 // -------------------------------------------------------------------------------
-// R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
+// RETRIEVE CONTENT FROM WIKIPEDIA
 // -------------------------------------------------------------------------------  
   $("#btn_preview").click(function(){
-	  if ($("#query").val()){
+	start_populating_wikipedia_content();
+  });
+
+	function start_populating_wikipedia_content(){
+
+	  if ($("#query").val().trim()){
 		  $("#results").empty();
 		  $("#title_holder").html('');
 		  $(".title").removeAttr('style');
@@ -134,14 +143,16 @@ $(function() {
 		  parseJSON();
 		  $("#results").empty();
 	  }
-  });
+
+	}
+
 
 // -------------------------------------------------------------------------------
-// P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
+// PARSE THE RECEIVED JSON CONTENT
 // -------------------------------------------------------------------------------
   function parseJSON() {
 	  // Show the message
-	  show_progress_message("loading content from Wikipedia")    	
+	  show_progress_message("loading content from Wikipedia");    	
 	  // create the json url
 	  var queryRaw = $("#query").val()
 	  var queryEncoded = encodeURIComponent(queryRaw);
@@ -151,24 +162,26 @@ $(function() {
 	  $.getJSON(jsonData, function (data) {
 	  	// call the getJson function
 	  	getContent(data);    
-	  
-	  	// remove progress message
-	  	hide_progress_message();
+
 	  });
 	 }
   
 // -------------------------------------------------------------------------------  
-// R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T			
+// READ THE PARSED JSON FOR CONTENT			
 // -------------------------------------------------------------------------------  		
   function getContent(JData) {
-
+	
+	if (JData !== undefined && JData.parse !== undefined) {
+		
       var Jval = JData.parse.text["*"];
+      
 	  	//  populate the description text
 	  	text_preview = $(Jval.replace(/<p><br \/><\/p>/gi,'')).filter('p:first').text().replace(/\[\d+\]/gi,'');
-	  
+	  			  	
 		  //  Throw error if no text was received
 		  if(text_preview == ''){
-		  	text_preview = "No data! Please try a different keyword."
+		  	
+		  	show_progress_message = "No data! Please try a different keyword."
   
 	  	  //  If the search was successful - 
 	  	} else {
@@ -208,14 +221,17 @@ $(function() {
 				  // replace HTML of target Div 
 				  $('#image_preview1').css({'background-image': 'url("'+img_src+'")'});
 				  form_image = $("#image_preview1 img:first").attr("src");
-  
   				}  // END of If structure (checking for Image Success from Wikipedia)	  
   			}  // END of If structure (checking for Text Success from Wikipedia)
-  }  // END of function  
+		  // remove progress message
+		  hide_progress_message();
+  		}  // END of If structure (checking if this is a valid object) 
+  		else { show_error_message("no data! Please try a different keyword.") }	
+    }  // END of function  
 
 
 // -------------------------------------------------------------------------------
-// W H E N    T H E    U S E R    H I T S    C R E A T E
+// WHEN THE USER HITS CREATE
 // -------------------------------------------------------------------------------
   $("#val_collector").live('click', function(){
 	  
@@ -231,7 +247,7 @@ $(function() {
   });
 
 // -------------------------------------------------------------------------------
-// Gather the values for the Form submission
+// GATHER THE VALUES FOR THE FORM SUBMISSION
 // -------------------------------------------------------------------------------
   function valueCollect() {
 	
@@ -260,7 +276,7 @@ $(function() {
   }
 
 // -------------------------------------------------------------------------------
-// E X T R A C T   T H E    B A C K G R O U N D    I M A G E 
+// EXTRACT THE BACKGROUND IMAGE 
 // -------------------------------------------------------------------------------
 	function extractUrl(input)
   		{
@@ -268,7 +284,7 @@ $(function() {
   		}
 
 // -------------------------------------------------------------------------------
-// S E L E C T    T H E    I M A G E    F R O M    G O O G L E    O P T I O N S
+// SELECT THE IMAGE FROM GOOGLE OPTIONS
 // -------------------------------------------------------------------------------
 	$(".check_empty").click(function(){
 		$('.check_clicked').removeAttr('style');
@@ -276,7 +292,7 @@ $(function() {
 	});
 
 // -------------------------------------------------------------------------------
-// C L O S E    A U T O C O M P L E T E   I F   C L I C K E D    E L S E W H E R E 
+// CLOSE AUTOCOMPLETE IF CLICKED ELSEWHERE 
 // -------------------------------------------------------------------------------	
   $('#results, #query').hover(function(){ 
 	  mouse_is_inside=true; 

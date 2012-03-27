@@ -1,9 +1,3 @@
-= form_tag "/issues/get_relationship", :id=>"get_relationship_form", :remote=>true, :style=>"display:none;", :method => 'get' do               
-  = text_field_tag :rel_id, params[:rel_id], :align=>"top", :id=>"get_relationship_input"
-  = hidden_field_tag :sentence, params[:sentence], :align=>"top", :id=>"get_rel_sentence_input"
-  = hidden_field_tag :issueid, params[:issueid], :align=>"top", :id=>"get_rel_issueid_input"
-  = submit_tag "submit", :name => nil, :id=>"get_relationship_btn"
-
 - if @relationship
   .title
     #title_dynamic_text
@@ -78,7 +72,7 @@
         #relation_owner
           - if @relationship.user       
             - @rel_owner = Digest::MD5.hexdigest(@relationship.user.email).to_s
-            %a.gravatar_anchor{:href=>"/users/#{@relationship.user.id}"}
+            %a.gravatar_anchor{:href=>"/users/#{@relationship.user.id}", :title=>"#{@relationship.user.username}"}
               %img{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
             .gravatar_text
               %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'           
@@ -101,11 +95,9 @@
         .discussion_submit
           %a.med-relation{:href=>"/mapvisualizations?q=show&r=#{@relationship.id}"}
             Visualize
-        
-        - @permalink = request.protocol + request.host_with_port + "/issues/" + @rel_issue.id.to_s + '-' + @rel_issue.permalink + '?rel_type=' + @causal_sentence.gsub(" ", "+") + '&rel_id=' + @relationship.id.to_s
+
         .discussion_submit
-          %a.perm-relation{:href=>"#{@permalink}", :target=>"_blank"}
-            Go to Permalink
+          = link_to "Go to Permalink", issue_path(@issue, :rel_type=>@causal_sentence, :rel_id=>@rel_id), :target=>"_blank" , :class=>"perm-relation"
             
         / Uncomment the following to display Permalink 
         /#permalink_display
@@ -113,8 +105,7 @@
 
         - if current_user
           .relationship_delete
-            = link_to "Delete Relationship", "../relationships/#{@relationship.id}", :confirm => "Are you sure you want to delete the relationship?", :method => :delete, :remote=>true,:title=>"delete this causal link", :class=>"del-relation"
-
+            = link_to "Delete Relationship", "../relationships/#{@relationship.id}", :confirm => "Are you sure you want to delete the relationship?", :method => :delete,:title=>"delete this causal link", :class=>"del-relation"
 
       .clearboth         
       
@@ -227,7 +218,7 @@
         #issue_owner
           - if @issue.user       
             - @issue_owner = Digest::MD5.hexdigest(@issue.user.email).to_s
-            %a.gravatar_anchor{:href=>"/users/#{@issue.user.id}", :style=>"text-decoration:none;float:right;margin:0px;"}
+            %a.gravatar_anchor{:href=>"/users/#{@issue.user.id}", :title=>"#{@issue.user.username}"}
               %img{:src=> "http://www.gravatar.com/avatar/#{@issue_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
             .gravatar_text
               %span.date_time>= time_ago_in_words(@issue.created_at) + ' ago'           

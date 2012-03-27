@@ -1,8 +1,13 @@
-//$("#get_relationship .title, #get_relationship .rationale_container").empty();
-$("#notice").html("<%= escape_javascript(@notice) %>");
+// Reload confirm partial and remove fade div
+	$("#confirm_partial").html("<%= escape_javascript(render('layouts/confirm_partial'))%>")
+	$('#fade').remove();
 
-$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
-$("#get_relationship_input").val('');
-$("#get_rel_sentence_input").val('');
+// display message for the user
+	show_success_message("<%= escape_javascript(@notice) %>")
 
-$("#select_rel_submit").trigger('click');
+// reload the partial based on selected relationship type
+	var relationship_url = $(".central_causality_container a").attr("href")
+	$.getScript(relationship_url);
+
+// log it in the history
+	history.pushState(null, document.title, relationship_url);

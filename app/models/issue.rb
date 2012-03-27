@@ -39,16 +39,15 @@ class Issue < ActiveRecord::Base
   validates :short_url, :presence => {:message => ' cannot be blank, Issue not saved!'}
   validates :description, :presence => {:message => ' cannot be blank, Issue not saved!'}
   
+  # create friendly URL before saving
+  before_validation :generate_slug 
   
   # Do the following on Destroy
-  #after_destroy :cleanup_relationships
-  
-  # create friendly URL before saving
-  before_validation :generate_slug  
+  after_destroy :cleanup_relationships
   
   # destroy all associated relationships if the issue is destroyed
   def cleanup_relationships
-    @involved_relationships = Relationship.where(:cause_id => self.id)
+    @involved_relationships = self.relationships
     @iterations = @involved_relationships.length
     @iterations.times do |i|
       @involved_relationships[i].destroy
@@ -69,41 +68,6 @@ class Issue < ActiveRecord::Base
       scoped
     end
   end  
-
-  # Relationship references
-  def self.rel_references(rel_id)
-    if rel_id
-      Relationship.find(rel_id).references  
-    else
-      nil
-    end
-    
-  end
-
-
-  #Method to get the link for Wikipedia from Google search results
-  def get_wiki_url(query)
-      search_keywords = query.strip.gsub(/\s+/,'+')
-      url = "http://www.google.com/search?q=#{search_keywords}+site%3Aen.wikipedia.org&safe=active"
-      begin
-        doc = Hpricot(open(url, "UserAgent" => "reader"+rand(10000).to_s).read)
-        result = doc.search("//div[@id='ires']").search("//li[@class='g']").first.search("//a").first
-      rescue
-        return ''
-      end
-      if result
-        return result.attributes["href"]
-      else
-        return ''
-      end
-  end
-
-require  'hpricot'
-require 'open-uri'
-require 'json'
-require 'cgi'
-require 'wikipedia'
-require 'uri'
 
   private
   def generate_slug   

@@ -1,4 +1,4 @@
-/* Javascript for Issue Show page */
+/* Javascript for Issue Index page */
 $(function() {
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -13,41 +13,42 @@ $(function() {
 
 // UNCOMMENT THE following lines of code to get the custom confirm box to show
 
-  //window.confirm = false;
+  window.confirm = false;
   
-  //var href_carrier;
+  var href_carrier;
         
-  //$(".del-issue").live('click', function() {
-  //	  var title = "Delete Issue?";
-//	  var msg = $(this).data('confirm');
-//	  href_carrier = $(this);
-//	  showPopup(title, msg);
+  $(".del-issue").live('click', function() {
+  	  var title = "Delete Issue?";
+	  var msg = $(this).data('confirm');
+	  href_carrier = $(this).attr('href');
+	  showPopup(title, msg);
 
-//	  return false;
-//  });
+	  return false;
+  });
 
 
 // -------------------------------------------------------------------------------
-// D E L E T E     C O N F I R M A T I O N      'Y E S' 
+// DELETE CONFIRMATION 'YES' 
 // -------------------------------------------------------------------------------  
 
-  $("#confirm_yes").click(function() {
-  	$("#confirm_wait").html('<img border="0" src="/images/system/spinner.gif"/>');
-	href_carrier.trigger('click');
+  $("#confirm_yes").live('click', function() {
+  	$("#confirm_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
+	href_carrier = href_carrier + "?sort_by=" + $("#sort_current_criteria").text().trim()
+	$.post(href_carrier, {_method:'delete'}, null, "script");
   });
 
 // -------------------------------------------------------------------------------
-// D E L E T E     C O N F I R M A T I O N      'C A N C E L' 
+// DELETE CONFIRMATION 'CANCEL' 
 // ------------------------------------------------------------------------------- 
     
-  $("#confirm_cancel").click(function() {
+  $("#confirm_cancel").live('click', function() {
 	  $('#fade').remove();
-	  $("#confirm_popup").fadeOut('slow');    
+	  $("#confirm_popup").fadeOut('slow');  
 	  href_carrier = '';
   });
 
 // -------------------------------------------------------------------------------
-// S H O W      D E L E T E     C O N F I R M A T I O N  
+// SHOW DELETE CONFIRMATION  
 // -------------------------------------------------------------------------------
 
   function showPopup(title, msg) {
@@ -60,14 +61,13 @@ $(function() {
   }   
 
 // -------------------------------------------------------------------------------
-// I S S U E S    P A G I N A T I O N 
+// ISSUES PAGINATION 
 // ------------------------------------------------------------------------------- 
   $("#issues .pagination a").live("click", function() {
 	// show message to the user
 	show_progress_message("retrieving issues")
 	// call
-	$.getScript(this.href);
-	
+	$.getScript(this.href);	
 	// history management
 	window.history.ready = true;
 	history.pushState(null, document.title, this.href);	
