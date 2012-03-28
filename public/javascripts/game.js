@@ -9,6 +9,7 @@
 
 var startBox;
 var now_building = null //the thing we're dragging
+var tooltip = null
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
@@ -81,21 +82,18 @@ function drawEdge(edge, paper){
 		else //if decreases
 			e.attr({stroke:EDGE_COLORS['decreases']})
 		
-		var arrow = drawArrow(edge, curve, paper)		
+		var arrow = drawArrow(edge, curve, paper)
 		var dots = drawDots(edge, curve, paper)
 
+		var center = getPathCenter(curve,-2)
+		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
+		$(selector.node).qtip(get_edge_qtip(edge))
+		// .mouseover(function() {tooltip = drawSelectorTooltip(edge, paper);})
+		// .mouseout(function() {tooltip.remove()})
+		$(e.node).qtip(get_edge_qtip_small(edge))
+
 		var icon = paper.set() //for storing pieces of the line as needed
-		.push(e, arrow[0], arrow[1], dots)
-
-		$([e.node,arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(edge))
-		
-
-		
-		// .qtip({
-		// 	content:{text: "HELLO WORLD"+console.log("second qtip")},
-		// 	position:{target: 'mouse',adjust: {y:-10}},
-		// })
-		// .removeData('qtip')
+		.push(e, arrow[0], arrow[1], dots, selector)
 
 		return icon;
 }
@@ -113,7 +111,7 @@ var dragstart = function (x,y,event)
 			if(edge.a == now_dragging.node || edge.b == now_dragging.node){
 				// console.log(edge.name, edge.id, edgeIcons[edge.id])
 				dragged_edges.push(edge) //SHOULD THIS BE STORING THE ICONS RATHER THAN THE EDGES?? NO, SINCE WE'LL WANT TO ADJUST
-				oldSymbol = edgeIcons[edge.id].splice(1,3) //remove the symbol, since we're not moving it
+				oldSymbol = edgeIcons[edge.id].splice(1,4) //remove the symbol, since we're not moving it
 				oldSymbol.remove()
 			}
 		}
@@ -146,7 +144,11 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
 		var dots = drawDots(dragged_edges[i],curve,paper)
 		edgeIcons[dragged_edges[i].id].push(dots)
-		$([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
+		var center = getPathCenter(curve,-2)
+		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.1, 'stroke-width':0})
+		edgeIcons[dragged_edges[i].id].push(selector)
+		$(selector.node).qtip(get_edge_qtip(dragged_edges[i]))
+		// $([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
 	}
 	//reset variables
 	dragged_edges = []
@@ -221,9 +223,10 @@ var buildend = function (x,y,event)
 			currEdges[key] = edge
 
 			//set up the icon
-			var icon = now_building.icon
-			edgeIcons[edge.id] = icon
-			$([icon[0].node,icon[1].node,icon[2].node]).qtip(get_edge_qtip(edge)); //add handlers
+			now_building.icon.remove() //remove our building icon
+			edgeIcons[edge.id] = drawEdge(edge, paper) //redraw with the correct edge associated
+			// $(icon[0].node).qtip(get_edge_qtip_small(edge))
+			// $(icon[3].node).qtip(get_edge_qtip(edge)); //add handlers
 
 			//figure out if we need to adjust the 'n'
 			var tobend = []
@@ -253,13 +256,55 @@ var buildend = function (x,y,event)
 	now_building = null
 };
 
+function destroyEdge(edge) {
+	var key = edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
+	if(currEdges[key]){
+		//remove edge from list
+		for(var i=0, len=currEdges['keys'].length; i<len; i++){
+			if(currEdges['keys'][i]==key){
+				currEdges['keys'].splice(i,1)
+				break
+			}
+		}
+		delete currEdges[key]
+		
+		edgeIcons[edge.id].remove() //remove icon
+	}
+	else
+		console.log('edge does not exist. PROBLEM.')
+	
+	$('.qtip.ui-tooltip').qtip('hide');	
+}
 
+function swapEdge(e, new_reltype){
+	var key = e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
+	var edge = currEdges[key]
+	edge.reltype = new_reltype
+
+	//remove old edge&key from list
+	for(var i=0, len=currEdges['keys'].length; i<len; i++){
+		if(currEdges['keys'][i]==key){
+			currEdges['keys'].splice(i,1)
+			break
+		}
+	}
+	delete currEdges[key]
+	
+	var newkey = edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
+	currEdges[newkey] = edge
+	currEdges['keys'].push(newkey) //add to list with new key
+
+	edgeIcons[edge.id].remove() //remove old icon
+	edgeIcons[edge.id] = drawEdge(edge,paper)
+
+	$('.qtip.ui-tooltip').qtip('hide');	
+}
 
 //layout details for the node qtip
 function get_node_qtip(node) {
 	return {
 		content:{
-			text: '<div id="relation_qtip"><div class="formcontentdiv"><div class="heading">Concept: ' + 
+			text: '<div id="issue_qtip"><div class="formcontentdiv"><div class="heading">Concept: ' + 
 							node.name + '</div></div></div>'
 		},
 		position: {
@@ -274,24 +319,41 @@ function get_node_qtip(node) {
 	};
 }
 
-//layout details for the edge qtip
-function get_edge_qtip(edge) {
+function get_edge_qtip_small(edge) {
 	return {
 		content:{
-			// text: '<div id="relation_qtip"><div class="formcontentdiv"><div class="heading">' + 
-			// 				edge.name + '</div></div></div>'
-			text: 'Loading '+edge.name+'...', //and what's sad is that this is only temporary...
-			ajax:{
-				url: 'game/edge_qtip',
-				type: 'GET',
-				data: {edge: edge},
-			}
+			text: '<div class="edge_title">' + edge.name + '</div>'
 		},
 		position: {
-			my: 'top left',  // Position my top left...
-			at: 'center', // at the bottom right of...
-			// target: 'mouse',
-			// adjust: {x:-20}
+			target: 'mouse',
+			adjust: {y:4}
+		},
+		style: {
+			classes: 'ui-tooltip-light ui-tooltip-shadow',
+			width: 200,
+		},
+	};	
+}
+
+//layout details for the edge qtip
+function get_edge_qtip(edge) {
+	var canvas_id = Math.random()
+	return {
+		content:{
+			text: "<div id='relation_qtip'><div class='selector_container'><div id='selector_canvas_"+canvas_id+"'></div></div>"+
+			  		"<div class='descr_container'><div class='heading'>"+edge.name+"</div></div></div>"
+			//currently not using ajax for faster load times (since we don't need to fetch from db, yet)
+			// text: 'Loading...',//+edge.name+'...', //and what's sad is that this is only temporary...
+			// ajax:{
+			// 	url: 'game/edge_qtip',
+			// 	type: 'GET',
+			// 	data: {edge: edge},
+			// }
+		},
+		position: {
+			my: 'top left',
+			at: 'center',
+			adjust: {x:-15, y:3}
 		},
 		style: {
 			classes: 'ui-tooltip-light ui-tooltip-shadow',
@@ -299,15 +361,83 @@ function get_edge_qtip(edge) {
 				//http://craigsworks.com/projects/qtip2/docs/plugins/tips/
 				corner: true,
 				mimic: 'center',
-				width:24,
+				width:25,
 				height:10,
-				offset:30, // Give it 5px offset from the side of the tooltip
+				offset:10,
 			},
 		},
 		hide: {
 			fixed: true,
 		},
+		events: {
+			show: function(event, api) {
+				if($.inArray(canvas_id, selector_canvases_drawn) < 0){
+					drawSelectors(edge, canvas_id);
+					selector_canvases_drawn.push(canvas_id)
+				}
+			}
+		},
 	};	
+}
+
+var selector_canvases_drawn = [] //canvases we've drawn before
+
+function drawSelectors(edge, canvas_id){
+	// console.log('selector_canvas_'+canvas_id)
+	var canvas = new Raphael('selector_canvas_'+canvas_id, 40, 45) //the canvas to draw on
+
+	edge.a.x = parseInt(edge.a.x) //convert from json strings to ints, if necessary
+	edge.a.y = parseInt(edge.a.y)
+	edge.b.x = parseInt(edge.b.x)
+	edge.b.y = parseInt(edge.b.y)
+	var edge_incr = parseInt(edge.reltype)&INCREASES //is the edge an increaser?
+
+	var curve = getPath(edge) //get the curve's path		
+	var midPoint = getPathCenter(curve)//, ARROW_LENGTH/2); //midpoint offset by arrow-length
+	if(edge.a.x <= edge.b.x && edge.b.y <= edge.a.y){ //sometimes we need to flip the alpha, seems to be covered by this
+		if(!(edge.b.y == edge.a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
+			midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
+	}}
+
+	midPoint.x = 15 //force our 'midpoint'
+	midPoint.y = 12
+	
+	//draw alternative arrow
+	var arrowPath = getArrowPath(midPoint, 0)
+	var arrow = canvas.path(arrowPath) //draw the arrowhead
+		.attr({stroke:'none'})
+		.transform('s1.2')
+		.transform("...r"+(midPoint.alpha)) //rotate and flip
+	if(!edge_incr){ //if we're not increasing, make this the 'increase' option
+		arrow.attr({fill:EDGE_COLORS['increases']})
+	}
+	else{ //if decreases
+		arrow.attr({fill:EDGE_COLORS['decreases']});	
+	}
+	var arrowSymbolPath = getArrowSymbolPath(midPoint, (edge_incr ? 0 : 1))
+	var arrowSymbol = canvas.path(arrowSymbolPath) //draw the symbol on the arrow
+		.attr({fill:'#ffffff', stroke:'none'})
+		.transform('...r'+midPoint.alpha+'t-3,0') //apply offset after rotation
+	var swapSelector = canvas.circle(15,10,12).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
+		.mouseover(function() {
+			this.node.style.cursor='pointer';
+			this.g = arrow.glow({width:3})
+		})
+		.mouseout(function() { this.g.remove() })
+		.click(function() {swapEdge(edge, (edge_incr ? 0 : 1));})
+
+	//draw delete X
+	var deletePath = 'M -1 1 L 1 -1 M -1 -1 L 1 1'
+	var deleteSymbol = canvas.path(deletePath)
+		.attr({'stroke-width':3, 'stroke':'#d24648', 'stroke-linecap':'round'})
+		.transform('...s5 T15,35')
+	var deleteSelector = canvas.circle(15,35,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
+		.mouseover(function() {
+			this.node.style.cursor='pointer';
+			this.g = deleteSymbol.glow({width:3})
+		})
+		.mouseout(function() { this.g.remove() })
+		.click(function() {destroyEdge(edge);})
 }
 
 

@@ -175,21 +175,20 @@ function getPathCenter(path, offset, flip)
 function getArrowPath(point, reltype)
 {
 	if (reltype&INCREASES)
-		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
+		return "M"+(point.x+ARROW_LENGTH/2)+","+point.y+ "l"+(-1*ARROW_LENGTH)+","+(ARROW_HEIGHT)+ "l"+(0)+","+(-2*ARROW_HEIGHT)+ "z"
 	else if(reltype&SUPERSET)
 		return "M" + point.x + " " + point.y + " l 0 " + (0 - REC2_EDGE/2) + " l "  + REC2_EDGE + " 0 l 0 " + REC2_EDGE  + " l " + (0 - REC2_EDGE)+" 0 l 0 "+(0 - (REC1_EDGE/2+REC2_EDGE/2))+" l "+(0 - REC1_EDGE)+" 0 l 0 "+REC1_EDGE+" l "+REC1_EDGE+" 0 z";
 	else
-		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
-	
+		return "M"+(point.x+ARROW_LENGTH/2)+","+point.y+ "l"+(-1*ARROW_LENGTH)+","+(ARROW_HEIGHT)+ "l"+(0)+","+(-2*ARROW_HEIGHT)+ "z"
 }
 
 //gets the path to draw the symbol inside an arrow
 //should this be a text function instead?
 function getArrowSymbolPath(point, reltype)
 {
-	symbolSize = 2;
-	x_off = -7
-	y_off = 1
+	var symbolSize = 2;
+	var x_off = symbolSize*1.5
+	var y_off = symbolSize*.5
 
 	if(reltype&INCREASES){
 		return "M " + (point.x+x_off) + " " + (point.y+y_off) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize);
@@ -212,7 +211,7 @@ function drawArrow(edge, curve, paper)
 	if (edge.reltype&SUPERSET)
 		var midPoint = getPathCenter(curve);
 	else
-		var midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+		var midPoint = getPathCenter(curve)//, ARROW_LENGTH/2); //midpoint offset by arrow-length
 
 	if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
 		if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
@@ -228,7 +227,7 @@ function drawArrow(edge, curve, paper)
 	var arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
 	var arrowSymbol = paper.path(arrowSymbolPath, edge.reltype) //draw the symbol on the arrow
 		.attr({fill:'#FFFFFF', stroke:'none'})
-		.rotate(midPoint.alpha, midPoint.x, midPoint.y)
+		.transform('...r'+midPoint.alpha+'t-2.5,0') //apply offset after rotation
 
 	//set attributes based on relationship type (bitcheck with constants)
 	if(edge.reltype&INCREASES){

@@ -1,4 +1,5 @@
 = stylesheet_link_tag "vis_style"
+= stylesheet_link_tag "game"
 = stylesheet_link_tag "jquery.qtip.min"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
@@ -7,6 +8,7 @@
 
 = javascript_include_tag "jquery.qtip.min.js"
 = javascript_include_tag "raphael-min-2.0.2.js" #for drawing
+/= javascript_include_tag "raphael.blur.js"
 
 -# specifies the data that we're going to be working with in javascript
 :javascript
@@ -29,3 +31,5 @@
       %b Hello world!
 
 .clearboth
+
+#tmp

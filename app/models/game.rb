@@ -17,6 +17,8 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #default_layout #will eventually have custom initial layout
     grid_nodes_in_box(@nodes,Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
 
+    #@nodes[0].location = Vector[0, @height/2]
+
     #handle_params(args[:params],args) ##do the normal graphing command    
   end
 
