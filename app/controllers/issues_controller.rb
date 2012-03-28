@@ -38,6 +38,8 @@ require 'backports'
     # get the current issue
     @issue = Issue.find(params[:id]) 
 
+    @causal_sentence = ""  # initialize the causal sentence
+
     # respond according to the kind of request
     respond_to do |format|
       
@@ -48,6 +50,7 @@ require 'backports'
       
         if params[:rel_type]    # check for the requested relationship type
           @rel_type = params[:rel_type]
+          @causal_sentence = params[:rel_type]
           get_selected_relations # Call to retrieve the corresponding relationships
         end      
 

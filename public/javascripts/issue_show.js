@@ -844,7 +844,9 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	  		$("#title_issue").html($(".main_thumb_title").text().trim());
 	  		// call function to identify what should be the causal sentence?
 	  		write_causal_sentence($(".central_causality_container").text().trim())
-			$("#title_relationship").html(JData_sugg.parse.title); 
+			$("#title_relationship").html(JData_sugg.parse.title).show();
+			// Hide stuff
+	    	$("#title_relationship_hover").html('').hide();	
 			$("#title_dynamic_text").removeAttr('style');
 		  	
 		  	// Hide the Divs that are not required

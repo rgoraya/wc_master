@@ -6,9 +6,9 @@
 
 -# specifies the data that we're going to be working with in javascript
 :javascript
-  var this_relationship_type = '#{@rel_type}'
-  var issueTitle             = '#{@issue.title.to_s}'
-  var idofthisIssue          = '#{@issue.id}'
+  var this_relationship_type = "#{@rel_type}"
+  var issueTitle             = "#{@issue.title.to_s}"
+  var idofthisIssue          = "#{@issue.id}"
   
 // Include the .js file  
 = javascript_include_tag "issue_show.js"

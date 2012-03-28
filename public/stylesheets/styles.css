@@ -187,7 +187,7 @@ html, body /*Body Styles*/
 
 
 .nav_gravatar{
-	float:left;padding-top:6px;margin:-10px 3px 0px 15px; border:0px;
+	float:left;padding-top:6px;margin:-7px 3px 0px 15px; border:0px;
 }
 
 .navigation{
@@ -1018,7 +1018,6 @@ z-index:0;
 
 #title_relationship_hover, #title_causality_hover{
 	color:#888888;
-	display:none;
 }
 
 #title_relationship_ellipsis{

@@ -44,7 +44,7 @@
               = link_to 'New Relationship', new_issue_path, :title=>"create new relationship", :class=>"login_button", :id=>"new_relationship" 
 
               - if current_user
-                - gravatar_options = { :size => 19, :title => "view your issues", :class => "nav_gravatar" }
+                - gravatar_options = { :size => 17, :title => "view your issues", :class => "nav_gravatar" }
                 %a{:href=>current_user, :title=>"view profile"}
                   = gravatar_for(current_user, gravatar_options)
                 = link_to current_user.username, current_user, :title=>"view profile", :class=>"login_button", :style=>"padding-left:0px;margin-left:0px; padding-right:6px;"

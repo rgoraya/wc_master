@@ -56,9 +56,10 @@
     
       // author
       - if relation.user
-        - @hash = Digest::MD5.hexdigest(relation.user.email).to_s
+        - rel_gravatar_options = { :size => 14, :title => "view relationships by this author", :class => "nav_gravatar" }
         %a{:href=>"/users/#{relation.user.id}", :style=>"text-decoration:none;", :title=>"view relationships by this author"}
-          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
+          = gravatar_for(relation.user, rel_gravatar_options)      
+
         %a{:href=>"/users/#{relation.user.id}", :class=>"issue-user", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view relationships by this author"}>= relation.user.username
       - else
         %img{:src=> "http://www.gravatar.com/avatar/?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
