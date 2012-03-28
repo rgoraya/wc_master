@@ -20,7 +20,6 @@ var edgeIcons = {}
 
 var now_detailing = 0 //status variable for what we're currently displaying on hover
 var now_dragging = null //the thing we're dragging
-var drag_origin = {cx:0, cy:0, x:0, y:0, id:0} //the origin/info for the node before we started dragging
 var dragged_edges = [] //the edges connected to the thing we're dragging
 
 
@@ -176,21 +175,20 @@ function getPathCenter(path, offset, flip)
 function getArrowPath(point, reltype)
 {
 	if (reltype&INCREASES)
-		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
+		return "M"+(point.x+ARROW_LENGTH/2)+","+point.y+ "l"+(-1*ARROW_LENGTH)+","+(ARROW_HEIGHT)+ "l"+(0)+","+(-2*ARROW_HEIGHT)+ "z"
 	else if(reltype&SUPERSET)
 		return "M" + point.x + " " + point.y + " l 0 " + (0 - REC2_EDGE/2) + " l "  + REC2_EDGE + " 0 l 0 " + REC2_EDGE  + " l " + (0 - REC2_EDGE)+" 0 l 0 "+(0 - (REC1_EDGE/2+REC2_EDGE/2))+" l "+(0 - REC1_EDGE)+" 0 l 0 "+REC1_EDGE+" l "+REC1_EDGE+" 0 z";
 	else
-		return "M" + point.x + " " + point.y + " L" + (point.x - ARROW_LENGTH) + " " + (point.y - ARROW_HEIGHT) + " L" + (point.x - ARROW_LENGTH) + " " + (point.y + ARROW_HEIGHT) + " L" + point.x + " " + point.y;
-	
+		return "M"+(point.x+ARROW_LENGTH/2)+","+point.y+ "l"+(-1*ARROW_LENGTH)+","+(ARROW_HEIGHT)+ "l"+(0)+","+(-2*ARROW_HEIGHT)+ "z"
 }
 
 //gets the path to draw the symbol inside an arrow
 //should this be a text function instead?
 function getArrowSymbolPath(point, reltype)
 {
-	symbolSize = 2;
-	x_off = -7
-	y_off = 1
+	var symbolSize = 2;
+	var x_off = symbolSize*1.5
+	var y_off = symbolSize*.5
 
 	if(reltype&INCREASES){
 		return "M " + (point.x+x_off) + " " + (point.y+y_off) + " l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + (0 - symbolSize) + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + (0 - symbolSize) + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + symbolSize + " l " + symbolSize + " 0 l 0 " + (0 - symbolSize);
@@ -213,7 +211,7 @@ function drawArrow(edge, curve, paper)
 	if (edge.reltype&SUPERSET)
 		var midPoint = getPathCenter(curve);
 	else
-		var midPoint = getPathCenter(curve, ARROW_LENGTH/2); //midpoint offset by arrow-length
+		var midPoint = getPathCenter(curve)//, ARROW_LENGTH/2); //midpoint offset by arrow-length
 
 	if(a.x <= b.x && b.y <= a.y){ //sometimes we need to flip the alpha, seems to be covered by this
 		if(!(b.y == a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
@@ -229,7 +227,7 @@ function drawArrow(edge, curve, paper)
 	var arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
 	var arrowSymbol = paper.path(arrowSymbolPath, edge.reltype) //draw the symbol on the arrow
 		.attr({fill:'#FFFFFF', stroke:'none'})
-		.rotate(midPoint.alpha, midPoint.x, midPoint.y)
+		.transform('...r'+midPoint.alpha+'t-2.5,0') //apply offset after rotation
 
 	//set attributes based on relationship type (bitcheck with constants)
 	if(edge.reltype&INCREASES){
@@ -289,7 +287,7 @@ function drawDots(edge, curve, paper)
 //nodes and edges are objects of objects; includes 'keys' as an array of the keys for iterating
 function drawElements(nodes, edges, paper)
 {
-	paper.clear() //clear out old drawings
+	// paper.clear() //clear out old drawings
 
 	//draw edges (below the nodes)
 	for(var i=0, len=edges['keys'].length; i<len; i++){
@@ -433,10 +431,8 @@ function animateElements(fromNodes, fromEdges, toNodes, toEdges, paper)
 var dragstart = function (x,y,event) 
 {
 	if(event.shiftKey && now_dragging) {
-		drag_origin.cx = now_dragging.icon[0].attr('cx'); //store the original locations
-	  drag_origin.cy = now_dragging.icon[0].attr('cy');
-		drag_origin.x = now_dragging.icon[1].attr('x');
-		drag_origin.y = now_dragging.icon[1].attr('y');
+		this.ox = 0;
+		this.oy = 0;
 
 		for(var i=0, len=currEdges['keys'].length; i<len; i++)
 		{
@@ -453,10 +449,14 @@ var dragstart = function (x,y,event)
 var dragmove = function (dx,dy,x,y,event) 
 {
 	if(event.shiftKey && now_dragging) {
-		now_dragging.node.x = drag_origin.cx+dx
-		now_dragging.node.y = drag_origin.cy+dy //move the node itself; this will move the appropriate edges
-		now_dragging.icon.attr({cx: drag_origin.cx+dx, cy: drag_origin.cy+dy, x: drag_origin.x+dx, y: drag_origin.y+dy});
-		
+		trans_x = dx-this.ox
+		trans_y = dy-this.oy
+		now_dragging.node.x += trans_x
+		now_dragging.node.y += trans_y //move the node itself; this will move the appropriate edges
+		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
+		this.ox = dx;
+		this.oy = dy;
+
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
 			var curve = getPath(dragged_edges[i]) //get new curve
@@ -473,9 +473,9 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
 		var dots = drawDots(dragged_edges[i],curve,paper)
 		edgeIcons[dragged_edges[i].id].push(dots)
+		$([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
 	}
 	//reset variables
-	drag_origin = {cx:0, cy:0, x:0, y:0, id:0} 
 	dragged_edges = []
 	now_dragging = null
 };

@@ -134,7 +134,10 @@ function get_node_qtip(node) {
 		},
 		style: {
 			classes: 'ui-tooltip-light ui-tooltip-shadow'
-		}
+		},
+		hide: {
+			fixed: true,
+		},
 	};
 }
 
@@ -159,6 +162,9 @@ function get_edge_qtip(edge) {
 		},
 		style: {
 			classes: 'ui-tooltip-light ui-tooltip-shadow'
-		}
+		},
+		hide: {
+			fixed: true,
+		},
 	};	
 }

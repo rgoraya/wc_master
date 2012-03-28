@@ -1,0 +1,35 @@
+= stylesheet_link_tag "vis_style"
+= stylesheet_link_tag "game"
+= stylesheet_link_tag "jquery.qtip.min"
+-#set the size of the canvas to draw on to be the one defined in the controller
+:css
+  #vis_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
+  #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
+
+= javascript_include_tag "jquery.qtip.min.js"
+= javascript_include_tag "raphael-min-2.0.2.js" #for drawing
+/= javascript_include_tag "raphael.blur.js"
+
+-# specifies the data that we're going to be working with in javascript
+:javascript
+  #{javascript_graph(@vis.nodes,@vis.edges)}
+  //var notice_msg = "#{escape_javascript(flash[:notice])}";
+= javascript_include_tag "causemap_rjs.js" #the draw code itself
+:javascript
+  #{load_game_raphael}
+= javascript_include_tag "mapvisualization_index.js" #for interaction/ajax stuff
+= javascript_include_tag "game.js"
+
+#contentwrapper{:style => "margin-top:0px"}
+  .contentmain
+    #vis_container{:style => "margin-top:0px"}
+      #canvas_container
+    .clearboth
+    #sidebar_container
+    #interaction{:style => (@verbose ? "" : "display:none")}
+    #debug{:style => (@verbose ? "" : "display:none")}
+      %b Hello world!
+
+.clearboth
+
+#tmp
