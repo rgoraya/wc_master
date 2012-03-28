@@ -1,0 +1,20 @@
+%div.search_content_wrapper
+  
+  - if !@search_results.nil?
+    - @search_results.each do |issue|
+      .search_result_appl
+        = link_to({:action=>"index", :do=>"goto_issue", :target=>"#{issue.id}"}, {:name => issue.title}) do
+          / = link_to("javascript:void(0);", {:onclick => 'SubmitParentSearchForm();', :name => issue.title}) do
+          %div{:class=>"search_img_box_sqr", :style=>"float:left;background-image:url(#{issue.short_url})"}
+          %div{:style=>"float:left"}
+            %div{:class=>"search_result_title"}
+              = issue.title
+            %div{:class=>"search_result_descr"}
+              = issue.description.html_safe  
+          .clearboth
+    - if @search_results.count < 1
+      .search_result_appl_error
+        .search_img_box_sqr_error
+        .search_result_error
+          No data! Please try a different search query.
+        .clearboth              

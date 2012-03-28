@@ -187,7 +187,7 @@ html, body /*Body Styles*/
 
 
 .nav_gravatar{
-	float:left;padding-top:6px;margin:-15px 3px -5px 15px; border:0px;
+	float:left;padding-top:6px;margin:-10px 3px 0px 15px; border:0px;
 }
 
 .navigation{
@@ -496,6 +496,11 @@ z-index:0;
 }
 
 .formheading a{
+	text-decoration:none;
+	color:#434343;
+}
+
+.formheading a:visited{
 	text-decoration:none;
 	color:#434343;
 }
@@ -2255,9 +2260,9 @@ a.issue-user:hover{
 }
 
 #logged_user{
-	padding-right:6px;
-	background-size:17px;
-	padding-left:20px;
+	float:left;
+	padding:0px;
+	margin:0px 0px -5px 0px;
 }
 
 #user_register{
@@ -2436,16 +2441,25 @@ a.issue-user:hover{
 	background-size:17px;
 }
 
-#userissues .searchfield_appl{
+#userissues .searchfield_appl, #sidebar_container .searchfield_appl{
 	border:1px solid #f5f5f5;
 }
 
-#userissues .search_appl_submit{
+#userissues .search_appl_submit, #sidebar_container .search_appl_submit{
 	border:1px solid #f5f5f5;
 	height:27px;
 	margin-left:-3px;
 	border-left:none;
 }
+
+#sidebar_container .issue_search{
+	margin-top: 0px;
+	width: 266px;
+	display: none;
+	z-index: 1;
+}
+
+
 
 #get_relationship .search_appl_submit{
 	background:url("/images/issues/submit_appl.png") no-repeat 5px 4px;
@@ -2465,7 +2479,7 @@ a.issue-user:hover{
 	border-left:none;
 }
 
-#issue_search{
+.issue_search{
 	display:none; 
 	margin:-1px 0px -500px 1px;
 	width:268px; 
@@ -2477,7 +2491,7 @@ a.issue-user:hover{
 	border-bottom:1px solid #434343;		
 }
 
-.search_result_appl{
+.search_result_appl, .search_result_appl_error{
 	padding:6px 5px;
 	font:normal 13px 'lucida grande',tahoma,verdana,arial,sans-serif;
 	color:#858585;
@@ -2507,6 +2521,7 @@ a.issue-user:hover{
 	border-left:1px solid #434343;
 	border-right:1px solid #434343;
 	border-top:none;
+	margin-top:-1px;
 }
 .search_img_box_sqr{
 	height:45px; width:45px; border:1px solid #f5f5f5;margin:0px 5px 0px 0px;
@@ -2524,6 +2539,16 @@ a.issue-user:hover{
 	text-indent: -9999em
 }
 
+.search_img_box_sqr_error{
+	float:left;
+	background:url("/images/system/error.png") no-repeat center center;
+	background-size:24px;
+	height:24px;
+	width:24px;
+	margin-right:6px;	
+}
+
+
 .search_result_title{
 	color:#434343;
 	width: 198px; height:14px; 
@@ -2539,6 +2564,12 @@ a.issue-user:hover{
 
 .search_result_title a:hover{
 	color:#4DB8DB;	text-decoration:none;}	
+
+.search_result_error{
+	color:#434343;
+	width: 224px; font-size: 12px;
+	float:left;
+	}
 	
 .search_result_descr{
 	width: 198px; height:21px; 

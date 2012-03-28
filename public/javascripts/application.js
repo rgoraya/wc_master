@@ -74,97 +74,6 @@ $(function() {
 	return false;
   });
 
-// -------------------------------------------------------------------------------
-// AUTO COMPLETE SEARCH FUNCTIONS	
-// -------------------------------------------------------------------------------
-	var searchDelay = (function(){
-	  var timer = 0;
-	  return function(callback, ms){
-	    clearTimeout (timer);
-	    timer = setTimeout(callback, ms);
-	  };
-	})();
-
-	
-  $("#issue_search_form input").bind('keyup', function(e) { 
-    if ($.inArray(e.keyCode, ignore_keys_array) == -1 && $('#search_visible_input').val().trim() != ""){
-			$('#issue_search').html('');
-			searchDelay(function(){
-				if ($('#search_visible_input').val().trim() != ""){
-    				$('#issue_search').html('<div class="search_result_wait"></div>');    		
-    				$.get($("#issue_search_form").attr("action"), $("#issue_search_form").serialize(), null, "script");
-				}
-			}, 500);
-		}     
-  });
-
-// -------------------------------------------------------------------------------  
-// SEARCH FORM SUBMISSION
-// -------------------------------------------------------------------------------  
-  $("#search_submit_btn").click(function(){
-		if ($('#search_visible_input').val().trim() != ""){
-			$('#issue_search_form').submit();
-		}
-  });              
-
-// -------------------------------------------------------------------------------  
-// ARROW KEY FUNCTION AND RETURN KEY FORM SUBMISSION FOR SEARCH FORM
-// -------------------------------------------------------------------------------
-
-  window.searchBoxIndex = -1;
-  
-  $("#search_visible_input").bind("keyup", function(f){
-  	if ($.inArray(f.keyCode, ignore_keys_array) == -1){
-  	  searchBoxIndex = -1;}	  
-	  
-	  if (f.keyCode == 13){
-			if (searchBoxIndex < 0){
-				if ($('#search_visible_input').val().trim() != ""){
-		  			//$('#search_invisible_input').val($('#search_visible_input').val().trim())
-		  			$('#issue_search_form').submit();
-				}
-			}
-			else{
-				window.location = $(".search_result_appl a").eq(searchBoxIndex).attr("href");
-				return false;
-			}
-  	}
-		else if (f.keyCode == 40){
-			Navigate(1);
-		}
-		else if (f.keyCode == 38){
-			Navigate(-1);
-		}
-  });
-
-  var Navigate = function(diff) {
-  	searchBoxIndex += diff;
-  	var oBoxCollection = $(".search_result_appl");
-  	if (searchBoxIndex >= oBoxCollection.length)
-  		searchBoxIndex = 0;
-  	if (searchBoxIndex < 0)
-  		searchBoxIndex = oBoxCollection.length - 1;
-  	var elem_class = "search_hover";
-  	oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);
-  }
-
-  $(".search_result_appl").live('mouseover', function(){
-	  searchBoxIndex = $(this).index();
-	  var elem_class = "search_hover";
-	  var oBoxCollection = $(".search_result_appl");
-	  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);  
-  });
-  
-// -------------------------------------------------------------------------------    
-// SHOW HIDE SEARCH RESULTS BOX
-// -------------------------------------------------------------------------------  
-  $("#search_visible_input").bind("keyup", function(){ 
-	if ($(this).val().trim() == "")
-  		$("#issue_search").empty();
-  	else
-  		$("#issue_search").show();
-  });
-
 // -------------------------------------------------------------------------------  
 // FUNCTIONS TO DISPLAY/HIDE ADDITIONAL LINKS AFTER LOGON
 // -------------------------------------------------------------------------------  
@@ -217,49 +126,48 @@ $(function() {
         accordion_is_being_hovered = false; 
     });
 
+
 	$("#sort_order").live({
-        mouseenter:
-           function()
-           {
+		mouseenter: function(){
 			accordion_is_being_hovered = true; 
-           },
-        mouseleave:
-           function()
-           {
+    },
+    mouseleave: function(){
 			accordion_is_being_hovered = false;
-           }
-     });
+    }
+	});
 
   $('body').click(function() {
-		
 		if(! accordion_is_being_hovered){
         	
-        	if ($(".login_form_container").is(":visible")){
-         		$(".login_form_opener").removeAttr('style');
-		  		$(".login_form_container").removeAttr('style');
-         	}         
+       	if ($(".login_form_container").is(":visible")){
+       		$(".login_form_opener").removeAttr('style');
+	  			$(".login_form_container").removeAttr('style');
+       	}         
 	  
 	  		if ($(".nav_more_expansion").is(":visible")){
-				$(".nav_more_click").removeAttr('style');
+					$(".nav_more_click").removeAttr('style');
 		  		$(".nav_more_expansion").removeAttr('style');
 	  		}
 
-	  		if ($("#issue_search").is(":visible")){
-				$("#issue_search").removeAttr('style');
-	  		}
-	  		
 	  		if ($("#sort_order_options").is(":visible")){
 	  			$("#sort_order_options").hide();
-				$("#sort_up_or_down").html("&#x25BC;")
+					$("#sort_up_or_down").html("&#x25BC;")
 	  		}
+
 	  		
 	  		if ($(".add_new_relation_modal").is(":visible")){
 	  			$("#modal_form").removeAttr('style');		
 	  		}
 	  		
+
+			  var searches = $(".issue_search");
+				for(var i=0, len=searches.length; i<len; i++){ //go through all the searches
+		  		if ($(searches[i]).is(":visible")){
+						$(searches[i]).removeAttr('style');
+		  		}
+				}
 		}	  
 	});
-
 
 // -------------------------------------------------------------------------------
 // SORT ORDER CONTROLS
@@ -314,6 +222,144 @@ $(function() {
 	
 	});
 
+
+// -------------------------------------------------------------------------------
+// AUTO COMPLETE SEARCH FUNCTIONS	
+// -------------------------------------------------------------------------------
+	var searchDelay = (function(){
+	  var timer = 0;
+	  return function(callback, ms){
+	    clearTimeout (timer);
+	    timer = setTimeout(callback, ms);
+	  };
+	})();
+
+	
+// -------------------------------------------------------------------------------
+// HIDE AND INITIALIZE ANY OPEN SEARCH RESULTS ON CLICKING IN A SEARCH FIELD
+// -------------------------------------------------------------------------------
+  $(".issue_search_form input").live('click', function() {
+  	var my_search_results = $(this).parents("form").siblings(".issue_search");
+  	$(".issue_search").not(my_search_results).empty().hide();
+  	searchBoxIndex = -1;
+  });
+
+// -------------------------------------------------------------------------------
+// SUBMIT REMOTE FORM FOR AUTO COMPLETE SEARCH RESULTS 
+// -------------------------------------------------------------------------------
+  $(".issue_search_form input").on('keyup', function(e) {
+	
+	var appl  = $(this).parents('.search_container_appl') //the container we're inside
+	var searchform  = appl.find('.issue_search_form')
+	var searchfield = appl.find('.searchfield_appl')
+	var issuesearch = appl.find('.issue_search')
+	
+	if (searchfield.val().trim() == ""){
+		issuesearch.empty().hide();
+	}
+		
+    if ($.inArray(e.keyCode, ignore_keys_array) == -1 && searchfield.val().trim() != ""){
+			searchDelay(function(){
+				if (searchfield.val().trim() != ""){
+    				issuesearch.html('<div class="search_result_wait"></div>');    		
+    				issuesearch.show();
+    				$.get(searchform.attr("action"), searchform.serialize(), null, "script");
+				}
+			}, 500);
+		}     
+  });
+
+         
+// -------------------------------------------------------------------------------  
+// SEARCH FORM SUBMISSION
+// -------------------------------------------------------------------------------  
+  $(".search_appl_submit").click(function(){
+		var form = $(this).parent()
+		if (form.children('.searchfield_appl').val().trim() != ""){
+			//empty means that the form will just submit. We can add any extra handling here if we want, for when the form is submitted			
+			//form.submit();
+		}
+  });
+
+// -------------------------------------------------------------------------------  
+// ARROW KEY FUNCTION AND RETURN KEY FORM SUBMISSION FOR SEARCH FORM
+// -------------------------------------------------------------------------------
+
+	window.searchBoxIndex = -1; //this may cause odd behavior with multiple searchboxes
+   
+	  $(".searchfield_appl").bind("keydown", function(f){
+		  if ($.inArray(f.keyCode, ignore_keys_array) == -1){
+  	   			searchBoxIndex = -1;}
+		  
+		  if (f.keyCode == 13){
+				if (searchBoxIndex < 0){ //if no item selected
+					if ($(this).val().trim() != ""){
+							$(this).parent().submit();
+					}
+				}
+				else{
+					var appl = $(this).parents('.search_container_appl')
+					var item = appl.find(".search_result_appl a").eq(searchBoxIndex);
+					//var location = appl.find(".search_result_appl a").eq(searchBoxIndex).attr("href");
+					data = appl.find('#selected_data')
+					data.val(item.attr("href"));
+		  			appl.find('.issue_search').empty().hide(); //hide the container for future searches
+					$(this).val(item.attr('name'))
+					// $(this).parent().submit() //why does this not submit data-remote forms??
+					appl.find('.search_appl_submit').trigger('click'); //click the button to submit the form
+	
+					data.val(''); //empty out the data for future
+					window.searchBoxIndex = -1
+	
+					return false; //don't do anything else
+	
+	
+					// // window.location = $(this).parents('.search_container_appl').find(".search_result_appl a").eq(searchBoxIndex).attr("href");
+				}
+	  	}
+			else if (f.keyCode == 40){
+				Navigate(1, $(this));
+			}
+			else if (f.keyCode == 38){
+				Navigate(-1, $(this));
+			}
+	  });
+
+	  var Navigate = function(diff, searcher) {
+	  	searchBoxIndex += diff;
+	  	var oBoxCollection = searcher.parents('.search_container_appl').find(".search_result_appl");
+	  	if (searchBoxIndex >= oBoxCollection.length)
+			searchBoxIndex = 0;
+	  	if (searchBoxIndex < 0)
+			searchBoxIndex = oBoxCollection.length - 1;
+	  	var elem_class = "search_hover";
+		  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);
+	  };
+	
+	
+	   $(".search_result_appl").live('mouseenter', function(){
+	   	  searchBoxIndex = $(this).index();
+	   	  var elem_class = "search_hover";
+	   	  var oBoxCollection = $(".search_result_appl");
+	   	  oBoxCollection.removeClass(elem_class).eq(searchBoxIndex).addClass(elem_class);  
+	  });
+
+// -------------------------------------------------------------------------------  
+// SUBMIT SEARCH FORM WHEN WE CLICK A LINK IN SEARCH RESULTS
+// -------------------------------------------------------------------------------
+	
+	$(".search_result_appl a").live('click', function(){
+		appl = $(this).parents('.search_container_appl')
+		data = appl.find('#selected_data')
+		data.val($(this).attr("href"));
+		// appl.find('.issue_search').empty(); //hide the container for future searches
+		// $(this).val(item.attr('name'))
+		// $(this).parent().submit() //why does this not submit data-remote forms??
+		appl.find('.search_appl_submit').trigger('click'); //click the button to submit the form
+		data.val(''); //empty out the data for future
+		
+		return false
+	});
 
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	

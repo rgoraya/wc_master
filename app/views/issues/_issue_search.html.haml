@@ -3,7 +3,7 @@
   - if !@search_results.nil?
     - @search_results.each do |issue|
       %div.search_result_appl
-        %a{:href => "/issues/" + issue.id.to_s + "-" + issue.permalink}
+        %a{:href => "/issues/" + issue.id.to_s + "-" + issue.permalink, :name => issue.title}
           %div{:class=>"search_img_box_sqr", :style=>"float:left;background-image:url(#{issue.short_url})"}
           %div{:style=>"float:left"}
             %div{:class=>"search_result_title"}
@@ -11,3 +11,10 @@
             %div{:class=>"search_result_descr"}
               = issue.description.html_safe  
           .clearboth
+
+    - if @search_results.count < 1
+      .search_result_appl_error
+        .search_img_box_sqr_error
+        .search_result_error
+          No data! Please try a different search query.
+        .clearboth         

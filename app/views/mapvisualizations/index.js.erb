@@ -1,8 +1,15 @@
-<%# this is ruby code that gets called on most ajax-based loads; can use variables to determine what to do if needed.
-    basically it should be used for changes to the graph in some way %>
+// console.log("in index.js.erb")
 <%#= puts @vis.nodes, @vis.edges %>
+
+//animate from old nodes to new
 var oldNodes = currNodes
 var oldEdges = currEdges
 <%= javascript_graph(@vis.nodes, @vis.edges) %> //load the new nodeset into currNodes & currEdges (default values)
-// drawNodes(currNodes, currEdges, myPaper);
 animateElements(oldNodes, oldEdges, currNodes, currEdges, myPaper)
+
+//reload anything in the sidebar we want to change
+$("#vis_cause_search_visible_input").val('<%= (@vis.cause_issue.nil? ? nil : @vis.cause_issue.title) %>');
+$("#cause_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.cause_issue})) unless @vis.cause_issue.nil? %>')
+
+$("#vis_effect_search_visible_input").val('<%= (@vis.effect_issue.nil? ? nil : @vis.effect_issue.title) %>');
+$("#effect_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.effect_issue})) unless @vis.effect_issue.nil? %>')

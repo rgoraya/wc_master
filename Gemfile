@@ -48,6 +48,7 @@ gem "lock"
 gem 'hirb'
 gem "query-analyzer", "~> 0.1.1"
 gem "recaptcha", :require => "recaptcha/rails"
+gem "gravatar_image_tag"
 
 gem "exception_notification", :require => "exception_notifier"
 
@@ -57,9 +58,11 @@ group :development do
   gem "hpricot"
 end
 group :test do
+  gem 'webrat'
   gem 'rspec'
   gem 'rspec-rails'
   gem 'cucumber-rails'
   gem 'capybara'
   gem 'database_cleaner'
+  gem 'factory_girl_rails'
 end

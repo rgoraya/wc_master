@@ -5,7 +5,7 @@ class Graph
 
 	# Begin subclass definitions
 	class Node
-	  attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a
+	  attr_accessor :id, :name, :url, :location, :static, :highlighted, :d, :a, :on_path
 
 		def initialize(id, name, url)
 			# Basic node members
@@ -19,15 +19,23 @@ class Graph
 			@highlighted = false
 			@d = Vector[0.0,0.0] #delta variable
 			@a = Vector[0.0,0.0] #acceleration variable
+
+			# Path-Tracking members	
+			@on_path = 0
 		end
 
 		def to_s
 			@id.to_s + ": "+@location.to_s+" ("+@name.to_s + ")"
 	    end
+
+		def node_id
+			return @id
+		end
 	end	
 
 	class Edge
-		attr_accessor :id, :a, :b, :rel_type
+
+		attr_accessor :id, :a, :b, :rel_type, :edge_on_path, :expandable
 
 		# A placeholder converter for building the edges
 		RELTYPE_TO_BITMASK = {nil=>MapvisualizationsHelper::INCREASES, 'I'=>MapvisualizationsHelper::DECREASES, 'H'=>MapvisualizationsHelper::SUPERSET}
@@ -37,6 +45,8 @@ class Graph
 			@a = a
 			@b = b
 			@rel_type = rel_type
+			@edge_on_path = false
+			@expandable = false
 		end
 
 		def to_s
@@ -56,14 +66,16 @@ class Graph
 
 	# End subclass definitions
 
-	validates_presence_of :nodes, :edges, :sources
+	validates_presence_of :nodes, :edges
 
 	# Initialization and Attributes
-	attr_accessor :nodes, :edges, :sources
+	attr_accessor :nodes, :edges, :sources, :pathfinder, :layout_distances
 
 	def initialize(issues)
 		issues_to_graph = Issue.find(issues)
 		update_graph_contents(issues_to_graph)
+		@pathfinder = Pathfinder.new()
+		@layout_distances = Hash.new()
 	end
 
 	def initialize
@@ -71,12 +83,17 @@ class Graph
 		@nodes = Hash.new()
 		@edges = Array.new()
 		@sources = Array.new()
+
+		# Pathfinder tool and shortest distance placeholder
+		@pathfinder = Pathfinder.new()
+		@layout_distances = Hash.new()
 	end
 
 	def update_graph_contents(issues, relationships=nil, source_set=[])
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = Hash.new()
 		@edges = Array.new()
+		@layout_distances = Hash.new()
 		@sources = source_set
 
 		# Build map of nodes from input issues
@@ -95,11 +112,122 @@ class Graph
 		
 	end
 
+	def update_graph_contents_with_select_relationship(issues, relationships, source_set=[])
+		# Relationship-focused graph generation
+		@nodes = Hash.new()
+		@edges = Array.new()
+		@layout_distances = Hash.new()
+		@sources = source_set
+
+		# Build map of nodes from input issues
+		issues.each {|issue| @nodes[issue.id] = (Node.new(issue.id, issue.title, issue.wiki_url))} if !issues.nil?
+		connections = Relationship.where("issue_id IN (?) AND cause_id IN (?)", @nodes.keys, @nodes.keys)
+
+		connections.each do |r|
+			if relationships.include?(r.id)
+				type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
+				@edges.push(Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type))
+			end
+		end
+	end
+
+	### Query-Based Path Generation ###
+	def check_path_src_dest(src, dest)
+		# Check source validity
+		src_check = Issue.find_by_id(src)
+		if src_check.nil?
+			return -1
+		end
+
+		# Check destination validity
+		dest_check = Issue.find_by_id(dest)
+		if dest_check.nil?
+			return 0
+		end
+
+		# Source and Destination are valid
+		return 1
+
+	end
+
+	def get_graph_of_path(src, dest)
+		# Retrieve all issues and update graph contents
+		issues = Issue.find :all
+		update_graph_contents(issues)
+		
+		# Creates a graph of a shortest path between two nodes based on query input
+		relations = @pathfinder.path_from_src_to_dest(self, src, dest)
+		
+		if relations.keys.length > 0
+			# Retrieve issue endpoints
+			endpoints = Relationship.where("id" => relations.keys).flat_map {|r| [r.issue_id, r.cause_id]}
+			issues = Issue.where("id" => endpoints)
+			update_graph_contents_with_select_relationship(issues, relations.keys)
+
+			# Add nodes and edges to path
+			@edges.each {|edge| edge.edge_on_path = 1 }
+			@nodes.values.each {|node| node.on_path = 1 }
+
+			# Return success
+			return 1
+		else
+			targets = [src, dest]
+			edges = Relationship.where("issue_id IN (?) OR cause_id IN (?)", targets, targets).flat_map {|r| [r.issue_id, r.cause_id]}
+			neighbors = edges.uniq.select {|c| !targets.include? c }
+
+			issues = Issue.where("id IN (?) OR id IN (?)", targets, neighbors).order("created_at ASC").limit(20)
+     		issues += Issue.where("id in (?)",targets) ## THIS COULD PROBABLY BE CLEANER
+      
+			update_graph_contents(issues)
+		end
+
+		# Default to no path found
+		# In the future, might want to add another case for "best effort"
+		return 0 # if disconnected
+	end
+
+	def highlight_path_in_graph(src, dest)
+		# Highlights a path, if it exists, in current graph structure.
+		# Updates "on-path" member of a Node 
+		
+	end
+
+	def get_all_pairs_paths_distances
+		# Runs all pairs shortest path on current graph in system
+		
+		# Check if this graph has nodes
+		if (@nodes.length == 0 or @edges.length == 0)
+			return {}
+		end
+
+		# Generate connections and vertices
+		connections = Hash.new()
+		vertices = @nodes.keys
+
+		vertices.each { |key| connections[key] = Hash.new() }
+		@edges.each do |edge| 
+			connections[edge.a.id][edge.b.id] = edge
+			connections[edge.b.id][edge.a.id] = Edge.new(-1*edge.id, @nodes[edge.b.id], @nodes[edge.a.id], edge.rel_type)
+		end
+
+		@layout_distances = @pathfinder.compute_all_pairs_undirected_paths(connections, vertices)
+
+		@layout_distances.each do |src, dests|
+			dests.each do |k, v|
+			### DEBUG
+        # puts "DISTANCE #{src} to #{k}: #{v}"
+			end 
+		end
+
+		return @layout_distances
+	end
+
 	### Custom query based graph generation ###
 
 	def get_graph_of_most_recent(limit=40)
 		# Creates a graph of most recently updated issues (default limit 40)
 		issues = Issue.order("updated_at DESC").limit(limit)
+		
 		update_graph_contents(issues)
 	end
 
@@ -176,9 +304,4 @@ class Graph
 	
 		update_graph_contents(issues + neighbors, nil, endpoints)
 	end
-
-	### Future Implementation ###
-	# get_graph_of_path(src, dest, limit)
-	# get_graph_where (condition, limit=40)
-	# get_graph_of_most_connected (limit=40)	
 end

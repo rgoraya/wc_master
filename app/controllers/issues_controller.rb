@@ -254,13 +254,21 @@ require 'backports'
   # SITE WIDE AUTO-COMPLETE SEARCH
   #-------------------------------------------------------------------
   def auto_complete_search
-    @search_results = Issue.search(params[:query]).first(5)
-      respond_to do |format|
-        format.js 
-        format.html do
+    @search_results = Issue.search(params[:query].strip).first(5)
+    @search_count   = @search_results.length
+    
+    respond_to do |format|
+      format.js 
+      format.html do
+        
+        if params[:selected_data] and params[:selected_data] != '' #handle selected_data (a selected url) if available
+          redirect_to params[:selected_data]
+        else
+
           redirect_to :controller => 'issues', :action => 'index', :search => params[:query]
         end
-      end 
+      end
+    end 
   end
 
   #-------------------------------------------------------------------

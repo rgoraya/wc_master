@@ -5,7 +5,7 @@ class Mapvisualization #< ActiveRecord::Base
   # include ActiveModel::Conversion
   # extend ActiveModel::Naming
 
-  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice, :graph
+  attr_accessor :nodes, :edges, :adjacency, :width, :height, :compact_display, :notice, :graph, :cause_issue, :effect_issue
   
   BAD_PARAM_ERROR = "Please specify what to visualize!"
   NO_ITEM_ERROR = "The item you requested could not be found"
@@ -20,11 +20,11 @@ class Mapvisualization #< ActiveRecord::Base
 
   	# Build a Graph of Nodes
   	@graph = Graph.new
-    # @nodes = @graph.nodes 
-    # @edges = @graph.edges
-    ### EUGENIA: Doesn't work on its own, would need to make a container that doesn't change to hold these items inside the Graph class (so, for exampe, if you dropped the nodes hash inside a list or something, and then just changes the one value of that list. Or something).
-    ###
 
+    #variables to tell the controller (and the non-vis parts of the view) what we're showing
+    @cause_issue = nil
+    @effect_issue = nil
+   
     puts "===mapvisualization initialize args===" #debugging
     puts args
 
@@ -42,60 +42,94 @@ class Mapvisualization #< ActiveRecord::Base
           static = params[:i].split(%r{[,;]}).map(&:to_i).reject{|i|i==0} #get the list of numbers (reject everything else)
 
     		  @graph.get_graph_of_issue_neighbors(static, limit=20)
+				  @graph.get_all_pairs_paths_distances
 
     		  # Temporary
-          @nodes = @graph.nodes
-          @edges = @graph.edges
-		  
+        	@nodes = @graph.nodes
+        	@edges = @graph.edges
+
     		  # Make static variables centered
     		  @nodes.each {|key,node| node.static = 'center' if static.include? key}
     		  
-  		    default_layout
-        
+          target_layout(static)
+  		    #default_layout
+
+          @cause_issue = Issue.find(static.first) unless static.first.nil?
+                  
         elsif params[:r] #show relationships
           static_rel_ids = params[:r].split(%r{[,;]}).map(&:to_i).reject{|i|i==0}
+          ### WHAT IS THE CAUSE_ID AND EFFECT_ID?
 
     		  # Generate graph of these relationships, their connected issues, and issues connected to those.
     		  @graph.get_graph_of_relationship_endpoints(static_rel_ids,limit=20)
-		  
+			    @graph.get_all_pairs_paths_distances
+
     		  # Make endpoints of core relationships ("static") centered on the graph
     		  @graph.nodes.each {|key,node| node.static = 'center' if @graph.sources.include? key}
-		  
+
     		  # Temporary
     		  @nodes = @graph.nodes
     		  @edges = @graph.edges
 
-    		  default_layout
+          #target_layout(static_rel_ids) ##needs to have the list of nodes in the static_rel in order to do this
+  		    default_layout
 
         else
           @notice = BAD_PARAM_ERROR
         end               
 
-      ### TOP 40 ###
-      elsif params[:q] == 'last30'
+  	  ### PATH GENERATION ###
+  	  elsif params[:q] == 'path'
+    		# Basic source to destination graph
+    		if params[:from] and params[:to]  
+    			# PLACEHOLDER for format-checking / conversion
+          
+    			from_id = params[:from].to_i
+    			to_id = params[:to].to_i
 
-    		# Update graph nodes & edges to include most recent 40 nodes	
-    		@graph.get_graph_of_most_recent(limit=30)
-		
-    		# Temporary until full conversion
-    		@nodes = @graph.nodes
-    		@edges = @graph.edges
+    			# This could probably be a bit more graceful
+    			check = @graph.check_path_src_dest(from_id, to_id)
+    			if check == 1
+				
+    				# Try to find a path between source and destination in graph
+    				path_found = @graph.get_graph_of_path(from_id, to_id)
+    				#@notice = path_found.to_s
 
-    		default_layout
+    				puts "paths found", path_found
 
-      ### TOP RELATIONSHIPS AND THEIR NODES ###
-      elsif params[:q] == 'mostcited' 
-		    @graph.get_graph_of_most_cited(limit=30)
+    				@graph.nodes[from_id].static = 'left'
+    				@graph.nodes[to_id].static = 'right'
 
-      	# Temporary until full conversion
-    		@nodes = @graph.nodes
-    		@edges = @graph.edges
+    				# Temporary
+    				@nodes = @graph.nodes
+    				@edges = @graph.edges
 
-    		default_layout
+    				#@compact_display = true
+    				#place_randomly		
+    				default_layout
 
-      elsif params[:q] == 'allthethings' ### EVERYTHING. DO NOT CALL THIS ###
+            @cause_issue = Issue.find(from_id) unless from_id.nil?
+            @effect_issue = Issue.find(to_id) unless to_id.nil?
+			
+    			elsif check == 0
+    				# Degrade to all paths from a given source
+    				@notice = "Path destination does not exist. Showing paths from source."
+
+    			else
+    				@notice = "Invalid path source or destination. Please try again."
+    			end
+        else
+          @notice = BAD_PARAM_ERROR
+        end
+
+      ### EVERYTHING. DO NOT CALL THIS ###
+      elsif params[:q] == 'allthethings'
     		# Generate a graph of all nodes
     		@graph.get_graph_of_all
+
+  			# DO NOT USE THIS METHOD HERE unless you want to cry alone in the night forever
+  			# foreverAlone
+  			# @graph.get_all_pairs_paths_distances
 
     		# Temporary
     		@nodes = @graph.nodes
@@ -104,6 +138,29 @@ class Mapvisualization #< ActiveRecord::Base
     		# Display all nodes compactly
         @compact_display = true
         place_randomly
+
+      ### TOP 40 ###
+      elsif params[:q] == 'last30'
+
+    		# Update graph nodes & edges to include most recent 40 nodes	
+    		@graph.get_graph_of_most_recent(limit=30)
+
+    		# Temporary until full conversion
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
+
+    		default_layout
+
+      ### TOP RELATIONSHIPS AND THEIR NODES ###
+      elsif params[:q] == 'mostcited' 
+  	    @graph.get_graph_of_most_cited(limit=30)
+  		  # This is a very sparse graph, not recommended for all pairs paths.
+
+      	# Temporary until full conversion
+    		@nodes = @graph.nodes
+    		@edges = @graph.edges
+
+    		default_layout
 
       ### RANDOM TEST GRAPH ###
       elsif params[:q] == 'test'
@@ -135,6 +192,12 @@ class Mapvisualization #< ActiveRecord::Base
     end
   end
 
+  def get_cause_id
+  end
+  
+  def get_effect_id
+  end
+
   # generates a random graph
   def random_graph(node_count, edge_ratio)
     @nodes = Hash.new()
@@ -161,17 +224,74 @@ class Mapvisualization #< ActiveRecord::Base
   #places the static nodes at their desired locations
   def set_static_nodes(width=@width, height=@height, nodeset=@nodes)
     nodeset.each_value do |node|
-      if node.static == 'center'
+      if node.static == 'center' #using ifthen instead of case so that we can break once we find something
         node.location = Vector[width/2,height/2]
-      elsif node.static == 'stationary' #just leave at location
       elsif node.static == 'left'
         node.location = Vector[0,height/2]
       elsif node.static == 'right'
-        node.location = Vector[0,height/2]
+        node.location = Vector[width,height/2]
+      elsif node.static == 'top'
+        node.location = Vector[width/2,0]
+      elsif node.static == 'bottom'
+        node.location = Vector[width/2,height]
+      elsif node.static == 'top_left'
+        node.location = Vector[0,0]
+      elsif node.static == 'top_right'
+        node.location = Vector[width,0]
+      elsif node.static == 'bottom_left'
+        node.location = Vector[0,height]
+      elsif node.static == 'bottom_right'
+        node.location = Vector[width,height]
+      elsif node.static == 'stationary' #just leave at location
       end
       #can add other handlers if needed
     end
   end
+  
+  # a layout for making a graph around a set of target nodes. target_ids is an array of numbers (ids)
+  def target_layout(target_ids, nodeset=@nodes, edgeset=@edges)
+    groups = {'inc_targ'=>{}, 'dec_targ'=>{}, 'targ_inc'=>{}, 'targ_dec'=>{}, 'sup_targ'=>{}, 'targ_sup'=>{}} #sup_targ = top
+
+    if nodeset.length > 0
+      nodeset.each do |id, node| #build our groupings
+        if !node.static
+          edgeset.each do |edge|
+            # check if node is related to something in target_ids
+            if (node == edge.a and target_ids.include? edge.b.id) # means that node points at target
+              g = edge.rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'inc_targ' : (edge.rel_type & 
+                  MapvisualizationsHelper::SUPERSET == 0 ? 'dec_targ' : 'sup_targ') #what group we go in
+              groups[g][node.id] = node
+              break #stop looking for edges for this node
+            elsif (node == edge.b and target_ids.include? edge.a.id) #means that target points at node
+              g = edge.rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'targ_inc' : (edge.rel_type & 
+                  MapvisualizationsHelper::SUPERSET == 0 ? 'targ_dec' : 'targ_sup') #what group we go in
+              groups[g][node.id] = node
+              break #stop looking for edges for this node
+            end
+          end
+        end
+      end 
+
+      set_static_nodes
+      static_wheel_nodes
+
+      # put the groups into little circles in their respective corners, so they can come out fighting
+      radius = 50
+      circle_nodes_at_point(groups['inc_targ'], Vector[0,@height], radius)
+      circle_nodes_at_point(groups['dec_targ'], Vector[0,0], radius)
+      circle_nodes_at_point(groups['sup_targ'], Vector[@width/2,0], radius)
+      circle_nodes_at_point(groups['targ_inc'], Vector[@width,@height], radius)
+      circle_nodes_at_point(groups['targ_dec'], Vector[@width,0], radius)
+      circle_nodes_at_point(groups['targ_sup'], Vector[@width/2,@height], radius)
+            
+      #fruchterman_reingold(100) #fast, little bit of layout for now
+      kamada_kawai
+      normalize_graph
+    else
+      @nodes = NO_ITEM_ERROR
+    end
+  end
+  
 
   # the default set of layout commands (hopefully not slow)
   def default_layout()
@@ -193,6 +313,14 @@ class Mapvisualization #< ActiveRecord::Base
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
       center[0] + (radius * Math.sin(Math::PI/4+2*Math::PI*i/nodeset.length)), 
       center[1] - (radius * Math.cos(Math::PI/4+2*Math::PI*i/nodeset.length))] if !nodeset[key].static}
+  end
+
+  # puts the specified nodes in a wheel at the specified point with a specified radius
+  # IGNORES STATIC PROPERTY
+  def circle_nodes_at_point(nodeset=@nodes, center=Vector[@width/2,@height/2], radius=[@width,@height].min/2, reverse=false, offset=0)
+    nodeset.each_with_index{|(key, node), i| nodeset[key].location = Vector[
+      center[0] + (radius * Math.sin(offset+2*Math::PI*i/nodeset.length)), 
+      center[1] - (radius * Math.cos(offset+2*Math::PI*i/nodeset.length))]}
   end
 
   # puts the nodes in a circle with the static nodes in a smaller, centered circle
@@ -256,7 +384,13 @@ class Mapvisualization #< ActiveRecord::Base
             if u!=v
               dist = v.location - u.location
               distlen = dist.r.to_f
-              v.d += distlen != 0.0 ? (dist/distlen)*(k2/distlen) : Vector[0.0,0.0]
+              #v.d += distlen != 0.0 ? (dist/distlen)*(k2/distlen) : Vector[(-0.5+rand())*0.1,(-0.5+rand())*0.1]
+              if distlen != 0.0
+                v.d += (dist/distlen)*(k2/distlen)
+              else #at the same spot, so just splut them apart a little this run
+                v.d += Vector[0.01,0]
+                u.d += Vector[-0.01,0]
+              end
             end
           end
         end
@@ -396,8 +530,30 @@ class Mapvisualization #< ActiveRecord::Base
       end
       #puts k.to_s + " "+Time.now.to_s
     end
-    
     puts "(found path distances) @ "+Time.now.to_s
+
+    ## stuff for maybe doing kamada with the current dist functions
+    # distances = @graph.get_all_pairs_paths_distances
+    # #puts distances
+    # k = 1.0 #spring constant
+    # tolerance = 0.001 #epsilon for energy
+    # maxlen = 0
+    # inf = 1.0/0
+    # distances.values.each {|h| h.values.each {|v| maxlen = [maxlen, v].max if v != inf}} #clean this up?
+    # l0 = [width,height].min/maxlen #optimal average length
+    # ideal_length = Hash.new(0)
+    # spring_strength = Hash.new(0)
+    # distances.each do |k1,d|
+    #   d.each do |k2,val|
+    #     if val != inf
+    #       ideal_length[[k1,k2]] = l0*val
+    #       spring_strength[[k1,k2]] = k/(val*val)
+    #     end
+    #   end
+    # end
+    #   
+    # puts maxlen
+    # #puts ideal_length
     
     k = 1.0 #spring constant
     tolerance = 0.001 #epsilon for energy
@@ -561,8 +717,9 @@ class Mapvisualization #< ActiveRecord::Base
       far_y = nodeset.max_by{|k,n| (n.location[1]-center[1]).abs}[1].location[1] #node with max y
       # scale = [[center[0]/(far_x-center[0]).abs, 1.0].min, #if only shrink to fit, not stretch to fill
       #          [center[1]/(far_y-center[1]).abs, 1.0].min]
-      scale = [center[0]/(far_x-center[0]).abs, #currently stretches to fill
-               center[1]/(far_y-center[1]).abs]      
+            
+      scale = [center[0].to_f/(far_x-center[0]).abs, #currently stretches to fill
+               center[1].to_f/(far_y-center[1]).abs]
       scale[0] = 1 if scale[0] == 1.0/0 #if we don't need to stretch, then don't!
       scale[1] = 1 if scale[1] == 1.0/0
 
