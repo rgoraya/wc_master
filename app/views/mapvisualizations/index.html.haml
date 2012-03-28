@@ -43,7 +43,7 @@
             = hidden_field_tag :effect_id, (@vis.effect_issue.nil? ? nil : @vis.effect_issue.id)
             %input{:type=>"submit", :value=> '', :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"vis_cause_search_submit_btn"}
             .clearboth
-          #vis_cause_issue_search.issue_search{:style=>"display:block;"}
+          #vis_cause_issue_search.issue_search
             = render 'issues/issue_search'
         #cause_detail_container{:style=>"margin-top:5px"}
           #cause_detail_fill
@@ -59,7 +59,7 @@
             = hidden_field_tag :effect_id, (@vis.effect_issue.nil? ? nil : @vis.effect_issue.id)
             %input{:type=>"submit", :value=> '', :name => nil, :class=>"search_appl_submit", :title=>"search", :id=>"vis_effect_search_submit_btn"}
             .clearboth
-          #vis_effect_issue_search.issue_search{:style=>"display:block;"}
+          #vis_effect_issue_search.issue_search
             = render 'issues/issue_search'
         #effect_detail_container{:style=>"margin-top:5px"}
           #effect_detail_fill

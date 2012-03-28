@@ -474,6 +474,7 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
 		var dots = drawDots(dragged_edges[i],curve,paper)
 		edgeIcons[dragged_edges[i].id].push(dots)
+		$([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
 	}
 	//reset variables
 	dragged_edges = []

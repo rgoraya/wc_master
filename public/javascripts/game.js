@@ -37,8 +37,6 @@ function drawNode(node, paper){
 		var bb = island.getBBox();
 		var trans_string = "t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2))
 		island.transform(trans_string)
-		//coast.transform(trans_string)
-		
 
 		var content = node.name;
 		if(content.length > 15)
@@ -58,7 +56,11 @@ function drawNode(node, paper){
 		.drag(buildmove, buildstart, buildend)
 
 		$(island.node).qtip(get_node_qtip(node)); //if we want a tooltip
-		$(coast.node).qtip("drag to create a path");
+		$(coast.node).qtip({
+			content:{text: 'Drag to create a path'},
+			position:{target: 'mouse',adjust: {y:4}},
+			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
+		});
 
 		return icon;  
 }
@@ -85,7 +87,15 @@ function drawEdge(edge, paper){
 		var icon = paper.set() //for storing pieces of the line as needed
 		.push(e, arrow[0], arrow[1], dots)
 
-		$([e.node,arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(edge));
+		$([e.node,arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(edge))
+		
+
+		
+		// .qtip({
+		// 	content:{text: "HELLO WORLD"+console.log("second qtip")},
+		// 	position:{target: 'mouse',adjust: {y:-10}},
+		// })
+		// .removeData('qtip')
 
 		return icon;
 }
@@ -136,6 +146,7 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
 		var dots = drawDots(dragged_edges[i],curve,paper)
 		edgeIcons[dragged_edges[i].id].push(dots)
+		$([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
 	}
 	//reset variables
 	dragged_edges = []
@@ -267,24 +278,35 @@ function get_node_qtip(node) {
 function get_edge_qtip(edge) {
 	return {
 		content:{
-			text: '<div id="relation_qtip"><div class="formcontentdiv"><div class="heading">' + 
-							edge.name + '</div></div></div>'
-			// text: 'Loading '+edge.name+'...',
-			// ajax:{
-			// 	url: 'mapvisualizations/qtip',
-			// 	type: 'GET',
-			// 	data: {t: 'relation', id: edge.id}
-			// }
+			// text: '<div id="relation_qtip"><div class="formcontentdiv"><div class="heading">' + 
+			// 				edge.name + '</div></div></div>'
+			text: 'Loading '+edge.name+'...', //and what's sad is that this is only temporary...
+			ajax:{
+				url: 'game/edge_qtip',
+				type: 'GET',
+				data: {edge: edge},
+			}
 		},
 		position: {
-			// my: 'top center',  // Position my top left...
-			// at: 'bottom center', // at the bottom right of...
-			target: 'mouse',
-			adjust: {y:4}
+			my: 'top left',  // Position my top left...
+			at: 'center', // at the bottom right of...
+			// target: 'mouse',
+			// adjust: {x:-20}
 		},
 		style: {
-			classes: 'ui-tooltip-light ui-tooltip-shadow'
-		}
+			classes: 'ui-tooltip-light ui-tooltip-shadow',
+			tip: {
+				//http://craigsworks.com/projects/qtip2/docs/plugins/tips/
+				corner: true,
+				mimic: 'center',
+				width:24,
+				height:10,
+				offset:30, // Give it 5px offset from the side of the tooltip
+			},
+		},
+		hide: {
+			fixed: true,
+		},
 	};	
 }
 

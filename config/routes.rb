@@ -1,6 +1,7 @@
 Wikicausality::Application.routes.draw do
 
   match '/signup', :to  => 'users#new' 
+  match 'game/edge_qtip' => 'game#edge_qtip'
   resources :game
   match 'mapvisualizations/search_bars' => 'mapvisualizations#search_bars'
   match 'mapvisualizations/qtip' => 'mapvisualizations#qtip'

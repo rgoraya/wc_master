@@ -25,11 +25,17 @@ class GameController < ApplicationController
       end
 
       format.js do #respond to ajax calls
-        puts "handling ajax"
+        puts "*** HANDLING GAME AJAX ***"
+        puts params
+
         return
       end
     end
   end
 
+  #temporary
+  def edge_qtip
+    render :partial => "edge_qtip", :content_type => 'text/html', :locals => {:edge => params[:edge]}
+  end
 
 end
