@@ -1,0 +1,15 @@
+/ hack to produce unique canvases on every call
+- canvas_id = rand.to_s #get a random id to use
+:javascript
+  drawSelectors(#{edge.to_json}, #{canvas_id})
+
+#relation_qtip
+  .selector_container
+    %div{:id => 'selector_canvas_'+canvas_id}
+  .descr_container
+    .heading
+      = edge[:name]
+
+/ Am I going to have to include another Raphael canvas in here??
+/ complete with its own event handlers...
+/ I guess that might be cleaner than trying to do the whole thing via Raphael

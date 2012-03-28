@@ -2,14 +2,18 @@
 <%#= puts @vis.nodes, @vis.edges %>
 
 //animate from old nodes to new
-var oldNodes = currNodes
-var oldEdges = currEdges
+var oldNodes = currNodes;
+var oldEdges = currEdges;
 <%= javascript_graph(@vis.nodes, @vis.edges) %> //load the new nodeset into currNodes & currEdges (default values)
-animateElements(oldNodes, oldEdges, currNodes, currEdges, myPaper)
+animateElements(oldNodes, oldEdges, currNodes, currEdges, myPaper);
 
 //reload anything in the sidebar we want to change
 $("#vis_cause_search_visible_input").val('<%= (@vis.cause_issue.nil? ? nil : @vis.cause_issue.title) %>');
-$("#cause_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.cause_issue})) unless @vis.cause_issue.nil? %>')
+$("#cause_search_container #cause_id").val('<%= (@vis.cause_issue.nil? ? nil : @vis.cause_issue.id) %>');
+$("#cause_search_container #effect_id").val('<%= (@vis.effect_issue.nil? ? nil : @vis.effect_issue.id) %>');
+$("#cause_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.cause_issue})) unless @vis.cause_issue.nil? %>');
 
 $("#vis_effect_search_visible_input").val('<%= (@vis.effect_issue.nil? ? nil : @vis.effect_issue.title) %>');
-$("#effect_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.effect_issue})) unless @vis.effect_issue.nil? %>')
+$("#effect_search_container #cause_id").val('<%= (@vis.cause_issue.nil? ? nil : @vis.cause_issue.id) %>');
+$("#effect_search_container #effect_id").val('<%= (@vis.effect_issue.nil? ? nil : @vis.effect_issue.id) %>');
+$("#effect_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.effect_issue})) unless @vis.effect_issue.nil? %>');

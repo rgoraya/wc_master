@@ -97,7 +97,8 @@ module MapvisualizationsHelper
     
     var myPaper, paper
       window.onload = function(){
-    	paper = myPaper = new Raphael(document.getElementById('canvas_container'), document.getElementById(\"canvas_container\").offsetWidth, document.getElementById(\"canvas_container\").offsetHeight) //graphics context
+    	canvas_container = $('#canvas_container').get(0);
+    	paper = myPaper = new Raphael(canvas_container, canvas_container.offsetWidth, canvas_container.offsetHeight) //graphics context
       drawElements(currNodes, currEdges, myPaper) //call draw on the nodes. These are the ones defined in the helper
     }"
   end

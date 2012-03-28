@@ -192,12 +192,6 @@ class Mapvisualization #< ActiveRecord::Base
     end
   end
 
-  def get_cause_id
-  end
-  
-  def get_effect_id
-  end
-
   # generates a random graph
   def random_graph(node_count, edge_ratio)
     @nodes = Hash.new()
@@ -347,13 +341,23 @@ class Mapvisualization #< ActiveRecord::Base
 
   # put the nodes into a grid that will fit in the given canvas
   def grid_nodes(width=@width, height=@height, nodeset=@nodes)
-    puts "grid_nodes called"
     num_cols = (Math.sqrt(nodeset.length)*(width/height)).ceil
     num_rows = (nodeset.length/num_cols.to_f).ceil
     col_len = width/num_cols
     row_len = height/num_rows
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = 
       Vector[(0.5 + (i%num_cols))*col_len,(0.5 + (i/num_cols))*row_len] if !nodeset[key].static}
+  end
+
+  # puts the specified nodes in a grid within the specified box
+  # IGNORES STATIC PROPERTY
+  def grid_nodes_in_box(nodeset=@nodes, topleft=Vector[0,0], size=Vector[@width,@height])
+    num_cols = (Math.sqrt(nodeset.length)*(size[0]/size[1].to_f)).round
+    num_rows = (nodeset.length/num_cols.to_f).ceil
+    col_len = size[0]/num_cols
+    row_len = size[1]/num_rows
+    nodeset.each_with_index{|(key, node), i| nodeset[key].location = 
+      Vector[topleft[0] + (0.5 + (i%num_cols))*col_len, topleft[1] + (0.5 + (i/num_cols))*row_len]}
   end
 
   #put the nodes in random locations
@@ -427,87 +431,6 @@ class Mapvisualization #< ActiveRecord::Base
       #puts "finished iter "+i.to_s+" @ "+Time.now.to_s
     end
     puts "finished fruchterman_reingold @ "+Time.now.to_s
-  end
-
-  # adapted from https://github.com/dhotson/springy/blob/master/springy.js
-  def springy(width=@width, height=@height, nodeset=@nodes, edgeset=@edges, adjancency=@adjacency)
-    puts "beginning springy @ "+Time.now.to_s
-    nodeset.each_value do |n|
-      # convert to "close" coordinates (to within 4x4 bounding box, in this case)
-      n.location = Vector[4.0*n.location[0]/width - 2.0, 4.0*n.location[1]/height - 2.0]
-      n.d = Vector[0.0,0.0] #clear out previous movement before we begin... sure
-      n.a = Vector[0.0,0.0] 
-    end
-    stiffness = 400.0 #what exactly will these variables do?
-    repulsion = 400.0
-    damping = 0.5
-    timestep = 0.03
-
-    prevEnergy = 0.0
-    currEnergy = 1.0
-    iters = 0
-    until currEnergy < 0.01 or (currEnergy-prevEnergy).abs < 0.0001 or iters > 5000 do #energy threshold?
-      prevEnergy = currEnergy
-      for k1,n1 in nodeset
-        for k2,n2 in nodeset
-          if k1 != k2
-            #puts "applying coulomb to " + n1.to_s + " and " + n2.to_s #should this be once per pair?
-            d = n1.location - n2.location
-            distance = d.r + 0.1 #avoid massive forces at small distances (and divide by zero)
-            direction = d/d.r #normalized
-            n1.a += direction*(repulsion/(distance*distance*0.5))/1.0 if !n1.static#divide by "mass" (currently 1)
-            n2.a += direction*(repulsion/(distance*distance*-0.5))/1.0 if !n2.static#divide by "mass" (currently 1)          
-          end
-        end
-      end      
-
-      for e in edgeset #apply Hooke's Law
-        #only changes 1/conn (assuming 1 edge each direction)
-        if e.a.id < e.b.id or adjacency[[e.a.id,e.b.id]]+adjacency[[e.b.id,e.a.id]] < 2
-          #puts "applying hooke's law to "+e.to_s
-          d = e.b.location - e.a.location
-          displacement = 1.0 - d.r #spring "length" at rest?? - magnitude... either 0 or 1 or ?
-          direction = d/d.r #normalized
-          e.a.a += direction*(stiffness*displacement*-0.5)/1.0 if !e.a.static #divide by the "mass" (currently 1)
-          e.b.a += direction*(stiffness*displacement*0.5)/1.0 if !e.b.static
-        end
-      end
-
-      #nodeset.each {|k,n| puts n.to_s + " accel: "+ n.a.to_s } #seems large... but maybe because of how 
-
-      nodeset.each_value do |n| #finish moving nodes/etc
-        if !n.static
-          n.a += (n.location*-1)*(repulsion/50.0)/1.0 #attract to center
-          #puts n.to_s + " accel: "+ n.a.to_s
-          n.d += n.a*timestep*damping #update velocity
-          #puts n.to_s + " veloc: "+ n.d.to_s
-          n.a = Vector[0.0,0.0] #reset acceleration
-          n.location += n.d*timestep #update position        
-          #puts n.to_s + " loc: "+ n.location.to_s
-        end
-      end
-
-      scale = Vector[ 2.0/[nodeset.max_by{|k,n| n.location[0].abs}[1].location[0].abs,2.0].max , 
-                      2.0/[nodeset.max_by{|k,n| n.location[1].abs}[1].location[1].abs,2.0].max ] #biggest coords
-      currEnergy = 0.0
-      nodeset.each_value do |n|
-        if !n.static
-          n.location = Vector[n.location[0]*scale[0], n.location[1]*scale[1]]##rescale to stay within bounds!
-          n.d = Vector[n.d[0]*scale[0], n.d[1]*scale[1]]
-          # puts n.to_s + " loc: "+ n.location.to_s
-          currEnergy += 0.5*1.0*n.d.r**2 #calculate total energy; 1.0=mass
-        end
-      end
-            
-      # calc delta energy, and use that for stopping?
-      #puts "end of loop "+iters.to_s+", energy=" + currEnergy.to_s if iters % 50 == 0
-      iters+=1
-    end
-    for k,n in nodeset # convert back to "screen" coordinates (from within 4x4 bounding box)
-      n.location = Vector[((n.location[0]+2)/4.0)*width,((n.location[1]+2)/4.0)*height]
-    end
-    puts "springy stopped; energy="+currEnergy.to_s+", iters="+(iters-1).to_s
-    puts "finished springy @ "+Time.now.to_s
   end
 
   # adapted from http://code.google.com/p/foograph/source/browse/trunk/lib/vlayouts/kamadakawai.js?r=64
