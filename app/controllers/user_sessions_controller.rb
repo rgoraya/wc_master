@@ -77,7 +77,7 @@ class UserSessionsController < ApplicationController
     @user_session.destroy
 
     respond_to do |format|
-      format.html { redirect_to(:issues, :notice => 'Logout successful') }
+      format.html { redirect_to(:relationships, :notice => 'Logout successful') }
       format.xml  { head :ok }
     end
   end

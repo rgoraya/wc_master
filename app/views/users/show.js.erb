@@ -1,7 +1,9 @@
-$("#userissues").html("<%= escape_javascript(render("userissues")) %>");
-$("#activities").html("<%= escape_javascript(render("activities")) %>");
-$(".activity_sentence").first().effect("highlight", {color: '#4DB8DB'}, 500);
+// Reload and highlight
+	$("#userissues").html("<%= escape_javascript(render("userissues")) %>");
+	$("#activities").html("<%= escape_javascript(render("activities")) %>");
+	$(".activity_sentence").first().effect("highlight", {color: '#4DB8DB'}, 500);
 
+// handle notice
 if ($.trim($('#notice').text()) != "") {
 	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
   	$('#notice').show;

@@ -1,12 +1,7 @@
-$("#notice").html("<%= escape_javascript(@notice) %>");
-
-switch ("<%= escape_javascript(@called_from) %>") { 
-  case 'issues':
-	  $("#search_invisible_input").val("");
-	  $.get($("#search_form").attr("action"), $("#search_form").serialize(), null, "script");
-	  	break;
-  case 'userissues':
-	  $("#userissues #search").val("");
-	  $.get($("#userissues #search_form").attr("action"), $("#userissues #search_form").serialize(), null, "script"); 
-	  	break;
-  }
+// Reload partial
+	$("#issues").html("<%= escape_javascript(render('issues'))%>")
+	$("#confirm_partial").html("<%= escape_javascript(render('layouts/confirm_partial'))%>")
+	$('#fade').remove();
+	
+// show message to the user
+	show_success_message("<%= escape_javascript(@notice) %>")

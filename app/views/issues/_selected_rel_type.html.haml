@@ -1,11 +1,3 @@
-// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
-// FORM to retrieve the relationship types based on User's selection
-// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*
-= form_tag  issue_path(@issue), :id=>"select_rel_form", :remote => true, :style=>"display:none;", :method => 'get' do               
-  = text_field_tag :rel_type, @rel_type, :align=>"top", :id=>"select_rel_type"
-  = submit_tag "submit", :name => nil, :id=>"select_rel_submit" 
-
-
 // *-*-*-*-*-*-*-*-*-*-*-*-*
 // Relationship type Choices
 // *-*-*-*-*-*-*-*-*-*-*-*-*
@@ -13,17 +5,18 @@
   %div.causality_toggle_container
     
     %div.relationship_partial_toggle#toggle_effects
-      causes              
+      = link_to "causes",{:controller=>"issues", :action=>"show", :rel_type=>"causes"}, :remote=>true
     %div.relationship_partial_toggle#toggle_causes
-      is caused by                     
+      = link_to "is caused by",{:controller=>"issues", :action=>"show", :rel_type=>"is caused by"}, :remote=>true
     %div.relationship_partial_toggle#toggle_inhibiteds
-      reduces             
+      = link_to "reduces",{:controller=>"issues", :action=>"show", :rel_type=>"reduces"}, :remote=>true
     %div.relationship_partial_toggle#toggle_inhibitors
-      is reduced by            
+      = link_to "is reduced by",{:controller=>"issues", :action=>"show", :rel_type=>"is reduced by"}, :remote=>true
     %div.relationship_partial_toggle#toggle_subsets
-      is a superset of                             
+      = link_to "is a superset of",{:controller=>"issues", :action=>"show", :rel_type=>"is a superset of"}, :remote=>true
     %div.relationship_partial_toggle#toggle_supersets
-      is a subset of  
+      = link_to "is a subset of ",{:controller=>"issues", :action=>"show", :rel_type=>"is a subset of"}, :remote=>true
+       
 
 %div.issue_relationships_container
   
@@ -31,21 +24,23 @@
     - if @issue_relations.length > 0
     
       %div#relation_pagination
-        = will_paginate (@issue_relations), :page_links=>false, :param_name => 'relationship_page',:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0
+        = will_paginate (@issue_relations), :page_links=>false,:style=>"float:right;", :previous_label => '&#9668;', :next_label => '&#9658;', :outer_window =>0, :inner_window => 0, :params => ({:_ => nil, :rel_id=>nil})
       
       - @issue_relations.each do |relation|
         %div.relationship_thumb
     
           %div.relationship_thumb_title
-            = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
+            //= link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
+            = link_to relation.title,{:controller=>"issues", :action=>"show", :rel_type=>@rel_type, :rel_id=>"#{relation.wiki_url}", :page=>@page}, :remote=>true
           %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
-            = link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
+            //= link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
+            = link_to relation.title,{:controller=>"issues", :action=>"show", :rel_type=>@rel_type, :rel_id=>"#{relation.wiki_url}", :page=>@page}, :remote=>true
           
-          = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:title=>"go to this issue", :class=>"issue_linkout"}
+          = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:class=>"issue_linkout"}
   
           %span.relationship_id_store
             = relation.wiki_url       
-  
+
     - if @suggestions.length > 0
       - @suggestions.each do |suggestion|
         
@@ -57,7 +52,7 @@
           .issue_linkout.suggestion_accept
             %img{:src=>'/images/system/button_check.png', :width=>"20px"}      
           .issue_linkout.suggestion_reject
-            = link_to image_tag('/images/system/button_reject.png', :width=>"20px"), suggestion_path(suggestion,:suggestion => {:status => 'D'}), :method => :put, :title=>"reject suggestion", :remote=>true
+            = link_to image_tag('/images/system/button_reject.png', :width=>"20px"), suggestion_path(suggestion,:suggestion => {:status => 'D'}), :method => :put, :remote=>true
           %span.suggestion_id_store        
             = suggestion.id
             

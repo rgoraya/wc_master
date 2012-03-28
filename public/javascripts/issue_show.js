@@ -24,19 +24,15 @@ $(function() {
          // make the rest of the Divs transparent
         $('.relationship_thumb').not(opaqueDiv.parents('.relationship_thumb')).animate({'opacity': '0.3'}); 
         // Hide ellipsis
-        $("#title_relationship_ellipsis").hide();         	
+        $("#title_relationship_ellipsis").hide();
+        // Show the linkout button for this thumbnail         	
+		opaqueDiv.siblings(".issue_linkout").fadeIn();
 	}
 
 // -------------------------------------------------------------------------------
 // FUNCTION TO GO BACK TO DEFAULT STATE OF SHOW PAGE (ISSUE SPECIFIC INFO)
 // -------------------------------------------------------------------------------
-	$(".issue_thumb_container").live('click', function(){
-		
-		// Set up the values of hidden fields for get_relationship form
-		$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
-		$("#get_rel_sentence_input").val("");
-		$("#get_relationship_input").val("");
-		$("#select_rel_type").val("");
+	$(".main_thumb_title a, .issue_thumb_main a").live('click', function(){
 		
 		// Revert styles (if any) to default 
 		$('.relationship_thumb').removeAttr('style');
@@ -46,129 +42,130 @@ $(function() {
 		// Show progress message
 		show_progress_message('loading')
 		
-		// Submit the form
-		$.get($("#select_rel_form").attr("action"), $("#select_rel_form").serialize(), null, "script");
-
+		// History management	
+		window.history.ready = true;
+		history.pushState(null, document.title, this.href);
 	})
 	
 	
 // -------------------------------------------------------------------------------
 // FUNCTION TO CYCLE THROUGH THE VARIOUS RELATIONSHIP TYPES BASED ON USER CLLICK 
 // -------------------------------------------------------------------------------
-$(".relationship_partial_toggle:not(.central_causality_container)").live('click',function(){
-	
-	// Show message
-	show_progress_message("loading relationships");
-	
-	// Submit the form
-    $("#select_rel_type").val($(this).text().trim());
-    $("#select_rel_submit").trigger('click');
+	$(".relationship_partial_toggle a").live('click',function(){
+		
+		// Show message
+		show_progress_message("loading relationships");
 
-});	
+		// history management
+		window.history.ready = true;
+		history.pushState(null, document.title, this.href);	
+		return false;
+		
+	});	
 
 // -------------------------------------------------------------------------------
 // SENTENCE FORMATION ON HOVERING UPON RELATIONSHIP_TYPES
 // -------------------------------------------------------------------------------
 
-$(".relationship_partial_toggle:not(.central_causality_container)").live('mouseover', function(){
+	$(".relationship_partial_toggle:not(.central_causality_container)").live('mouseover', function(){
+		
+		// Hide Stuff:
+		$("#title_relationship, #title_causality").hide();
+		
+		// Show causality
+	    $("#title_causality_hover").html($(this).text().trim())	
+		$("#title_causality_hover, #title_relationship_ellipsis").show();
+	});	
 	
-	// Hide Stuff:
-	$("#title_relationship, #title_causality").hide();
-	
-	// Show causality
-    $("#title_causality_hover").html($(this).text().trim())	
-	$("#title_causality_hover, #title_relationship_ellipsis").show();
-});	
-
-$(".relationship_partial_toggle:not(.central_causality_container)").live('mouseout', function(){
-	
-	// show Stuff:
-	$("#title_relationship, #title_causality").show();
-	
-	// hide causality
-    $("#title_causality_hover").html('');
-    $("#title_causality_hover").hide();
-	
-	// hide ellipsis if relationship span has some text
-	if ($("#title_relationship").text().trim() != "" ){
-		$("#title_relationship_ellipsis").hide();	
-	}    
-});	
+	$(".relationship_partial_toggle:not(.central_causality_container)").live('mouseout', function(){
+		
+		// show Stuff:
+		$("#title_relationship, #title_causality").show();
+		
+		// hide causality
+	    $("#title_causality_hover").html('');
+	    $("#title_causality_hover").hide();
+		
+		// hide ellipsis if relationship span has some text
+		if ($("#title_relationship").text().trim() != "" ){
+			$("#title_relationship_ellipsis").hide();	
+		}    
+	});	
 
 // -------------------------------------------------------------------------------
 // SENTENCE FORMATION ON HOVERING UPON RELATIONSHIP THUMBNAILS
 // -------------------------------------------------------------------------------
 
-$(".relationship_thumb:not(.selected_relationship_thumb, .selected_suggestion_thumb)").live('mouseover', function(){
+	$(".relationship_thumb:not(.selected_relationship_thumb, .selected_suggestion_thumb)").live('mouseover', function(){
+		
+		// Remove other classes 
+		$("#title_causality").removeClass('suggested_causality')
+		// Hide Stuff:
+		$("#title_relationship, #title_relationship_ellipsis").hide();
+		
+		// Show causality
+		$("#title_causality").html($(".central_causality_container").text().trim());
+	    $("#title_relationship_hover").html($(this).children(".relationship_thumb_title").text().trim());	
+		$("#title_relationship_hover").show();
+	});	
 	
-	// Remove other classes 
-	$("#title_causality").removeClass('suggested_causality')
-	// Hide Stuff:
-	$("#title_relationship, #title_relationship_ellipsis").hide();
-	
-	// Show causality
-	$("#title_causality").html($(".central_causality_container").text().trim());
-    $("#title_relationship_hover").html($(this).children(".relationship_thumb_title").text().trim());	
-	$("#title_relationship_hover").show();
-});	
-
-$(".relationship_thumb:not(.selected_relationship_thumb, .selected_suggestion_thumb)").live('mouseout', function(){
-	
-	// Show stuff
-	$("#title_relationship").show();
-	
-	// Show ellipsis only if nothing's there in relationship span
-	if ($("#title_relationship").text().trim() == "" ){
-		$("#title_relationship_ellipsis").show();	
-	}
-	
-	// Hide stuff
-    $("#title_relationship_hover").html('');	
-	$("#title_relationship_hover").hide();
-	
-	// If some suggestion was selected then
-	if ($(".selected_suggestion_thumb")[0]){
-   		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
-	}
-	
-});	
+	$(".relationship_thumb:not(.selected_relationship_thumb, .selected_suggestion_thumb)").live('mouseout', function(){
+		
+		// Show stuff
+		$("#title_relationship").show();
+		
+		// Show ellipsis only if nothing's there in relationship span
+		if ($("#title_relationship").text().trim() == "" ){
+			$("#title_relationship_ellipsis").show();	
+		}
+		
+		// Hide stuff
+	    $("#title_relationship_hover").html('');	
+		$("#title_relationship_hover").hide();
+		
+		// If some suggestion was selected then
+		if ($(".selected_suggestion_thumb")[0]){
+	   		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+		}
+		
+	});	
 
 // -------------------------------------------------------------------------------
 // SENTENCE FORMATION ON HOVERING UPON SUGGESTION THUMBNAILS
 // -------------------------------------------------------------------------------
 
-$(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseover', function(){
+	$(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseover', function(){
+		
+		// Hide Stuff:
+		$("#title_relationship, #title_relationship_ellipsis, #title_causality").hide();
+		
+		// Show causality
+	    $("#title_relationship_hover").html($(this).children(".relationship_suggestion_title").text().trim());	
+		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+		$("#title_relationship_hover, #title_causality").show();
+	});	
 	
-	// Hide Stuff:
-	$("#title_relationship, #title_relationship_ellipsis, #title_causality").hide();
+	$(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function(){
+		
+		// Show stuff
+		$("#title_relationship, #title_causality").show();
 	
-	// Show causality
-    $("#title_relationship_hover").html($(this).children(".relationship_suggestion_title").text().trim());	
-	$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
-	$("#title_relationship_hover, #title_causality").show();
-});	
-
-$(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function(){
+		// Show ellipsis only if nothing's there in relationship span
+		if ($("#title_relationship").text().trim() == "" ){
+			$("#title_relationship_ellipsis").show();	
+		}
 	
-	// Show stuff
-	$("#title_relationship, #title_causality").show();
-
-	// Show ellipsis only if nothing's there in relationship span
-	if ($("#title_relationship").text().trim() == "" ){
-		$("#title_relationship_ellipsis").show();	
-	}
-
-	// If some suggestion was selected then
-	if ($(".selected_suggestion_thumb")[0]){
-   		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
-	} else{
-		$("#title_causality").html($(".central_causality_container").text().trim()).removeClass('suggested_causality');
-	}
-
-	// Hide stuff
-    $("#title_relationship_hover").html('');	
-	$("#title_relationship_hover").hide();
-});	
+		// If some suggestion was selected then
+		if ($(".selected_suggestion_thumb")[0]){
+	   		$("#title_causality").html(suggestion_hover_sentence()).addClass('suggested_causality');
+		} else{
+			$("#title_causality").html($(".central_causality_container").text().trim()).removeClass('suggested_causality');
+		}
+	
+		// Hide stuff
+	    $("#title_relationship_hover").html('');	
+		$("#title_relationship_hover").hide();
+	});	
 
 // -------------------------------------------------------------------------------
 // CREATING SUGGESTION CAUSAL SENTENCE BASED ON CURRENT RELATIONSHIP TYPE
@@ -209,8 +206,13 @@ $(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function
 // -------------------------------------------------------------------------------	
 
   $("#relation_pagination .pagination a").live("click", function() {
+	// Show progress message to user
 	show_progress_message("loading")
-	$.getScript(this.href);	
+	// make the call
+	$.getScript(this.href);
+	// history management
+	window.history.ready = true;
+	history.pushState(null, document.title, this.href);			
 	return false;
   });
 
@@ -219,34 +221,16 @@ $(".suggestion_thumb:not(.selected_suggestion_thumb)").live('mouseout', function
 // -------------------------------------------------------------------------------	
 
 $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',function(){
-	
-	// Make this thumbnail opaque and add a white border
-	var parent_thumb = $(this).parents('.relationship_thumb')
-	// parent_thumb.children(".relationship_thumb_main").addClass("relationship_thumb_selected");
-	parent_thumb.animate({'opacity': '1'});
-	
-	// reduce opacity of the rest of the thumbnails
-	$('.relationship_thumb').not($(this).parents('.relationship_thumb')).animate({'opacity': '0.3'});
-	
-	// Remove any existing stle attributes/backgrounds from the thumbnails
-	$(".relationship_thumb_suggestion").removeAttr('style').removeClass('suggestion_selected');	
-	$(".relationship_thumb").removeClass('selected_relationship_thumb');
-	$(".suggestion_thumb").removeClass('selected_suggestion_thumb');
-	parent_thumb.addClass('selected_relationship_thumb');
 				
 	// show message
 	show_progress_message("loading relationship data");
 	
-	var relationship_id = $(this).parents('.relationship_thumb').children('.relationship_id_store').html().trim();
-	
+	// history management
+	window.history.ready = true;
+	history.pushState(null, document.title, this.href);	
+
 	$("#title_filler_text").hide();
 	
-	close_addNew();
-	$('.del-relation').attr('href', "../relationships/" + relationship_id);
-	
-	$(".relationship_thumb .issue_linkout").removeAttr('style');
-	$(this).parents('.relationship_thumb').children(".issue_linkout").fadeIn();
-
 });
 
 // -------------------------------------------------------------------------------
@@ -257,9 +241,8 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 		$("#modal_form").toggle();		
 	});
 	
-	$('.btn_close, .relationship_partial_toggle, .suggestion_thumb').live('click', function(){
+	$('.btn_close').live('click', function(){
 		close_addNew();
-		$("#modal_form").hide();
 	});
 
 // -------------------------------------------------------------------------------
@@ -304,7 +287,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
   });
 
 // -------------------------------------------------------------------------------
-// M O D A L - D I V     S H O W 
+// MODAL-DIV SHOW 
 // -------------------------------------------------------------------------------  
   //When you click on a link with class of poplight and the href starts with a # 
   $('a.popup[href^=#]').live('click', function() {
@@ -338,7 +321,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
   });
 
 // -------------------------------------------------------------------------------
-// M O D A L - D I V     H I D E   
+// MODAL-DIV HIDE   
 // ------------------------------------------------------------------------------- 
   //Close Popups and Fade Layer When clicking on the close or fade layer...
   $('a.close, #fade').live('click', function() {
@@ -360,22 +343,18 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 // -------------------------------------------------------------------------------
 // RELATIONSHIP DELETE FUNCTIONS
 // -------------------------------------------------------------------------------
-  // UNCOMMENT THE FOLLOWING CODE FOR CUSTOM CONFIRM TO SHOW!
-//  window.confirm = false;
-//  var href_carrier = '';
-//  var bubble_to_remove = '';
-        
-  //$(".del-relation").live('click', function(e) {
-  //	e.preventDefault();
-  //	var title = $(this).data('title');
-  //	var msg = "Are you sure you want to remove this causal link?"
-  //	href_carrier = $(this).attr('href');
-  //	bubble_to_remove = $(this).parents(".bubble");
-  //	showPopup(title, msg);
+    window.confirm = false;
+    var href_carrier = '';
+      
+  $(".del-relation").live('click', function() {
+  	var title = "Delete relation?"
+  	var msg = "Are you sure you want to remove this relationship?"
+  	href_carrier = $(this).attr('href');
+  	showPopup(title, msg);
   
-  //return false;      
+  return false;      
   
-  //});
+  });
 
 // -------------------------------------------------------------------------------
 // FUNCTION TO DISPLAY THE CONFIRMATION POPUP
@@ -385,43 +364,22 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	  $("#confirm_msg").html(msg);
 	  $("#confirm_buttons").show();
 	  $('body').append('<div id="fade"></div>'); //Add the fade layer to bottom of the body tag.
-	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer - .css({'filter' : 'alpha(opacity=80)'}) is used to fix the IE Bug on fading transparencies   
-	  $("#confirm_popup").fadeIn('slow');
+	  $('#fade').css({'filter' : 'alpha(opacity=80)'}).fadeIn(); //Fade in the fade layer 
+	  $("#confirm_popup").fadeIn();
   }
 
 // -------------------------------------------------------------------------------
 // FUNCTION TO DELETE RELATIONSHIP IF YES WAS CLICKED
 // -------------------------------------------------------------------------------
   $("#confirm_yes").live('click', function() {
-  	// Show the spinner
   	$("#confirm_wait").html('<img border="0" src="/images/system/spinnerf6.gif"/>');
-  	
-  	// Make Ajax Call
-  	$.ajax({
-  		type: "DELETE",
-  		url: href_carrier,
-	    cache: false,
-	    // If Ajax call is succesful
-	    success: function(){
-		    // Reload partial
-		    $("#select_rel_submit").trigger('click');
-		    // Do stuff
-		    $("#confirm_msg").html('Causal Link Deleted!'); 
-		    $("#confirm_buttons").hide(); 
-		    $("#confirm_wait").empty();
-		    // Remove the modal
-		    $("#confirm_popup").delay(2000).fadeOut('slow', function(){
-			    $('#fade').delay(2000).remove();
-	    		$("#get_relationship .title,#get_relationship .rationale_container").empty();
-	  		});
-  		   }
-  		});  
+	$.post(href_carrier, {_method:'delete'}, null, "script");
   });
 
 // -------------------------------------------------------------------------------
 // FUNCTION TO REMOVE MODAL IF USER CANCELED DELETION
 // -------------------------------------------------------------------------------	
-  $("#confirm_cancel").click(function() {
+  $("#confirm_cancel").live('click',function() {
 	  $('#fade').remove();
   	  $("#confirm_popup").fadeOut('slow');    
   	  href_carrier = '';
@@ -452,13 +410,15 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||	
 
 // -------------------------------------------------------------------------------
-// A R R O W    K E Y    N A V I G A T I O N    F O R    T H E    M O D A L
+// ARROW KEY NAVIGATION FOR THE MODAL
 // -------------------------------------------------------------------------------  
   window.displayBoxIndex = -1;
   
   // Arrow keys pressed while being within the Query Box
   $("#query").keyup(function(e) 
   	{
+	  if ($.inArray(e.keyCode, ignore_keys_array) == -1){
+  		displayBoxIndex = -1;}
 	  if (e.keyCode == 40){  
 	  	Navigate(1);}
 	  if(e.keyCode==38){
@@ -467,6 +427,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 		  $("#query").val($(".suggestion").eq(displayBoxIndex).html());
 		  $("#results").empty();
 		  displayBoxIndex = -1;
+		  start_populating_wikipedia_content();
   	}
   });
                    
@@ -489,7 +450,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
   });  
 
 // ------------------------------------------------------------------------------- 
-// F U N C T I O N S    C A L L I N G    M E D I A W I K I    A P I
+// FUNCTIONS CALLING MEDIAWIKI API
 // -------------------------------------------------------------------------------   
   
 	  var url='http://en.wikipedia.org/w/api.php?action=opensearch&search=';
@@ -511,22 +472,22 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	  var form_image = '';  
 
 // -------------------------------------------------------------------------------   
-// Monitoring the keyUp action on the query textbox 
+// MONITORING THE KEYUP ACTION ON THE QUERY TEXTBOX 
 // ------------------------------------------------------------------------------- 
   $('#query').bind('keyup', function(e){
 	  
 	  //  Get value of query from the textbox			
 	  query=$("#query").val();
-	  if (query =='' || e.keyCode == 27){
+	  if (query.trim() =='' || e.keyCode == 27){
 	  	$("#results").empty(); }
 	
 	  //  If the user types in something and it is a valid key	
-	  if (query != '' && ($.inArray(e.keyCode, ignore_keys_array) == -1) ){
+	  if (query.trim() != '' && ($.inArray(e.keyCode, ignore_keys_array) == -1) ){
   
 		  //  Clear the suggestions
 		  $("#results").empty();  
 		  //  Initialize the suggestion box with a spinner		
-		  $("#results").append('<img border="0" src="/images/system/spinner.gif" class="result-spinner"  />');
+		  $("#results").append('<img border="0" src="/images/system/spinnerf6.gif" class="result-spinner"  />');
 		  //  Talk to mediawiki API to fetch suggestions 
 		  $.getJSON(url_query+encodeURIComponent(query)+'&callback=?',function(data){
 		  	  
@@ -549,19 +510,24 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	}); // End of keyUp function 
 
 // -------------------------------------------------------------------------------
-// G E T    Q U E R Y    F R O M    S E A R C H - B O X
+// GET QUERY FROM SEARCH-BOX
 // -------------------------------------------------------------------------------
   $('.suggestion').live('click',function(){
 	  $("#query").val($(this).html()); 
 	  $("#results").empty();
 	  displayBoxIndex = -1;
+	  start_populating_wikipedia_content();
   });
 
 // -------------------------------------------------------------------------------
-// R E T R I E V E    C O N T E N T    F R O M    W I K I P E D I A
+// RETRIEVE CONTENT FROM WIKIPEDIA
 // -------------------------------------------------------------------------------  
   $("#btn_preview").click(function(){
-	  if ($("#query").val()){
+	  start_populating_wikipedia_content();
+  });
+
+	function start_populating_wikipedia_content(){
+	  if ($("#query").val().trim()){
 		  $("#results").empty();
 		  $("#title_holder").html('');
 		  // hide the save button
@@ -573,15 +539,15 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 		  $('#image_preview1, #image_preview2, #image_preview3, .check_clicked, .check_empty, .checkmsg').removeAttr('style');
 		  parseJSON();
 		  $("#results").empty();
-	  }
-  });
+	  }		
+	}
 
 // -------------------------------------------------------------------------------
-// P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
+// PARSE THE RECEIVED JSON CONTENT
 // -------------------------------------------------------------------------------
   function parseJSON() {
-	  // initialize spinner
-	  $("#wait").html('<img border="0" src="/images/system/spinnef2f.gif"/>');    	
+// Show the message
+	  show_progress_message("loading content from Wikipedia");   	
 	  // create the json url
 	  var queryRaw = $("#query").val()
 	  var queryEncoded = encodeURIComponent(queryRaw);
@@ -592,15 +558,15 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	  	// call the getJson function
 	  	getContent(data);    
 	  
-	  	// remove spinner
-	  	$("#wait").empty();
 	  });
 	 }
   
 // -------------------------------------------------------------------------------  
-// R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T			
+// READ THE PARSED JSON FOR CONTENT			
 // -------------------------------------------------------------------------------  		
   function getContent(JData) {
+	
+	if (JData !== undefined && JData.parse !== undefined) {
 
       var Jval = JData.parse.text["*"];
 	  	//  populate the description text
@@ -650,6 +616,10 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
   
   				}  // END of If structure (checking for Image Success from Wikipedia)	  
   			}  // END of If structure (checking for Text Success from Wikipedia)
+		  // remove progress message
+		  hide_progress_message();
+  		}  // END of If structure (checking if this is a valid object) 
+  		else { show_error_message("no data! Please try a different keyword.") }	  			
   }  // END of function  
 
 // -------------------------------------------------------------------------------
@@ -664,12 +634,12 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	  initialize_addNew();
 	  close_addNew();
   	  // S U B M I T    T H E    F O R M
-  	  ("form#relationship_form").submit();	  
+  	  ("form#relationship_form").submit();
 	  return false;
   });
 
 // -------------------------------------------------------------------------------
-// Gather the values for the Form submission
+// GATHER THE VALUES FOR THE FORM SUBMISSION
 // -------------------------------------------------------------------------------
   function valueCollect() {
 	
@@ -698,7 +668,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
   }
 
 // -------------------------------------------------------------------------------
-// Extract the background-image url from the DIV
+// EXTRACT THE BACKGROUND-IMAGE URL FROM THE DIV
 // -------------------------------------------------------------------------------
 	function extractUrl(input)
   		{
@@ -732,7 +702,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	});
 
 // -------------------------------------------------------------------------------
-// Close suggestions if clicked elsewhere
+// CLOSE SUGGESTIONS IF CLICKED ELSEWHERE
 // -------------------------------------------------------------------------------	
   $('#results, #query').hover(function(){ 
 	  mouse_is_inside=true; 
@@ -753,7 +723,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 // -------------------------------------------------------------------------------
-// Function to Retrieve image options from Google 
+// FUNCTION TO RETRIEVE IMAGE OPTIONS FROM GOOGLE 
 // -------------------------------------------------------------------------------
 
 	$('.btn_image_edit').live('click', function(){
@@ -787,7 +757,7 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	});
 
 // -------------------------------------------------------------------------------
-// Set the value of the field in image update form based on selection
+// SET THE VALUE OF THE FIELD IN IMAGE UPDATE FORM BASED ON SELECTION
 // -------------------------------------------------------------------------------
 	$(".check_empty_edit").live('click', function(){
 		$('.check_clicked_edit').removeAttr('style');
@@ -838,24 +808,25 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	});
 
 // -------------------------------------------------------------------------------
-// P A R S E    T H E    R E C E I V E D    J S O N    C O N T E N T
+// PARSE THE RECEIVED JSON CONTENT
 // -------------------------------------------------------------------------------
   function parseJSON_sugg(jsonData_sugg) {
 	// parse the json
 	  $.getJSON(jsonData_sugg, function (data_sugg) {
 	  	// call the getJson function
 	  	getContent_sugg(data_sugg);
-	  	// remove progress message
-	  	hide_progress_message();
-	  	// trigger the mouseout finction on suggestion_thumb
+
+	  	// trigger the mouseout function on suggestion_thumb
 	  	$(".suggestion_thumb:not(.selected_suggestion_thumb)").trigger('mouseout');
 	  });
 	 }
   
 // -------------------------------------------------------------------------------  
-// R E A D    T H E    P A R S E D    J S O N    F O R    C O N T E N T			
+// READ THE PARSED JSON FOR CONTENT			
 // -------------------------------------------------------------------------------  		
   function getContent_sugg(JData_sugg) {
+
+	if (JData_sugg !== undefined && JData_sugg.parse !== undefined) {
 
       var Jval_sugg = JData_sugg.parse.text["*"];
 	  	//  populate the description text
@@ -873,7 +844,9 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 	  		$("#title_issue").html($(".main_thumb_title").text().trim());
 	  		// call function to identify what should be the causal sentence?
 	  		write_causal_sentence($(".central_causality_container").text().trim())
-			$("#title_relationship").html(JData_sugg.parse.title); 
+			$("#title_relationship").html(JData_sugg.parse.title).show();
+			// Hide stuff
+	    	$("#title_relationship_hover").html('').hide();	
 			$("#title_dynamic_text").removeAttr('style');
 		  	
 		  	// Hide the Divs that are not required
@@ -915,10 +888,21 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
   				
   				}  // END of If structure (checking for Image Success from Wikipedia)	  
   			}  // END of If structure (checking for Text Success from Wikipedia)
+		  // remove progress message
+		  hide_progress_message();
+  		}  // END of If structure (checking if this is a valid object) 
+  		else { 
+  			$("#title_relationship").html('');
+  			show_error_message("no data! Would you like to reject this suggestion?") 
+			// Show the accept or reject buttons once images are loaded
+			suggestion_thumb_to_update.siblings(".suggestion_reject").fadeIn(); 
+  		}	  			
   }  // END of function
 
 
-
+// -------------------------------------------------------------------------------  
+// WRITING THE CORRESPONDING CAUSAL SENTENCE FOR SUGGESTIONS		
+// -------------------------------------------------------------------------------
 	function write_causal_sentence(current_sentence){
 
 	switch (current_sentence) { 
@@ -1000,20 +984,50 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 // -------------------------------------------------------------------------------
 
   var tooltipMsg = {
-	   'rel_thumb': 'Expand this relationship',
-	   'sug_thumb': 'See what Wikipedia says',
-	   'iss_thumb': 'About this issue'
+	   'sugg_accept': 'Accept this suggestion',
+	   'sugg_reject': 'Reject this suggestion',
+	   'rel_linkout': 'Go to this issue',
+	   'grav_you'	: 'You'
   };
 
-  // TOOL-TIP FOR SUGGESTION THUMBNAILS
-  $(".issue_thumb_container").live('mouseover', function(){
+  // TOOL-TIP FOR SUGGESTION ACCEPT
+  $(".suggestion_accept").live('mouseover', function(){
 	  tooltip_caller = $(this);
-	  tooltip_text   = tooltipMsg.iss_thumb;
+	  tooltip_text   = tooltipMsg.sugg_accept;
 	  showTooltip(tooltip_caller, tooltip_text);
   });
 
-  $(".issue_thumb_container").live("mouseleave", function(){
+  // TOOL-TIP FOR SUGGESTION REJECT
+  $(".suggestion_reject").live('mouseover', function(){
+	  tooltip_caller = $(this);
+	  tooltip_text   = tooltipMsg.sugg_reject;
+	  showTooltip(tooltip_caller, tooltip_text);
+  });
+
+  // TOOL-TIP FOR SUGGESTION REJECT
+  $(".issue_linkout:not(.suggestion_reject, .suggestion_accept)").live('mouseover', function(){
+	  tooltip_caller = $(this);
+	  tooltip_text   = tooltipMsg.rel_linkout;
+	  showTooltip(tooltip_caller, tooltip_text);
+  });
+
+  // TOOL-TIP FOR SUGGESTION REJECT
+  $("a.gravatar_vote, a.gravatar_anchor,.reference_gravatar, .comment_gravatar").live('mouseover', function(){
+	  tooltip_caller = $(this);
+	  tooltip_text   = tooltip_caller.attr('title');
+	  tooltip_caller.data("title", $(this).attr("title"));
+	  tooltip_caller.removeAttr("title");
+	  showTooltip(tooltip_caller, tooltip_text);
+  });
+
+
+  $(".issue_linkout").live("mouseleave", function(){
 	  hideTooltip();
+  });
+
+  $("a.gravatar_vote, a.gravatar_anchor, .reference_gravatar, .comment_gravatar").live('mouseleave', function(){
+  	  $(this).attr("title", $(this).data("title"));
+  	  hideTooltip();
   });
 
 

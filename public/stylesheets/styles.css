@@ -26,6 +26,15 @@ html, body /*Body Styles*/
 	margin:0 auto;
 }
 
+#nav_accordions {
+	padding:0px;
+	width: 1060px; 
+	margin:0 auto;
+	text-align: left;
+	position:relative;
+	z-index: 2;	
+}
+
 #footer {
 	background: #f5f5f5;
 	/*background: -moz-linear-gradient(center bottom, #fcfcfc 0%, white 100%);
@@ -178,7 +187,7 @@ html, body /*Body Styles*/
 
 
 .nav_gravatar{
-	float:left;padding-top:6px;margin:-15px 3px -5px 15px; border:0px;
+	float:left;padding-top:6px;margin:-7px 3px 0px 15px; border:0px;
 }
 
 .navigation{
@@ -236,28 +245,23 @@ html, body /*Body Styles*/
 }
 
 .nav_more_expansion{
-	width:130px;
-	min-height:10px;
-	margin-left:-113px;
-	margin-bottom:-180px;
-	margin-top:11px;
+	float:right;
+	width:120px;
+	margin:4px 1px -150px 0px;
 	background:#ffffff;
 	border:1px solid #434343;
-	background:#ffffff;
 	/* shadows */
 	box-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.3);
 	/* display */
 	display:none;	
-	z-index: 2;
-	position:absolute;	
 }
 
 .white_filler{
-	height:1px; float:right; background:#ffffff; margin:-1px 0px;
+	height:2px; float:right; background:#ffffff; margin:-2px 0px;
 }
 
 .white_filler_big{
-	height:1px; float:right; background:#ffffff; margin:-1px 0px;
+	height:2px; float:right; background:#ffffff; margin:-2px 0px;
 }
 
 .nav_expansion_content{
@@ -847,32 +851,41 @@ z-index:0;
 }
 
 #tool_tip{
-	z-index:200;
+	z-index:1;
 	position:absolute; display:none;
 	color:#fcfcfc; 
 	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif;
-	text-align:center;	
+	text-align:center;
+}
+
+.arrow-tooltip_back {
+    width: 0px;
+	margin-left:5px;
+	height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #6a6a6a;
+    margin-top:-1px;	
 }
 
 .arrow-tooltip {
     width: 0px;
-	margin:0 auto;
 	height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #2f2f2f;		
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid #2f2f2f;
+    margin-top:-6px;
+    margin-left:6px	
 }
 
 .contents-tooltip {
 	background-color:#2f2f2f; 
 	text-align:center;
 	padding:5px;
-	/* borders 
-	border-radius: 2px;
-	-moz-border-radius: 2px;
-	-webkit-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 3px;
-	-moz-box-shadow: rgba(0, 0, 0, 0.5) 0 1px 3px;
-	box-shadow: rgba(0, 0, 0, 0.5) 0 1px 3px;	*/
+	border:1px solid #6a6a6a;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
 }
 
 .white_banner {
@@ -1005,7 +1018,6 @@ z-index:0;
 
 #title_relationship_hover, #title_causality_hover{
 	color:#888888;
-	display:none;
 }
 
 #title_relationship_ellipsis{
@@ -1603,6 +1615,30 @@ word-wrap:break-word;
 	width: 400px;
 	left: 50%;
 	margin-left: -210px;
+	display:none;
+}
+
+#progress_icon{
+	display:inline-block;
+	margin-bottom:-4px;
+}
+
+.progress_load_icon{
+	background:url('/images/system/spinnerf6.gif') no-repeat center center;
+	height:20px; width:20px;
+	background-size:20px;
+}
+
+.progress_error_icon{
+	background:url('/images/system/error.png') no-repeat center center;
+	height:20px; width:20px;
+	background-size:20px;
+}
+
+.progress_success_icon{
+	background:url('/images/system/success.png') no-repeat center center;
+	height:20px; width:20px;
+	background-size:20px;
 }
 
 .progress_spinner{
@@ -2207,14 +2243,30 @@ a.issue-user:hover{
 	padding:2px 0px 0px 17px;
 	text-decoration:none;
 	font:bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
-	/*transition:color 0.6s;
-	-moz-transition:color 0.6s; 
-	-webkit-transition:color 0.6s; /
-	-o-transition:color 0.6s; */
 	margin:0px 0px 0px 15px;
 }
 
+#all_relationships{
+	background-image:url('/images/issues/intermediate.png');
+}
 
+#new_relationship{
+	background-image:url('/images/system/newgoto.png');
+}
+
+#nav_feeback{
+	background-image:url('/images/issues/feedback.png');	
+}
+
+#logged_user{
+	float:left;
+	padding:0px;
+	margin:0px 0px -5px 0px;
+}
+
+#user_register{
+	background-image:url('/images/system/user.png');
+}
 
 .login_button_seperator{
 	background-image:url('/images/system/login.png');
@@ -2260,17 +2312,12 @@ a.issue-user:hover{
 }
 
 .login_form_container{
-	width:146px; 
-	margin-top:11px;
-	margin-left:-61px; 
-	background:#ffffff;
-	border:1px solid #434343;
-	/* shadows */
+	background: #ffffff;
+	border: 1px solid #434343;
 	box-shadow: 0 2px 3px 0px rgba(0, 0, 0, 0.3);
-	/* display */
-	display:none;
-	z-index: 2;
-	position:absolute;
+	display: none;
+	float:right;
+	margin:4px -4px -200px 0px;
 }
 
 .login_form_container .login_button a, .login_form_container .login_button a:visited{
@@ -2393,16 +2440,25 @@ a.issue-user:hover{
 	background-size:17px;
 }
 
-#userissues .searchfield_appl{
+#userissues .searchfield_appl, #sidebar_container .searchfield_appl{
 	border:1px solid #f5f5f5;
 }
 
-#userissues .search_appl_submit{
+#userissues .search_appl_submit, #sidebar_container .search_appl_submit{
 	border:1px solid #f5f5f5;
 	height:27px;
 	margin-left:-3px;
 	border-left:none;
 }
+
+#sidebar_container .issue_search{
+	margin-top: 0px;
+	width: 266px;
+	display: none;
+	z-index: 1;
+}
+
+
 
 #get_relationship .search_appl_submit{
 	background:url("/images/issues/submit_appl.png") no-repeat 5px 4px;
@@ -2434,7 +2490,7 @@ a.issue-user:hover{
 	border-bottom:1px solid #434343;		
 }
 
-.search_result_appl{
+.search_result_appl, .search_result_appl_error{
 	padding:6px 5px;
 	font:normal 13px 'lucida grande',tahoma,verdana,arial,sans-serif;
 	color:#858585;
@@ -2464,6 +2520,7 @@ a.issue-user:hover{
 	border-left:1px solid #434343;
 	border-right:1px solid #434343;
 	border-top:none;
+	margin-top:-1px;
 }
 .search_img_box_sqr{
 	height:45px; width:45px; border:1px solid #f5f5f5;margin:0px 5px 0px 0px;
@@ -2481,6 +2538,16 @@ a.issue-user:hover{
 	text-indent: -9999em
 }
 
+.search_img_box_sqr_error{
+	float:left;
+	background:url("/images/system/error.png") no-repeat center center;
+	background-size:24px;
+	height:24px;
+	width:24px;
+	margin-right:6px;	
+}
+
+
 .search_result_title{
 	color:#434343;
 	width: 198px; height:14px; 
@@ -2496,6 +2563,12 @@ a.issue-user:hover{
 
 .search_result_title a:hover{
 	color:#4DB8DB;	text-decoration:none;}	
+
+.search_result_error{
+	color:#434343;
+	width: 224px; font-size: 12px;
+	float:left;
+	}
 	
 .search_result_descr{
 	width: 198px; height:21px; 
@@ -2576,9 +2649,9 @@ a.issue-user:hover{
 
 
 .result-spinner{
-	margin-top:50px;
-	margin-bottom:50px;
-	margin-left:93px;
+	margin-top:5px;
+	margin-bottom:5px;
+	margin-left:89px;
 }
 
 #title_holder{
@@ -3067,6 +3140,10 @@ text-decoration:none;
 	position: absolute;
 }
 
+.bottom_pagination{
+	margin:20px 0px 5px 0px; float:right;
+}
+
 .pagination { 
 	background: -webkit-gradient(linear, left bottom, left top, from(#2f2f2f), to(#434343));
 	background: -moz-linear-gradient(center bottom, #2f2f2f 0%, #434343 100%);
@@ -3235,7 +3312,7 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 }
 
 .gravatar_anchor{
-	border:0;text-decoration:none;float:right;margin:0px;height:45px; width:45px;	
+	border:0; text-decoration:none; float:right; margin:0px; height:45px; width:45px;	
 }
 
 .gravatar_endorse {
@@ -3257,8 +3334,8 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 .endorseperc{height:6px; background:#5E9646; float:left;margin-bottom:3px;}
 .accuseperc{height:6px; background:#bd4030; float:left;margin-bottom:3px;}
 
-.voters{margin:10px 0px; width:154px; font-size:11px; color:#bebebe;}
-.user_vote_message{margin-top:5px;}
+.voters{margin:0px 0px 5px 0px; width:154px; font-size:11px; color:#bebebe;}
+.user_vote_message{padding:5px 0px;}
 
 .gravatar_vote{
 	border:0;text-decoration:none;float:left;margin:0px;height:30px;width:30px;	
@@ -3335,6 +3412,7 @@ color: #4EB8DB;
 	left:50%;
     top: 30%;
 	width:440px;
+	text-align:left;
 	margin-left:-240px;
 	background-color: #fcfcfc;
     padding: 10px;
@@ -3354,6 +3432,14 @@ color: #4EB8DB;
 	color:#434343;
 	font:bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	text-align:left;
+}
+
+#confirm_wait{
+	margin:5px 5px -5px 5px; float:right;
+}
+
+#confirm_title{
+	float:left;
 }
 
 .locked_para{
@@ -3421,7 +3507,7 @@ cursor:default;
 .issue_thumb_blanket{
 	float: left;
 	background-color: #434343;
-	padding: 15px;
+	padding: 10px 15px;
 	padding-right: 10px;
 	
 }
@@ -3476,11 +3562,8 @@ cursor:default;
 .causality_types{
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;		
 	float:left;
-	padding:15px 0px 0px 0px;
+	padding:10px 0px 0px 0px;
 }	
-
-.central_causality_container:hover{
-}
 
 .causality_toggle_container{
 	
@@ -3501,10 +3584,28 @@ cursor:default;
 
 
 .relationship_partial_toggle:hover{
-	color:#fcfcfc;
 	background:url("/images/issues/pointer.png") no-repeat right;
 	background-size:6px; 
 }
+
+.relationship_partial_toggle a{
+	color:#6A6A6A;
+	text-decoration:none;
+	display: list-item;
+	list-style-type: none;	
+}
+
+.relationship_partial_toggle a:visited{
+	color:#6A6A6A;
+	text-decoration:none
+}
+
+.relationship_partial_toggle a:hover{
+	color:#fcfcfc;
+	text-decoration:none
+}
+
+
 
 .central_causality_container{
 	color: #FCFCFC;
@@ -3514,12 +3615,22 @@ cursor:default;
 	background-size:6px; 	
 }
 
+.central_causality_container a{
+	color: #FCFCFC;
+	text-decoration:none; 	
+}
+
+.central_causality_container a:visited{
+	color: #FCFCFC;
+	text-decoration:none; 	
+}
+
 .issue_relationships_container{
 	float: left;
 	background-color: #434343;
 	width: 780px;
 	margin-left: 0px;
-	padding: 15px 5px 0px 5px;
+	padding: 10px 5px 0px 5px;
 	padding-left: 0px;
 }
 
@@ -3538,6 +3649,10 @@ cursor:default;
 	text-align:center;
 	background-color:#fcfcfc;
 	}
+
+.relationship_thumb_main:active, .relationship_thumb_addnew:active, .relationship_thumb_suggestion:active {
+	border:4px solid #1B1B1B;
+}
 
 .relationship_thumb_selected{
 	border:4px solid #fcfcfc;
@@ -4051,6 +4166,10 @@ cursor:default;
 	text-decoration:none;
 }
 
+input.relationship_delete {
+	padding:5px;
+}
+
 .relationship_vote{
 	/* Shadows */
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
@@ -4217,7 +4336,7 @@ input.relationship_intermediate {
 }
 
 .med-relation, a.med-relation{
-	background:url("/images/issues/intermediate.png") no-repeat left;
+	background:url("/images/issues/visualize.png") no-repeat left;
 	background-size:12px;
 	background-position: 5px center;
 	padding:5px;
@@ -4433,9 +4552,10 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 	box-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.3);
 	/* display */
 	display:none;	
-	z-index: 2;
+	z-index: 1;
 	position:absolute;
 	background:#ffffff;	
+	margin-top:-1px;
 }
 
 .sort_option{

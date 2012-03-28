@@ -1,13 +1,13 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
-//= javascript_include_tag "order_form.js"
+
 %div{:id=>"issues_head"}
 
   %div.pageheading
     All issues
       
   #issue_index_controls
-    = will_paginate (@issues),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 
+    = will_paginate (@issues),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0, :params => ({:_ => nil}) 
     
     #sort_order.discussion_submit
       Sort 
@@ -25,7 +25,7 @@
       .sort_option  
         Alphabetical order
     
-    - form_tag issues_path, :id=>"order_form", :remote => true, :method => 'get' do 
+    %form{:action=>issues_path, :id=>"order_form", :remote => true, :method => 'get'}
       = hidden_field_tag :sort_by, params[:sort_by],:id=>"order_form_select"
     
   .clearboth
@@ -44,9 +44,9 @@
     
     %div{:style=>"float:right;padding-top:5px;"}
       // Only show Edit and Delete if the Issue belongs to current user or an anonymous user
-      -if current_user
-        -if current_user.id == slice[0].user_id  
-          = link_to "Delete", issue_path(slice[0], :called_from=>"issues"), :confirm => "Are you sure you want to delete the issue #{slice[0].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+      /-if current_user
+      /  -if current_user.id == slice[0].user_id  
+      /    = link_to "Delete", issue_path(slice[0]), :confirm => "Are you sure you want to delete the issue #{slice[0].title}?", :method => :delete, :class=>"del-issue"
       
       // author
       - if slice[0].user
@@ -99,9 +99,9 @@
       
       %div{:style=>"float:right;padding-top:5px;"}
         // Only show Edit and Delete if the Issue belongs to current user
-        -if current_user
-          -if current_user.id == slice[1].user_id  
-            = link_to "Delete", issue_path(slice[1], :called_from=>"issues"), :confirm => "Are you sure you want to delete the issue #{slice[1].title}", :method => :delete, :remote=>true, :class=>"del-issue"
+        /-if current_user
+        /  -if current_user.id == slice[1].user_id  
+        /    = link_to "Delete", issue_path(slice[1]), :confirm => "Are you sure you want to delete the issue #{slice[1].title}?", :method => :delete, :class=>"del-issue"
 
       
         // author
@@ -143,8 +143,8 @@
       .clearboth
   .clearboth  
 
-%div{:style=>"margin:20px 0px 5px 0px; float:right;"}
-  = will_paginate (@issues), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
+.bottom_pagination
+  = will_paginate (@issues), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0, :params => ({:_ => nil})
 
 .clearboth
 

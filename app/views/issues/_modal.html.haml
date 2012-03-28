@@ -72,10 +72,7 @@
               %input{:type=>"hidden", :name=>"action_carrier", :id=>"frm_action"}
               %input{:type=>"hidden", :name=>"id_carrier", :id=>"frm_type_id"}
               %input{:type=>"hidden", :name=>"rel_suggestion_id", :id=>"frm_is_suggestion"}
-              /%input#rad_cause{:type => "radio", :name=>"causality_rad", :value=>"Cause"}
-              /%span Cause
-              /%input#rad_effect{:type => "radio", :name=>"causality_rad", :value=>"Effect"} 
-              /%span Effect
+
           = f.submit 'Create', :class=>"discussion_submit", :name=>"save_issue_rel_button", :id=>"val_collector"
           .clearboth
           

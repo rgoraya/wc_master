@@ -21,7 +21,7 @@
       .head
         .headnav
           .logocontainer
-            %a{:href=>"/issues", :title=>"Home"}
+            %a{:href=>"/relationships", :title=>"Home"}
               %img{:src=>"/images/system/thiscausesthat_logo.png", :style=>"height:24px;"}
           
               
@@ -39,70 +39,70 @@
             
           .navigation
             %div{:id=>"quickaccess"}
-              = link_to "Relationships", :relationships, :title=>"view all relationships", :class=>"login_button", :style=>"background-image:url('/images/issues/intermediate.png');"
+              = link_to "Relationships", :relationships, :title=>"view all relationships", :class=>"login_button", :id=>"all_relationships"
                 
-              = link_to 'New Relationship', new_issue_path, :title=>"create new relationship", :class=>"login_button", :style=>"background-image:url('/images/system/newgoto.png');" 
+              = link_to 'New Relationship', new_issue_path, :title=>"create new relationship", :class=>"login_button", :id=>"new_relationship" 
 
               - if current_user
-                - gravatar_options = { :size => 19, :title => "view your issues", :class => "nav_gravatar" }
-                = gravatar_for(current_user, gravatar_options)
-                = link_to current_user.username + "\'s issues", current_user, :title=>"view your issues", :class=>"login_button", :style=>"padding-left:0px;margin-left:0px; padding-right:6px;"
-
-                %div.nav_more
+                - gravatar_options = { :size => 17, :title => "view your issues", :class => "nav_gravatar" }
+                %a{:href=>current_user, :title=>"view profile"}
+                  = gravatar_for(current_user, gravatar_options)
+                = link_to current_user.username, current_user, :title=>"view profile", :class=>"login_button", :style=>"padding-left:0px;margin-left:0px; padding-right:6px;"
                 
+                
+                %div.nav_more
                   %div.nav_more_click
                     &#x25BC;
-                
-                  %div.nav_more_expansion
-                    
-                    // filler
-                    %div.white_filler
-                    .clearboth 
-                      
-                    = link_to "Edit profile", edit_user_path(current_user.id)
-                    = link_to "Logout", :logout
-                    = link_to "Feedback", new_feed_back_path
-                
                 .clearboth      
 
               - else
                 
-                = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button_seperator",:style=>"background-image:url('/images/system/user.png');"
+                = link_to "Register", new_user_path, :title=>"register as new user", :class=>"login_button_seperator",:id=>"user_register"
                                 
                 %div.login_main_container{:style=>"float:left;"}
                   .login_form_opener 
-                    Login &#x25BC;
-                  
+                    Login &#x25BC;                  
                   .clearboth
-                  %div.login_form_container
-                    .white_filler_big
-                    .clearboth 
-                    = form_for UserSession.new do |f|
-                      #form_elements{:style=>"margin:10px;"}
-                      
-                        .field
-                          %div{:class=>"formlabel_small"}
-                            = f.label :username                        
-                          = f.text_field :username, :class=>"formfield_small", :autocomplete=>"off"
-                        
-                        .field
-                          %div{:class=>"formlabel_small",:style=>"margin-top:5px;"}
-                            = f.label :password  
-                          = f.password_field :password, :class=>"formfield_small", :autocomplete=>"off"                          
-                        
-                        .actions
-                          = f.submit 'Login', :class=>"discussion_submit", :style=>"float:left; margin-top:10px"
-                        
-                          .clearboth
-                    
-                  .clearboth
-               
+
               .clearboth
                       
           .clearboth  
+  
+        #nav_accordions  
+  
+          - if current_user
+            
+            .nav_more_expansion
+              .white_filler
+              .clearboth       
+              = link_to "Edit profile", edit_user_path(current_user.id)
+              = link_to "Logout", :logout
+              = link_to "Feedback", new_feed_back_path
+                      
+          - else
+          
+          .login_form_container
+            .white_filler_big
+            .clearboth 
+            = form_for UserSession.new do |f|
+              #form_elements{:style=>"margin:10px;"}    
+                .field
+                  %div{:class=>"formlabel_small"}
+                    = f.label :username                        
+                  = f.text_field :username, :class=>"formfield_small", :autocomplete=>"off"
+                
+                .field
+                  %div{:class=>"formlabel_small",:style=>"margin-top:5px;"}
+                    = f.label :password  
+                  = f.password_field :password, :class=>"formfield_small", :autocomplete=>"off"                          
+                
+                .actions
+                  = f.submit 'Login', :class=>"discussion_submit", :style=>"float:left; margin-top:10px"
+                
+                  .clearboth
+          .clearboth
 
       #content
-        //.filler
      
         = yield
       %div{:id=>"footer"}
@@ -130,3 +130,6 @@
 
       %div{:id=>"tooltip_partial"}
         = render 'layouts/tooltip_partial' 
+
+      %div{:id=>"confirm_partial"}
+        = render 'layouts/confirm_partial'

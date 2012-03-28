@@ -14,7 +14,9 @@ class User < ActiveRecord::Base
 
   has_many :feedbacks
 
-  has_many :votes             
+  has_many :votes
+  # all relationships the user has voted on
+  has_many :voted_relationships,     :through => :votes, :source => :relationship  
   # all relationships the user endorses
   has_many :endorsed_relationships,  :through => :votes, :source => :relationship, :conditions => ['vote_type = "E"']
   # all relationships the user contests
@@ -24,7 +26,6 @@ class User < ActiveRecord::Base
 
   validates :username, :length => { :within => 1..50 }
   validates :password, :length => { :within => 4..40 }
-
 
   # search functionality
   def self.search(search)
@@ -36,7 +37,7 @@ class User < ActiveRecord::Base
   end
 
 
-
+  # Getting the Activities by this user
   def formatted(contrib)
 
     version = contrib

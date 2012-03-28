@@ -1,15 +1,18 @@
 class RelationshipsController < ApplicationController
 
-  # GET /relationships
-  # GET /relationships.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: RELATIONSHIPS INDEX 
+  #------------------------------------------------------------------- 
   def index
 
+      # setting the default sort criteria
       if (params[:sort_by])
         @sort_by = params[:sort_by]  
       else 
         @sort_by = "Most recent" 
       end
-
+      
+      # set the @relationships for the sort criteria
       case @sort_by
         when "Most recent"  
           @relationships = Relationship.find(:all, :order=>"updated_at DESC").paginate(:per_page => 20, :page => params[:page])
@@ -24,8 +27,9 @@ class RelationshipsController < ApplicationController
     end
   end
 
-  # GET /relationships/1
-  # GET /relationships/1.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: RELATIONSHIPS SHOW
+  #------------------------------------------------------------------- 
   def show
     @relationship = Relationship.find(params[:id])
     
@@ -42,8 +46,9 @@ class RelationshipsController < ApplicationController
     end
   end
 
-  # GET /relationships/new
-  # GET /relationships/new.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: RELATIONSHIPS NEW
+  #------------------------------------------------------------------- 
   def new
     @relationship = Relationship.new
 
@@ -53,13 +58,16 @@ class RelationshipsController < ApplicationController
     end
   end
 
-  # GET /relationships/1/edit
+  #-------------------------------------------------------------------
+  # RESTFUL: RELATIONSHIPS EDIT
+  #------------------------------------------------------------------- 
   def edit
     @relationship = Relationship.find(params[:id])
   end
 
-  # POST /relationships
-  # POST /relationships.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: RELATIONSHIPS CREATE
+  #------------------------------------------------------------------- 
   def create
     @relationship = Relationship.new(params[:relationship])
 
@@ -74,8 +82,9 @@ class RelationshipsController < ApplicationController
     end
   end
 
-  # PUT /relationships/1
-  # PUT /relationships/1.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: RELATIONSHIPS UPDATE
+  #------------------------------------------------------------------- 
   def update
     @relationship = Relationship.find(params[:id])
 
@@ -90,8 +99,9 @@ class RelationshipsController < ApplicationController
     end
   end
 
-  # DELETE /relationships/1
-  # DELETE /relationships/1.xml
+  #-------------------------------------------------------------------
+  # RESTFUL: RELATIONSHIPS DESTROY
+  #------------------------------------------------------------------- 
   def destroy
     @relationship = Relationship.find(params[:id])
 		version = Version.find(:last, :conditions=>["item_type = ? AND item_id = ?", "Relationship", @relationship.id])

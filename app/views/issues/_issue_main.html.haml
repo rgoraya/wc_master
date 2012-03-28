@@ -2,10 +2,9 @@
   %div.issue_thumb_container
       
     %div.main_thumb_title
-      = @issue.title
-      
+      = link_to @issue.title,{:controller=>"issues", :action=>"show"}, :remote=>true
   
     %div{:class=>"issue_thumb_main", :style=>"background-image:url(#{@issue.short_url})"}
-      
+      = link_to @issue.title,{:controller=>"issues", :action=>"show"}, :remote=>true
     %span#issue_id_store
       = @issue.id  

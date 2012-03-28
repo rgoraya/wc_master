@@ -58,15 +58,14 @@ class VotesController < ApplicationController
       # @vote_to_update.update_attribute(:vote_type, @vote.vote_type)
       respond_to do |format|
         if @vote_to_update.update_attributes(params[:vote])
-          #get_appropriate_notice(@vote_type)
+          
           format.html { redirect_to(@vote_to_update, :notice => 'Vote was successfully updated.') }
           format.xml  { head :ok }
           format.js
        else
-          #@notice = @vote.errors.full_messages.join(", ")
           format.html { render :action => "edit" }
           format.xml  { render :xml => @vote.errors, :status => :unprocessable_entity }
-        format.js
+          format.js
         end
       end
     
@@ -74,30 +73,19 @@ class VotesController < ApplicationController
     else
       respond_to do |format|
         if @vote.save
-          #get_appropriate_notice(@vote_type)
+          
           format.html { redirect_to(@vote, :notice => 'Vote was successfully created.') }
           format.xml  { render :xml => @vote, :status => :created, :location => @vote }
           format.js
         else
-          #@notice = @vote.errors.full_messages.join(", ")
           format.html { render :action => "new" }
           format.xml  { render :xml => @vote.errors, :status => :unprocessable_entity }
           format.js
         end
       end        
     end
-    
-  def get_appropriate_notice(vote_type)
-    case vote_type       
-      when "E"
-        @notice = "You endorse this relationship now."
-      when "C"
-        @notice = "You contest this relationship now."     
-    end  
-  end
+ end
 
-
-  end
 
   # PUT /votes/1
   # PUT /votes/1.xml

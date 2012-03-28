@@ -1,13 +1,25 @@
-// Display Notice if Ajax
+// Reload partial
+	$("#tooltip_partial").html("<%= escape_javascript(render('layouts/tooltip_partial'))%>")
 
-$('#progress_message').html("<%= escape_javascript(@notice) %>")
+// Notice that came from the server
+	var n = ("<%= escape_javascript(@notice) %>")
 
-var n = ("<%= escape_javascript(@notice) %>")
+// Success or failure?
+	if (n.indexOf("linked") >= 0 || n.indexOf("accepted") >= 0 || n.indexOf("created") >= 0 || n.indexOf("restored") >= 0 )
+	{ 
+		// message of success
+		show_success_message(n)    
+		
+		// redirect to the newly created Relationship_id
+		var relationship_url = $(".central_causality_container a").attr("href") + "&rel_id=" +  "<%= escape_javascript(@rel_id)%>"
+		$.getScript(relationship_url);
+		
+		// Log in the history
+		history.pushState(null, document.title, relationship_url);
+	
+	} else {
+		
+		// error message
+		show_error_message(n)      
+	}
 
-if (n.indexOf("linked") >= 0 || n.indexOf("accepted") >= 0 || n.indexOf("created") >= 0 || n.indexOf("restored") >= 0 )
-{ 
-	$("#get_rel_issueid_input").val($("#issue_id_store").text().trim());
-	$("#get_rel_sentence_input").val($(".central_causality_container").text().trim());
-}
-
-$("#select_rel_submit").trigger('click');

@@ -1,8 +1,9 @@
-$("#issues").html("<%= escape_javascript(render("issues")) %>");
-$("#progress_partial").html("<%= escape_javascript(render('layouts/progress_partial'))%>")
+// Reload partials and highlight
+	$("#issues").html("<%= escape_javascript(render("issues")) %>");
+	$("#progress_partial").html("<%= escape_javascript(render('layouts/progress_partial'))%>")
+	$(".formcontentdiv").effect("highlight", {color: '#f5f5f5'}, 1500);
 
-$(".formcontentdiv").effect("highlight", {color: '#f5f5f5'}, 1500);
-
+// handle notices
 if ($.trim($('#notice').text()) != "") {
 	$("#notice_container").effect("highlight", {color: '#4DB8DB'}, 800);
   	$("#notice").show;

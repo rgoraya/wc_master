@@ -1,2 +1,3 @@
-$("#get_references").html("<%= escape_javascript(render('issues/get_references'))%>")
-$('.reference_container').first().effect("highlight", {color: '#4DB8DB'}, 1000);
+// Reload partial and highlight
+	$("#get_references").html("<%= escape_javascript(render('issues/get_references'))%>")
+	$('.reference_container').first().effect("highlight", {color: '#4DB8DB'}, 1000);

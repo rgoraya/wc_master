@@ -1,13 +1,13 @@
 - content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
 
-%div{:id=>"rel_head"}
+#rel_head
 
-  %div.pageheading
+  .pageheading
     Relationships
 
   #issue_index_controls
-    = will_paginate (@relationships),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0     
+    = will_paginate (@relationships),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0, :params => ({:_ => nil})     
     
     #sort_order.discussion_submit
       Sort 
@@ -22,11 +22,8 @@
       .sort_option
         Reference count
     
-    - form_tag relationships_path, :id=>"order_form", :remote => true, :method => 'get' do 
+    %form{:action=>relationships_path, :id=>"order_form", :remote => true, :method => 'get'}
       = hidden_field_tag :sort_by, params[:sort_by],:id=>"order_form_select"
-
-  //%div{:style=>"margin:10px 0px 20px 0px; float:right;"}
-  //  = will_paginate (@relationships),:previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0 
 
   .clearboth
 
@@ -45,8 +42,11 @@
       = link_to @rel_cause.title, @rel_cause, :rel=>"#{@rel_cause.title}"
       %span.rel_center_title{:style=>"color:#bebebe;"} 
         = @sentence  
-      = link_to @rel_issue.title, @rel_issue, :rel=>"#{@rel_issue.title}"      
-    
+      = link_to @rel_issue.title, @rel_issue, :rel=>"#{@rel_issue.title}"
+      
+      // Linkout to the relationship 
+      = link_to image_tag("/images/system/linkout.png", :width=>"13px"), issue_path(@rel_cause, :rel_type=>@sentence, :rel_id=>relation.id), :class=>"relationship_linkout"
+            
     %div{:style=>"float:right;padding-top:5px;"}
       // Only show Edit and Delete if the relationship belongs to current user
       /-if current_user
@@ -56,9 +56,10 @@
     
       // author
       - if relation.user
-        - @hash = Digest::MD5.hexdigest(relation.user.email).to_s
+        - rel_gravatar_options = { :size => 14, :title => "view relationships by this author", :class => "nav_gravatar" }
         %a{:href=>"/users/#{relation.user.id}", :style=>"text-decoration:none;", :title=>"view relationships by this author"}
-          %img{:src=> "http://www.gravatar.com/avatar/#{@hash}?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
+          = gravatar_for(relation.user, rel_gravatar_options)      
+
         %a{:href=>"/users/#{relation.user.id}", :class=>"issue-user", :style=>"padding-left:0px; margin-left:0px; background-image:none;", :title=>"view relationships by this author"}>= relation.user.username
       - else
         %img{:src=> "http://www.gravatar.com/avatar/?s=14&d=mm", :style=>"margin-bottom:-2px; border:0px"}
@@ -77,7 +78,7 @@
       // The corresponding image is set as background of the container div (to attain vertical centering)
       // The link inside the div is 100% high so that it remains clickable. Pheww!  
       %div{:class=>"index_img_box_sqr", :style=>"float:left;background-image:url(#{@rel_cause.short_url})"}
-        = link_to "", @rel_cause, :title=>"View this relationship"
+        = link_to "", @rel_cause, :title=>"View this issue"
         
     
       // Text
@@ -104,7 +105,7 @@
       // The corresponding image is set as background of the container div (to attain vertical centering)
       // The link inside the div is 100% high so that it remains clickable. Pheww!  
       %div{:class=>"index_img_box_sqr", :style=>"float:left;background-image:url(#{@rel_issue.short_url})"}
-        = link_to "", @rel_issue, :title=>"View this relationship"
+        = link_to "", @rel_issue, :title=>"View this issue"
       
     
       // Text
@@ -126,8 +127,8 @@
     .clearboth  
 
 
-%div{:style=>"margin:20px 0px 5px 0px; float:right;"}
-  = will_paginate (@relationships), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0
+.bottom_pagination
+  = will_paginate (@relationships), :previous_label => '&#9668; Prev', :next_label => 'Next &#9658;', :outer_window =>0, :inner_window => 0, :params => ({:_ => nil})
 
 .clearboth
 

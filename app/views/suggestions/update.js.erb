@@ -1,2 +1,12 @@
-$('#progress_message').html("<%= escape_javascript(@notice) %>")   
-$("#select_rel_submit").trigger('click');  
+// Show message to the user
+	show_success_message("<%= escape_javascript(@notice) %>")
+
+// Hide tooltip
+	$("#tooltip_partial").html("<%= escape_javascript(render('layouts/tooltip_partial'))%>")
+
+// Reload thumbnails
+	var relationship_url = $(".central_causality_container a").attr("href")
+	$.getScript(relationship_url);
+
+// log it in the history
+	history.pushState(null, document.title, relationship_url);

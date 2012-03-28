@@ -6,9 +6,9 @@
 
 -# specifies the data that we're going to be working with in javascript
 :javascript
-  var this_relationship_type = '#{@rel_type}'
-  var issueTitle             = '#{@issue.title.to_s}'
-  var idofthisIssue          = '#{@issue.id}'
+  var this_relationship_type = "#{@rel_type}"
+  var issueTitle             = "#{@issue.title.to_s}"
+  var idofthisIssue          = "#{@issue.id}"
   
 // Include the .js file  
 = javascript_include_tag "issue_show.js"
@@ -49,23 +49,7 @@
     .clearboth                   
 
 #clear{:style => "clear:left;"}
-        
 
-#confirm_popup
-  #confirm_title.formheading{:style=>"text-align:left;color:#434343;padding-top:0px;"}
-  .formcontentdiv
-    #confirm_wait{:style=>"margin:-42px 0px 0px 0px;float:right;"}  
-    #confirm_msg
-    #confirm_buttons{:style=>"margin-top:10px; text-align:center"}
-      %input#confirm_yes{:type => "button", :value => "Delete", :class=>"discussion_submit", :style=>"float:none;"}
-      %input#confirm_cancel{:type => "button", :value => "Cancel", :class=>"discussion_submit", :style=>"float:none;"}
-
-#tool_tip
-  .contents-tooltip
-    .txt-tooltip
-      random text   
-  .arrow-tooltip
-      
 #onetouch_image{:style=>"display:none;"}
 #onetouch_text{:style=>"display:none;"}     
 

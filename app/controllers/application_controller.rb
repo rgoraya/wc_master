@@ -2,8 +2,6 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
 
   helper_method :current_user
-
-  #lock
   
   private
   
@@ -18,6 +16,6 @@ class ApplicationController < ActionController::Base
   end
 
   def restrict_access
-    redirect_to '/issues', :alert => "Access denied"
+    redirect_to '/relationships', :notice => "Access denied"
   end
 end

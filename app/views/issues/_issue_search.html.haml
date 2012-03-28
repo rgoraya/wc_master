@@ -11,3 +11,10 @@
             %div{:class=>"search_result_descr"}
               = issue.description.html_safe  
           .clearboth
+
+    - if @search_results.count < 1
+      .search_result_appl_error
+        .search_img_box_sqr_error
+        .search_result_error
+          No data! Please try a different search query.
+        .clearboth         
