@@ -24,3 +24,8 @@
 	font:normal 10px "lucida grande",tahoma,verdana,arial,sans-serif; 
 	color: #434343;
 }
+
+#go_buttons {
+	position:absolute;
+	top: 15px;
+}

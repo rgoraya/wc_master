@@ -280,6 +280,7 @@ function swapEdge(e, new_reltype){
 	var key = e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]
 	edge.reltype = new_reltype
+	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 
 	//remove old edge&key from list
 	for(var i=0, len=currEdges['keys'].length; i<len; i++){
@@ -318,7 +319,7 @@ function get_node_qtip(node) {
 		}
 	};
 }
-
+//layout details for the small edge qtip
 function get_edge_qtip_small(edge) {
 	return {
 		content:{
@@ -334,7 +335,6 @@ function get_edge_qtip_small(edge) {
 		},
 	};	
 }
-
 //layout details for the edge qtip
 function get_edge_qtip(edge) {
 	var canvas_id = Math.random()
@@ -381,7 +381,6 @@ function get_edge_qtip(edge) {
 }
 
 var selector_canvases_drawn = [] //canvases we've drawn before
-
 function drawSelectors(edge, canvas_id){
 	// console.log('selector_canvas_'+canvas_id)
 	var canvas = new Raphael('selector_canvas_'+canvas_id, 40, 45) //the canvas to draw on
@@ -441,14 +440,34 @@ function drawSelectors(edge, canvas_id){
 }
 
 
-/**
- * adapted from
- * http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
- * @param t a raphael text shape
- * @param width - pixels to wrapp text width
- * modify t text adding new lines characters for wrapping it to given width.
- */
+/*** AJAX SETUP ***/
+$(document).ready(function(){
+	$("#run_button").click(function(){
+		console.log("Run button was clicked!")
+		console.log('currEdges',currEdges)
+
+		$.ajax({
+			type: 'POST',
+			url: '/game/run',
+			data: {'edges':currEdges},
+			// complete: function(data) {func(data);},
+			dataType: 'script'
+		});
+
+	});
+
+});
+
+
+
 _textWrapp = function(t, width, max_length) {
+	/**
+	 * adapted from
+	 * http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
+	 * @param t a raphael text shape
+	 * @param width - pixels to wrapp text width
+	 * modify t text adding new lines characters for wrapping it to given width.
+	 */
 		var wrapped = false;
     var content = t.attr("text");
     var abc="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
