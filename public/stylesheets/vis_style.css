@@ -66,7 +66,7 @@
   border-top: 10px solid #2f2f2f;
 }
 
-#issue_qtip .formcontentdiv {
+#relation_qtip .formcontentdiv, #issue_qtip .formcontentdiv {
   border:0px; 
   padding: 0px 0px;
 	font-size: 12px;	
@@ -77,13 +77,7 @@
 	padding:5px 0px 0px 0px;
 }
 
-#relation_qtip .formcontentdiv {
-  border:0px; 
-  padding: 0px 0px;
-	font-size: 12px;	
-}
-
-#relation_qtip .heading {
+#issue_qtip .heading {
 	text-decoration:none;
 	font:bold 14px "lucida grande",tahoma,verdana,arial,sans-serif; 
 	text-shadow:0 0px 1px rgba(0,0,0,0.2);

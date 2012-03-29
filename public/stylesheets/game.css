@@ -1,0 +1,26 @@
+#relation_qtip {
+	width:200px;
+}
+
+#relation_qtip .selector_container {
+/*	border: 1px solid red; */	
+	float:left;
+	width: 40px;
+}
+
+#relation_qtip .descr_container {
+/*	border: 1px solid green;*/
+	text-decoration:none;
+	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
+/*	text-shadow:0 0px 1px rgba(0,0,0,0.2);*/	
+	color: #434343;
+}
+
+#selector_canvas {
+}
+
+.edge_title {
+	text-decoration:none;
+	font:normal 10px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	color: #434343;
+}
