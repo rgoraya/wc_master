@@ -70,10 +70,11 @@
       .relation_controls
     
         #relation_owner
-          - if @relationship.user       
-            - @rel_owner = Digest::MD5.hexdigest(@relationship.user.email).to_s
+          - if @relationship.user
+            - rel_gravatar_options = { :size => 35, :title => "", :class => "gravatar" }
             %a.gravatar_anchor{:href=>"/users/#{@relationship.user.id}", :title=>"#{@relationship.user.username}"}
-              %img{:src=> "http://www.gravatar.com/avatar/#{@rel_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+              = gravatar_for(@relationship.user, rel_gravatar_options)           
+
             .gravatar_text
               %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'           
               %br
@@ -86,7 +87,7 @@
               //%br>= pluralize(@relationship.user.relationships.length(), "causal link")
             .clearboth
           - else
-            %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
+            .gravatar#gravatar_none
             .gravatar_text  
               %span.date_time>= time_ago_in_words(@relationship.created_at) + ' ago'
               %br>Anonymous user
@@ -155,7 +156,7 @@
         /    = render 'issue_image_edit'
 
       .relation_controls#system_generated
-        %img.gravatar{:src=> "/images/system/system.png", :style=>"margin:0px;float:right"}
+        .gravatar#gravatar_system
         
         .system_generated_message_top
           This is a 
@@ -217,10 +218,10 @@
       .relation_controls 
   
         #issue_owner
-          - if @issue.user       
-            - @issue_owner = Digest::MD5.hexdigest(@issue.user.email).to_s
+          - if @issue.user     
+            - issue_gravatar_options = { :size => 35, :title => "", :class => "gravatar" }
             %a.gravatar_anchor{:href=>"/users/#{@issue.user.id}", :title=>"#{@issue.user.username}"}
-              %img{:src=> "http://www.gravatar.com/avatar/#{@issue_owner}?s=35&d=mm", :style=>"margin:0px;", :class=>"gravatar"}
+              = gravatar_for(@issue.user, issue_gravatar_options)                       
             .gravatar_text
               %span.date_time>= time_ago_in_words(@issue.created_at) + ' ago'           
               %br
@@ -233,7 +234,7 @@
               //%br>= pluralize(@issue.user.issues.length(), "issue")
             .clearboth
           - else
-            %img{:src=> "http://www.gravatar.com/avatar?s=35&d=mm", :style=>"margin:0px;float:right", :class=>"gravatar"}
+            .gravatar#gravatar_none
             .gravatar_text  
               %span.date_time>= time_ago_in_words(@issue.created_at) + ' ago'
               %br>Anonymous user
@@ -256,7 +257,7 @@
             = render 'issue_image_edit'
        
       .relation_controls#system_generated
-        %img.gravatar{:src=> "/images/system/system.png", :style=>"margin:0px;float:right"}
+        .gravatar#gravatar_system
         
         .system_generated_message_top
           This is a 

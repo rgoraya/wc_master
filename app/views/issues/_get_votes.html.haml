@@ -85,23 +85,23 @@
 - if @relationship.endorsements.length > 0
 
   - @relationship.endorsers.each do |endorser|
-    - @rel_endorser = Digest::MD5.hexdigest(endorser.email).to_s
+    - rel_endorser_options = { :size => 27, :title => "", :class => "gravatar_endorse" }
     %a.gravatar_vote{:href=>"/users/#{endorser.id}", :title=>"#{endorser.username}"}
-      %img{:src=> "http://www.gravatar.com/avatar/#{@rel_endorser}?s=27&d=mm", :class=>"gravatar_endorse"}
+      = gravatar_for(endorser, rel_endorser_options) 
 
 - if @relationship.contestations.length > 0
    
   - @relationship.contesters.each do |contester|  
-    - @rel_contester = Digest::MD5.hexdigest(contester.email).to_s
+    - rel_contester_options = { :size => 27, :title => "", :class => "gravatar_contest" }
     %a.gravatar_vote{:href=>"/users/#{contester.id}", :title=>"#{contester.username}"}
-      %img{:src=> "http://www.gravatar.com/avatar/#{@rel_contester}?s=27&d=mm", :class=>"gravatar_contest"}
+      = gravatar_for(contester, rel_contester_options) 
 
 - if @relationship.accusations.length > 0
    
   - @relationship.accusers.each do |accuser|  
-    - @rel_accuser = Digest::MD5.hexdigest(accuser.email).to_s
+    - rel_accuser_options = { :size => 27, :title => "", :class => "gravatar_accuse" }
     %a.gravatar_vote{:href=>"/users/#{accuser.id}", :title=>"#{accuser.username}"}
-      %img{:src=> "http://www.gravatar.com/avatar/#{@rel_accuser}?s=27&d=mm", :class=>"gravatar_accuse"}
+      = gravatar_for(accuser, rel_accuser_options) 
  
  
 .clearboth
