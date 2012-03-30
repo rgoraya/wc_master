@@ -49,4 +49,20 @@ describe UsersController do
     end
   end
 
+  describe "POST 'create'" do
+    describe "failure" do
+      before(:each) do
+        @attr =  { :username => "", :email => "", :password => "", 
+                  :password_confirmation => "" }   
+      end
+
+      it "should render the 'new' page" do
+        post :create, :user => @attr       
+        response.code.should == "200"
+        response.should render_template('new')
+      end
+    end
+    
+  end
+
 end            
