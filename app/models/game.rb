@@ -1,3 +1,5 @@
+require 'matrix'
+
 class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and stuff
 
   def initialize(args)
@@ -15,25 +17,23 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     if args[:blank]
       make_blank_graph
 
-      #default_layout #will eventually have custom initial layout
-      grid_nodes_in_box(@nodes,Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
-
-      #@nodes[0].location = Vector[0, @height/2]
     elsif args[:edges]
       make_user_graph(args[:edges])
     
     elsif args[:expert]
       show_expert_graph(args[:expert])    
     end
-
-    #handle_params(args[:params],args) ##do the normal graphing command    
   end
 
   # make the nodes and edges for our expert graph
   def make_blank_graph
     ISSUE_NAMES.each_with_index {|name, i| @nodes[i] = Graph::Node.new(i, name, "") unless name.blank? }
 
-    @edges.push(Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES))
+    #testing
+    #@edges.push(Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES))
+
+    @nodes[19].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
+    grid_nodes_in_box(@nodes.reject{|k,v| k==19},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
   end
 
   def show_expert_graph(num)
@@ -45,8 +45,11 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   end
 
   def make_user_graph(edges)
-    # puts "MAKING USER GRAPH FROM",edges.to_s
-  
+    puts "MAKING USER GRAPH FROM",edges.to_s
+
+    @nodes[19] = Graph::Node.new(19,ISSUE_NAMES[19],"")
+    #@nodes[19].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
+
     #construct the nodes
     edges.each do |key, edge|
       if key != 'keys'
@@ -93,8 +96,44 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
         ## are we looking for a path, or trying to 'populate/colonize' the islands? Then we just have a single starting node
         ## might work as a demo. Then we can branch out.
 
+
     return score
   end
+
+  class Ant
+	  attr_accessor :id, :island, :plan
+
+		def initialize(n)
+		  @id = n
+		  @island = 19
+		  @plan = [1,2]
+	  end
+	  
+	  def to_s
+      "Ant("+@id.to_s+", "+@plan.to_s+")"
+    end
+  end
+	
+
+  # define all the ants that represent this game simulation!
+  def get_ants
+    ants = Array.new
+    
+    #make 100 ants
+    (0...100).each do |i|
+      ants.push(Ant.new(i))
+    end
+
+    
+
+
+    #puts "ants we made", ants
+    return ants
+  end
+
+
+
+
 
   #we could also hard-code this for speed...
   def make_accuracy_matrix
@@ -116,6 +155,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     end
     
     #matrix.each {|key,value| puts key.to_s+":"+value.to_s if value > 0}
+    ### should probably just hard-code this once it's done...
     return matrix
   end
 

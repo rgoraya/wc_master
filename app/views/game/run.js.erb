@@ -1,2 +1,74 @@
 // console.log("run.js.erb called")
 console.log('Simulation results:','<%= escape_javascript(@result) %>')
+
+<%= javascript_ants %>
+
+animateAnts(paper, my_ants)
+
+
+/***
+eventually move this all into the main .js file, for faster loading (?)
+***/
+
+//define ant object prototype
+function Ant(n,plan,island){
+	this.n = n
+	this.plan = plan
+	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
+	this.move = 0
+	this.prog = 0
+	this.icon = paper.circle(this.pos.x, this.pos.y,3)
+		.attr({'fill':'#0f0'})
+}
+//Ant.prototype.CONSTANT = 1
+
+Ant.prototype.tick = function(){
+	console.log('taking a turn')
+	this.randomWalk()
+}
+
+Ant.prototype.walkPath = function(){
+	console.log('walking path')
+}
+
+Ant.prototype.randomWalk = function(){
+	this.pos = {x:this.pos.x+(Math.random()*100-50), y:this.pos.y+(Math.random()*100-50)}
+	// this.icon.animate({'cx':this.pos.x, 'cy':this.pos.y})
+
+	// //ants[i].attr({'cx':pos.cx+(Math.random()>0.5?2:-2) , 'cy':pos.cy+(Math.random()>0.5?2:-2)})
+	// // ants[i].animate({'cx':pos.cx+(Math.random()*100-50) , 'cy':pos.cy+(Math.random()*100-50)},30)
+}
+
+
+function animateAnts(paper, ants) {
+	console.log('drawing ants')
+	//block out all the other interactions so that the user doesn't break things
+	var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
+
+	var count = 0
+	animator = setInterval(function() {
+
+		//raphael implementation
+		for(var i=0, len=ants.length; i<len; i++){
+			ants[i].tick() //do what they do!
+			ants[i].icon.animate({'cx':ants[i].pos.x, 'cy':ants[i].pos.y}) //do all the animations in here; can be replaced with d3
+		}
+
+		//d3 implementation, for potentially smoother animation?
+		// http://stackoverflow.com/questions/8239235/smoothly-animate-attribute-changes-to-3000-raphael-objects-at-once
+		// http://jsfiddle.net/ekMd6/
+		
+
+		console.log('step',count)
+		count += 1;
+		if(count > 50){
+			console.log('done animating')
+			clearInterval(animator);
+			for(var i=0, len=ants.length; i<len; i++)
+				ants[i].icon.remove()
+			block.remove()
+		}
+	}, 30);
+
+}
+

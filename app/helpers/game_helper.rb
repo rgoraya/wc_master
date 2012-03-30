@@ -22,4 +22,15 @@ module GameHelper
     }"
   end
 
+  def javascript_ants
+    out = "var my_ants=["
+
+    @ants.each {|ant| out += "new Ant(#{ant.id.to_s},#{ant.plan.to_s},#{ant.island.to_s}),"}
+
+    out += "];"
+    
+    #puts out
+    return out
+  end
+
 end

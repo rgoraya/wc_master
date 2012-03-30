@@ -98,6 +98,7 @@ function drawEdge(edge, paper){
 		return icon;
 }
 
+
 //methods to control dragging
 var dragstart = function (x,y,event) 
 {

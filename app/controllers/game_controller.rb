@@ -1,11 +1,16 @@
 class GameController < ApplicationController
   layout "game_layout" #don't use normal headers and such for now...
 
+  @@DEFAULT_WIDTH = 900#900*1.0 #defaults
+  @@DEFAULT_HEIGHT = 600#675*1.0
+  # for large map, 900x900 looks good
+  @@DEFAULT_BORDER = 50
+
+
   def index
-    @default_width = 900#900*1.0 #defaults
-    @default_height = 600#675*1.0
-    # for large map, 900x900 looks good
-    @default_border = 50
+    @default_width = @@DEFAULT_WIDTH
+    @default_height = @@DEFAULT_HEIGHT
+    @default_border = @@DEFAULT_BORDER
     
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
@@ -39,6 +44,10 @@ class GameController < ApplicationController
 
 
   def run #everything is handled as JS for this
+    @default_width = @@DEFAULT_WIDTH
+    @default_height = @@DEFAULT_HEIGHT
+    @default_border = @@DEFAULT_BORDER
+
     # puts "**** RUNNING PARAMETERS ****"
     # puts params
     # puts params[:edges] ## this is the edges that the user created
@@ -46,8 +55,13 @@ class GameController < ApplicationController
     respond_to do |format|
       format.js do #respond to ajax calls
     
-        @game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges]) #Just pass in all the params
+        @game = Game.new(:width => @default_width, :height => @default_height, :edges => Hash.new(params[:edges])) #Just pass in all the params
         @result = @game.compare_to_expert.to_s
+        @ants = @game.get_ants
+        ### how many ants to make? 100 to start? function of how many islands/edges are in play?
+        ### how to build their schedules
+        ### their init_pos is the location of island 19.
+        
   
         ## check to see how accurate these edges are compared to the game model
           ## pass in the parameters to the model, which then constructs a new 'graph'?
