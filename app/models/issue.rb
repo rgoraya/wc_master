@@ -75,3 +75,19 @@ class Issue < ActiveRecord::Base
   end  
 
 end
+# == Schema Information
+#
+# Table name: issues
+#
+#  id                  :integer         not null, primary key
+#  title               :string(255)
+#  description         :string(255)
+#  wiki_url            :string(255)
+#  short_url           :string(255)
+#  created_at          :datetime
+#  updated_at          :datetime
+#  permalink           :string(255)
+#  user_id             :integer
+#  relationships_count :integer
+#
+

@@ -291,6 +291,7 @@ require 'backports'
   #-------------------------------------------------------------------
   def edit
     @issue = Issue.find(params[:id])
+    session[:return_to] ||= request.referer
   end
 
   #-------------------------------------------------------------------
