@@ -34,3 +34,17 @@ class Relationship < ActiveRecord::Base
   end
 
 end
+# == Schema Information
+#
+# Table name: relationships
+#
+#  id                :integer         not null, primary key
+#  issue_id          :integer
+#  cause_id          :integer
+#  created_at        :datetime
+#  updated_at        :datetime
+#  relationship_type :string(255)
+#  references_count  :integer         default(0)
+#  user_id           :integer
+#
+

@@ -3,31 +3,40 @@ require 'spec_helper'
 
 
 describe IssuesController do
-  before do
-    @attributes = {'title' => 'example', 'wiki_url' => 'examplewiki',
-                      'short_url' => 'exampleshort', 'description' => 'exampledescription'}
-    @issue = mock_model(Issue)
-    Issue.should_receive(:new).with(@attributes).once.and_return(@issue)
-    request.env["HTTP_REFERER"] = "/issues/1007"
-  end
-  
-  it "redirects to the issue on successful save" do
-    @issue.should_receive(:save).with().once.and_return(true)
-    
-    post :create, :issue => @attributes
-    assigns[:issue].should be(@issue)
-    flash[:notice].should_not be(nil)    
-    response.should redirect_to(@issue)
-  end                                
+  describe "POST 'create'" do
+    describe "success" do
+      before(:each) do
+        @attr = { :title       => "Example", 
+                  :wiki_url    => "http://en.wikipedia.org/wiki/Long_Island",
+                  :short_url   => "http://en.wikipedia...", 
+                  :description => "example description"}
+      end  
 
-  it "redirects to back on non-successful save" do
-    @issue.should_receive(:save).with().once.and_return(true)
-    
-    post :create, :issue => @attributes
-    assigns[:issue].should be(@issue)
-    flash[:notice].should_not be(nil)    
-    response.should redirect_to "/issues/1007" #this would only work with a certain test db
-  end                                
+      it "should redirect to the issue page" do
+        post :create, :issue => @attr
+        response.should redirect_to(issue_path(assigns(:issue)))
+      end
+
+      it "should create an issue" do
+        lambda do 
+          post :create, :issue => @attr
+        end.should change(Issue, :count).by(1)
+      end  
+    end
+
+    describe "failure" do
+      before(:each) do
+        @attr = Issue.find_by_title('Electricity').attributes.merge!( :title => "", :wiki_url => "" ) 
+      end                         
+      
+      it "should not create an issue" do
+        lambda do 
+          post :create, :issue => @attr
+        end.should_not change(Issue, :count)
+      end  
+    end
+                               
+  end
 end                          
 
 describe "When I show an issue" do

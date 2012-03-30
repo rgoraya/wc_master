@@ -40,7 +40,7 @@ describe "LayoutLinks" do
     click_link "Relationships"
     response.should have_selector('title', :content => "Causality Project: Relationships")
     click_link "Home"
-    response.should have_selector('title', :content => "Causality Project: Issues")
+    response.should have_selector('title', :content => "Causality Project: Relationships")
     click_link "Register"
     response.should have_selector('div[class="pageheading"]', :content => "Register as a new user")
     response.should have_selector('title', :content => "User Profile")
