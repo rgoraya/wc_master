@@ -10,3 +10,15 @@ class Comment < ActiveRecord::Base
   has_paper_trail :on=>[:create, :destroy]
 
 end
+# == Schema Information
+#
+# Table name: comments
+#
+#  id              :integer         not null, primary key
+#  content         :string(255)
+#  relationship_id :integer
+#  user_id         :integer
+#  created_at      :datetime
+#  updated_at      :datetime
+#
+

@@ -56,6 +56,7 @@ gem 'backports'
 
 group :development do
   gem "hpricot"
+  gem 'annotate', '~> 2.4.1.beta' 
 end
 group :test do
   gem 'webrat'

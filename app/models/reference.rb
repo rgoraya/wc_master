@@ -12,3 +12,15 @@ class Reference < ActiveRecord::Base
   validates :reference_content, :presence => true, :uniqueness => {:scope => :relationship_id, :message => ' is already submitted.'}                     
 
 end
+# == Schema Information
+#
+# Table name: references
+#
+#  id                :integer         not null, primary key
+#  relationship_id   :integer
+#  reference_content :string(255)
+#  created_at        :datetime
+#  updated_at        :datetime
+#  user_id           :integer
+#
+
