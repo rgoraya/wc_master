@@ -4,7 +4,7 @@ describe UsersController do
   render_views
 
   describe "GET 'show'" do
-    
+
     before(:each) do
       @user = FactoryGirl.create(:user)
     end
@@ -45,7 +45,7 @@ describe UsersController do
     it "should have the right title" do
       get :new
       response.should have_selector('div', :class   => 'pageheading',
-                                           :content => 'Register as a new user')
+                                    :content => 'Register as a new user')
     end
   end
 
@@ -53,7 +53,7 @@ describe UsersController do
     describe "failure" do
       before(:each) do
         @attr =  { :username => "", :email => "", :password => "", 
-                  :password_confirmation => "" }   
+          :password_confirmation => "" }   
       end
 
       it "should render the 'new' page" do
@@ -61,8 +61,43 @@ describe UsersController do
         response.code.should == "200"
         response.should render_template('new')
       end
+
+      it "should not create an user" do
+        lambda do
+          post :create, :user => @attr       
+        end.should_not change(User, :count)
+      end
+
     end
-    
+
+    describe "success" do
+      before(:each) do
+        @attr = { :username => "Foo", :email => "foo@bar.com", :password => "foobar", 
+          :password_confirmation => "foobar" }
+      end
+
+      it "should create a user" do
+        lambda do 
+          post :create, :user => @attr
+        end.should change(User, :count).by(1)
+      end
+
+      it "should redirect to the index of relationships" do
+        post :create, :user => @attr
+        response.code.should == "302"
+        response.should redirect_to relationships_path
+      end
+
+      #Currently RSpec does not support following redirects, so this is out
+      #of the scope for it. Uncomment when RSpec supports redirect follows
+      #it "should have a welcome message" do
+      #  post :create, :user => @attr
+      #  response.should have_selector('div#notice', 
+      #                                :content => "Registration succesful.")
+      #end
+
+    end  
+
   end
 
 end            
