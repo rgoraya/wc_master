@@ -21,6 +21,7 @@ function Ant(n,plan,island){
 	this.pathlen = 0
 	this.prog = 0
 	this.reverse = false
+	this.lost = false
 	this.island = island
 	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
 	this.icon = paper.circle(this.pos.x, this.pos.y,3)
@@ -38,6 +39,12 @@ Ant.prototype.tick = function(){
 	if(this.stat == this.DECIDING){ //pick a path
 		if(this.plan.length > 0){
 			this.path = this.plan.shift()
+			if(this.path < 0){
+				this.path = -1*this.path
+				this.lost = true
+			}
+			else
+				this.lost = false
 			this.pathlen = edgeIcons[this.path][0].getTotalLength()
 			this.prog = 0
 			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
@@ -74,6 +81,10 @@ Ant.prototype.walkPath = function(){
 			this.island = currEdges[currEdges['keys'][this.path]].b.id;
 		this.stat = this.DECIDING;
 	}
+}
+
+Ant.prototype.getLost = function(){
+	
 }
 
 Ant.prototype.randomWalk = function(){

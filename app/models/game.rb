@@ -110,7 +110,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 		def initialize(n)
 		  @id = n
 		  @island = START
-		  @plan = [1,2]
+		  @plan = []
 	  end
 	  def to_s
       "Ant("+@id.to_s+", "+@plan.to_s+")"
@@ -129,29 +129,54 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   # define all the ants that represent this game simulation!
   def get_ants
     puts "ANT FARM!"
-    ants = Array.new
-    # islands = Hash.new([]) #islands are just a hash for now, key to node_id, value is array of ants
-    # roads = Hash.new(0) #the count of how much traffic each road (edge.id) has seen
+    ants = Array.new #ants could probably just be an array of hashes, since we don't yet need a full object...
     
     #make 100 ants
-    num_ants = 20
+    num_ants = 100
     (0...num_ants).each do |i|
       ant = Ant.new(i)
       ants.push(ant)
-      # islands[ant.island].push(ant)
     end
     
-    journeys = [[]]
+    edges_to_check = {}
+    # terms_to_check = {}
+    edges_by_node = @nodes.merge(@nodes) {|k| []}
+    @edges.each do |edge|
+      edges_to_check[edge.id] = edge
+      # terms_to_check[edge.a.id] = edge.a
+      # terms_to_check[edge.b.id] = edge.b
+      edges_by_node[edge.a.id].push(edge.id)
+      edges_by_node[edge.b.id].push(edge.id)
+    end
+    # terms_to_check[START] = nil #we don't need to check the start node...
 
-    #calculate the journeys to take!
-    @edges.each do |e| #get the edges that are connected to START, for testing/debugging
-      if e.a.id == START or e.b.id == START
-        journeys.unshift([e.id]) #add the 1-step journey to the list of paths (pushing on front of stack)
+    journeys = [[START]] #last item of journey array is the current island
+    journeys.each do |path| #go through each journey on the path      
+      island = path[-1] #the last item is where we're moving from
+      #grab all the edges connected to that path that are new or involve new terminals
+      new_edge_ids = edges_by_node[island]
+      new_edge_ids.each do |id|
+        if edges_to_check[id] #or terms_to_check[ @edges[ne].a.id ] or terms_to_check[ @edges[ne].a.id ] #if new path to take
+          new_path = path[0...-1] + [id, (@edges[id].a.id == island ? @edges[id].b.id : @edges[id].a.id)]
+          # puts "new path",new_path.to_s
+          journeys.push(new_path)
+          edges_to_check[id] = nil #remove from edges_to_check
+        end
       end
     end
 
+    puts 'journeys', journeys.to_s, 'length:'+journeys.length.to_s
+    
+    #check validity, and mark bad paths by maing them negative
+    journeys.each do |path|
+      
+      
+      
+    end
+    
+
     #divide the journeys among the ants
-    ants.each_with_index {|ant,i| ant.plan = journeys[i%journeys.length]}
+    ants.each_with_index {|ant,i| ant.plan = journeys[(i+1)%journeys.length][0...-1];puts ant}
     
 
     ### give them a plan!!
@@ -186,7 +211,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 ### CONSTANTS FOR THE GRAPHS ###
 ################################
 
-  #we could also hard-code this for speed...
+  #we could also hard-code this for a speed increase...
   def make_accuracy_matrix
     matrix = Hash.new
 

@@ -146,7 +146,7 @@ var dragend = function (x,y,event)
 		var dots = drawDots(dragged_edges[i],curve,paper)
 		edgeIcons[dragged_edges[i].id].push(dots)
 		var center = getPathCenter(curve,-2)
-		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.1, 'stroke-width':0})
+		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
 		edgeIcons[dragged_edges[i].id].push(selector)
 		$(selector.node).qtip(get_edge_qtip(dragged_edges[i]))
 		// $([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
@@ -209,7 +209,7 @@ var buildend = function (x,y,event)
 			//set up the edge
 			var edge = now_building.edge
 			edge.b = now_building.selected_node;
-			edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n)
+			edge.id = currEdges['keys'].length; //give id that's just a count (1...n)
 			edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 			var key = edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
 
@@ -218,8 +218,8 @@ var buildend = function (x,y,event)
 				edgeIcons[edge.id].remove() //get rid of the old icon
 			}
 			else{
-				currEdges['keys'].push(key) //only push the key if this is a new edge (and so we need to add it to the list)
 				edge.id = currEdges['keys'].length; //give id that's just a count (1...n)
+				currEdges['keys'].push(key) //only push the key if this is a new edge (and so we need to add it to the list)
 			}
 			currEdges[key] = edge
 
