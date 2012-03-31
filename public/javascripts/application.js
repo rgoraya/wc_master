@@ -417,23 +417,25 @@ $(function() {
 
   function showTooltip(tooltip_caller, tooltip_text){
   	
-  	// Initialize tooltip text
-  	$(".txt-tooltip").html(tooltip_text);
+  	if (tooltip_text !== undefined && tooltip_text != ""){
 
-  	// Set CSS width first so that the top and left can be determined
-  	$("#tool_tip").css({
-  		"min-width" : tooltip_caller.width(),
-	});
+	 	// Initialize tooltip text
+	  	$(".txt-tooltip").html(tooltip_text);
 	
-  	// Set CSS properties
-  	$("#tool_tip").css({
-  		"top"   : (tooltip_caller.offset().top  - ($("#tool_tip").height() + 2)), 
-  		"left"  : (tooltip_caller.offset().left + parseInt(tooltip_caller.css("padding-left").replace("px", "")))  		
-  	});
-
-  	// Show it	
-  	$("#tool_tip").show();
-
+	  	// Set CSS width first so that the top and left can be determined
+	  	$("#tool_tip").css({
+	  		"min-width" : tooltip_caller.width(),
+		});
+		
+	  	// Set CSS properties
+	  	$("#tool_tip").css({
+	  		"top"   : (tooltip_caller.offset().top  - ($("#tool_tip").height() + 2)), 
+	  		"left"  : (tooltip_caller.offset().left + parseInt(tooltip_caller.css("padding-left").replace("px", "")))  		
+	  	});
+	
+	  	// Show it	
+	  	$("#tool_tip").show(); 		
+	 }
   }
 
   function hideTooltip(){

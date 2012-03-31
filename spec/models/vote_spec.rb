@@ -28,3 +28,15 @@ describe Vote do
   end
 end
 
+# == Schema Information
+#
+# Table name: votes
+#
+#  id              :integer         not null, primary key
+#  user_id         :string(255)
+#  relationship_id :string(255)
+#  vote_type       :string(255)
+#  created_at      :datetime
+#  updated_at      :datetime
+#
+

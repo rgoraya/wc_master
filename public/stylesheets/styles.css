@@ -3298,11 +3298,31 @@ div#effects, div#inhibitors, div#inhibiteds, div#supersets, div#subsets{
 .activity_score{float:right;color:#BEBEBE;}
 
 .gravatar {
-	margin:10px 0px 5px 0px;
+	margin:0px 0px 5px 0px;
 	border:5px solid #fcfcfc;
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
 	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;	
+}
+
+#gravatar_none{
+	background:url('/images/system/usernone.png') no-repeat center;
+	background-size:35px;
+	height:35px; width:35px;
+	float:right;
+}
+
+#gravatar_none_ref{
+	background:url('/images/system/usernone.png') no-repeat center;
+	background-size:28px;
+	height:28px; width:28px;
+}
+
+#gravatar_system{
+	background:url('/images/system/system.png') no-repeat center;
+	background-size:35px;
+	height:35px; width:35px;
+	float:right;
 }
 
 .gravatar:hover{
