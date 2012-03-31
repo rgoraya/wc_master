@@ -21,7 +21,6 @@ function Ant(n,plan,island){
 	this.pathlen = 0
 	this.prog = 0
 	this.reverse = false
-	this.lost = false
 	this.island = island
 	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
 	this.icon = paper.circle(this.pos.x, this.pos.y,3)
@@ -31,6 +30,8 @@ function Ant(n,plan,island){
 Ant.prototype.DECIDING = 0;
 Ant.prototype.SETTLED = 1;
 Ant.prototype.ON_PATH = 2;
+Ant.prototype.ON_WRONG_PATH = 3;
+Ant.prototype.GETTING_LOST = 4;
 
 Ant.prototype.tick = function(){
 	if(this.stat == this.SETTLED)
@@ -41,15 +42,15 @@ Ant.prototype.tick = function(){
 			this.path = this.plan.shift()
 			if(this.path < 0){
 				this.path = -1*this.path
-				this.lost = true
+				this.stat = this.ON_WRONG_PATH
 			}
-			else
-				this.lost = false
+			else{
+				this.stat = this.ON_PATH
+			}
 			this.pathlen = edgeIcons[this.path][0].getTotalLength()
 			this.prog = 0
 			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
 			this.reverse = (this.island == currEdges[this.path].b.id)
-			this.stat = this.ON_PATH
 			console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
 		}
 		else{
@@ -60,7 +61,12 @@ Ant.prototype.tick = function(){
 	
 	if(this.stat == this.ON_PATH){
 		this.walkPath()
-		// this.randomWalk()
+	}
+	else if(this.stat == this.ON_WRONG_PATH){
+		this.wrongPath()
+	}
+	else if(this.stat == this.GETTING_LOST){
+		this.getLost()
 	}
 	
 	return false; //we're still going
@@ -83,12 +89,34 @@ Ant.prototype.walkPath = function(){
 	}
 }
 
-Ant.prototype.getLost = function(){
-	
+Ant.prototype.wrongPath = function(){
+	this.prog += 5; //take a step (sizable)
+	if(this.prog*2 < this.pathlen){ //if we're less than halfway, walk as normal
+		if(this.reverse)
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
+		else
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
+	}
+	else{ //otherwise, get lost!
+		this.prog = 0
+		this.stat = this.GETTING_LOST
+	}
 }
 
-Ant.prototype.randomWalk = function(){
-	this.pos = {x:this.pos.x+(Math.random()*100-50), y:this.pos.y+(Math.random()*100-50)}
+Ant.prototype.getLost = function(){
+	this.prog += 1
+	if(this.prog%3==0){
+		this.randomWalk(4)
+		this.icon.attr({'opacity':1-(this.prog/60)})
+	}	
+	else if(this.prog > 60){
+		this.icon.attr({'opacity':0}) //hide completely, but wait until we're removing all the ants to remove
+		this.stat = this.SETTLED
+	}
+}
+
+Ant.prototype.randomWalk = function(step){
+	this.pos = {x:this.pos.x+(Math.random()*step*2-step), y:this.pos.y+(Math.random()*step*2-step)}
 }
 
 
@@ -118,7 +146,7 @@ function animateAnts(paper, ants) {
 		// 	.attr('cy', function(d,i){return ants[i].pos.y;})
 		// 	.duration(1)
 
-		console.log('step',count, done)
+		// console.log('step',count, done)
 		count += 1;
 		if(done || count > 500){
 			console.log('done animating')
