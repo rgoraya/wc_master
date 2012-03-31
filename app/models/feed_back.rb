@@ -5,3 +5,17 @@ class FeedBack < ActiveRecord::Base
 	belongs_to :user
 
 end
+# == Schema Information
+#
+# Table name: feed_backs
+#
+#  id          :integer         not null, primary key
+#  subject     :string(255)
+#  description :string(255)
+#  email       :string(255)
+#  user_id     :integer
+#  category    :integer
+#  created_at  :datetime
+#  updated_at  :datetime
+#
+

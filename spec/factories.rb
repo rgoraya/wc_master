@@ -5,4 +5,11 @@ FactoryGirl.define do
     password              "foobar"
     password_confirmation "foobar"
   end
+
+  factory :issue do 
+    title                 "example"
+    wiki_url              "http://en.wikipedia.org/wiki/Long_Island"
+    short_url             "http://en.wikipedia..."
+    description           "exampledescription"
+  end
 end       

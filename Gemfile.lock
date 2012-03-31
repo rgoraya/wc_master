@@ -28,6 +28,7 @@ GEM
       activemodel (= 3.0.7)
       activesupport (= 3.0.7)
     activesupport (3.0.7)
+    annotate (2.4.1.beta1)
     arel (2.0.10)
     authlogic (3.1.0)
       activerecord (>= 3.0.7)
@@ -173,6 +174,7 @@ PLATFORMS
   x86-mingw32
 
 DEPENDENCIES
+  annotate (~> 2.4.1.beta)
   authlogic
   backports
   capybara

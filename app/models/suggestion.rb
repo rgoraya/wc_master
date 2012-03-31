@@ -145,3 +145,17 @@ class Suggestion < ActiveRecord::Base
   end  
 
 end
+# == Schema Information
+#
+# Table name: suggestions
+#
+#  id         :integer         not null, primary key
+#  title      :string(255)
+#  wiki_url   :string(255)
+#  causality  :string(255)
+#  status     :string(255)
+#  issue_id   :integer
+#  created_at :datetime
+#  updated_at :datetime
+#
+
