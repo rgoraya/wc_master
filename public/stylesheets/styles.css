@@ -435,9 +435,10 @@ z-index:0;
 	float:left;
 	height:90px;
 	width:38px;
-	background-size:18px;
+	background-size:28px;
 	background-repeat:no-repeat;
 	background-position:center center;
+	opacity:0.3;
 }
 
 #causal_arrow{
@@ -3544,19 +3545,22 @@ cursor:default;
 }
 
 .main_thumb_title{
-	width: 153px;
-	padding: 4px 1px;
-	margin: 4px;
+	width: 155px;
+	margin: 14px 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	color: #FCFCFC;
 	text-align: center;
-	background: #2F2F2F;
+	background-image:-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, .7)));
+	background-image:-moz-linear-gradient(transparent 0pt, rgba(0, 0, 0, 0.7) 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=(rgba(0, 0, 0, .7)), endColorstr=(transparent));
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='(rgba(0, 0, 0, .7))', endColorstr='(transparent)')";	
 	position: absolute;
-	opacity: 0.8;
+	bottom:0;
 	cursor:pointer;
 }
 
 .main_thumb_title a{
+	padding: 6px 1px;
 	color:#fcfcfc;
 	display:list-item;
 	list-style-type:none;
@@ -3564,7 +3568,7 @@ cursor:default;
 }
 
 .issue_thumb_main{
-	height:90px; width:155px; border:4px solid #fcfcfc;
+	height:90px; width:155px; border:4px solid #2f2f2f;
 	background-position:center center;
 	background-repeat:no-repeat;
 	background-size:160px auto;
@@ -3685,19 +3689,22 @@ cursor:default;
 }
 
 .relationship_thumb_title{
-	width:90px;
-	padding:4px 1px;
-	margin:4px;
+	width:92px;
+	margin:14px 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	color:#fcfcfc;
 	text-align:center;
-	background:#2f2f2f;
+	background-image:-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, .7)));
+	background-image:-moz-linear-gradient(transparent 0pt, rgba(0, 0, 0, 0.7) 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=(rgba(0, 0, 0, .7)), endColorstr=(transparent));
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='(rgba(0, 0, 0, .7))', endColorstr='(transparent)')";	
+	bottom:0;
+	/*background:#2f2f2f;*/
 	position:absolute;
-	opacity:0.8;
 }
 
 .relationship_thumb_title a{
-	width:90px;
+	padding:5px 1px;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;		
@@ -3729,7 +3736,7 @@ cursor:default;
 
 .relationship_thumb_suggestion{
 	height:92px; border:4px solid #2f2f2f;
-	background-position:center 40px;
+	background-position:center 18px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
@@ -3745,15 +3752,18 @@ cursor:default;
 }
 
 .relationship_suggestion_title{
-	width:90px;
-	padding:4px 1px;
-	margin:4px;
+	width:92px;
+	padding:6px 1px;
+	margin:14px 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	color:#fcfcfc;
 	text-align:center;
-	background:#2f2f2f;
+	background-image:-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, .5)));
+	background-image: -moz-linear-gradient(transparent 0pt, rgba(0, 0, 0, 0.5) 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=(rgba(0, 0, 0, .5)), endColorstr=(transparent));
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='(rgba(0, 0, 0, .5))', endColorstr='(transparent)')";	
 	position:absolute;
-	opacity:0.8;
+	bottom:0;
 	overflow:hidden;
 	text-overflow:ellipsis;
 	white-space:nowrap;
@@ -3763,7 +3773,7 @@ cursor:default;
 
 .relationship_thumb_addnew{
 	height:92px; border:4px solid #2f2f2f;
-	background-position:center 40px;
+	background-position:center 18px;
 	background-repeat:no-repeat;
 	background-size:40px;
 	text-align:center;	
@@ -3792,15 +3802,18 @@ cursor:default;
 .none_found_arrow{width:20px;margin-bottom:-2px;}
 
 .relationship_addnew_title{
-	width:90px;
-	padding:4px 1px;
-	margin:4px;
+	width:92px;
+	padding:6px 1px;
+	margin:14px 4px;
 	font: bold 12px "lucida grande",tahoma,verdana,arial,sans-serif;
 	color:#fcfcfc;
 	text-align:center;
-	background:#2f2f2f;
+	background-image:-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, .5)));
+	background-image:-moz-linear-gradient(transparent 0pt, rgba(0, 0, 0, 0.5) 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=(rgba(0, 0, 0, .5)), endColorstr=(transparent));
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='(rgba(0, 0, 0, .5))', endColorstr='(transparent)')";	
 	position:absolute;
-	opacity:0.8;
+	bottom:0;
 }
 
 .relationship_addnew_title a{
@@ -3941,21 +3954,7 @@ cursor:default;
 	color:#4DB8DB;
 }
 
-.suggestion_accept{
-	background-image:url("/images/system/button_check.png");
-	background-repeat: no-repeat;
-	background-size:18px 18px;
-	background-position:0px 0px;	
-	border:1px solid #3D5C00;
-	width:18px;
-	height:18px;
-	float:right;
-	margin-right:5px;
-	border-radius: 2px;
-	-moz-border-radius: 2px;
-	background-color:#434343;	
-	opacity:0.7;
-}
+
 
 .suggestion_reject{
 	background-image:url("/images/system/button_reject.png");
@@ -3965,12 +3964,10 @@ cursor:default;
 	border:1px solid #933326;
 	width:18px;
 	height:18px;
-	float:right;
 	margin-right:5px;
 	border-radius: 2px;
 	-moz-border-radius: 2px;
-	background-color:#434343;	
-	opacity:0.7;
+	background-color:#434343;
 }
 
 .suggestion_accept:hover, .suggestion_reject:hover{
@@ -4514,7 +4511,7 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 .clearboth{clear:both;}
 
 .issue_linkout{
-	width:20px; height:20px; padding:3px; position:relative;z-index:1;float:right;margin:-33px 4px -33px 0px;
+	width:20px; height:20px; padding:3px; position:absolute;z-index:1;margin:3px 0px 0px 67px;
 	background: -webkit-gradient(linear, left bottom, left top, from(#2f2f2f), to(#434343));
 	background: -moz-linear-gradient(center bottom, #2f2f2f 0%, #434343 100%);
 	filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr=#434343, endColorstr=#2f2f2f);
@@ -4609,7 +4606,7 @@ ul.reference_error_list li{float:left;margin-left:20px;margin-right:20px;}
 
 .suggestion_accept{
 	float: left;
-	margin: -33px 0px -33px 4px;
+	margin: 3px 3px;
 }
 
 .poplight, .closebutton{

@@ -28,15 +28,15 @@
       
       - @issue_relations.each do |relation|
         %div.relationship_thumb
-    
+          
+          = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:class=>"issue_linkout"} 
+          
           %div.relationship_thumb_title
             //= link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
             = link_to relation.title,{:controller=>"issues", :action=>"show", :rel_type=>@rel_type, :rel_id=>"#{relation.wiki_url}", :page=>@page}, :remote=>true
           %div{:class=>"relationship_thumb_main", :style=>"background-image:url(#{relation.short_url})"}
             //= link_to relation.title,{:controller=>"issues", :action=>'get_relationship', :sentence=>@rel_type,:rel_id=>"#{relation.wiki_url}", :issueid=>@issue.id}, :remote=>true
-            = link_to relation.title,{:controller=>"issues", :action=>"show", :rel_type=>@rel_type, :rel_id=>"#{relation.wiki_url}", :page=>@page}, :remote=>true
-          
-          = link_to image_tag('/images/system/linkout_issue.png', :border=>0, :width=>20), relation, {:class=>"issue_linkout"}
+            = link_to relation.title,{:controller=>"issues", :action=>"show", :rel_type=>@rel_type, :rel_id=>"#{relation.wiki_url}", :page=>@page}, :remote=>true 
   
           %span.relationship_id_store
             = relation.wiki_url       
@@ -45,14 +45,14 @@
       - @suggestions.each do |suggestion|
         
         %div.relationship_thumb.suggestion_thumb
-    
-          .relationship_suggestion_title
-            = suggestion.title
-          .relationship_thumb_suggestion
           .issue_linkout.suggestion_accept
             %img{:src=>'/images/system/button_check.png', :width=>"20px"}      
           .issue_linkout.suggestion_reject
             = link_to image_tag('/images/system/button_reject.png', :width=>"20px"), suggestion_path(suggestion,:suggestion => {:status => 'D'}), :method => :put, :remote=>true
+          .clearboth
+          .relationship_suggestion_title
+            = suggestion.title
+          .relationship_thumb_suggestion
           %span.suggestion_id_store        
             = suggestion.id
             
