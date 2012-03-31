@@ -2,6 +2,8 @@ require 'matrix'
 
 class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and stuff
 
+  START = 19
+
   def initialize(args)
     puts "===game initialize args===" #debugging
     puts args
@@ -32,8 +34,8 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #testing
     #@edges.push(Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES))
 
-    @nodes[19].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
-    grid_nodes_in_box(@nodes.reject{|k,v| k==19},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
+    @nodes[START].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
+    grid_nodes_in_box(@nodes.reject{|k,v| k==START},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
   end
 
   def show_expert_graph(num)
@@ -47,8 +49,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   def make_user_graph(edges)
     puts "MAKING USER GRAPH FROM",edges.to_s
 
-    @nodes[19] = Graph::Node.new(19,ISSUE_NAMES[19],"")
-    #@nodes[19].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
+    @nodes[START] = Graph::Node.new(START,ISSUE_NAMES[START],"") #have at least the one node (Mehanad Population) to start with...
 
     #construct the nodes
     edges.each do |key, edge|
@@ -79,6 +80,10 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
   end
 
+##############################
+### RUNNING THE SIMULATION ###
+##############################
+
   def compare_to_expert
     puts "compare_to_expert"
     
@@ -102,28 +107,70 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
   class Ant
 	  attr_accessor :id, :island, :plan
-
 		def initialize(n)
 		  @id = n
-		  @island = 19
+		  @island = START
 		  @plan = [1,2]
 	  end
-	  
 	  def to_s
       "Ant("+@id.to_s+", "+@plan.to_s+")"
     end
   end
 	
-
+  # class Island
+  #   attr_accessor :id, :ants, :entries
+  #   def initialize(id)
+  #     @id = id
+  #     @ants = []
+  #     @entries = []
+  #     end
+  #   end 
+  
   # define all the ants that represent this game simulation!
   def get_ants
+    puts "ANT FARM!"
     ants = Array.new
+    # islands = Hash.new([]) #islands are just a hash for now, key to node_id, value is array of ants
+    # roads = Hash.new(0) #the count of how much traffic each road (edge.id) has seen
     
     #make 100 ants
-    (0...100).each do |i|
-      ants.push(Ant.new(i))
+    num_ants = 20
+    (0...num_ants).each do |i|
+      ant = Ant.new(i)
+      ants.push(ant)
+      # islands[ant.island].push(ant)
+    end
+    
+    journeys = [[]]
+
+    #calculate the journeys to take!
+    @edges.each do |e| #get the edges that are connected to START, for testing/debugging
+      if e.a.id == START or e.b.id == START
+        journeys.unshift([e.id]) #add the 1-step journey to the list of paths (pushing on front of stack)
+      end
     end
 
+    #divide the journeys among the ants
+    ants.each_with_index {|ant,i| ant.plan = journeys[i%journeys.length]}
+    
+
+    ### give them a plan!!
+    
+    ##go through each "island" (which has a subset of the ants)
+      ## divide the ants in that island into groups based on the number of out-going edges (ignoring edges that ants have used to get here already?)
+      ## max 3 ants decide to "settle", unless there are no more paths to follow?
+      
+    
+    ## THIS IS THE CORRECT ANSWER
+    ## calculate all possible paths start from HOME with increasing distance, until our set of paths includes all the edges in the graph.
+      ## greedy so that we only get new paths that include new edges
+    ## divide up the ants by those paths (less the few that are going to take the '0' path)
+    ## that is the plan for each ant!
+    
+    
+
+    ## once each ant has a plan, check the validity of each edge to see if the ant dies or not, and then mark that edge as such (removing the following bits from the plan)
+    
     
 
 
@@ -135,34 +182,33 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
 
 
+################################
+### CONSTANTS FOR THE GRAPHS ###
+################################
+
   #we could also hard-code this for speed...
   def make_accuracy_matrix
     matrix = Hash.new
 
     (1..ISSUE_NAMES.length).each do |i| #for every pair
       (1..ISSUE_NAMES.length).each do |j|
-        
+      
         num_incr = 0
         num_decr = 0
         EXPERT_GRAPHS.each_value do |expert| #count how many experts had an edge in each direction
           num_incr += 1 if expert[[i,j]] == 1
           num_decr += 1 if expert[[i,j]] == -1
         end
-          
+        
         matrix[[i,j,1]] = RUBRIC[num_incr] #have increase and decrease, so technically 3d matrix
         matrix[[i,j,-1]] = RUBRIC[num_decr]
       end
     end
-    
+  
     #matrix.each {|key,value| puts key.to_s+":"+value.to_s if value > 0}
     ### should probably just hard-code this once it's done...
     return matrix
   end
-
-
-################################
-### CONSTANTS FOR THE GRAPHS ###
-################################
 
   RUBRIC = {4=>8, 3=>6, 2=>4, 1=>1, 0=>-0.5, -2=>-2, -3=>-4, -4=>-6, -5=>-8} #scores for number of experts in agreement
   

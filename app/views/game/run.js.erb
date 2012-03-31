@@ -1,10 +1,12 @@
 // console.log("run.js.erb called")
 console.log('Simulation results:','<%= escape_javascript(@result) %>')
 
+var ant_nodes = [] //this could probably be cleaner... oh well
 <%= javascript_ants %>
 
-animateAnts(paper, my_ants)
+console.log(my_ants)
 
+animateAnts(paper, my_ants)
 
 /***
 eventually move this all into the main .js file, for faster loading (?)
@@ -14,29 +16,68 @@ eventually move this all into the main .js file, for faster loading (?)
 function Ant(n,plan,island){
 	this.n = n
 	this.plan = plan
-	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
-	this.move = 0
+	this.stat = 0
+	this.path = -1
+	this.pathlen = 0
 	this.prog = 0
+	this.reverse = false
+	this.island = island
+	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
 	this.icon = paper.circle(this.pos.x, this.pos.y,3)
 		.attr({'fill':'#0f0'})
+	ant_nodes.push(this.icon.node)
 }
-//Ant.prototype.CONSTANT = 1
+Ant.prototype.DECIDING = 0;
+Ant.prototype.SETTLED = 1;
+Ant.prototype.ON_PATH = 2;
 
 Ant.prototype.tick = function(){
-	console.log('taking a turn')
-	this.randomWalk()
+	if(this.stat == this.SETTLED)
+		return true; //we're done
+	
+	if(this.stat == this.DECIDING){ //pick a path
+		if(this.plan.length > 0){
+			this.path = this.plan.shift()
+			this.pathlen = edgeIcons[this.path][0].getTotalLength()
+			this.prog = 0
+			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
+			this.reverse = (this.island == currEdges[currEdges['keys'][this.path]].b.id)
+			this.stat = this.ON_PATH
+			console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+		}
+		else{
+			this.stat = this.SETTLED //stop moving
+			console.log(this.n, 'settled down at', currNodes[this.island].name)
+		}
+	}
+	
+	if(this.stat == this.ON_PATH){
+		this.walkPath()
+		// this.randomWalk()
+	}
+	
+	return false; //we're still going
 }
 
 Ant.prototype.walkPath = function(){
-	console.log('walking path')
+	this.prog += 5; //take a step (sizable)
+	if(this.prog < this.pathlen){ //if we're still on the path
+		if(this.reverse)
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
+		else
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
+	}
+	else{
+		if(this.reverse)
+			this.island = currEdges[currEdges['keys'][this.path]].a.id;
+		else
+			this.island = currEdges[currEdges['keys'][this.path]].b.id;
+		this.stat = this.DECIDING;
+	}
 }
 
 Ant.prototype.randomWalk = function(){
 	this.pos = {x:this.pos.x+(Math.random()*100-50), y:this.pos.y+(Math.random()*100-50)}
-	// this.icon.animate({'cx':this.pos.x, 'cy':this.pos.y})
-
-	// //ants[i].attr({'cx':pos.cx+(Math.random()>0.5?2:-2) , 'cy':pos.cy+(Math.random()>0.5?2:-2)})
-	// // ants[i].animate({'cx':pos.cx+(Math.random()*100-50) , 'cy':pos.cy+(Math.random()*100-50)},30)
 }
 
 
@@ -45,30 +86,37 @@ function animateAnts(paper, ants) {
 	//block out all the other interactions so that the user doesn't break things
 	var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
 
+	var d3nodes = d3.selectAll(ant_nodes)
 	var count = 0
 	animator = setInterval(function() {
 
+		var done = true
 		//raphael implementation
 		for(var i=0, len=ants.length; i<len; i++){
-			ants[i].tick() //do what they do!
-			ants[i].icon.animate({'cx':ants[i].pos.x, 'cy':ants[i].pos.y}) //do all the animations in here; can be replaced with d3
+			done = ants[i].tick() && done //do what they do!
+			ants[i].icon.attr({'cx':ants[i].pos.x, 'cy':ants[i].pos.y})
+			// ants[i].icon.animate({'cx':ants[i].pos.x, 'cy':ants[i].pos.y},10) //do all the animations in here; can be replaced with d3
 		}
 
-		//d3 implementation, for potentially smoother animation?
+		//d3 implementation, for potentially smoother animation? Doesn't seem to help much, as we're doing complex calculations.
 		// http://stackoverflow.com/questions/8239235/smoothly-animate-attribute-changes-to-3000-raphael-objects-at-once
 		// http://jsfiddle.net/ekMd6/
-		
+		// d3nodes
+		// 	.transition()
+		// 	.attr('cx', function(d,i){return ants[i].pos.x;})
+		// 	.attr('cy', function(d,i){return ants[i].pos.y;})
+		// 	.duration(1)
 
-		console.log('step',count)
+		console.log('step',count, done)
 		count += 1;
-		if(count > 50){
+		if(done || count > 500){
 			console.log('done animating')
 			clearInterval(animator);
-			for(var i=0, len=ants.length; i<len; i++)
-				ants[i].icon.remove()
+			// for(var i=0, len=ants.length; i<len; i++)
+			// 	ants[i].icon.remove()
 			block.remove()
 		}
-	}, 30);
+	}, 10);
 
 }
 

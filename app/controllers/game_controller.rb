@@ -55,7 +55,7 @@ class GameController < ApplicationController
     respond_to do |format|
       format.js do #respond to ajax calls
     
-        @game = Game.new(:width => @default_width, :height => @default_height, :edges => Hash.new(params[:edges])) #Just pass in all the params
+        @game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
         @result = @game.compare_to_expert.to_s
         @ants = @game.get_ants
         ### how many ants to make? 100 to start? function of how many islands/edges are in play?
