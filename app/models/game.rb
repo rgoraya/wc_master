@@ -1,4 +1,5 @@
 require 'matrix'
+require 'set'
 
 class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and stuff
 
@@ -32,7 +33,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     ISSUE_NAMES.each_with_index {|name, i| @nodes[i] = Graph::Node.new(i, name, "") unless name.blank? }
 
     #testing
-    #@edges.push(Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES))
+    #@edges[1] = Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES)
 
     @nodes[START].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
     grid_nodes_in_box(@nodes.reject{|k,v| k==START},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
@@ -41,13 +42,13 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   def show_expert_graph(num)
     ISSUE_NAMES.each_with_index {|name, i| @nodes[i] = Graph::Node.new(i, name, "") unless name.blank? }
     
-    EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges.push(Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES))) }
+    EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) }
     
     default_layout
   end
 
   def make_user_graph(edges)
-    puts "MAKING USER GRAPH FROM",edges.to_s
+    #puts "MAKING USER GRAPH FROM",edges.to_s
 
     @nodes[START] = Graph::Node.new(START,ISSUE_NAMES[START],"") #have at least the one node (Mehanad Population) to start with...
 
@@ -71,13 +72,16 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     edges.each do |key, edge|
       if key != 'keys'
         new_edge = Graph::Edge.new(edge[:id].to_i, @nodes[edge[:a][:id]], @nodes[edge[:b][:id]], edge[:reltype].to_i)
-        @edges.push(new_edge)
+        @edges[edge[:id].to_i] = new_edge
         @adjacency[ [edge[:a][:id]+1, edge[:b][:id]+1, (edge[:reltype].to_i == 1 ? 1 : -1)] ] = new_edge
       end
     end
     # puts @edges
     # puts @adjacency
 
+    correct = get_accuracy_matrix
+    @validity = Hash[*@edges.values.collect {|e| [e.id, correct[[e.a.id+1, e.b.id+1, (e.rel_type == 1 ? 1 : -1)]] ] }.flatten]
+    #puts @validity, @validity.values.inject(0, :+)
   end
 
 ##############################
@@ -87,12 +91,14 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   def compare_to_expert
     puts "compare_to_expert"
     
-    correct = make_accuracy_matrix #first-order matrix, should figure out how to get higher order ones (from path stuff?)
-    
-    score = 0 #total accuracy score
-    @adjacency.each do |key, value|
-      score += correct[key]
-    end
+    # correct = get_accuracy_matrix #first-order matrix, should figure out how to get higher order ones (from path stuff?)
+    # 
+    # score = 0 #total accuracy score
+    # @adjacency.each do |key, value|
+    #   score += correct[key]
+    # end
+
+    score = @validity.values.inject(0, :+)
     
     ## HOW DOES THIS GET CONVERTED INTO A 'PERCENTAGE' OF ANTS?
       ## assign an 'accuracy' to each edge (a percentage based on the score of that edge)
@@ -100,7 +106,6 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       ## that's the number of ants that make it across the edge?
         ## are we looking for a path, or trying to 'populate/colonize' the islands? Then we just have a single starting node
         ## might work as a demo. Then we can branch out.
-
 
     return score
   end
@@ -138,67 +143,46 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       ants.push(ant)
     end
     
-    edges_to_check = {}
-    # terms_to_check = {}
+    edges_to_check = Set.new
     edges_by_node = @nodes.merge(@nodes) {|k| []}
-    @edges.each do |edge|
-      edges_to_check[edge.id] = edge
-      # terms_to_check[edge.a.id] = edge.a
-      # terms_to_check[edge.b.id] = edge.b
-      edges_by_node[edge.a.id].push(edge.id)
-      edges_by_node[edge.b.id].push(edge.id)
+    @edges.each do |e_id, edge|
+      edges_to_check.add(e_id)
+      edges_by_node[edge.a.id].push(e_id)
+      edges_by_node[edge.b.id].push(e_id)
     end
-    # terms_to_check[START] = nil #we don't need to check the start node...
 
     journeys = [[START]] #last item of journey array is the current island
     journeys.each do |path| #go through each journey on the path      
       island = path[-1] #the last item is where we're moving from
       #grab all the edges connected to that path that are new or involve new terminals
       new_edge_ids = edges_by_node[island]
-      new_edge_ids.each do |id|
-        if edges_to_check[id] #or terms_to_check[ @edges[ne].a.id ] or terms_to_check[ @edges[ne].a.id ] #if new path to take
-          new_path = path[0...-1] + [id, (@edges[id].a.id == island ? @edges[id].b.id : @edges[id].a.id)]
+      new_edge_ids.each do |e_id|
+        if edges_to_check.include?(e_id) #if new path to take
+          new_path = path[0...-1] + [e_id, (@edges[e_id].a.id == island ? @edges[e_id].b.id : @edges[e_id].a.id)]
           # puts "new path",new_path.to_s
           journeys.push(new_path)
-          edges_to_check[id] = nil #remove from edges_to_check
+          edges_to_check.delete(e_id)
         end
       end
     end
 
-    puts 'journeys', journeys.to_s, 'length:'+journeys.length.to_s
     
     #check validity, and mark bad paths by maing them negative
     journeys.each do |path|
-      
-      
-      
+      path.slice!(-1) #remove the island from the path
+      path.each_with_index do |e_id,i|
+        if @validity[e_id] < 0 #if is not valid
+          path[i] *= -1
+          #path.slice!(i..-1) #remove the rest of the path, since we won't need it?
+        end
+      end
     end
-    
+
+    puts 'journeys: '+journeys.to_s, 'number of journeys: '+journeys.length.to_s    
 
     #divide the journeys among the ants
-    ants.each_with_index {|ant,i| ant.plan = journeys[(i+1)%journeys.length][0...-1];puts ant}
-    
-
-    ### give them a plan!!
-    
-    ##go through each "island" (which has a subset of the ants)
-      ## divide the ants in that island into groups based on the number of out-going edges (ignoring edges that ants have used to get here already?)
-      ## max 3 ants decide to "settle", unless there are no more paths to follow?
-      
-    
-    ## THIS IS THE CORRECT ANSWER
-    ## calculate all possible paths start from HOME with increasing distance, until our set of paths includes all the edges in the graph.
-      ## greedy so that we only get new paths that include new edges
-    ## divide up the ants by those paths (less the few that are going to take the '0' path)
-    ## that is the plan for each ant!
-    
-    
-
-    ## once each ant has a plan, check the validity of each edge to see if the ant dies or not, and then mark that edge as such (removing the following bits from the plan)
-    
-    
-
-
+    ants.each_with_index {|ant,i| ant.plan = journeys[(i+1)%journeys.length]}
+        
     #puts "ants we made", ants
     return ants
   end
@@ -212,7 +196,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 ################################
 
   #we could also hard-code this for a speed increase...
-  def make_accuracy_matrix
+  def get_accuracy_matrix
     matrix = Hash.new
 
     (1..ISSUE_NAMES.length).each do |i| #for every pair

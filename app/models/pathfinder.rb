@@ -24,7 +24,7 @@ class Pathfinder
 		result = Array.new()
 
 		graph.nodes.keys.each {|key| outgoing[key] = Hash.new() }
-		graph.edges.each do |edge|
+		graph.edges.values.each do |edge|
 			# Is it possible for any two issues to have multiple links
 			# between them?
 			outgoing[edge.a.id][edge.b.id] = edge		

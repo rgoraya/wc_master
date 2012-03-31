@@ -48,7 +48,7 @@ Ant.prototype.tick = function(){
 			this.pathlen = edgeIcons[this.path][0].getTotalLength()
 			this.prog = 0
 			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
-			this.reverse = (this.island == currEdges[currEdges['keys'][this.path]].b.id)
+			this.reverse = (this.island == currEdges[this.path].b.id)
 			this.stat = this.ON_PATH
 			console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
 		}
@@ -76,9 +76,9 @@ Ant.prototype.walkPath = function(){
 	}
 	else{
 		if(this.reverse)
-			this.island = currEdges[currEdges['keys'][this.path]].a.id;
+			this.island = currEdges[this.path].a.id;
 		else
-			this.island = currEdges[currEdges['keys'][this.path]].b.id;
+			this.island = currEdges[this.path].b.id;
 		this.stat = this.DECIDING;
 	}
 }

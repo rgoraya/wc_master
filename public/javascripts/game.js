@@ -156,6 +156,7 @@ var dragend = function (x,y,event)
 	now_dragging = null
 };
 
+var edge_count = 1
 
 //methods to control building via dragging
 var buildstart = function (x,y,event) 
@@ -209,19 +210,22 @@ var buildend = function (x,y,event)
 			//set up the edge
 			var edge = now_building.edge
 			edge.b = now_building.selected_node;
-			edge.id = currEdges['keys'].length; //give id that's just a count (1...n)
+			edge.id = edge_count
+			//edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n) //assign count and then increment
 			edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
-			var key = edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
+			var key = edge.id//edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
 
 			if(currEdges[key]){ //if edge already exists
 				edge.id = currEdges[key].id; //replace the old id
 				edgeIcons[edge.id].remove() //get rid of the old icon
 			}
 			else{
-				edge.id = currEdges['keys'].length; //give id that's just a count (1...n)
+				edge.id = edge_count
+				//edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n)
 				currEdges['keys'].push(key) //only push the key if this is a new edge (and so we need to add it to the list)
 			}
 			currEdges[key] = edge
+			edge_count += 1
 
 			//set up the icon
 			now_building.icon.remove() //remove our building icon
@@ -258,7 +262,7 @@ var buildend = function (x,y,event)
 };
 
 function destroyEdge(edge) {
-	var key = edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
+	var key = edge.id //edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
 	if(currEdges[key]){
 		//remove edge from list
 		for(var i=0, len=currEdges['keys'].length; i<len; i++){
@@ -278,7 +282,7 @@ function destroyEdge(edge) {
 }
 
 function swapEdge(e, new_reltype){
-	var key = e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
+	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]
 	edge.reltype = new_reltype
 	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
@@ -292,7 +296,7 @@ function swapEdge(e, new_reltype){
 	}
 	delete currEdges[key]
 	
-	var newkey = edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
+	var newkey = edge.id //edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
 	currEdges[newkey] = edge
 	currEdges['keys'].push(newkey) //add to list with new key
 

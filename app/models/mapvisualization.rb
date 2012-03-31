@@ -15,7 +15,7 @@ class Mapvisualization #< ActiveRecord::Base
     @width, @height = args[:width], args[:height]
     @compact_display = false
     @nodes = args[:nodes] || Hash.new()
-    @edges = args[:edges] || Array.new()
+    @edges = args[:edges] || Hash.new()
     @adjacency = args[:adjacency] || Hash.new(0)
 
   	# Build a Graph of Nodes
@@ -195,14 +195,14 @@ class Mapvisualization #< ActiveRecord::Base
   # generates a random graph
   def random_graph(node_count, edge_ratio)
     @nodes = Hash.new()
-    @edges = Array.new()
+    @edges = Hash.new()
     @adjacency = Hash.new(0)
     (1..node_count).each {|i| @nodes[i] = Graph::Node.new(i, "Node "+i.to_s, "myurl")} #make random nodes
     for i in (1..node_count)
       for j in (1..node_count) #edges in both directions, chance of 1 each way
         if(i!=j and rand() < edge_ratio) #make random edges
           rel_type = (rand()*10).ceil #get a random set of attributes (rel_type) for that edge
-          @edges.push(Graph::Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type))
+          @edges[j*node_count+i] = Graph::Edge.new(j*node_count+i, @nodes[i], @nodes[j], rel_type)
           @adjacency[[i,j]] += 1 #count the edge
         end
       end
@@ -212,7 +212,7 @@ class Mapvisualization #< ActiveRecord::Base
   # returns whether anything in this graph is highlighted or not.
   # version in helper currently being used
   def has_highlighted?(edgeset=@edges)
-    edgeset.find {|e| e.rel_type & MapvisualizationsHelper::HIGHLIGHTED != 0} != nil
+    edgeset.values.find {|e| e.rel_type & MapvisualizationsHelper::HIGHLIGHTED != 0} != nil
   end
 
   #places the static nodes at their desired locations
@@ -249,7 +249,7 @@ class Mapvisualization #< ActiveRecord::Base
     if nodeset.length > 0
       nodeset.each do |id, node| #build our groupings
         if !node.static
-          edgeset.each do |edge|
+          edgeset.values.each do |edge|
             # check if node is related to something in target_ids
             if (node == edge.a and target_ids.include? edge.b.id) # means that node points at target
               g = edge.rel_type & MapvisualizationsHelper::INCREASES != 0 ? 'inc_targ' : (edge.rel_type & 
@@ -399,7 +399,7 @@ class Mapvisualization #< ActiveRecord::Base
           end
         end
       end
-      for e in edgeset do #calc attractive forces
+      for e in edgeset.values do #calc attractive forces
         #only changes 1/conn (assuming 1 edge each direction)
         # if e.a.id < e.b.id or adjacency[[e.a.id,e.b.id]]+adjacency[[e.b.id,e.a.id]] < 2
           dist = e.a.location - e.b.location
@@ -440,7 +440,7 @@ class Mapvisualization #< ActiveRecord::Base
 
     #calculate shortest path distance (Floyd-Warshall); could be sped up using Johnson's Algorithm (if needed)
     @path_distance = Hash.new(0)
-    edgeset.each {|e| @path_distance[[e.a.id,e.b.id]] = @path_distance[[e.b.id,e.a.id]] = 1} #fill with L1 dist (non-directional)
+    edgeset.values.each {|e| @path_distance[[e.a.id,e.b.id]] = @path_distance[[e.b.id,e.a.id]] = 1} #fill with L1 dist (non-directional)
     for k,nk in nodeset
       for i,ni in nodeset
         for j,nj in nodeset
