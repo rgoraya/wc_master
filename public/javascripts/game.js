@@ -1,12 +1,5 @@
 /// THIS FILE CONTAINS THE JAVASCRIPT FOR THE GAME, OVERWRITING causemap_rjs AND mapvizualization_index WHERE APPROPRIATE
 
-/* Random NOTES
-//arrowhead svg
-<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-    <path id="arrow" fill="#090BAB" d="M 50,100 L 0,0 L 50,30 L 100,0" />
-</svg>
-*/
-
 var startBox;
 var now_building = null //the thing we're dragging
 var tooltip = null
@@ -156,7 +149,7 @@ var dragend = function (x,y,event)
 	now_dragging = null
 };
 
-var edge_count = 1
+var edge_count = 1 //edge number we're making
 
 //methods to control building via dragging
 var buildstart = function (x,y,event) 
@@ -447,7 +440,12 @@ function drawSelectors(edge, canvas_id){
 
 /*** AJAX SETUP ***/
 $(document).ready(function(){
+	$("#score_notice .closebutton").click(function(){
+		$("#score_notice").slideUp(100);
+	});
+	
 	$("#run_button").click(function(){
+		show_progress_message("loading...")
 		console.log("Run button was clicked!")
 		console.log('currEdges',currEdges)
 
@@ -462,7 +460,6 @@ $(document).ready(function(){
 	});
 
 });
-
 
 
 _textWrapp = function(t, width, max_length) {

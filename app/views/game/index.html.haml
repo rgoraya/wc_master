@@ -23,6 +23,12 @@
 
 #contentwrapper{:style => "margin-top:0px"}
   .contentmain
+    #score_notice
+      #score_content
+        Your score is: 999
+      .closebutton{:style=>"float:right;width:15px;position:relative;top:-10px"}
+        %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
+      .clearboth
     #vis_container{:style => "margin-top:0px"}
       #canvas_container
     .clearboth

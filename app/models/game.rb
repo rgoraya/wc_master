@@ -121,16 +121,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       "Ant("+@id.to_s+", "+@plan.to_s+")"
     end
   end
-	
-  # class Island
-  #   attr_accessor :id, :ants, :entries
-  #   def initialize(id)
-  #     @id = id
-  #     @ants = []
-  #     @entries = []
-  #     end
-  #   end 
-  
+
   # define all the ants that represent this game simulation!
   def get_ants
     puts "ANT FARM!"

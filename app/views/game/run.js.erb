@@ -1,3 +1,5 @@
+hide_progress_message()
+
 // console.log("run.js.erb called")
 console.log('Simulation results:','<%= escape_javascript(@result) %>')
 
@@ -73,7 +75,7 @@ Ant.prototype.tick = function(){
 }
 
 Ant.prototype.walkPath = function(){
-	this.prog += 5; //take a step (sizable)
+	this.prog += 10; //take a step (sizable)
 	if(this.prog < this.pathlen){ //if we're still on the path
 		if(this.reverse)
 			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
@@ -90,7 +92,7 @@ Ant.prototype.walkPath = function(){
 }
 
 Ant.prototype.wrongPath = function(){
-	this.prog += 5; //take a step (sizable)
+	this.prog += 10; //take a step (sizable)
 	if(this.prog*2 < this.pathlen){ //if we're less than halfway, walk as normal
 		if(this.reverse)
 			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
@@ -153,6 +155,11 @@ function animateAnts(paper, ants) {
 			clearInterval(animator);
 			// for(var i=0, len=ants.length; i<len; i++)
 			// 	ants[i].icon.remove()
+			
+			//show the score after animation is done (or before?)
+			$('#score_content').html('Your score: <%= escape_javascript(@result) %>');
+			$('#score_notice').toggle(true);
+			
 			block.remove()
 		}
 	}, 10);

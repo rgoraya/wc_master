@@ -58,15 +58,10 @@ class GameController < ApplicationController
         @game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
         @result = @game.compare_to_expert.to_s
         @ants = @game.get_ants
-        ### how many ants to make? 100 to start? function of how many islands/edges are in play?
-        ### how to build their schedules
-        ### their init_pos is the location of island 19.
         
-  
-        ## check to see how accurate these edges are compared to the game model
-          ## pass in the parameters to the model, which then constructs a new 'graph'?
-          ## and then write comparison methods from model to model? or just do a "compare to expert" method? I like that; and then can take the 'result' of that method and return it or something
-
+        # flash[:notice] = 'Your score: '+@result.to_s
+        
+        
       end
     end
   end
