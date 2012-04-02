@@ -149,7 +149,8 @@ var dragend = function (x,y,event)
 	now_dragging = null
 };
 
-var edge_count = 1 //edge number we're making
+// console.log(currEdges['keys'].length)
+var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
 
 //methods to control building via dragging
 var buildstart = function (x,y,event) 
