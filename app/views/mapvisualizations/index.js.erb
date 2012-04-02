@@ -17,3 +17,6 @@ $("#vis_effect_search_visible_input").val('<%= (@vis.effect_issue.nil? ? nil : @
 $("#effect_search_container #cause_id").val('<%= (@vis.cause_issue.nil? ? nil : @vis.cause_issue.id) %>');
 $("#effect_search_container #effect_id").val('<%= (@vis.effect_issue.nil? ? nil : @vis.effect_issue.id) %>');
 $("#effect_detail_fill").html('<%= escape_javascript(render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.effect_issue})) unless @vis.effect_issue.nil? %>');
+
+//hide the progress bar if we're showing it
+hide_progress_message()

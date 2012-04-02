@@ -44,9 +44,10 @@ module MapvisualizationsHelper
   # returns a string representing just the key of the edge
   # a unique key for the edge (A-B) => (AiehB) / (AdB) / (AsB), etc
   def js_edge_key(edge)
-      conn = edge.rel_type & INCREASES != 0 ? 'i' : (edge.rel_type & SUPERSET == 0 ? 'd' : 's')
-      conn += 'e'*(edge.expandable ? 1:0) + 'h'*[(edge.rel_type&HIGHLIGHTED),1].min
-      "'"+js_node_key(edge.a)+conn+js_node_key(edge.b)+"'"
+      # conn = edge.rel_type & INCREASES != 0 ? 'i' : (edge.rel_type & SUPERSET == 0 ? 'd' : 's')
+      # conn += 'e'*(edge.expandable ? 1:0) + 'h'*[(edge.rel_type&HIGHLIGHTED),1].min
+      # "'"+js_node_key(edge.a)+conn+js_node_key(edge.b)+"'"
+      edge.id.to_s
   end
 
   #helper method to print the nodes and edges as javascript arrays, now with empty-set handling!
@@ -63,15 +64,15 @@ module MapvisualizationsHelper
     end
     
     if edges.length > 0
-      multi_edge = Hash[edges.group_by {|e| [e.a.id,e.b.id].sort}.map {|k,v| [k,v.count]}] #number edges per nodepair
+      multi_edge = Hash[edges.values.group_by {|e| [e.a.id,e.b.id].sort}.map {|k,v| [k,v.count]}] #number edges per nodepair
 
       counters = Hash.new(0)
       out += "var "+edges_name+"={"+
-        edges.map {|e| es = [e.a.id,e.b.id].sort; js_edge(e,nodes_name, 
+        edges.values.map {|e| es = [e.a.id,e.b.id].sort; js_edge(e,nodes_name, 
           ((counters[es] += 1) == multi_edge[es] and multi_edge[es]%2==1) ? 0 : counters[es])
           #multi_edge[[e.a.id,e.b.id].sort] == 1 ? 0 : (counters[ [e.a.id,e.b.id].sort ] += 1)*(e.a.id < e.b.id ? 1 : -1))
           }.join(',')+
-        ",keys:["+ edges.map {|e| js_edge_key(e)} .join(',') +"]"+
+        ",keys:["+ edges.values.map {|e| js_edge_key(e)} .join(',') +"]"+
         "};"
     else
       out += "var "+edges_name+"={keys:[]};"
@@ -82,7 +83,7 @@ module MapvisualizationsHelper
 
   # asks the edges if any are highlighted?--here for ease of calling (could also be property of the Graph potentially)
   def has_highlighted?(edges)
-    edges.find {|e| e.rel_type & HIGHLIGHTED != 0} != nil
+    edges.values.find {|e| e.rel_type & HIGHLIGHTED != 0} != nil
   end
 
   #the code to setup raphael; defined here so separate from the drawing .js file (and can be dynamically generated)
