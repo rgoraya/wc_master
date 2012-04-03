@@ -49,7 +49,7 @@ function drawNode(node, paper){
 		.mousedown(function(e) {now_building = {start_node:node};})
 		.drag(buildmove, buildstart, buildend)
 
-		$(island.node).qtip(get_node_qtip(node)); //if we want a tooltip
+		$([island.node,txt.node]).qtip(get_node_qtip(node)); //if we want a tooltip
 		$(coast.node).qtip({
 			content:{text: 'Drag to create a path'},
 			position:{target: 'mouse',adjust: {y:4}},
