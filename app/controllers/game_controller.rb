@@ -1,11 +1,16 @@
 class GameController < ApplicationController
   layout "game_layout" #don't use normal headers and such for now...
 
+  @@DEFAULT_WIDTH = 900#900*1.0 #defaults
+  @@DEFAULT_HEIGHT = 600#675*1.0
+  # for large map, 900x900 looks good
+  @@DEFAULT_BORDER = 50
+
+
   def index
-    @default_width = 900#900*1.0 #defaults
-    @default_height = 600#675*1.0
-    # for large map, 900x900 looks good
-    @default_border = 50
+    @default_width = @@DEFAULT_WIDTH
+    @default_height = @@DEFAULT_HEIGHT
+    @default_border = @@DEFAULT_BORDER
     
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
@@ -16,11 +21,15 @@ class GameController < ApplicationController
     
     respond_to do |format|
       format.html do #on html calls
-        @vis = Game.new(:width => @default_width, :height => @default_height, :params => params) #Just pass in all the params
+        if params[:expert]
+          @vis = Game.new(:width => @default_width, :height => @default_height, :expert => params[:expert])
+        else
+          @vis = Game.new(:width => @default_width, :height => @default_height, :blank => true)
+        end
 
-        flash[:notice] = @vis.notice
-        
-        session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
+        # flash[:notice] = @vis.notice
+        # 
+        # session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
         return
       end
 
@@ -32,6 +41,31 @@ class GameController < ApplicationController
       end
     end
   end
+
+
+  def run #everything is handled as JS for this
+    @default_width = @@DEFAULT_WIDTH
+    @default_height = @@DEFAULT_HEIGHT
+    @default_border = @@DEFAULT_BORDER
+
+    # puts "**** RUNNING PARAMETERS ****"
+    # puts params
+    # puts params[:edges] ## this is the edges that the user created
+
+    respond_to do |format|
+      format.js do #respond to ajax calls
+    
+        @game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
+        @result = @game.compare_to_expert.to_s
+        @ants = @game.get_ants
+        
+        # flash[:notice] = 'Your score: '+@result.to_s
+        
+        
+      end
+    end
+  end
+
 
   #temporary
   def edge_qtip

@@ -191,6 +191,14 @@
 }
 
 
+/* tweak progress container to look good for us */
+#progress_container{
+	width: 100px;
+	margin-left: -60px;
+	background:#fff;
+}
+
+
 
 /*** 
  *** LAYOUT BUTTONS 

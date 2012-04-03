@@ -81,7 +81,7 @@ class Graph
 	def initialize
 		# Generates empty graph which can be filled later
 		@nodes = Hash.new()
-		@edges = Array.new()
+		@edges = Hash.new()
 		@sources = Array.new()
 
 		# Pathfinder tool and shortest distance placeholder
@@ -92,7 +92,7 @@ class Graph
 	def update_graph_contents(issues, relationships=nil, source_set=[])
 		# Clear existing nodes and edges, regenerate from input issues
 		@nodes = Hash.new()
-		@edges = Array.new()
+		@edges = Hash.new()
 		@layout_distances = Hash.new()
 		@sources = source_set
 
@@ -107,7 +107,7 @@ class Graph
 		# Build graph edges from relationships
 		relationships.each do |r|
 			type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
-			@edges.push(Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type))
+			@edges[r.id] = Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type)
 		end
 		
 	end
@@ -115,7 +115,7 @@ class Graph
 	def update_graph_contents_with_select_relationship(issues, relationships, source_set=[])
 		# Relationship-focused graph generation
 		@nodes = Hash.new()
-		@edges = Array.new()
+		@edges = Hash.new()
 		@layout_distances = Hash.new()
 		@sources = source_set
 
@@ -126,7 +126,7 @@ class Graph
 		connections.each do |r|
 			if relationships.include?(r.id)
 				type = Edge::RELTYPE_TO_BITMASK[r.relationship_type]
-				@edges.push(Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type))
+				@edges[r.id] = Edge.new(r.id, @nodes[r.cause_id], @nodes[r.issue_id], type)
 			end
 		end
 	end
@@ -165,7 +165,7 @@ class Graph
 			update_graph_contents_with_select_relationship(issues, relations.keys)
 
 			# Add nodes and edges to path
-			@edges.each {|edge| edge.edge_on_path = 1 }
+			@edges.values.each {|edge| edge.edge_on_path = 1 }
 			@nodes.values.each {|node| node.on_path = 1 }
 
 			# Return success
@@ -205,7 +205,7 @@ class Graph
 		vertices = @nodes.keys
 
 		vertices.each { |key| connections[key] = Hash.new() }
-		@edges.each do |edge| 
+		@edges.values.each do |edge| 
 			connections[edge.a.id][edge.b.id] = edge
 			connections[edge.b.id][edge.a.id] = Edge.new(-1*edge.id, @nodes[edge.b.id], @nodes[edge.a.id], edge.rel_type)
 		end

@@ -1,12 +1,5 @@
 /// THIS FILE CONTAINS THE JAVASCRIPT FOR THE GAME, OVERWRITING causemap_rjs AND mapvizualization_index WHERE APPROPRIATE
 
-/* Random NOTES
-//arrowhead svg
-<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-    <path id="arrow" fill="#090BAB" d="M 50,100 L 0,0 L 50,30 L 100,0" />
-</svg>
-*/
-
 var startBox;
 var now_building = null //the thing we're dragging
 var tooltip = null
@@ -98,6 +91,7 @@ function drawEdge(edge, paper){
 		return icon;
 }
 
+
 //methods to control dragging
 var dragstart = function (x,y,event) 
 {
@@ -145,7 +139,7 @@ var dragend = function (x,y,event)
 		var dots = drawDots(dragged_edges[i],curve,paper)
 		edgeIcons[dragged_edges[i].id].push(dots)
 		var center = getPathCenter(curve,-2)
-		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.1, 'stroke-width':0})
+		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
 		edgeIcons[dragged_edges[i].id].push(selector)
 		$(selector.node).qtip(get_edge_qtip(dragged_edges[i]))
 		// $([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
@@ -155,6 +149,8 @@ var dragend = function (x,y,event)
 	now_dragging = null
 };
 
+// console.log(currEdges['keys'].length)
+var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
 
 //methods to control building via dragging
 var buildstart = function (x,y,event) 
@@ -208,19 +204,22 @@ var buildend = function (x,y,event)
 			//set up the edge
 			var edge = now_building.edge
 			edge.b = now_building.selected_node;
-			edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n)
+			edge.id = edge_count
+			//edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n) //assign count and then increment
 			edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
-			var key = edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
+			var key = edge.id//edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
 
 			if(currEdges[key]){ //if edge already exists
 				edge.id = currEdges[key].id; //replace the old id
 				edgeIcons[edge.id].remove() //get rid of the old icon
 			}
 			else{
+				edge.id = edge_count
+				//edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n)
 				currEdges['keys'].push(key) //only push the key if this is a new edge (and so we need to add it to the list)
-				edge.id = currEdges['keys'].length; //give id that's just a count (1...n)
 			}
 			currEdges[key] = edge
+			edge_count += 1
 
 			//set up the icon
 			now_building.icon.remove() //remove our building icon
@@ -257,7 +256,7 @@ var buildend = function (x,y,event)
 };
 
 function destroyEdge(edge) {
-	var key = edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
+	var key = edge.id //edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
 	if(currEdges[key]){
 		//remove edge from list
 		for(var i=0, len=currEdges['keys'].length; i<len; i++){
@@ -277,9 +276,10 @@ function destroyEdge(edge) {
 }
 
 function swapEdge(e, new_reltype){
-	var key = e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
+	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]
 	edge.reltype = new_reltype
+	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 
 	//remove old edge&key from list
 	for(var i=0, len=currEdges['keys'].length; i<len; i++){
@@ -290,7 +290,7 @@ function swapEdge(e, new_reltype){
 	}
 	delete currEdges[key]
 	
-	var newkey = edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
+	var newkey = edge.id //edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
 	currEdges[newkey] = edge
 	currEdges['keys'].push(newkey) //add to list with new key
 
@@ -318,7 +318,7 @@ function get_node_qtip(node) {
 		}
 	};
 }
-
+//layout details for the small edge qtip
 function get_edge_qtip_small(edge) {
 	return {
 		content:{
@@ -334,7 +334,6 @@ function get_edge_qtip_small(edge) {
 		},
 	};	
 }
-
 //layout details for the edge qtip
 function get_edge_qtip(edge) {
 	var canvas_id = Math.random()
@@ -381,7 +380,6 @@ function get_edge_qtip(edge) {
 }
 
 var selector_canvases_drawn = [] //canvases we've drawn before
-
 function drawSelectors(edge, canvas_id){
 	// console.log('selector_canvas_'+canvas_id)
 	var canvas = new Raphael('selector_canvas_'+canvas_id, 40, 45) //the canvas to draw on
@@ -441,14 +439,38 @@ function drawSelectors(edge, canvas_id){
 }
 
 
-/**
- * adapted from
- * http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
- * @param t a raphael text shape
- * @param width - pixels to wrapp text width
- * modify t text adding new lines characters for wrapping it to given width.
- */
+/*** AJAX SETUP ***/
+$(document).ready(function(){
+	$("#score_notice .closebutton").click(function(){
+		$("#score_notice").slideUp(100);
+	});
+	
+	$("#run_button").click(function(){
+		show_progress_message("loading...")
+		console.log("Run button was clicked!")
+		console.log('currEdges',currEdges)
+
+		$.ajax({
+			type: 'POST',
+			url: '/game/run',
+			data: {'edges':currEdges},
+			// complete: function(data) {func(data);},
+			dataType: 'script'
+		});
+
+	});
+
+});
+
+
 _textWrapp = function(t, width, max_length) {
+	/**
+	 * adapted from
+	 * http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
+	 * @param t a raphael text shape
+	 * @param width - pixels to wrapp text width
+	 * modify t text adding new lines characters for wrapping it to given width.
+	 */
 		var wrapped = false;
     var content = t.attr("text");
     var abc="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

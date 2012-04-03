@@ -21,11 +21,17 @@ $(document).ready(function(){
 
 	$('#modal_container .btn_close').live('click', function(){
 		$('#modal_container').toggle(false);
-	})
+	});
 	$('#modal_container .modal_linkout').live('click', function(){
     $('#modal_container').toggle(false);
 		//should then execute the primarily bound function
-	})
+	});
+
+	$('#vis_cause_search_form, #vis_effect_search_form').submit(function() {
+		show_progress_message('loading...') //show progress message
+		//should also probably lock out the forms...
+	});
+	
 });
 
 
@@ -84,6 +90,8 @@ function position_modal(click_x,click_y) {
 //type is either 'issue' or 'relationship'; id is the id of the element
 function recenter(type, id){
 	console.log('recenter:', type, id)
+	show_progress_message('loading...') //show progress message
+	
 	cmd = 'goto_'+type
 	$.ajax({
 	  url: '/mapvisualizations',
