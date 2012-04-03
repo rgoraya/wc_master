@@ -6,11 +6,7 @@ class PagesController < ApplicationController
   end
 
   def contact
-		@feedback = FeedBack.new
-		
-		respond_to do |format|
-			format.html
-		end
+		redirect_to :controller => 'feed_backs', :action => 'new'
   end
 
   def about
