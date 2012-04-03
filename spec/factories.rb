@@ -12,6 +12,11 @@ FactoryGirl.define do
     short_url             "http://en.wikipedia..."
     description           "exampledescription"
   end
+
+  factory :comment do
+    content               "Comment number one"
+    relationship_id       1
+  end
   
   sequence :email do |n|
     "person#{n}@example.com"
