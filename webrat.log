@@ -266,3 +266,13 @@ REQUESTING PAGE: GET /issues with {} and HTTP headers {"HTTP_REFERER"=>"/"}
 REQUESTING PAGE: GET /relationships with {} and HTTP headers {"HTTP_REFERER"=>"/issues"}
 REQUESTING PAGE: GET /relationships with {} and HTTP headers {"HTTP_REFERER"=>"/relationships"}
 REQUESTING PAGE: GET /users/new with {} and HTTP headers {"HTTP_REFERER"=>"/relationships"}
+REQUESTING PAGE: GET / with {} and HTTP headers {}
+REQUESTING PAGE: GET /issues with {} and HTTP headers {"HTTP_REFERER"=>"/"}
+REQUESTING PAGE: GET /relationships with {} and HTTP headers {"HTTP_REFERER"=>"/issues"}
+REQUESTING PAGE: GET /relationships with {} and HTTP headers {"HTTP_REFERER"=>"/relationships"}
+REQUESTING PAGE: GET /users/new with {} and HTTP headers {"HTTP_REFERER"=>"/relationships"}
+REQUESTING PAGE: GET / with {} and HTTP headers {}
+REQUESTING PAGE: GET /issues with {} and HTTP headers {"HTTP_REFERER"=>"/"}
+REQUESTING PAGE: GET /relationships with {} and HTTP headers {"HTTP_REFERER"=>"/issues"}
+REQUESTING PAGE: GET /relationships with {} and HTTP headers {"HTTP_REFERER"=>"/relationships"}
+REQUESTING PAGE: GET /users/new with {} and HTTP headers {"HTTP_REFERER"=>"/relationships"}

@@ -1,36 +1,4 @@
 class UserSessionsController < ApplicationController
-  # GET /user_sessions
-  # GET /user_sessions.xml
-  def index
-    @user_sessions = UserSession.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @user_sessions }
-    end
-  end
-
-  # GET /user_sessions/1
-  # GET /user_sessions/1.xml
-  def show
-    @user_session = UserSession.find
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @user_session }
-    end
-  end
-
-  # GET /user_sessions/new
-  # GET /user_sessions/new.xml
-  def new
-  end
-
-  # GET /user_sessions/1/edit
-  def edit
-    @user_session = UserSession.find
-  end
-
   # POST /user_sessions
   # POST /user_sessions.xml
   def create

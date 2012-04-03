@@ -12,4 +12,8 @@ FactoryGirl.define do
     short_url             "http://en.wikipedia..."
     description           "exampledescription"
   end
+  
+  sequence :email do |n|
+    "person#{n}@example.com"
+  end
 end       
