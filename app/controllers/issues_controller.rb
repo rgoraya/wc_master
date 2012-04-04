@@ -290,8 +290,8 @@ require 'backports'
   # RESTFUL: ISSUE EDIT
   #-------------------------------------------------------------------
   def edit
-    @issue = Issue.find(params[:id])
     session[:return_to] ||= request.referer
+    redirect_to session[:return_to]
   end
 
   #-------------------------------------------------------------------
