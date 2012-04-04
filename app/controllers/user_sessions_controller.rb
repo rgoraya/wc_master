@@ -1,42 +1,4 @@
 class UserSessionsController < ApplicationController
-  # GET /user_sessions
-  # GET /user_sessions.xml
-  def index
-    @user_sessions = UserSession.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @user_sessions }
-    end
-  end
-
-  # GET /user_sessions/1
-  # GET /user_sessions/1.xml
-  def show
-    @user_session = UserSession.find
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @user_session }
-    end
-  end
-
-  # GET /user_sessions/new
-  # GET /user_sessions/new.xml
-  def new
-    @user_session = UserSession.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @user_session }
-    end
-  end
-
-  # GET /user_sessions/1/edit
-  def edit
-    @user_session = UserSession.find
-  end
-
   # POST /user_sessions
   # POST /user_sessions.xml
   def create
@@ -47,9 +9,7 @@ class UserSessionsController < ApplicationController
         format.html { redirect_to(:back, :notice => 'Login successful') }
         format.xml  { render :xml => @user_session, :status => :created, :location => @user_session }
       else
-        #format.html { render :action => "new" }
         format.html { redirect_to(:back, :notice => @user_session.errors.full_messages.join(", ")) }
-        #format.xml  { render :xml => @user_session.errors, :status => :unprocessable_entity }
       end
     end
   end

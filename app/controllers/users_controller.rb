@@ -1,6 +1,9 @@
 class UsersController < ApplicationController
   # GET /users
   # GET /users.xml
+  def index
+    redirect_to(issues_path)
+  end
 
 
   # GET /users/1

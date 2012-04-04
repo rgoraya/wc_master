@@ -13,7 +13,7 @@
     .clearboth
       
     .profile_stats_container.formcontentdiv
-      
+
       %div{:style=>"float:left; width:360px;"}
         
         %div.formheading{:style=>"font-size:18px;"}
@@ -34,31 +34,38 @@
           %div{:class=>"profile_stats_label"}
             Issues created
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'create', @user.id, nil]).map(&:item_id).uniq.count
+            %div{ :class => "issues_created" }
+              = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'create', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Issues removed
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'destroy', @user.id, nil]).map(&:item_id).uniq.count
+            %div{ :class => "issues_deleted" }
+              = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Issue', 'destroy', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Current issues
           %div{:class=>"profile_stats_value"}  
-            = @user.issues.count
+            %div{ :class => "current_issues" }
+              = @user.issues.count
           %div{:class=>"profile_stats_label"}
             Relations connected
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'create', @user.id, nil]).map(&:item_id).uniq.count
+            %div{ :class => "relations_connected" }
+              = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'create', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Relations deleted
           %div{:class=>"profile_stats_value"}  
-            = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'destroy', @user.id, nil]).map(&:item_id).uniq.count
+            %div{ :class => "relations_deleted" }
+              = Version.find(:all, :conditions=>['item_type=? AND event=? AND whodunnit=? AND reverted_from IS ?', 'Relationship', 'destroy', @user.id, nil]).map(&:item_id).uniq.count
           %div{:class=>"profile_stats_label"}
             Current relations
           %div{:class=>"profile_stats_value"}  
-            = @user.relationships.count
+            %div{ :class => "current_relations" }
+              = @user.relationships.count
           %div{:class=>"profile_stats_label"}
             References
           %div{:class=>"profile_stats_value"}  
-            = @user.references.count  
+            %div{ :class => "references" }
+              = @user.references.count  
         .clearboth
       
          
