@@ -209,8 +209,17 @@ var buildend = function (x,y,event)
 			edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 			var key = edge.id//edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
 
-			if(currEdges[key]){ //if edge already exists
-				edge.id = currEdges[key].id; //replace the old id
+			//go through edges and see if we already exist
+			var prev_id = -1
+			for(var i=0, len=currEdges['keys'].length; i<len; i++){
+				if(currEdges[currEdges['keys'][i]].name == edge.name){ //has same name should mean same edge, since standardized
+					prev_id = currEdges['keys'][i]
+					break;
+				}
+			}
+
+			if(prev_id >= 0){ //if edge already exists
+				edge.id = prev_id; //replace the old id
 				edgeIcons[edge.id].remove() //get rid of the old icon
 			}
 			else{
@@ -266,8 +275,27 @@ function destroyEdge(edge) {
 			}
 		}
 		delete currEdges[key]
-		
 		edgeIcons[edge.id].remove() //remove icon
+		
+		//de-arc other edges
+		var tounbend = [] //because could be more than 1
+		for(var i=0, len=currEdges['keys'].length; i<len; i++){
+			var e = currEdges[currEdges['keys'][i]]
+			if( (e.a == edge.a && e.b == edge.b) || (e.a == edge.b && e.b == edge.a) ) //find other edges with same terminals
+				tounbend.push(e)
+		}
+		for(var i=1, len=tounbend.length; i<=len; i++){
+			var e = tounbend[i-1], oldn = e.n
+			if(i==len) //if last guy
+				e.n = (i%2==0 ? i : 0) //then he gets 0 if even, number otherwise
+			else
+				e.n = i //give them their count
+			if(e.n != oldn) { //if our n changed
+				edgeIcons[e.id].remove()
+				edgeIcons[e.id] = drawEdge(e, paper)
+			}
+		}
+	
 	}
 	else
 		console.log('edge does not exist. PROBLEM.')
