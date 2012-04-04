@@ -1,5 +1,6 @@
 class Issue < ActiveRecord::Base
-
+  attr_accessible :title, :description, :wiki_url, :short_url,
+                  :relationships_count, :user_id 
 	has_paper_trail :on=>[:create, :destroy]
 
   # --------------------

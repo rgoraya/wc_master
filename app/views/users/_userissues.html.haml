@@ -1,11 +1,11 @@
-- content_for(:include_custom_stylesheet) do
+= content_for(:include_custom_stylesheet) do
   = stylesheet_link_tag "styles"
 
 %div{:id=>"issues_head"}
   
   .pageheading{:style=>"float:left; margin:16px 0px 20px -10px;"}
     %div{:class=>"search_container_appl",}
-      - form_tag user_path, :id=>"search_form", :method => 'get' do               
+      = form_tag user_path, :id=>"search_form", :method => 'get' do               
         = text_field_tag :search, params[:search], :align=>"top", :placeholder => "Search #{@user.username}'s issues &#8230;".html_safe, :autocomplete=>"off", :class=>"searchfield_appl"
         = submit_tag "", :name => nil, :class=>"search_appl_submit", :title=>"search"
                   
