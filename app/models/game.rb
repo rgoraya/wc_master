@@ -42,8 +42,6 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   def show_expert_graph(num)
     ISSUE_NAMES.each_with_index {|name, i| @nodes[i] = Graph::Node.new(i, name, "") unless name.blank? }
 
-    ISSUE_NAMES.each_with_index {|name, i| puts 'Sport fish health'+(i+1).to_s if name=='Sport fish health'}
-
     if(num=='master')
       matrix = get_accuracy_matrix # matrix is form [a,b,direction]=>rubric score
       matrix.each_with_index{|(key,value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (key[2] > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) if value > 0}
@@ -132,15 +130,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   # define all the ants that represent this game simulation!
   def get_ants
     puts "ANT FARM!"
-    ants = Array.new #ants could probably just be an array of hashes, since we don't yet need a full object...
-    
-    #make 100 ants
-    num_ants = 100
-    (0...num_ants).each do |i|
-      ant = Ant.new(i)
-      ants.push(ant)
-    end
-    
+            
     edges_to_check = Set.new
     edges_by_node = @nodes.merge(@nodes) {|k| []}
     @edges.each do |e_id, edge|
@@ -177,6 +167,14 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     end
 
     puts 'journeys: '+journeys.to_s, 'number of journeys: '+journeys.length.to_s    
+
+    #make how many ants?
+    ants = Array.new #ants could probably just be an array of hashes, since we don't yet need a full object...
+    num_ants = journeys.length #100
+    (0...num_ants).each do |i|
+      ant = Ant.new(i)
+      ants.push(ant)
+    end
 
     #divide the journeys among the ants
     ants.each_with_index {|ant,i| ant.plan = journeys[(i+1)%journeys.length]}

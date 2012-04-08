@@ -3,10 +3,17 @@ hide_progress_message()
 // console.log("run.js.erb called")
 console.log('Simulation results:','<%= escape_javascript(@result) %>')
 
-var ant_nodes = [] //this could probably be cleaner... oh well
-<%= javascript_ants %>
+var ant_nodes = [] //for the d3 animation version. This could probably be cleaner...
 
-console.log(my_ants)
+if(typeof my_ants !== 'undefined') {
+	console.log("clearing ants on second run")
+	for(var i=0, len=my_ants.length; i<len; i++)
+		my_ants[i].icon.remove()
+}
+var island_ants = {} //the islands the ants are on
+
+<%= javascript_ants %> //get the ants
+console.log('my_ants', my_ants)
 
 animateAnts(paper, my_ants)
 
@@ -24,6 +31,9 @@ function Ant(n,plan,island){
 	this.prog = 0
 	this.reverse = false
 	this.island = island
+	if(typeof island_ants[this.island]==='undefined')
+		island_ants[this.island] = {}
+	island_ants[this.island][this.n] = this.n //add to the island list on creation
 	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
 	this.icon = paper.circle(this.pos.x, this.pos.y,3)
 		.attr({'fill':'#0f0'})
@@ -53,11 +63,10 @@ Ant.prototype.tick = function(){
 			this.prog = 0
 			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
 			this.reverse = (this.island == currEdges[this.path].b.id)
-			console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+			// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
 		}
 		else{
-			this.stat = this.SETTLED //stop moving
-			console.log(this.n, 'settled down at', currNodes[this.island].name)
+			this.settleDown()
 		}
 	}
 	
@@ -83,10 +92,17 @@ Ant.prototype.walkPath = function(){
 			this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
 	}
 	else{
+		delete island_ants[this.island][this.n] //remove us from the last old island list
+
 		if(this.reverse)
 			this.island = currEdges[this.path].a.id;
 		else
 			this.island = currEdges[this.path].b.id;
+		
+		if(typeof island_ants[this.island]==='undefined')
+			island_ants[this.island] = {}
+		island_ants[this.island][this.n] = this.n //add to the island list when we get somewhere
+
 		this.stat = this.DECIDING;
 	}
 }
@@ -101,6 +117,7 @@ Ant.prototype.wrongPath = function(){
 	}
 	else{ //otherwise, get lost!
 		this.prog = 0
+		this.icon.attr({'fill':'#A63E3E'})
 		this.stat = this.GETTING_LOST
 	}
 }
@@ -109,10 +126,10 @@ Ant.prototype.getLost = function(){
 	this.prog += 1
 	if(this.prog%3==0){
 		this.randomWalk(4)
-		this.icon.attr({'opacity':1-(this.prog/60)})
+		this.icon.attr({'opacity':1-(this.prog/100)})
 	}	
 	else if(this.prog > 60){
-		this.icon.attr({'opacity':0}) //hide completely, but wait until we're removing all the ants to remove
+		this.icon.attr({'opacity':0.6}) //hide completely, but wait until we're removing all the ants to remove
 		this.icon.toBack()
 		this.stat = this.SETTLED
 	}
@@ -120,6 +137,13 @@ Ant.prototype.getLost = function(){
 
 Ant.prototype.randomWalk = function(step){
 	this.pos = {x:this.pos.x+(Math.random()*step*2-step), y:this.pos.y+(Math.random()*step*2-step)}
+}
+
+Ant.prototype.settleDown = function(){
+	this.stat = this.SETTLED //stop moving for future ticks	
+	this.pos = {x:currNodes[this.island].x+Math.random()*16-8, y:currNodes[this.island].y+Math.random()*16-8} 	
+	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y, 'fill':'#3CA03C'})
+	// console.log(this.n, 'settled down at', currNodes[this.island].name)
 }
 
 
@@ -130,6 +154,7 @@ function animateAnts(paper, ants) {
 
 	var d3nodes = d3.selectAll(ant_nodes)
 	var count = 0
+	
 	animator = setInterval(function() {
 
 		var done = true
@@ -162,6 +187,9 @@ function animateAnts(paper, ants) {
 			$('#score_notice').toggle(true);
 			
 			block.remove()
+			
+			// console.log('island_ants',island_ants) //not very helpful actually...
+			
 		}
 	}, 10);
 

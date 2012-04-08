@@ -121,11 +121,20 @@ var dragmove = function (dx,dy,x,y,event)
 		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
 		this.ox = dx;
 		this.oy = dy;		
-		
+				
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
 			var curve = getPath(dragged_edges[i]) //get new curve
 			edgeIcons[dragged_edges[i].id].attr({'path':curve})
+		}
+
+		if(typeof my_ants !== 'undefined') { //move the ants around as well, if they exist!
+			var ants_on_island = island_ants[now_dragging.node.id]
+			for(var ant_id in ants_on_island){
+				//hard-moving because we don't want to add transforms to the ants.
+				my_ants[ant_id].pos = {x:my_ants[ant_id].pos.x+trans_x, y:my_ants[ant_id].pos.y+trans_y}
+				my_ants[ant_id].icon.attr({'cx':my_ants[ant_id].pos.x, 'cy':my_ants[ant_id].pos.y})
+			}
 		}
 	}
 };
