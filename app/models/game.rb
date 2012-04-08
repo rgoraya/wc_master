@@ -35,7 +35,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #testing
     #@edges[1] = Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES)
 
-    @nodes[START].location = Vector[(@width-200)/2, @height/2] #pull out Samaki Population and center
+    @nodes[START].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
     grid_nodes_in_box(@nodes.reject{|k,v| k==START},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
   end
 
@@ -225,34 +225,34 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     ' ',
     'Demand for Livestock feed',
     'Demand for Omega-3 as a food supplement',
-    'Effort put into catching samaki',
+    'Effort put into catching menhaden',
     'El Nino',
     ' ',
-    'Lifespan of samaki',
+    'Lifespan of menhaden',
     'Management at the ecosystem level',
-    'Management of samaki catch',
+    'Management of menhaden catch',
     'Marine mammals',
-    'Samaki population',
+    'Menhaden population',
     'Dissolved oxygen levels',
     'Nutrients in the water',
     'Omega Corporation profits',
     'Predatory bird populations',
     'Public information to increase fish oil intake',
-    'Public worry about decrease of samaki',
-    'Reproduction rate of samaki',
+    'Public worry about decrease of menhaden',
+    'Reproduction rate of menhaden',
     'Sales price per unit catch',
     'Soybeans sales',
     'Sport fish health',
     'Sport fish populations',
     'Scientific speculation of overfishing',
-    'Samaki industry leaders\' claim of healthy fishery',
-    'Disagreement over samaki poplation health',
+    'Menhaden industry leaders\' claim of healthy fishery',
+    'Disagreement over menhaden poplation health',
     'Price of competing products (soybeans and vegetable oils)',
     'Reproduction rate per unit fish',
     'Production from international fish oil competitors',
     'Amount of sport fish caught',
     'Human population',
-    'Food eaten per fish (samaki)',
+    'Food eaten per fish (menhaden)',
   ]
 
   EXPERT_GRAPH_1 = { #group 1
