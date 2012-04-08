@@ -148,6 +148,10 @@ function getPath(edge)
 		var center = [(a.x+b.x)/2, (a.y+b.y)/2]
 		var normal = [center[1]-a.y, a.x-center[0]]
 		var scale = .3*Math.ceil(edge.n/2) //scale bend based on how many edges there are
+		//may need to invert scale if we have two edges going in the same direction
+		if(edge.n%2==0 && a.id < b.id || edge.n%2==1 && a.id > b.id)
+			scale = scale*-1
+
 		var control = [center[0]+scale*normal[0], center[1]+scale*normal[1]]
 		
 		// console.log("control",control)

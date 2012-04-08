@@ -41,10 +41,17 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
   def show_expert_graph(num)
     ISSUE_NAMES.each_with_index {|name, i| @nodes[i] = Graph::Node.new(i, name, "") unless name.blank? }
+
+    ISSUE_NAMES.each_with_index {|name, i| puts 'Sport fish health'+(i+1).to_s if name=='Sport fish health'}
+
+    if(num=='master')
+      matrix = get_accuracy_matrix # matrix is form [a,b,direction]=>rubric score
+      matrix.each_with_index{|(key,value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (key[2] > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) if value > 0}
+    else    
+      EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) }
+    end
     
-    EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) }
-    
-    default_layout
+    default_layout  
   end
 
   def make_user_graph(edges)
