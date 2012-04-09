@@ -113,7 +113,6 @@ Ant.prototype.getLost = function(){
 	}	
 	else if(this.prog > 60){
 		this.icon.attr({'opacity':0}) //hide completely, but wait until we're removing all the ants to remove
-		this.icon.toBack()
 		this.stat = this.SETTLED
 	}
 }

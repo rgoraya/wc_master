@@ -32,7 +32,7 @@ Wikicausality::Application.routes.draw do
   match 'contact' => 'pages#contact', :as => :contact
   
   resources :users
-  resources :user_sessions
+  resources :user_sessions, only: [:create, :update, :destroy]
   
   match '/relationships/page/:page', :controller => 'relationships', :action => 'index'
   resources :relationships

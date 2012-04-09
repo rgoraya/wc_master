@@ -49,7 +49,7 @@ function drawNode(node, paper){
 		.mousedown(function(e) {now_building = {start_node:node};})
 		.drag(buildmove, buildstart, buildend)
 
-		$([island.node,txt.node]).qtip(get_node_qtip(node)); //if we want a tooltip
+		$(island.node).qtip(get_node_qtip(node)); //if we want a tooltip
 		$(coast.node).qtip({
 			content:{text: 'Drag to create a path'},
 			position:{target: 'mouse',adjust: {y:4}},
@@ -219,7 +219,7 @@ var buildend = function (x,y,event)
 	if(now_building) {
 		if(now_building.selected_node){
 			//now_building.icon[0].toBack() //push the line to the back, to clean up display
-			
+
 			//set up the edge
 			var edge = now_building.edge
 			edge.b = now_building.selected_node;
@@ -304,7 +304,7 @@ function destroyEdge(edge) {
 		}
 		delete currEdges[key]
 		edgeIcons[edge.id].remove() //remove icon
-		
+
 		//de-arc other edges
 		var tounbend = [] //because could be more than 1
 		for(var i=0, len=currEdges['keys'].length; i<len; i++){
@@ -323,11 +323,11 @@ function destroyEdge(edge) {
 				edgeIcons[e.id] = drawEdge(e, paper)
 			}
 		}
-	
+
 	}
 	else
 		console.log('edge does not exist. PROBLEM.')
-	
+
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
 
