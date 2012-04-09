@@ -56,9 +56,9 @@ function drawNode(node, paper){
 			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
 		});
 
-		var data = ["drawNode",["node.id",node.id,"node.name",node.name,"node.x",node.x,"node.y",node.y,"node.url",node.url,"node.h",node.h].join(":")].join("|");	
-		console.log(data);
-		sendLog(data);
+		//var data = ["drawNode",["node.id",node.id,"node.name",node.name,"node.x",node.x,"node.y",node.y,"node.url",node.url,"node.h",node.h].join(":")].join("|");	
+		//console.log(data);
+		//sendLog(data);
 
 		return icon;  
 }
@@ -117,7 +117,7 @@ var dragstart = function (x,y,event)
 	}
 
 	var data = ["dragStart",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
-	console.log(data);
+	//console.log(data);
 	sendLog(data);
 };
 var dragmove = function (dx,dy,x,y,event) 
@@ -155,7 +155,7 @@ var dragend = function (x,y,event)
 	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
-	console.log(data);
+	//console.log(data);
 	sendLog(data);
 
 	//reset variables
@@ -181,7 +181,7 @@ var buildstart = function (x,y,event)
 	}
 
 	var data = ["buildStart",["start_node.id",now_building.start_node.id,"start_node.name",now_building.start_node.name,"edge.reltype",now_building.edge.reltype].join(":")].join("|");
-	console.log(data);
+	//console.log(data);
 	sendLog(data);
 
 };
@@ -280,7 +280,7 @@ var buildend = function (x,y,event)
 	}
 
 	var data = ["buildEnd",["edge.id",now_building.edge.id,"edge.name",now_building.edge.name,"edge.a",now_building.edge.a.id,"edge.b",now_building.edge.b.id,"edge.reltype",now_building.edge.reltype,"edge.expandable",now_building.edge.expandable,"edge.n", now_building.edge.n].join(":")].join("|");
-	console.log(data);
+	//console.log(data);
 	sendLog(data);
 
 	//reset variables
@@ -290,7 +290,7 @@ var buildend = function (x,y,event)
 function destroyEdge(edge) {
 
 	var data = ["destroyEdge",["edge.id",edge.id,"edge.name",edge.name,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n", edge.n].join(":")].join("|");
-	console.log(data);
+	//console.log(data);
 	sendLog(data);
 
 	var key = edge.id //edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
@@ -359,7 +359,7 @@ function swapEdge(e, new_reltype){
 	edgeIcons[edge.id] = drawEdge(edge,paper)
 
 	var data = ["swapEdge",["edge.id.before",idBefore,"edge.id.after",edge.id,"edge.reltype.before",reltypeBefore,"edge.reltype.after",edge.reltype,"edge.a",e.a.id,"edge.b",e.b.id,"edge.expandable",e.expandable,"edge.n",e.n].join(":")].join("|");
-	console.log(data);
+	//console.log(data);
 	sendLog(data);
 
 
@@ -505,10 +505,11 @@ function drawSelectors(edge, canvas_id){
 }
 
 function sendLog(info){
+	//console.log(time_stamp);
 	$.ajax({
 		type:'POST',
 		url:'/game/log',
-		data:{'data':info}
+		data:{'data':info, 'time_stamp':time_stamp}
 	});
 }
 

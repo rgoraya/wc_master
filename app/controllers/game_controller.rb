@@ -7,9 +7,14 @@ class GameController < ApplicationController
 
   @@DEFAULT_BORDER = 50
 
-	@@GAME_LOG = Logger.new("/home/duyet/Desktop/log.txt")
+	 File.new("/u/apps/production/wikicausality/shared/log/game_log.txt", "w") unless File.exist?("/u/apps/production/wikicausality/shared/log/game_log.txt") #path to log file
+			
+
+	@@GAME_LOG = Logger.new("/u/apps/production/wikicausality/shared/log/game_log.txt")
 
   def index
+
+		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
 
     @default_width = @@DEFAULT_WIDTH
     @default_height = @@DEFAULT_HEIGHT
@@ -70,7 +75,7 @@ class GameController < ApplicationController
   end
 
 	def log
-		@@GAME_LOG.info([session[:vis], DateTime.current.strftime("%Y%m%d%H%M%S%L"),params[:data],(current_user ? current_user.id : "nil")].join("|"))
+		@@GAME_LOG.info([params[:time_stamp], DateTime.current.strftime("%Y%m%d%H%M%S%L"),params[:data],(current_user ? current_user.id : "nil")].join("|"))
 		render :nothing => true
 	end
 
