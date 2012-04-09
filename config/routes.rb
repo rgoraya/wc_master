@@ -1,5 +1,7 @@
 Wikicausality::Application.routes.draw do
 
+	post 'game/log' => 'game#log'
+
   match '/signup', :to  => 'users#new' 
   match 'game/edge_qtip' => 'game#edge_qtip'
   match 'game/run' => 'game#run'
