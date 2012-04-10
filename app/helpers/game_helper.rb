@@ -40,11 +40,11 @@ module GameHelper
     correct.delete_if{|i,v| v.empty?}
     # puts "correct: "+correct.to_s
     
-    out = "var ring={"
+    out = "var yes={"
     correct.each_key do |i|
-      out += "#{i}:{"
+      out += "#{i-1}:{"
       correct[i].each_key do |j|
-        out += "#{j}:{"
+        out += "#{j-1}:{"
         correct[i][j].each do |k,v|
           out += "'#{k}':#{v},"
         end

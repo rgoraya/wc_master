@@ -8,6 +8,9 @@ var ant_nodes = [] //for the d3 animation version. This could probably be cleane
 
 var all_ants = <%= javascript_ants %> //get the ants from ruby atm
 var active_ants = all_ants.slice() //all ants are initially active
+// for(var i=0, len=all_ants.length; i<len; i++){
+// 	islands[all_ants[i].island].addAnt(all_ants[i])
+// }
 console.log('all_ants', all_ants)
 
 
@@ -27,7 +30,7 @@ function Ant(n,plan,island){
 	this.prog = 0
 	this.reverse = false
 	this.island = island
-	islands[island].addAnt(this)
+	islands[island].addAnt(this,false)
 	// if(typeof island_ants[this.island]==='undefined')
 	// 	island_ants[this.island] = {}
 	// island_ants[this.island][this.n] = this.n //add to the island list on creation
@@ -78,8 +81,8 @@ Ant.prototype.walkPath = function(){
 			this.island = currEdges[this.path].a.id;
 		else
 			this.island = currEdges[this.path].b.id;
-		islands[this.island].addAnt(this) //set our new island
-		this.stat = this.WAITING; //we've arrived, wait for next instruction
+		islands[this.island].addAnt(this,true) //set our new island (and we came from a journey)
+		// this.stat = this.WAITING; //we've arrived, wait for next instruction
 	}
 }
 
@@ -181,7 +184,7 @@ function startAnimation(paper) {
 
 		// console.log('step',count, done)
 		count += 1;
-		if(active_ants.length == 0 || count > 500){
+		if(active_ants.length == 0 || count > 100){
 			console.log('done animating at count',count)
 			clearInterval(animator);
 			

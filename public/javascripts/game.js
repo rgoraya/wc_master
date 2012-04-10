@@ -100,63 +100,101 @@ function Island(n,opt_degree){
 	this.degree = opt_degree //how many edges we WANT to have coming out of us...
 	this.bridges = []
 	this.ants = []
+	this.settled = []
 	this.node = currNodes[this.n]
 	this.icon = nodeIcons[this.n] //try to define
 	this.deploy_reset = 0
 }
 Island.prototype.tick = function(){
 	if(this.deploy_reset == 1){
-		this.deployAnt()
+		if(this.ants.length > 0) //only deploy if we actually have ants...
+			this.deployAnts()
 		this.deploy_reset = 0
 	}
 	this.deploy_reset += 1
 }
-Island.prototype.addAnt = function(ant){
-	this.ants.push(ant)
+Island.prototype.addAnt = function(ant,journeyed){
+	if(journeyed){ //if we got here after a trip, settle down
+		this.settled.push(ant)
+		ant.stat = ant.SETTLING_DOWN
+	}
+	else{ //otherwise wait for orders
+		this.ants.push(ant)
+		ant.stat = ant.WAITING
+	}
 	//anything else that needs to be done?
 }
 Island.prototype.spawnAnt = function(){
 	//create a new ant on this island
 }
-Island.prototype.deployAnt = function(){
-	// console.log('deploying ant')
-	//deploy an ant along an edge
-
-	var deployed = []
-	for(var i=0, len=this.ants.length; i<len; i++){
-		if(this.ants[i].stat == this.ants[i].WAITING) { //find first person who is waiting
-			var ant = this.ants[i]
-
-			if(ant.plan.length > 0){ //deploy along his plan
-				ant.path = ant.plan.shift()
-				if(ant.path < 0){
-					ant.path = -1*ant.path
-					ant.stat = ant.ON_WRONG_PATH
-				}
-				else{
-					ant.stat = ant.ON_PATH
-				}
-				ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
-				ant.prog = 0
-				//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
-				ant.reverse = (ant.island == currEdges[ant.path].b.id)
-				// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
-				
-				deployed.push(ant)
+Island.prototype.deployAnts = function(){ //deploy an ant along an edge
+	// console.log('deploying ants from',this)
+	
+	//on "deploy" stage, go through the bridges, and send 1 ant down each
+	for(var i=0, len=this.bridges.length; i<len; i++){ //go through the bridges
+		if(this.ants.length > 0){
+			var ant = this.ants.shift() //first waiting person
+			// console.log('deploying',ant, this.ants.length, 'left')
+			
+			var edge = currEdges[this.bridges[i]]
+			// console.log('checking',edge.a.id,edge.b.id,(edge.reltype ? 1 : -1))
+			if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid bridge
+				ant.stat = ant.ON_PATH
 			}
 			else{
-				ant.stat = ant.SETTLING_DOWN
+				ant.stat = ant.ON_WRONG_PATH
 			}
 			
-			//break; //stop looping
+			ant.path = this.bridges[i] //set them on the bridge!
+			ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
+			ant.prog = 0
+			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
+			ant.reverse = (ant.island == edge.b.id)
+			// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+
 		}
-		
+		else{
+			//cycle the bridge list for when we have more ants
+			
+			
+			break;
+		}
 	}
 
+	// for(var i=0, len=this.ants.length; i<len; i++){
+	// 	var ant = this.ants[i]
+	// 
+	// 	if(ant.plan.length > 0){ //deploy along his plan
+	// 		ant.path = ant.plan.shift()
+	// 		if(ant.path < 0){
+	// 			ant.path = -1*ant.path
+	// 			ant.stat = ant.ON_WRONG_PATH
+	// 		}
+	// 		else{
+	// 			ant.stat = ant.ON_PATH
+	// 		}
+	// 		ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
+	// 		ant.prog = 0
+	// 		//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
+	// 		ant.reverse = (ant.island == currEdges[ant.path].b.id)
+	// 		// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+	// 		
+	// 		deployed.push(ant)
+	// 	}
+	// 	else{
+	// 		this.settled.push(ant)
+	// 		deployed.push(ant) //to remove from the waiting list
+	// 		ant.stat = ant.SETTLING_DOWN
+	// 	}
+	// 	
+	// 	//break; //stop looping
+	// }
+
 	//remove the deployed ants from our island list
-	for(var i=0, len=deployed.length; i<len; i++){
-		this.ants.splice(this.ants.indexOf(deployed[i]),1)
-	}
+
+	// for(var i=0, len=deployed.length; i<len; i++){
+	// 	this.ants.splice(this.ants.indexOf(deployed[i]),1)
+	// }
 	
 
 	
@@ -173,6 +211,11 @@ Island.prototype.updatePos = function(dx,dy){ //moves the island (and all its an
 		//hard-moving because we don't want to add transforms to the ants
 		this.ants[i].pos = {x:this.ants[i].pos.x+dx, y:this.ants[i].pos.y+dy}
 		this.ants[i].icon.attr({'cx':this.ants[i].pos.x, 'cy':this.ants[i].pos.y})
+	}
+	for(var i=0, len=this.settled.length; i<len; i++){
+		//hard-moving because we don't want to add transforms to the ants
+		this.settled[i].pos = {x:this.settled[i].pos.x+dx, y:this.settled[i].pos.y+dy}
+		this.settled[i].icon.attr({'cx':this.settled[i].pos.x, 'cy':this.settled[i].pos.y})
 	}
 }
 
@@ -322,9 +365,13 @@ var buildend = function (x,y,event)
 				edge.id = edge_count
 				//edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n)
 				currEdges['keys'].push(key) //only push the key if this is a new edge (and so we need to add it to the list)
+
 			}
 			currEdges[key] = edge
 			edge_count += 1
+
+			islands[edge.a.id].updateEdges() //update the edges for the islands
+			islands[edge.b.id].updateEdges()
 
 			//set up the icon
 			now_building.icon.remove() //remove our building icon
@@ -371,6 +418,10 @@ function destroyEdge(edge) {
 			}
 		}
 		delete currEdges[key]
+		
+		islands[edge.a.id].updateEdges() //update the edges for the islands
+		islands[edge.b.id].updateEdges()
+		
 		edgeIcons[edge.id].remove() //remove icon
 
 		//de-arc other edges
@@ -571,8 +622,7 @@ $(document).ready(function(){
 	
 	$("#run_button").click(function(){
 		show_progress_message("loading...")
-		console.log("Run button was clicked!")
-		console.log('currEdges',currEdges)
+		console.log("Run button was clicked! (currEdges:",currEdges,")")
 
 		$.ajax({
 			type: 'POST',
