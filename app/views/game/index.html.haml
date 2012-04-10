@@ -11,11 +11,11 @@
 = javascript_include_tag "d3.v2.min.js"
 = javascript_include_tag "raphael-min-2.0.2.js" #for drawing
 = javascript_include_tag "thickbox-compressed.js"
-/= javascript_include_tag "raphael.blur.js"
 
 -# specifies the data that we're going to be working with in javascript
 :javascript
   #{javascript_graph(@vis.nodes,@vis.edges)}
+  #{javascript_correctness(@vis.correct)}
   //var notice_msg = "#{escape_javascript(flash[:notice])}";
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 :javascript
@@ -37,7 +37,7 @@
     #go_buttons
       %button{:id => 'run_button'}
         Run Simulation
-      %a{ :href => "/documents/samakiarticle.html?keepThis=true&TB_iframe=true&height=300&width=500", :title => "Samaki Rules", :class => "thickbox" }
+      %a{:href => "/documents/samakiarticle.html?keepThis=true&TB_iframe=true&height=300&width=500", :title => "Samaki Rules", :class => "thickbox"}
         %button{:id => 'read_article'}
           Read article
     #sidebar_container

@@ -44,6 +44,7 @@ Ant.prototype.SETTLED = 1;
 Ant.prototype.ON_PATH = 2;
 Ant.prototype.ON_WRONG_PATH = 3;
 Ant.prototype.GETTING_LOST = 4;
+Ant.prototype.SWIMMING = 5;
 
 Ant.prototype.tick = function(){
 	if(this.stat == this.SETTLED)
@@ -129,10 +130,18 @@ Ant.prototype.getLost = function(){
 		this.icon.attr({'opacity':1-(this.prog/100)})
 	}	
 	else if(this.prog > 60){
-		this.icon.attr({'opacity':0.6}) //hide completely, but wait until we're removing all the ants to remove
+		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
 		this.stat = this.SETTLED
 	}
+}
+
+Ant.prototype.pace = function(){
+
+}
+
+Ant.prototype.goSwimming = function(){
+
 }
 
 Ant.prototype.randomWalk = function(step){
@@ -145,6 +154,27 @@ Ant.prototype.settleDown = function(){
 	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y, 'fill':'#3CA03C'})
 	// console.log(this.n, 'settled down at', currNodes[this.island].name)
 }
+
+
+function Island(n,opt_degree){
+	this.n = n
+	this.degree = opt_degree //how many edges we WANT to have coming out of us...
+	this.bridges = []
+	this.ants = []
+	this.node = currNodes[this.n]
+	this.icon = nodeIcons[this.n]
+}
+Island.prototype.addAnt = function(ant){
+	//add an ant to the island (so ants can add themselves when they arrive)
+}
+Island.prototype.spawnAnt = function(){
+	//create a new ant on this island
+}
+Island.prototype.deployAnt = function(){
+	//deploy an ant along an edge
+}
+Island.prototype.updatePos = function(){dx,dy} //update the position based on the node/icon/etc (move collected ants)
+Island.prototype.updateEdges = function(){} //update the edges (brid)
 
 
 function animateAnts(paper, ants) {

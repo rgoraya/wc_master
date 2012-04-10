@@ -60,7 +60,7 @@ class GameController < ApplicationController
         @ants = @game.get_ants
         
         # flash[:notice] = 'Your score: '+@result.to_s
-        
+      
         
       end
     end
