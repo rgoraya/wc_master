@@ -22,6 +22,8 @@
   #{load_game_raphael}
 = javascript_include_tag "mapvisualization_index.js" #for interaction/ajax stuff
 = javascript_include_tag "game.js"
+:javascript
+  #{javascript_islands(@vis.nodes, @vis.optimal_degrees)}
 
 #contentwrapper{:style => "margin-top:0px"}
   .contentmain

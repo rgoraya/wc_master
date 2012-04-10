@@ -3,19 +3,15 @@ hide_progress_message()
 // console.log("run.js.erb called")
 console.log('Simulation results:','<%= escape_javascript(@result) %>')
 
+clearAllAnts()
 var ant_nodes = [] //for the d3 animation version. This could probably be cleaner...
 
-if(typeof my_ants !== 'undefined') {
-	console.log("clearing ants on second run")
-	for(var i=0, len=my_ants.length; i<len; i++)
-		my_ants[i].icon.remove()
-}
-var island_ants = {} //the islands the ants are on
+var all_ants = <%= javascript_ants %> //get the ants from ruby atm
+var active_ants = all_ants.slice() //all ants are initially active
+console.log('all_ants', all_ants)
 
-<%= javascript_ants %> //get the ants
-console.log('my_ants', my_ants)
 
-animateAnts(paper, my_ants)
+startAnimation(paper) //may not need to be a method...
 
 /***
 eventually move this all into the main .js file, for faster loading (?)
@@ -31,47 +27,31 @@ function Ant(n,plan,island){
 	this.prog = 0
 	this.reverse = false
 	this.island = island
-	if(typeof island_ants[this.island]==='undefined')
-		island_ants[this.island] = {}
-	island_ants[this.island][this.n] = this.n //add to the island list on creation
+	islands[island].addAnt(this)
+	// if(typeof island_ants[this.island]==='undefined')
+	// 	island_ants[this.island] = {}
+	// island_ants[this.island][this.n] = this.n //add to the island list on creation
 	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
 	this.icon = paper.circle(this.pos.x, this.pos.y,3)
 		.attr({'fill':'#0f0'})
 	ant_nodes.push(this.icon.node)
 }
+Ant.prototype.WAITING = 0;
 Ant.prototype.DECIDING = 0;
+Ant.prototype.DONE = 1;
 Ant.prototype.SETTLED = 1;
+Ant.prototype.DEAD = 1;
 Ant.prototype.ON_PATH = 2;
 Ant.prototype.ON_WRONG_PATH = 3;
 Ant.prototype.GETTING_LOST = 4;
-Ant.prototype.SWIMMING = 5;
+Ant.prototype.SETTLING_DOWN = 5;
+Ant.prototype.SWIMMING = 6;
 
 Ant.prototype.tick = function(){
-	if(this.stat == this.SETTLED)
-		return true; //we're done
-	
-	if(this.stat == this.DECIDING){ //pick a path
-		if(this.plan.length > 0){
-			this.path = this.plan.shift()
-			if(this.path < 0){
-				this.path = -1*this.path
-				this.stat = this.ON_WRONG_PATH
-			}
-			else{
-				this.stat = this.ON_PATH
-			}
-			this.pathlen = edgeIcons[this.path][0].getTotalLength()
-			this.prog = 0
-			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
-			this.reverse = (this.island == currEdges[this.path].b.id)
-			// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
-		}
-		else{
-			this.settleDown()
-		}
+	if(this.stat == this.WAITING){ //waiting for a path...
+		this.pace()
 	}
-	
-	if(this.stat == this.ON_PATH){
+	else if(this.stat == this.ON_PATH){
 		this.walkPath()
 	}
 	else if(this.stat == this.ON_WRONG_PATH){
@@ -80,8 +60,9 @@ Ant.prototype.tick = function(){
 	else if(this.stat == this.GETTING_LOST){
 		this.getLost()
 	}
-	
-	return false; //we're still going
+	else if(this.stat == this.SETTLING_DOWN){
+		this.settleDown()
+	}
 }
 
 Ant.prototype.walkPath = function(){
@@ -92,19 +73,13 @@ Ant.prototype.walkPath = function(){
 		else
 			this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
 	}
-	else{
-		delete island_ants[this.island][this.n] //remove us from the last old island list
-
+	else{ //we arrived
 		if(this.reverse)
 			this.island = currEdges[this.path].a.id;
 		else
 			this.island = currEdges[this.path].b.id;
-		
-		if(typeof island_ants[this.island]==='undefined')
-			island_ants[this.island] = {}
-		island_ants[this.island][this.n] = this.n //add to the island list when we get somewhere
-
-		this.stat = this.DECIDING;
+		islands[this.island].addAnt(this) //set our new island
+		this.stat = this.WAITING; //we've arrived, wait for next instruction
 	}
 }
 
@@ -130,9 +105,9 @@ Ant.prototype.getLost = function(){
 		this.icon.attr({'opacity':1-(this.prog/100)})
 	}	
 	else if(this.prog > 60){
+		this.stat = this.DEAD
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
-		this.stat = this.SETTLED
 	}
 }
 
@@ -149,50 +124,50 @@ Ant.prototype.randomWalk = function(step){
 }
 
 Ant.prototype.settleDown = function(){
-	this.stat = this.SETTLED //stop moving for future ticks	
+	this.stat = this.SETTLED //stop moving for future ticks
 	this.pos = {x:currNodes[this.island].x+Math.random()*16-8, y:currNodes[this.island].y+Math.random()*16-8} 	
 	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y, 'fill':'#3CA03C'})
-	// console.log(this.n, 'settled down at', currNodes[this.island].name)
+	//console.log(this.n, 'settled down at', currNodes[this.island].name)
 }
 
+//removes all the ants
+function clearAllAnts(){
+	if(typeof all_ants !== 'undefined') {
+		console.log("clearing ants on second run")
+		for(var i=0, len=all_ants.length; i<len; i++)
+			all_ants[i].icon.remove()
+	}
+}
 
-function Island(n,opt_degree){
-	this.n = n
-	this.degree = opt_degree //how many edges we WANT to have coming out of us...
-	this.bridges = []
-	this.ants = []
-	this.node = currNodes[this.n]
-	this.icon = nodeIcons[this.n]
-}
-Island.prototype.addAnt = function(ant){
-	//add an ant to the island (so ants can add themselves when they arrive)
-}
-Island.prototype.spawnAnt = function(){
-	//create a new ant on this island
-}
-Island.prototype.deployAnt = function(){
-	//deploy an ant along an edge
-}
-Island.prototype.updatePos = function(){dx,dy} //update the position based on the node/icon/etc (move collected ants)
-Island.prototype.updateEdges = function(){} //update the edges (brid)
-
-
-function animateAnts(paper, ants) {
-	console.log('drawing ants')
+function startAnimation(paper) {
+	console.log('starting animation')
+	console.log('anim islands',islands)
 	//block out all the other interactions so that the user doesn't break things
 	var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
 
-	var d3nodes = d3.selectAll(ant_nodes)
+	// var d3nodes = d3.selectAll(ant_nodes)
 	var count = 0
 	
 	animator = setInterval(function() {
 
-		var done = true
 		//raphael implementation
-		for(var i=0, len=ants.length; i<len; i++){
-			done = ants[i].tick() && done //do what they do!
-			ants[i].icon.attr({'cx':ants[i].pos.x, 'cy':ants[i].pos.y})
-			// ants[i].icon.animate({'cx':ants[i].pos.x, 'cy':ants[i].pos.y},10) //do all the animations in here; can be replaced with d3
+		for(key in islands){
+			islands[key].tick() //tick the islands, who spawn and deploy their ants
+		}
+
+		inactive = []
+		for(var i=0, len=active_ants.length; i<len; i++){
+			active_ants[i].tick() //do what they do!
+			active_ants[i].icon.attr({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y})
+			// active_ants[i].icon.animate({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y},10) //can be replaced with d3
+			if(active_ants[i].stat == active_ants[i].DONE || 
+				 active_ants[i].stat == active_ants[i].SETTLED || 
+				 active_ants[i].stat == active_ants[i].DEAD){ //if we're done, we shouldn't be in this list!
+				inactive.push(active_ants[i]) //prepare to drop anyone who is done
+			}
+		}
+		for(var i=0, len=inactive.length; i<len; i++){
+			active_ants.splice(active_ants.indexOf(inactive[i]),1)
 		}
 
 		//d3 implementation, for potentially smoother animation? Doesn't seem to help much, as we're doing complex calculations.
@@ -206,11 +181,9 @@ function animateAnts(paper, ants) {
 
 		// console.log('step',count, done)
 		count += 1;
-		if(done || count > 500){
-			console.log('done animating')
+		if(active_ants.length == 0 || count > 500){
+			console.log('done animating at count',count)
 			clearInterval(animator);
-			// for(var i=0, len=ants.length; i<len; i++)
-			// 	ants[i].icon.remove()
 			
 			//show the score after animation is done (or before?)
 			$('#score_content').html('Your score: <%= escape_javascript(@result) %>');
@@ -218,10 +191,13 @@ function animateAnts(paper, ants) {
 			
 			block.remove()
 			
+			console.log('#actives',active_ants.length)
+			
 			// console.log('island_ants',island_ants) //not very helpful actually...
+			//console.log('islands', islands)
 			
 		}
-	}, 10);
+	}, 30);
 
 }
 

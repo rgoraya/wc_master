@@ -19,11 +19,12 @@ module GameHelper
     	CANVAS_OFFSET = $(this.paper.canvas).parent().offset();
       drawInitGame(myPaper);
       drawElements(currNodes, currEdges, myPaper) //call draw on the nodes. These are the ones defined in the helper
+      initIslands()
     }"
   end
 
   def javascript_ants
-    out = "var my_ants=["
+    out = "["
     @ants.each {|ant| out += "new Ant(#{ant.id.to_s},#{ant.plan.to_s},#{ant.island.to_s}),"}
     out += "];"
     #puts out
@@ -36,9 +37,10 @@ module GameHelper
       correct[i] = correct[i].each_key{|j| correct[i][j] = correct[i][j].reject{|k,v| v <= 0}}
       correct[i].delete_if{|j,v| v.empty?}
     end
+    correct.delete_if{|i,v| v.empty?}
     # puts "correct: "+correct.to_s
     
-    out = "var yes={"
+    out = "var ring={"
     correct.each_key do |i|
       out += "#{i}:{"
       correct[i].each_key do |j|
@@ -46,31 +48,27 @@ module GameHelper
         correct[i][j].each do |k,v|
           out += "'#{k}':#{v},"
         end
+        out = out[0...-1]
         out += "},"
       end
+      out = out[0...-1]
       out += "},"
     end
+    out = out[0...-1]
+    out += "};"
+
+    puts out
+    return out
+  end
+
+  # is this its own method? or do we do this in javascript?
+  def javascript_islands(nodes, optimal_degrees)
+    out = "var islands={"
+    nodes.each_value {|node| out += "#{node.id}:new Island(#{node.id},#{optimal_degrees[node.id]}),"}
     out += "};"
 
     # puts out
     return out
   end
-
-  
-
-  # @nodes.each {|node| out += "new Island(#{node.id},#{})"}
-  # out = "var islands={"
-  # 
-  # 
-  # out += "};"
-  # 
-  # @edges.each do |edge|
-  #   #calculate how many edges
-  # 
-  # end
-  #   
-
-  #go through @nodes to output islands
-
 
 end

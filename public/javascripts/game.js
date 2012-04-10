@@ -91,6 +91,99 @@ function drawEdge(edge, paper){
 		return icon;
 }
 
+/**********************
+ *** ISLAND OBJECTS ***
+ **********************/
+
+function Island(n,opt_degree){
+	this.n = n
+	this.degree = opt_degree //how many edges we WANT to have coming out of us...
+	this.bridges = []
+	this.ants = []
+	this.node = currNodes[this.n]
+	this.icon = nodeIcons[this.n] //try to define
+	this.deploy_reset = 0
+}
+Island.prototype.tick = function(){
+	if(this.deploy_reset == 1){
+		this.deployAnt()
+		this.deploy_reset = 0
+	}
+	this.deploy_reset += 1
+}
+Island.prototype.addAnt = function(ant){
+	this.ants.push(ant)
+	//anything else that needs to be done?
+}
+Island.prototype.spawnAnt = function(){
+	//create a new ant on this island
+}
+Island.prototype.deployAnt = function(){
+	// console.log('deploying ant')
+	//deploy an ant along an edge
+
+	var deployed = []
+	for(var i=0, len=this.ants.length; i<len; i++){
+		if(this.ants[i].stat == this.ants[i].WAITING) { //find first person who is waiting
+			var ant = this.ants[i]
+
+			if(ant.plan.length > 0){ //deploy along his plan
+				ant.path = ant.plan.shift()
+				if(ant.path < 0){
+					ant.path = -1*ant.path
+					ant.stat = ant.ON_WRONG_PATH
+				}
+				else{
+					ant.stat = ant.ON_PATH
+				}
+				ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
+				ant.prog = 0
+				//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
+				ant.reverse = (ant.island == currEdges[ant.path].b.id)
+				// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+				
+				deployed.push(ant)
+			}
+			else{
+				ant.stat = ant.SETTLING_DOWN
+			}
+			
+			//break; //stop looping
+		}
+		
+	}
+
+	//remove the deployed ants from our island list
+	for(var i=0, len=deployed.length; i<len; i++){
+		this.ants.splice(this.ants.indexOf(deployed[i]),1)
+	}
+	
+
+	
+}
+Island.prototype.updateEdges = function(){
+	this.bridges = [] //just refreshes the bridges; probably faster and easier for the amount of times we need to do it
+	for(var i=0, len=currEdges['keys'].length; i<len; i++){
+		if(currEdges[currEdges['keys'][i]].a == this.node || currEdges[currEdges['keys'][i]].b == this.node)
+			this.bridges.push(currEdges[currEdges['keys'][i]].id)
+	}
+}
+Island.prototype.updatePos = function(dx,dy){ //moves the island (and all its ants) by [dx,dy]
+	for(var i=0, len=this.ants.length; i<len; i++){
+		//hard-moving because we don't want to add transforms to the ants
+		this.ants[i].pos = {x:this.ants[i].pos.x+dx, y:this.ants[i].pos.y+dy}
+		this.ants[i].icon.attr({'cx':this.ants[i].pos.x, 'cy':this.ants[i].pos.y})
+	}
+}
+
+function initIslands(){
+	for(i in islands){
+    islands[i].icon = nodeIcons[islands[i].n]; //add icons once they are drawn
+		islands[i].updateEdges()
+  }
+  // console.log('initialized', islands);
+}
+
 
 //methods to control dragging
 var dragstart = function (x,y,event) 
@@ -128,14 +221,8 @@ var dragmove = function (dx,dy,x,y,event)
 			edgeIcons[dragged_edges[i].id].attr({'path':curve})
 		}
 
-		if(typeof my_ants !== 'undefined') { //move the ants around as well, if they exist!
-			var ants_on_island = island_ants[now_dragging.node.id]
-			for(var ant_id in ants_on_island){
-				//hard-moving because we don't want to add transforms to the ants.
-				my_ants[ant_id].pos = {x:my_ants[ant_id].pos.x+trans_x, y:my_ants[ant_id].pos.y+trans_y}
-				my_ants[ant_id].icon.attr({'cx':my_ants[ant_id].pos.x, 'cy':my_ants[ant_id].pos.y})
-			}
-		}
+		//tell the island to update as well
+		islands[now_dragging.node.id].updatePos(trans_x,trans_y)
 	}
 };
 var dragend = function (x,y,event) 
