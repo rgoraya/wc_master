@@ -38,8 +38,14 @@ function drawNode(node, paper){
 		var txt = paper.text(node.x, node.y+T_OFF, content)
 		// _textWrapp(txt,80)
 
+		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
+		var house = paper.path(house_path).attr({
+			gradient: '0-#71695e-#52483a','stroke-width':0,'stroke-opacity':0
+		})
+		.insertBefore(island) //hide the house for now
+
 		var icon = paper.set()
-		.push(island,txt)
+		.push(island,txt,house)
 		.mouseover(function() {this.node.style.cursor='move';})//hoverNode(node)})
 		.mousedown(function(e) {now_dragging = {icon:icon, node:node};})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
@@ -47,7 +53,8 @@ function drawNode(node, paper){
 		icon.push(coast)
 		coast.mouseover(function() {this.node.style.cursor='crosshair';})
 		.mousedown(function(e) {now_building = {start_node:node};})
-		.drag(buildmove, buildstart, buildend)
+		.undrag()
+		coast.drag(buildmove, buildstart, buildend)
 
 		$([island.node,txt.node]).qtip(get_node_qtip(node)); //if we want a tooltip
 		$(coast.node).qtip({
@@ -104,28 +111,28 @@ function Island(n,opt_degree){
 	this.node = currNodes[this.n]
 	this.icon = nodeIcons[this.n] //try to define
 	this.deploy_reset = 0
+	this.activated = false
 }
 Island.prototype.tick = function(){
-	if(this.deploy_reset == 1){
-		if(this.ants.length > 0) //only deploy if we actually have ants...
-			this.deployAnts()
-		this.deploy_reset = 0
+	if(this.activated){
+		//spawn tickers
+
+		if(this.deploy_reset == 1){
+			if(this.ants.length > 0) //only deploy if we actually have ants...
+				this.deployAnts()
+			this.deploy_reset = 0
+		}
+		this.deploy_reset += 1
 	}
-	this.deploy_reset += 1
 }
-Island.prototype.addAnt = function(ant,journeyed){
-	if(journeyed){ //if we got here after a trip, settle down
-		this.settled.push(ant)
-		ant.stat = ant.SETTLING_DOWN
-	}
-	else{ //otherwise wait for orders
-		this.ants.push(ant)
-		ant.stat = ant.WAITING
-	}
-	//anything else that needs to be done?
+Island.prototype.activate = function(){
+	this.activated = true
+	this.icon[2].insertAfter(this.icon[0]) //hard-code move "house" after "island" to show
 }
 Island.prototype.spawnAnt = function(){
 	//create a new ant on this island
+	
+	
 }
 Island.prototype.deployAnts = function(){ //deploy an ant along an edge
 	// console.log('deploying ants from',this)
@@ -196,8 +203,21 @@ Island.prototype.deployAnts = function(){ //deploy an ant along an edge
 	// 	this.ants.splice(this.ants.indexOf(deployed[i]),1)
 	// }
 	
-
-	
+}
+Island.prototype.addAnt = function(ant,journeyed){
+	if(!this.activated) //we're ready to go now that we've been reached!
+		this.activate()
+	if(journeyed){ //if we got here after a trip, settle down
+		this.settled.push(ant)
+		ant.stat = ant.ARRIVED
+		ant.prog = 0
+	}
+	else{ //otherwise wait for orders
+		this.ants.push(ant)
+		ant.stat = ant.WAITING
+		ant.prog = 0
+	}
+	//anything else that needs to be done?
 }
 Island.prototype.updateEdges = function(){
 	this.bridges = [] //just refreshes the bridges; probably faster and easier for the amount of times we need to do it
@@ -207,21 +227,31 @@ Island.prototype.updateEdges = function(){
 	}
 }
 Island.prototype.updatePos = function(dx,dy){ //moves the island (and all its ants) by [dx,dy]
-	for(var i=0, len=this.ants.length; i<len; i++){
+	for(var i=0; i<this.ants.length; i++){
 		//hard-moving because we don't want to add transforms to the ants
 		this.ants[i].pos = {x:this.ants[i].pos.x+dx, y:this.ants[i].pos.y+dy}
 		this.ants[i].icon.attr({'cx':this.ants[i].pos.x, 'cy':this.ants[i].pos.y})
 	}
-	for(var i=0, len=this.settled.length; i<len; i++){
+	for(var i=0; i<this.settled.length; i++){
 		//hard-moving because we don't want to add transforms to the ants
+		// var ant = this.settled[i]
 		this.settled[i].pos = {x:this.settled[i].pos.x+dx, y:this.settled[i].pos.y+dy}
 		this.settled[i].icon.attr({'cx':this.settled[i].pos.x, 'cy':this.settled[i].pos.y})
 	}
+}
+Island.prototype.reset = function(){
+	this.ants = []
+	this.settled = []
+	this.activated = false
+	this.icon[2].insertBefore(this.icon[0]) //hard-code move "house" before "island" to hide (for next run)
 }
 
 function initIslands(){
 	for(i in islands){
     islands[i].icon = nodeIcons[islands[i].n]; //add icons once they are drawn
+		$([islands[i].icon[2].node]).data('island',i) //store the island in the node, so we can look up stuff about it in jquery
+		$([islands[i].icon[2].node]).qtip(get_house_qtip(islands[i]))
+		
 		islands[i].updateEdges()
   }
   // console.log('initialized', islands);
@@ -317,7 +347,7 @@ var buildmove = function (dx,dy,x,y,event)
 		for(var i=0, len=currNodes['keys'].length; i<len; i++){
 			var node = currNodes[currNodes['keys'][i]] //easy access
 			var icon = nodeIcons[node.id]
-			var bb = icon[2].getBBox() //compare to the bounding box of the circle currently
+			var bb = icon.getBBox() //compare to the bounding box of whole icon (circle is [4] atm)
 			if(	now_building.start_node != node &&
 					now_building.target_node.x > bb.x && now_building.target_node.x < bb.x+bb.width &&
 					now_building.target_node.y > bb.y && now_building.target_node.y < bb.y+bb.height ){ //if inside the bounding box
@@ -481,6 +511,28 @@ function get_node_qtip(node) {
 		content:{
 			text: '<div id="issue_qtip"><div class="formcontentdiv"><div class="heading">Concept: ' + 
 							node.name + '</div></div></div>'
+		},
+		position: {
+			// my: 'top center',  // Position my top left...
+			// at: 'bottom center', // at the bottom right of...
+			target: 'mouse',
+			adjust: {y:4}
+		},
+		style: {
+			classes: 'ui-tooltip-light ui-tooltip-shadow'
+		}
+	};
+}
+//layout details for the house qtip
+function get_house_qtip() {
+	return {
+		content:{
+			text: function(api){
+				var island = islands[$(this).data('island')]
+				return '<div class="house_descr"><b>'+island.settled.length+' Causlings</b> <br> have settled at concept <br>' 
+								+ '<i>'+island.node.name+'</i>'
+								+ '</div>';
+			}
 		},
 		position: {
 			// my: 'top center',  // Position my top left...

@@ -3,7 +3,7 @@ hide_progress_message()
 // console.log("run.js.erb called")
 console.log('Simulation results:','<%= escape_javascript(@result) %>')
 
-clearAllAnts()
+clearTheBoard()
 var ant_nodes = [] //for the d3 animation version. This could probably be cleaner...
 
 var all_ants = <%= javascript_ants %> //get the ants from ruby atm
@@ -31,27 +31,28 @@ function Ant(n,plan,island){
 	this.reverse = false
 	this.island = island
 	islands[island].addAnt(this,false)
-	// if(typeof island_ants[this.island]==='undefined')
-	// 	island_ants[this.island] = {}
-	// island_ants[this.island][this.n] = this.n //add to the island list on creation
 	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
 	this.icon = paper.circle(this.pos.x, this.pos.y,3)
 		.attr({'fill':'#0f0'})
 	ant_nodes.push(this.icon.node)
 }
 Ant.prototype.WAITING = 0;
-Ant.prototype.DECIDING = 0;
-Ant.prototype.DONE = 1;
-Ant.prototype.SETTLED = 1;
-Ant.prototype.DEAD = 1;
-Ant.prototype.ON_PATH = 2;
-Ant.prototype.ON_WRONG_PATH = 3;
-Ant.prototype.GETTING_LOST = 4;
-Ant.prototype.SETTLING_DOWN = 5;
-Ant.prototype.SWIMMING = 6;
+Ant.prototype.ON_PATH = 1;
+Ant.prototype.ON_WRONG_PATH = 2;
+Ant.prototype.GETTING_LOST = 3;
+Ant.prototype.SWIMMING = 4;
+Ant.prototype.ARRIVED = 5;
+Ant.prototype.GOING_HOME = 6;
+Ant.prototype.DANCING = 7;
+Ant.prototype.DONE = 8;
+Ant.prototype.SETTLED = 9;
+Ant.prototype.DEAD = 10;
 
 Ant.prototype.tick = function(){
-	if(this.stat == this.WAITING){ //waiting for a path...
+	if(this.stat == this.ARRIVED){
+		this.arrive()
+	}
+	else if(this.stat == this.WAITING){ //waiting for a path...
 		this.pace()
 	}
 	else if(this.stat == this.ON_PATH){
@@ -63,11 +64,13 @@ Ant.prototype.tick = function(){
 	else if(this.stat == this.GETTING_LOST){
 		this.getLost()
 	}
-	else if(this.stat == this.SETTLING_DOWN){
+	else if(this.stat == this.DANCING){
+		this.victoryDance()
+	}
+	else if(this.stat == this.GOING_HOME){
 		this.settleDown()
 	}
 }
-
 Ant.prototype.walkPath = function(){
 	this.prog += 10; //take a step (sizable)
 	if(this.prog < this.pathlen){ //if we're still on the path
@@ -81,11 +84,9 @@ Ant.prototype.walkPath = function(){
 			this.island = currEdges[this.path].a.id;
 		else
 			this.island = currEdges[this.path].b.id;
-		islands[this.island].addAnt(this,true) //set our new island (and we came from a journey)
-		// this.stat = this.WAITING; //we've arrived, wait for next instruction
+		islands[this.island].addAnt(this,true) //set our new island (and we came from a journey). That will set our status
 	}
 }
-
 Ant.prototype.wrongPath = function(){
 	this.prog += 10; //take a step (sizable)
 	if(this.prog*2 < this.pathlen){ //if we're less than halfway, walk as normal
@@ -95,12 +96,11 @@ Ant.prototype.wrongPath = function(){
 			this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
 	}
 	else{ //otherwise, get lost!
+		this.stat = this.GETTING_LOST
 		this.prog = 0
 		this.icon.attr({'fill':'#A63E3E'})
-		this.stat = this.GETTING_LOST
 	}
 }
-
 Ant.prototype.getLost = function(){
 	this.prog += 1
 	if(this.prog%3==0){
@@ -109,34 +109,66 @@ Ant.prototype.getLost = function(){
 	}	
 	else if(this.prog > 60){
 		this.stat = this.DEAD
+		this.prog = 0
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
 	}
 }
-
-Ant.prototype.pace = function(){
-
-}
-
-Ant.prototype.goSwimming = function(){
-
-}
-
 Ant.prototype.randomWalk = function(step){
 	this.pos = {x:this.pos.x+(Math.random()*step*2-step), y:this.pos.y+(Math.random()*step*2-step)}
 }
+Ant.prototype.pace = function(){
 
+}
+Ant.prototype.goSwimming = function(){
+
+}
+Ant.prototype.arrive = function(){
+	this.stat = this.DANCING //start dancing
+	this.prog = 0
+	this.icon.attr({'fill':'#3CA03C'});
+}
+Ant.prototype.victoryDance = function(){
+	this.prog += 1
+	if(this.prog > 45){
+		this.stat = this.GOING_HOME //settle down
+		this.prog = 0
+	}
+	else if(this.prog%20 < 10){
+		this.pos = {x:this.pos.x, y:this.pos.y-0.3} //bounce up
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+	else if(this.prog%20 < 20){
+		this.pos = {x:this.pos.x, y:this.pos.y+0.3} //bounce down
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+}
 Ant.prototype.settleDown = function(){
-	this.stat = this.SETTLED //stop moving for future ticks
-	this.pos = {x:currNodes[this.island].x+Math.random()*16-8, y:currNodes[this.island].y+Math.random()*16-8} 	
-	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y, 'fill':'#3CA03C'})
-	//console.log(this.n, 'settled down at', currNodes[this.island].name)
+	this.prog += 1
+	if(this.prog == 1)
+		this.icon.insertBefore(islands[this.island].icon[2]) //move the ant behind the house (currently #2)
+	if(this.prog <= 4){
+		var vx = .25*(currNodes[this.island].x - this.pos.x) //quarter of the distance to the center
+		var vy = .25*(currNodes[this.island].y - this.pos.y)
+		this.pos = {x:this.pos.x+vx, y:this.pos.y+vy}
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+	else{
+		this.stat = this.SETTLED //stop moving for future ticks
+		this.prog = 0
+		this.icon.insertBefore(islands[this.island].icon[3]) //move behind the coast to hide entirely
+		//console.log(this.n, 'settled down at', currNodes[this.island].name)
+	}
 }
 
 //removes all the ants
-function clearAllAnts(){
+function clearTheBoard(){
+	for(i in islands){ //reset the islands
+		islands[i].reset()
+	}
+	
 	if(typeof all_ants !== 'undefined') {
-		console.log("clearing ants on second run")
+		console.log("clearing ants on subsequent run")
 		for(var i=0, len=all_ants.length; i<len; i++)
 			all_ants[i].icon.remove()
 	}
@@ -146,7 +178,7 @@ function startAnimation(paper) {
 	console.log('starting animation')
 	console.log('anim islands',islands)
 	//block out all the other interactions so that the user doesn't break things
-	var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
+	//var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
 
 	// var d3nodes = d3.selectAll(ant_nodes)
 	var count = 0
@@ -192,7 +224,8 @@ function startAnimation(paper) {
 			$('#score_content').html('Your score: <%= escape_javascript(@result) %>');
 			$('#score_notice').toggle(true);
 			
-			block.remove()
+			if(typeof block !== 'undefined')
+				block.remove()
 			
 			console.log('#actives',active_ants.length)
 			
