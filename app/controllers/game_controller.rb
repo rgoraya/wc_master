@@ -57,7 +57,7 @@ class GameController < ApplicationController
     
         @game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
         @result = @game.compare_to_expert.to_s
-        @ants = @game.get_ants
+        #@ants = @game.get_ants
         
         # flash[:notice] = 'Your score: '+@result.to_s
       

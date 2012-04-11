@@ -106,23 +106,36 @@ function Island(n,opt_degree){
 	this.n = n
 	this.degree = opt_degree //how many edges we WANT to have coming out of us...
 	this.bridges = []
+	this.node = currNodes[this.n]
+	this.icon = nodeIcons[this.n] //try to define, though will likely get null
 	this.ants = []
 	this.settled = []
-	this.node = currNodes[this.n]
-	this.icon = nodeIcons[this.n] //try to define
-	this.deploy_reset = 0
+
+	//do we want two timers, or will just 1 do? (depends on whether we want to deploy immediately after spawn...)
+	this.spawn_timer = 0 
+	this.spawn_count = 0
+	this.deploy_timer = 0
 	this.activated = false
+	this.emptied = false
 }
 Island.prototype.tick = function(){
 	if(this.activated){
-		//spawn tickers
-
-		if(this.deploy_reset == 1){
-			if(this.ants.length > 0) //only deploy if we actually have ants...
-				this.deployAnts()
-			this.deploy_reset = 0
+		if(!this.emptied && this.spawn_timer == 31){
+			if(this.spawn_count < this.degree) //max spawning limit?
+				this.spawnAnt()
+			else
+				this.emptied = true
+			this.spawn_timer = 0
 		}
-		this.deploy_reset += 1
+		this.spawn_timer += 1
+
+		if(this.deploy_timer > 6){
+			if(this.ants.length > 0){ //only deploy if we actually have ants...
+				this.deployAnts()
+				this.deploy_timer = 0 //reset after we have deployed
+			}
+		}
+		this.deploy_timer += 1
 	}
 }
 Island.prototype.activate = function(){
@@ -130,9 +143,10 @@ Island.prototype.activate = function(){
 	this.icon[2].insertAfter(this.icon[0]) //hard-code move "house" after "island" to show
 }
 Island.prototype.spawnAnt = function(){
-	//create a new ant on this island
-	
-	
+	var ant = new Ant(all_ants.length, [], this.n); //create a new ant on this island
+	all_ants.push(ant)
+	active_ants.push(ant)
+	this.spawn_count += 1
 }
 Island.prototype.deployAnts = function(){ //deploy an ant along an edge
 	// console.log('deploying ants from',this)
@@ -145,10 +159,17 @@ Island.prototype.deployAnts = function(){ //deploy an ant along an edge
 			
 			var edge = currEdges[this.bridges[i]]
 			// console.log('checking',edge.a.id,edge.b.id,(edge.reltype ? 1 : -1))
-			if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid bridge
-				ant.stat = ant.ON_PATH
+			try{
+				if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid bridge
+					ant.stat = ant.ON_PATH
+				}
+				else{
+					// console.log('legit wrong path');
+					ant.stat = ant.ON_WRONG_PATH
+				}
 			}
-			else{
+			catch(err){ //has problem reading undefined directions; if we couldn't read the object, then it was wrong!
+				//console.log('error wrong path',edge.a.id, edge.b.id,(edge.reltype ? 1 : -1))
 				ant.stat = ant.ON_WRONG_PATH
 			}
 			
@@ -161,9 +182,7 @@ Island.prototype.deployAnts = function(){ //deploy an ant along an edge
 
 		}
 		else{
-			//cycle the bridge list for when we have more ants
-			
-			
+			this.bridges.push(this.bridges.splice(0,i))	//cycle the bridge list for when we have more ants
 			break;
 		}
 	}
@@ -222,8 +241,10 @@ Island.prototype.addAnt = function(ant,journeyed){
 Island.prototype.updateEdges = function(){
 	this.bridges = [] //just refreshes the bridges; probably faster and easier for the amount of times we need to do it
 	for(var i=0, len=currEdges['keys'].length; i<len; i++){
-		if(currEdges[currEdges['keys'][i]].a == this.node || currEdges[currEdges['keys'][i]].b == this.node)
+		if(currEdges[currEdges['keys'][i]].a == this.node || currEdges[currEdges['keys'][i]].b == this.node){
 			this.bridges.push(currEdges[currEdges['keys'][i]].id)
+			// console.log("adding",currEdges[currEdges['keys'][i]].id,"to bridges for",this,this.n)
+		}
 	}
 }
 Island.prototype.updatePos = function(dx,dy){ //moves the island (and all its ants) by [dx,dy]
@@ -240,9 +261,14 @@ Island.prototype.updatePos = function(dx,dy){ //moves the island (and all its an
 	}
 }
 Island.prototype.reset = function(){
+	this.updateEdges() //reset the edges
 	this.ants = []
 	this.settled = []
+	this.spawn_timer = 0 
+	this.spawn_count = 0
+	this.deploy_timer = 0
 	this.activated = false
+	this.emptied = false
 	this.icon[2].insertBefore(this.icon[0]) //hard-code move "house" before "island" to hide (for next run)
 }
 
