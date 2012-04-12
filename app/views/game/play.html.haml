@@ -6,19 +6,18 @@
   #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
 = javascript_include_tag "jquery.qtip.min.js"
-= javascript_include_tag "d3.v2.min.js"
+/= javascript_include_tag "d3.v2.min.js"
 = javascript_include_tag "raphael-min-2.0.2.js" #for drawing
 = javascript_include_tag "jquery.colorbox-min.js"
-/= javascript_include_tag "raphael.blur.js"
 :javascript 
   $(document).ready(function(){
     $(".colorbox_popup").colorbox({ width:850, height:600, speed:25 });
   });
 
--# specifies the data that we're going to be working with in javascript
+/ specifies the data that we're going to be working with in javascript
 :javascript
-  #{javascript_graph(@vis.nodes,@vis.edges)}
-  #{javascript_correctness(@vis.correct)}
+  #{javascript_graph(@game.nodes,@game.edges)}
+  #{javascript_correctness(@game.correct)}
   //var notice_msg = "#{escape_javascript(flash[:notice])}";
 = javascript_include_tag "causemap_rjs.js" #the draw code itself
 :javascript
@@ -26,7 +25,7 @@
 = javascript_include_tag "mapvisualization_index.js" #for interaction/ajax stuff
 = javascript_include_tag "game.js"
 :javascript
-  #{javascript_islands(@vis.nodes, @vis.optimal_degrees)}
+  #{javascript_islands(@game.nodes, @game.optimal_degrees)}
 
 #contentwrapper{:style => "margin-top:0px"}
   .contentmain
@@ -49,13 +48,7 @@
       %a{:href => "/documents/quickhelp.html", :title => "How to Play", :class => "colorbox_popup"}            
         %button{:id => 'quick_help'}
           Help
-
     #sidebar_container
-    #interaction{:style => (@verbose ? "" : "display:none")}
-    #debug{:style => (@verbose ? "" : "display:none")}
-      %b Hello world!
-
-
 .clearboth
 
 #tmp

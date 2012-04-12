@@ -6,7 +6,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   #constants
   START = 19
   
-  attr_accessor :correct, :optimal_degrees
+  attr_accessor :correct, :optimal_degrees, :home
   
   def initialize(args)
     puts "===game initialize args===" #debugging
@@ -20,6 +20,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   	@edges = @graph.edges
     @adjacency = Hash.new(nil)
     @correct = get_accuracy_matrix
+    @home = START
 
     if args[:blank]
       make_blank_graph
@@ -39,8 +40,8 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #testing
     #@edges[1] = Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES)
 
-    @nodes[START].location = Vector[(@width-200)/2, @height/2] #pull out Samaki Population and center
-    grid_nodes_in_box(@nodes.reject{|k,v| k==START},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
+    @nodes[@home].location = Vector[(@width-200)/2, @height/2] #pull out Samaki Population and center
+    grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
   end
 
   def show_expert_graph(num)
@@ -61,7 +62,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   def make_user_graph(edges)
     #puts "MAKING USER GRAPH FROM",edges.to_s
 
-    @nodes[START] = Graph::Node.new(START,ISSUE_NAMES[START],"") #have at least the one node (Mehanad Population) to start with...
+    @nodes[@home] = Graph::Node.new(@home,ISSUE_NAMES[@home],"") #have at least the one node (Mehanad Population) to start with...
 
     #construct the nodes
     edges.each do |key, edge|
@@ -124,7 +125,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 	  attr_accessor :id, :island, :plan
 		def initialize(n)
 		  @id = n
-		  @island = START
+		  @island = @home
 		  @plan = []
 	  end
 	  def to_s
@@ -144,7 +145,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       edges_by_node[edge.b.id].push(e_id)
     end
 
-    journeys = [[START]] #last item of journey array is the current island
+    journeys = [[@home]] #last item of journey array is the current island
     journeys.each do |path| #go through each journey on the path      
       island = path[-1] #the last item is where we're moving from
       #grab all the edges connected to that path that are new or involve new terminals

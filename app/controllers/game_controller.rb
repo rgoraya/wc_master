@@ -43,10 +43,14 @@ class GameController < ApplicationController
     respond_to do |format|
       format.html do #on html calls
         if params[:expert]
-          @vis = Game.new(:width => @default_width, :height => @default_height, :expert => params[:expert])
+          @game = Game.new(:width => @default_width, :height => @default_height, :expert => params[:expert])
         else
-          @vis = Game.new(:width => @default_width, :height => @default_height, :blank => true)
+          @game = Game.new(:width => @default_width, :height => @default_height, :blank => true)
         end
+
+        @home_island = @game.home
+        
+        puts "***** HOME ISLAND *****", @home_island
 
         # flash[:notice] = @vis.notice
         # 
@@ -76,7 +80,8 @@ class GameController < ApplicationController
     respond_to do |format|
       format.js do #respond to ajax calls
     
-        @game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
+        #@game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
+        
         #@result = @game.compare_to_expert.to_s
         #@ants = @game.get_ants
         
