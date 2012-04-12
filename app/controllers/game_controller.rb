@@ -7,10 +7,10 @@ class GameController < ApplicationController
 
   @@DEFAULT_BORDER = 50
 
-	 File.new("/u/apps/production/wikicausality/shared/log/game_log.txt", "w") unless File.exist?("/u/apps/production/wikicausality/shared/log/game_log.txt") #path to log file
-			
+  log_path = "log/game_log.txt"
+	File.new(log_path, "w") unless File.exist?(log_path)
 
-	@@GAME_LOG = Logger.new("/u/apps/production/wikicausality/shared/log/game_log.txt")
+	@@GAME_LOG = Logger.new(log_path)
 
   def index
 
