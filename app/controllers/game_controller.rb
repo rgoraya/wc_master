@@ -6,8 +6,10 @@ class GameController < ApplicationController
   # for large map, 900x900 looks good
   @@DEFAULT_BORDER = 50
 
-	 File.new("/Users/joel/code/causality/log/game_log.txt", "w") unless File.exist?("/Users/joel/code/causality/log/game_log.txt") #path to log file			
-  @@GAME_LOG = Logger.new("/Users/joel/code/causality/log/game_log.txt")
+  log_path = "log/game_log.txt"
+	File.new(log_path, "w") unless File.exist?(log_path)
+
+	@@GAME_LOG = Logger.new(log_path)
 
   def index
 
