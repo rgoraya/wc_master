@@ -63,11 +63,16 @@ function drawNode(node, paper){
 			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
 		});
 
+		//var data = ["drawNode",["node.id",node.id,"node.name",node.name,"node.x",node.x,"node.y",node.y,"node.url",node.url,"node.h",node.h].join(":")].join("|");	
+		//console.log(data);
+		//sendLog(data);
+
 		return icon;  
 }
 
 //details on drawing/laying out an edge (a single line/relationship)
 function drawEdge(edge, paper){
+
 		var a = edge.a;
 		var b = edge.b;
 
@@ -352,6 +357,10 @@ var dragstart = function (x,y,event)
 			}
 		}
 	}
+
+	var data = ["dragStart",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
 };
 var dragmove = function (dx,dy,x,y,event) 
 {
@@ -363,7 +372,7 @@ var dragmove = function (dx,dy,x,y,event)
 		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
 		this.ox = dx;
 		this.oy = dy;		
-				
+
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
 			var curve = getPath(dragged_edges[i]) //get new curve
@@ -375,7 +384,7 @@ var dragmove = function (dx,dy,x,y,event)
 	}
 };
 var dragend = function (x,y,event) 
-{	
+{
 	for(var i=0, len=dragged_edges.length; i<len; i++) //redraw the icons on the edges
 	{
 		var curve = getPath(dragged_edges[i]) //get new curve
@@ -389,6 +398,11 @@ var dragend = function (x,y,event)
 		$(selector.node).qtip(get_edge_qtip(dragged_edges[i]))
 		// $([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
 	}
+
+	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
+
 	//reset variables
 	dragged_edges = []
 	now_dragging = null
@@ -410,6 +424,11 @@ var buildstart = function (x,y,event)
 		this.ox = 0;
 		this.oy = 0;
 	}
+
+	var data = ["buildStart",["start_node.id",now_building.start_node.id,"start_node.name",now_building.start_node.name,"edge.reltype",now_building.edge.reltype].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
+
 };
 var buildmove = function (dx,dy,x,y,event) 
 {
@@ -509,11 +528,20 @@ var buildend = function (x,y,event)
 		}
 	}
 
+	var data = ["buildEnd",["edge.id",now_building.edge.id,"edge.name",now_building.edge.name,"edge.a",now_building.edge.a.id,"edge.b",now_building.edge.b.id,"edge.reltype",now_building.edge.reltype,"edge.expandable",now_building.edge.expandable,"edge.n", now_building.edge.n].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
+
 	//reset variables
 	now_building = null
 };
 
 function destroyEdge(edge) {
+
+	var data = ["destroyEdge",["edge.id",edge.id,"edge.name",edge.name,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n", edge.n].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
+
 	var key = edge.id //edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
 	if(currEdges[key]){
 		//remove edge from list
@@ -557,6 +585,11 @@ function destroyEdge(edge) {
 }
 
 function swapEdge(e, new_reltype){
+
+	var idBefore = e.id;
+	var reltypeBefore = e.reltype;
+
+
 	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]
 	edge.reltype = new_reltype
@@ -577,6 +610,11 @@ function swapEdge(e, new_reltype){
 
 	edgeIcons[edge.id].remove() //remove old icon
 	edgeIcons[edge.id] = drawEdge(edge,paper)
+
+	var data = ["swapEdge",["edge.id.before",idBefore,"edge.id.after",edge.id,"edge.reltype.before",reltypeBefore,"edge.reltype.after",edge.reltype,"edge.a",e.a.id,"edge.b",e.b.id,"edge.expandable",e.expandable,"edge.n",e.n].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
+
 
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
@@ -739,6 +777,15 @@ function drawSelectors(edge, canvas_id){
 		})
 		.mouseout(function() { this.g.remove() })
 		.click(function() {destroyEdge(edge);})
+}
+
+function sendLog(info){
+	//console.log(time_stamp);
+	$.ajax({
+		type:'POST',
+		url:'/game/log',
+		data:{'data':info, 'time_stamp':time_stamp}
+	});
 }
 
 

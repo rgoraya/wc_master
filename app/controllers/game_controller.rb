@@ -6,8 +6,13 @@ class GameController < ApplicationController
   # for large map, 900x900 looks good
   @@DEFAULT_BORDER = 50
 
+	 File.new("/Users/joel/code/causality/log/game_log.txt", "w") unless File.exist?("/Users/joel/code/causality/log/game_log.txt") #path to log file			
+  @@GAME_LOG = Logger.new("/Users/joel/code/causality/log/game_log.txt")
 
   def index
+
+		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
+
     @default_width = @@DEFAULT_WIDTH
     @default_height = @@DEFAULT_HEIGHT
     @default_border = @@DEFAULT_BORDER
@@ -66,6 +71,10 @@ class GameController < ApplicationController
     end
   end
 
+	def log
+		@@GAME_LOG.info([params[:time_stamp], DateTime.current.strftime("%Y%m%d%H%M%S%L"),params[:data],(current_user ? current_user.id : "nil")].join("|"))
+		render :nothing => true
+	end
 
   #temporary
   def edge_qtip

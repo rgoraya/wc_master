@@ -8,7 +8,9 @@ module GameHelper
     var EXPANDABLE = #{MapvisualizationsHelper::EXPANDABLE};
     var HIGHLIGHTED = #{MapvisualizationsHelper::HIGHLIGHTED};
 
-    var compact = false; //for compact drawing; can also pass as a variable if we want
+    var time_stamp = \"#{@time_stamp}\"
+
+    var compact = false //for compact drawing; can also pass as a variable if we want
     
     var myPaper, paper, paper_size;
     var CANVAS_OFFSET;
