@@ -1,7 +1,7 @@
 = stylesheet_link_tag "vis_style"
 = stylesheet_link_tag "game"
 = stylesheet_link_tag "jquery.qtip.min"
-= stylesheet_link_tag "thickbox"
+= stylesheet_link_tag "colorbox"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
   #vis_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
@@ -10,7 +10,12 @@
 = javascript_include_tag "jquery.qtip.min.js"
 = javascript_include_tag "d3.v2.min.js"
 = javascript_include_tag "raphael-min-2.0.2.js" #for drawing
-= javascript_include_tag "thickbox-compressed.js"
+= javascript_include_tag "jquery.colorbox-min.js"
+/= javascript_include_tag "raphael.blur.js"
+:javascript 
+  $(document).ready(function(){
+    $(".ajax").colorbox({ width:850, height:600 });
+  });
 
 -# specifies the data that we're going to be working with in javascript
 :javascript
@@ -39,7 +44,7 @@
     #go_buttons
       %button{:id => 'run_button'}
         Run Simulation
-      %a{:href => "/documents/samakiarticle.html?keepThis=true&TB_iframe=true&height=300&width=500", :title => "Samaki Rules", :class => "thickbox"}
+      %a{ :href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "ajax" }
         %button{:id => 'read_article'}
           Read article
     #sidebar_container
