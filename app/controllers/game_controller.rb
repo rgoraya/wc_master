@@ -7,7 +7,12 @@ class GameController < ApplicationController
 
   @@DEFAULT_BORDER = 50
 
-  log_path = "log/game_log.txt"
+	log_path = nil
+	if Rails.env.development?
+  	log_path = "log/game_log.txt"
+	elsif Rails.env.production?
+		log_path = "/u/apps/production/wikicausality/shared/log/game_log.txt"
+	end
 	File.new(log_path, "w") unless File.exist?(log_path)
 
 	@@GAME_LOG = Logger.new(log_path)
