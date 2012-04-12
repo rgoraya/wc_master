@@ -98,6 +98,56 @@ function drawEdge(edge, paper){
 		return icon;
 }
 
+//calculates the score based on current global variables; returns a "score" object as a result
+function getScoreBoard(){
+	var activated = 0
+	var total_islands = 0
+	for(i in islands){
+		if(islands[i].activated)
+			activated += 1
+		total_islands += 1
+	}
+
+	var settled = 0
+	var dead = 0
+	var total_ants = all_ants.length;
+	for(var i=0, len=all_ants.length; i<len; i++){
+		if(all_ants[i].stat == all_ants[i].SETTLED)
+			settled += 1
+		else if(all_ants[i].stat == all_ants[i].DEAD)
+			dead += 1
+	}
+
+	var rubric = 0
+	for(var i=0, len=currEdges['keys'].length; i<len; i++){
+		var edge = currEdges[currEdges['keys'][i]]
+		try{
+			if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid edge
+				rubric += yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]
+			}
+			else{
+				rubric += -0.5 //hard-code the penalty atm
+			}
+		}
+		catch(err){ //has problem reading undefined directions; if we couldn't read the object, then it was wrong!
+			rubric += -0.5
+		}
+	}
+
+	//hard-code the layout here...
+	var out = "<b><u>Game Results</u></b><br>"+
+		"<table class='scoreboard'>"+
+		"<tr><td class='item'>Islands visited:</td><td class='score'>"+activated+" ("+Math.round(100*activated/total_islands)+"%)</td></tr>"+
+		"<tr><td class='item'>Causlings settled:</td><td class='score'>"+settled+"</td></tr>"+
+		// ("+Math.round(100*settled/total_ants)+"%)
+		"<tr><td class='item'>Mortality rate:</td><td class='score'>"+Math.round(100*dead/total_ants)+"%</td></tr>"+
+		"<tr><td class='item'>Final score:</td><td class='score'>"+rubric+" pts.</td></tr>"+
+		"</table>"
+	
+	return out;
+}
+
+
 /**********************
  *** ISLAND OBJECTS ***
  **********************/

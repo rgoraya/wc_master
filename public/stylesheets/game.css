@@ -43,10 +43,10 @@
 }
 
 #score_notice {
-	font: normal 18px "lucida grande",tahoma,verdana,arial,sans-serif;
+	font: normal 16px "lucida grande",tahoma,verdana,arial,sans-serif;
 	display:none;
 	width:250px;
-	height:25px;
+	height:100px;
 	text-align:center;
 	color: #ffffff;
 	background-color:#434343;
@@ -60,7 +60,7 @@
 	z-index:2;
 	top: 3px; 
 	left: 50%;
-	margin-left: -110px;
+	margin-left: -140px;
 	/* shadows */
 	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
 	-moz-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 2px;
@@ -69,4 +69,21 @@
 }
 
 #score_content {
+}
+
+.scoreboard {
+	margin-left:auto;
+	margin-right:auto;
+	color: #ffffff;
+	border:0px;
+}
+
+.scoreboard .item{
+	text-align:right;
+}
+.scoreboard .score{
+	text-align:center;
+	padding-left:20px;
+	font-style: italic;
+	padding-right:20px;
 }

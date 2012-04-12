@@ -78,10 +78,17 @@ Ant.prototype.tick = function(){
 Ant.prototype.walkPath = function(){
 	this.prog += 10; //take a step (sizable)
 	if(this.prog < this.pathlen){ //if we're still on the path
-		if(this.reverse)
-			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
-		else
-			this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
+		try{
+			if(this.reverse)
+				this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
+			else
+				this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
+		}
+		catch(err){
+			this.stat = this.GETTING_LOST
+			this.prog = 0
+			this.icon.attr({'fill':'#A63E3E'})			
+		}
 	}
 	else{ //we arrived
 		if(this.reverse)
@@ -94,10 +101,17 @@ Ant.prototype.walkPath = function(){
 Ant.prototype.wrongPath = function(){
 	this.prog += 10; //take a step (sizable)
 	if(this.prog*2 < this.pathlen){ //if we're less than halfway, walk as normal
-		if(this.reverse)
-			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
-		else
-			this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
+		try{
+			if(this.reverse)
+				this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
+			else
+				this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
+		}
+		catch(err){
+			this.stat = this.GETTING_LOST
+			this.prog = 0
+			this.icon.attr({'fill':'#A63E3E'})			
+		}
 	}
 	else{ //otherwise, get lost!
 		this.stat = this.GETTING_LOST
@@ -261,13 +275,15 @@ function startAnimation(paper) {
 			clearInterval(animator);
 			
 			//show the score after animation is done (or before?)
-			$('#score_content').html('Your score: <%= escape_javascript(@result) %>');
+			var score_str = getScoreBoard();
+			$('#score_content').html(score_str);
 			$('#score_notice').toggle(true);
 			
 			if(typeof block !== 'undefined')
 				block.remove()
 			
 			console.log('#actives',active_ants.length)
+			
 			
 			//console.log('islands', islands)
 			
