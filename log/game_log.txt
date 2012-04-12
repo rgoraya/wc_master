@@ -1,0 +1,4 @@
+20120412155621053|20120412155623722|dragStart|node.id:19:node.name:Samaki population:node.x:400:node.y:350:node.url::node.h:0|nil
+20120412155621053|20120412155624910|dragEnd|node.id:19:node.name:Samaki population:node.x:377:node.y:364:node.url::node.h:0|nil
+20120412155621053|20120412155625655|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120412155621053|20120412155626736|buildEnd|edge.id:1:edge.name:Samaki population increases Algae Blooms/Dead Zones:edge.a:19:edge.b:0:edge.reltype:1:edge.expandable::edge.n:0|nil

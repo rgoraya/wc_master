@@ -17,7 +17,16 @@ class GameController < ApplicationController
 	@@GAME_LOG = Logger.new(log_path)
 
   def index
+    render 'welcome.html.haml'
+  end
 
+  def welcome
+  end
+
+  def article
+  end
+
+  def play
 		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
 
     @default_width = @@DEFAULT_WIDTH
@@ -86,6 +95,9 @@ class GameController < ApplicationController
   #temporary
   def edge_qtip
     render :partial => "edge_qtip", :content_type => 'text/html', :locals => {:edge => params[:edge]}
+  end
+
+  def research
   end
 
 end
