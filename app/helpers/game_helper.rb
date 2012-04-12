@@ -10,6 +10,7 @@ module GameHelper
 
     var time_stamp = \"#{@time_stamp}\";
     var HOME = #{@home_island};
+    var continuous = #{@continuous.to_s};
     
     var myPaper, paper, paper_size;
     var CANVAS_OFFSET;

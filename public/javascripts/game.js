@@ -5,10 +5,25 @@
  ***/
 var startBox; //the box where our islands start
 var now_building = null; //the thing we're dragging
+var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
 var selector_canvases_drawn = []; //canvases we've drawn before
 var all_ants = []; //all the ants (for tracking)
 var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
+var first_edge = true //if the (next) edge the first edge built?
+
+//timer constants
+var DEPLOY_TIME = 1
+var SPAWN_TIME = 4
+var PACE_TIME = 120 //should probably be more than 60 to get the right pacing effect
+if(continuous){
+	DEPLOY_TIME = 5
+	SPAWN_TIME = 100 //20
+	//make spawn time relatively quick, but pace time / deploy tim very slow? So an island spits out all its ants, wh then wait for appropriate bridges.
+	//but I want to be able to take a bridge as soon as it exists. Maybe building a bridge resets the deploy time count? That's glorious.
+	//
+	PACE_TIME = 120
+}
 
 
 /***
@@ -31,10 +46,11 @@ function Island(n,opt_degree){
 	this.deploy_timer = 0
 	this.activated = false
 	this.emptied = false
+	this.deploy_lock = [false,false,-1]
 }
 Island.prototype.tick = function(){
 	if(this.activated){
-		if(!this.emptied && this.spawn_timer == 31){
+		if(!this.emptied && this.spawn_timer >= SPAWN_TIME){
 			if(this.spawn_count < this.degree) //max spawning limit?
 				this.spawnAnt()
 			else
@@ -43,9 +59,12 @@ Island.prototype.tick = function(){
 		}
 		this.spawn_timer += 1
 
-		if(this.deploy_timer > 6){
-			if(this.ants.length > 0){ //only deploy if we actually have ants...
-				this.deployAnts()
+		if(this.deploy_timer > DEPLOY_TIME){
+			if(this.ants.length > 0 && this.bridges.length > 0){ //only deploy if we actually have ants and bridges to send them on
+				if(continuous)
+					this.deployOneAnt()
+				else
+					this.deployAnts()
 				this.deploy_timer = 0 //reset after we have deployed
 			}
 		}
@@ -62,7 +81,46 @@ Island.prototype.spawnAnt = function(){
 	active_ants.push(ant)
 	this.spawn_count += 1
 }
-Island.prototype.deployAnts = function(){ //deploy an ant along an edge
+Island.prototype.deployOneAnt = function(){ //deploy a single ant along an edge
+	// console.log('deploying ants from',this)
+
+	// this.deploy_lock[0] = true; //peterson's lock
+	// this.deploy_lock[2] = 1;
+	// while(this.deploy_lock[1] && this.deploy_lock[2] == 1){/*busy wait*/}
+	
+	var ant = this.ants.shift() //first waiting person
+	
+	var edge = currEdges[this.bridges[0]]
+	// console.log('checking',edge.a.id,edge.b.id,(edge.reltype ? 1 : -1))
+	try{
+		if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid bridge
+			ant.stat = ant.ON_PATH
+		}
+		else{
+			// console.log('legit wrong path');
+			ant.stat = ant.ON_WRONG_PATH
+		}
+	}
+	catch(err){ //has problem reading undefined directions; if we couldn't read the object, then it was wrong!
+		//console.log('error wrong path',edge.a.id, edge.b.id,(edge.reltype ? 1 : -1))
+		ant.stat = ant.ON_WRONG_PATH
+	}
+
+	ant.path = this.bridges[0] //set them on the bridge!
+	//console.log('error around here [',this.bridges.toString(), ']')
+	ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
+	ant.prog = 0
+	//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
+	ant.reverse = (ant.island == edge.b.id)
+	// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+		
+	//cycle the bridges for next launch
+	this.bridges = this.bridges.slice(1).concat(this.bridges.slice(0,1))
+
+	// this.deploy_lock[0] = false;
+
+}
+Island.prototype.deployAnts = function(){ //deploy ants along available edge
 	// console.log('deploying ants from',this)
 
 	//on "deploy" stage, go through the bridges, and send 1 ant down each
@@ -96,46 +154,11 @@ Island.prototype.deployAnts = function(){ //deploy an ant along an edge
 
 		}
 		else{
-			this.bridges.push(this.bridges.splice(0,i))	//cycle the bridge list for when we have more ants
+			this.bridges = this.bridges.slice(i).concat(this.bridges.slice(0,i))
+			//this.bridges.push(this.bridges.splice(0,i))	//cycle the bridge list for when we have more ants
 			break;
 		}
 	}
-
-	// for(var i=0, len=this.ants.length; i<len; i++){
-	// 	var ant = this.ants[i]
-	// 
-	// 	if(ant.plan.length > 0){ //deploy along his plan
-	// 		ant.path = ant.plan.shift()
-	// 		if(ant.path < 0){
-	// 			ant.path = -1*ant.path
-	// 			ant.stat = ant.ON_WRONG_PATH
-	// 		}
-	// 		else{
-	// 			ant.stat = ant.ON_PATH
-	// 		}
-	// 		ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
-	// 		ant.prog = 0
-	// 		//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
-	// 		ant.reverse = (ant.island == currEdges[ant.path].b.id)
-	// 		// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
-	// 		
-	// 		deployed.push(ant)
-	// 	}
-	// 	else{
-	// 		this.settled.push(ant)
-	// 		deployed.push(ant) //to remove from the waiting list
-	// 		ant.stat = ant.SETTLING_DOWN
-	// 	}
-	// 	
-	// 	//break; //stop looping
-	// }
-
-	//remove the deployed ants from our island list
-
-	// for(var i=0, len=deployed.length; i<len; i++){
-	// 	this.ants.splice(this.ants.indexOf(deployed[i]),1)
-	// }
-
 }
 Island.prototype.addAnt = function(ant,journeyed){
 	if(!this.activated) //we're ready to go now that we've been reached!
@@ -153,6 +176,13 @@ Island.prototype.addAnt = function(ant,journeyed){
 	//anything else that needs to be done?
 }
 Island.prototype.updateEdges = function(){
+	// this.deploy_lock[1] = true; //peterson's lock
+	// this.deploy_lock[2] = 0;
+	// while(this.deploy_lock[0] && this.deploy_lock[2] == 0){/*busy wait*/}
+
+	var old_bridges = this.bridges
+	// console.log('old_bridges [',old_bridges.toString(), ']')
+
 	this.bridges = [] //just refreshes the bridges; probably faster and easier for the amount of times we need to do it
 	for(var i=0, len=currEdges['keys'].length; i<len; i++){
 		if(currEdges[currEdges['keys'][i]].a == this.node || currEdges[currEdges['keys'][i]].b == this.node){
@@ -160,6 +190,16 @@ Island.prototype.updateEdges = function(){
 			// console.log("adding",currEdges[currEdges['keys'][i]].id,"to bridges for",this,this.n)
 		}
 	}
+
+	// console.log('before cycle [',this.bridges.toString(), ']')
+	if(old_bridges.length > 0){
+		var cycle = this.bridges.indexOf(old_bridges.slice(-1)[0]) //old last guy
+		if(cycle < 0)
+			cycle = this.bridges.indexOf(old_bridges[0])
+		this.bridges = this.bridges.slice(cycle+1).concat(this.bridges.slice(0,cycle+1))
+	}
+
+	// this.deploy_lock[1] = false
 }
 Island.prototype.updatePos = function(dx,dy){ //moves the island (and all its ants) by [dx,dy]
 	for(var i=0; i<this.ants.length; i++){
@@ -314,12 +354,12 @@ Ant.prototype.randomWalk = function(step){
 }
 Ant.prototype.pace = function(){
 	this.prog += 1
-	if(this.prog >= 120) { //give up threshold
+	if(this.prog >= PACE_TIME) { //give up threshold
 		this.stat = this.SWIMMING
 		this.prog = 0
 		this.icon.attr({'fill':'#A63E3E'})
 	}
-	if(this.prog%60 <= 15 || this.prog%60 > 45){
+	if(this.prog%PACE_TIME <= PACE_TIME/4 || this.prog%PACE_TIME > 3*PACE_TIME/4){
 		this.pos.x += -1 //pace left
 		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
 	}
@@ -402,6 +442,10 @@ function clearTheBoard(){
 		islands[i].reset()
 	}
 
+	islands[HOME].activate() //open the home island
+	islands[HOME].spawn_timer = SPAWN_TIME //first island begins spawning and deploying
+	islands[HOME].deploy_timer = DEPLOY_TIME-5
+
 	if(typeof all_ants !== 'undefined') {
 		console.log("clearing ants for subsequent run")
 		for(var i=0, len=all_ants.length; i<len; i++)
@@ -410,8 +454,6 @@ function clearTheBoard(){
 	//clear out the ants for next time
 	var all_ants = [];
 	var active_ants = [];
-
-	islands[HOME].activate() //open the home island
 }
 
 //starts animating!
@@ -419,7 +461,8 @@ function startAnimation(paper) {
 	console.log('starting animation')
 
 	//block out all the other interactions so that the user doesn't break things
-	//var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
+	if(!continuous)
+		var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
 
 	// var d3nodes = d3.selectAll(ant_nodes)
 	var count = 0
@@ -499,8 +542,8 @@ function drawInitGame(paper){
 //details on drawing/laying out a node
 function drawNode(node, paper){
 		var island_style = Math.floor(Math.random()*4)
-		var coast = paper.circle(node.x,node.y,20).attr({
-			'fill': '#b3eeee','stroke-width':0
+		var coast = paper.circle(node.x,node.y,21).attr({
+			'fill': 'r#b3eeee:85-#fff','stroke-width':0,'stroke-opacity':0 //#b3eeee - #3d5a9d
 		})
 		
 		var island = paper.path(ISLAND_PATHS[island_style]).attr({
@@ -712,9 +755,6 @@ var dragend = function (x,y,event)
 	now_dragging = null
 };
 
-// console.log(currEdges['keys'].length)
-var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
-
 //methods to control building via dragging
 var buildstart = function (x,y,event) 
 {
@@ -799,9 +839,6 @@ var buildend = function (x,y,event)
 			currEdges[key] = edge
 			edge_count += 1
 
-			islands[edge.a.id].updateEdges() //update the edges for the islands
-			islands[edge.b.id].updateEdges()
-
 			//set up the icon
 			now_building.icon.remove() //remove our building icon
 			edgeIcons[edge.id] = drawEdge(edge, paper) //redraw with the correct edge associated
@@ -826,6 +863,19 @@ var buildend = function (x,y,event)
 					edgeIcons[e.id] = drawEdge(e, paper)
 				}
 			}
+			
+			//if this is the first edge we've made in continous mode, start the game!!
+			if(first_edge && continuous){
+				//should probably alert the user with a pop-up
+				first_edge = false;
+				beginGame()
+			}
+
+			islands[edge.a.id].updateEdges() //update the edges for the islands -- AFTER we've cleared the board and launched the game
+			islands[edge.b.id].updateEdges()
+			islands[edge.a.id].deploy_timer = DEPLOY_TIME
+			islands[edge.b.id].deploy_timer = DEPLOY_TIME
+
 		}
 		else {
 			now_building.icon.remove() //remove the icon, cause we didn't select anything
