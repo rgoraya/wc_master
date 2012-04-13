@@ -8,7 +8,7 @@ class GameController < ApplicationController
   @@DEFAULT_BORDER = 50
 
 	log_path = nil
-	if Rails.env.development?
+	if (Rails.env.development? || Rails.env.test?)
   	log_path = "log/game_log.txt"
 	elsif Rails.env.production?
 		log_path = "/u/apps/production/wikicausality/shared/log/game_log.txt"
