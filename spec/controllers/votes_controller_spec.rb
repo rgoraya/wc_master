@@ -7,6 +7,7 @@ describe VotesController do
   end
 
   describe "GET index" do
+
     it "assigns all votes as @votes" do
       vote = Vote.create! valid_attributes
       get :index
@@ -38,6 +39,10 @@ describe VotesController do
   end
 
   describe "POST create" do
+    before(:each) do
+      FactoryGirl.create(:relationship)
+    end           
+
     describe "with valid params" do
       it "creates a new Vote" do
         expect {
@@ -109,6 +114,10 @@ describe VotesController do
   end
 
   describe "DELETE destroy" do
+    before(:each) do
+      FactoryGirl.create(:relationship)
+    end                
+
     it "destroys the requested vote" do
       vote = Vote.create! valid_attributes
       expect {
