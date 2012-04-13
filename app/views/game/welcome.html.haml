@@ -1,14 +1,23 @@
+:css
+  #container {background-color: #9dcec5}
+  
 #full
   #welcome_container
-    %a{:href => "#"}
-      %img#causlings_title{:alt => "", :src => "/images/game/Causlings.png"}/
-    %p#welcome_text
-      The whole population of Causlings is in dire need of your help! What the Jumping-Jiminy-Jamboree is a Causling, you ask? They're tiny island dwelling creatures who dream of visiting every island in the sea! Every island has a controlling concept each Causling wishes to explore. Problem is, none of them can swim! So they need you to build them bridges from island to island. Not just any bridges though! Causlings can only travel across
-      %strong causal bridges
-      that match
-      %strong the cause-and-effect relationship between islands
-      If the bridge does not match
-      %strong a true causal relationship
-      the Causlings may get lost and fall right off! They need your help to reach the corners of the sea they've dreamed of visiting for so long! Ready to make a whole population of Causling's dreams come true?
+    %img#causlings_title{:alt => "", :src => "/images/game/Causlings.png"}
+    #welcome_text_container
+      %p.welcome_text
+        The whole population of Causlings is in dire need of your help! What is a Causling, I hear you ask? They're tiny island-dwelling creatures who dream of visiting every island in the sea! Problem is, Causlings are totally incapable of swimming. So they need you to build them bridges from island to island.
+      %p.welcome_text
+        Every island the Causlings wish to explore has a 
+        %strong controlling concept
+        that defines that island.
+        And because Causlings are impeccably logical creatures, they are only able to travel across
+        %strong causal bridges
+        that match a true
+        %strong cause-and-effect relationship between islands.
+        If the bridge does not match a true causal relationship, the Causlings get lost and fall right off! 
+        %br
+      %p.welcome_text
+        The Causlings need your help to reach the islands of the sea they've dreamed of visiting for so long! Are you ready to make a whole population of Causling's dreams come true?
     %a#lets_go_button{:href => "/game/article"}
-      Let's go!
+      Learn about the Causlings' islands!

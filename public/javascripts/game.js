@@ -298,7 +298,7 @@ Ant.prototype.walkPath = function(){
 			else
 				this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
 		}
-		catch(err){
+		catch(err){ //this should include deleting and swapping the edge
 			this.stat = this.GETTING_LOST
 			this.prog = 0
 			this.icon.attr({'fill':'#A63E3E'})			
@@ -948,10 +948,8 @@ function destroyEdge(edge) {
 }
 
 function swapEdge(e, new_reltype){
-
 	var idBefore = e.id;
 	var reltypeBefore = e.reltype;
-
 
 	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]

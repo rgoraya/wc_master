@@ -91,31 +91,59 @@
 /**************************
  * INTRO AND INSTRUCTIONS *
  **************************/
- 
- #content {
- 	background-color: #9dcec5;
- }
 
- #welcome_container {
-	position: relative;
-	margin: 0 auto;
-	width: 1000px;
+#causlings_title {
+	margin-top: 40px;
+	width: 900px;
+}
+ 
+#welcome_container {
+	width: 900px;
 	background-color: #9dcec5;
 }
 
-#welcome_text {
-	background-color: rgb(250, 248, 229);
+#welcome_text_container {
+	background-color: rgb(250, 248, 229);	
 	color: rgb(115,133,140);
 	font-family: sans-serif;
 	font-size: 1 em;
 	line-height: 2em;
 	padding: 20px;
-	margin-bottom: 40px;
+	margin-bottom:20px;
+	text-align:left;
+}
+
+.welcome_text strong {
+	font-weight:900;
+	font-size: 1.1em;
+	text-decoration: underline;
+}
+
+#article {
+	background-color: rgb(250, 248, 229);
+	padding-bottom: 30px;
+}
+
+#article p {
+	width: 840px;
+	margin: 0 auto;
+	margin-bottom: 1em;
+	background-color: rgb(250, 248, 229);
+	color: rgb(115,133,140);
+	font-family: sans-serif;
+	font-size: 1 em;
+/*	line-height: 2em;*/
+	text-align: left;
+}
+
+#article .title {
+	text-align: center;
+	font-weight: bold;
 }
 
 #lets_go_button {
 width:165px;
-height:23px;
+height:35px;
 display:block;
 font-family:Arial, "Helvetica", sans-serif;
 font-size:12px;
@@ -164,7 +192,7 @@ box-shadow: inset 0px 1px 0px #2ab7ec, 0px 2px 0px 0px #07526e, 0px 5px 3px #999
 #lets_go_button:before {
 content:" ";
 width:35px;
-height:25px;
+height:37px;
 display:block;
 position:absolute;
 padding-top:10px;
@@ -284,29 +312,4 @@ top:-3px;
 -moz-box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 -o-box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
-}
-
-
-#causlings_title {
-	margin-top: 40px;
-}
-
-#article {
-	background-color: rgb(250, 248, 229);
-}
-
-#article p {
-	width: 840px;
-	margin: 0 auto;
-	background-color: rgb(250, 248, 229);
-	color: rgb(115,133,140);
-	font-family: sans-serif;
-	font-size: 1 em;
-	line-height: 2em;
-	text-align: left;
-}
-
-#article .title {
-	text-align: center;
-	font-weight: bold;
 }
