@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe IssuesController do
   before do
-    @issue = Issue.find_by_title('Electricity')
+    @issue = FactoryGirl.create(:issue)
   end
   
   it "redirects to the issue on successful save" do
@@ -24,7 +24,7 @@ end
 
 describe "When I show an issue" do
   before(:each) do 
-    @issue = Issue.find_by_title('Electricity')
+    @issue = FactoryGirl.create(:issue)
   end
 
   it "should show its causes" do

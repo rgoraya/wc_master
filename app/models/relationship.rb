@@ -1,12 +1,10 @@
 class Relationship < ActiveRecord::Base
   
-  # relationships have an owner
   belongs_to :user
   
   belongs_to :issue
   belongs_to :cause,  :class_name => 'Issue', :foreign_key => 'cause_id'
 
-  # has many references and comments
   has_many :references
 	has_many :comments
 
@@ -27,9 +25,10 @@ class Relationship < ActiveRecord::Base
 
   # validate uniqueness of the combination of Issue_ID, Cause_ID and Relationship_type
   validates :issue_id, :presence => true, :uniqueness => {:scope => [:cause_id, :relationship_type]}
+  validate :issue_different_to_cause
 
   # validate that issues cannot be cause/effect of themselves
-  def validate
+  def issue_different_to_cause
     errors.add_to_base('Cannot be a cause/effect of itself!') if issue_id == cause_id 
   end
 

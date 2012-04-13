@@ -28,7 +28,8 @@ describe IssuesController do
 
     describe "failure" do
       before(:each) do
-        @attr = Issue.find_by_title('Electricity').attributes.merge!( :title => "", :wiki_url => "" ) 
+        @issue = FactoryGirl.create(:issue)
+        @attr = @issue.attributes.merge!( :title => "", :wiki_url => "" ) 
       end                         
 
       it "should not create an issue" do
@@ -53,18 +54,20 @@ describe IssuesController do
   end
 
   describe "DELETE 'destroy'" do
+    before(:each) do
+      @issue = FactoryGirl.create(:issue)
+    end
     it "should destroy the issue" do
-      lambda do
-        @issue = Issue.find_by_title("Electricity") 
-        @issue.destroy
-      end.should change(Issue, :count).by(-1)
+      issues_count = Issue.count
+      @issue.destroy
+      Issue.count.should == (issues_count-1)
     end
   end
 
 
   describe "When I show an issue" do
     before(:each) do 
-      @issue = Issue.find_by_title('Electricity')
+      @issue = FactoryGirl.create(:issue)
     end
 
     it "should show its causes" do
