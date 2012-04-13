@@ -15,14 +15,11 @@ var first_edge = true //if the (next) edge the first edge built?
 //timer constants
 var DEPLOY_TIME = 1
 var SPAWN_TIME = 4
-var PACE_TIME = 120 //should probably be more than 60 to get the right pacing effect
-if(continuous){
-	DEPLOY_TIME = 5
-	SPAWN_TIME = 100 //20
-	//make spawn time relatively quick, but pace time / deploy tim very slow? So an island spits out all its ants, wh then wait for appropriate bridges.
-	//but I want to be able to take a bridge as soon as it exists. Maybe building a bridge resets the deploy time count? That's glorious.
-	//
-	PACE_TIME = 120
+var PACE_TIME = 120
+if(continuous){ //currently sort of fast, can slow down as we test
+	DEPLOY_TIME = 100 
+	SPAWN_TIME = 15
+	PACE_TIME = 330
 }
 
 
@@ -354,28 +351,40 @@ Ant.prototype.randomWalk = function(step){
 }
 Ant.prototype.pace = function(){
 	this.prog += 1
-	if(this.prog >= PACE_TIME) { //give up threshold
+	//short delay
+	if(this.prog == 5)
+		this.plan = Math.random()*360 //initial spot on the circle stored in plan
+	else if(this.prog >= PACE_TIME) { //give up threshold
 		this.stat = this.SWIMMING
 		this.prog = 0
 		this.icon.attr({'fill':'#A63E3E'})
 	}
-	if(this.prog%PACE_TIME <= PACE_TIME/4 || this.prog%PACE_TIME > 3*PACE_TIME/4){
-		this.pos.x += -1 //pace left
+	else if(this.prog > 5 && this.prog%15 == 0){ //circle
+		this.pos = {x:islands[this.island].node.x+20*Math.cos(this.prog/150+this.plan), y:islands[this.island].node.y+20*Math.sin(this.prog/150+this.plan)} //get a trajectory and assign it to plan
 		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
 	}
-	else{
-		this.pos.x += 1 //pace right
-		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
-	}
+
+	// if(this.prog%PACE_TIME <= PACE_TIME/4 || this.prog%PACE_TIME > 3*PACE_TIME/4){
+	// 	this.pos.x += -1 //pace left
+	// 	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	// }
+	// else{
+	// 	this.pos.x += 1 //pace right
+	// 	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	// }
 }
 Ant.prototype.goSwimming = function(){
 	this.prog += 1
 	if(this.prog == 1){
-		var angle = Math.random()*360
-		this.plan = {x:Math.cos(angle),y:Math.sin(angle)} //get a trajectory and assign it to plan
+		// var angle = Math.random()*360
+		// this.plan = {x:Math.cos(angle),y:Math.sin(angle)} //get a trajectory and assign it to plan		
+		var dx = this.pos.x-islands[this.island].node.x
+		var dy = this.pos.y-islands[this.island].node.y
+		var dist = Math.sqrt(dx*dx+dy*dy)
+		this.plan = {x:dx/dist, y:dy/dist }
 		islands[this.island].ants.splice(islands[this.island].ants.indexOf(this),1) //remove from island's list
 	}
-	if(this.prog < 25){
+	if(this.prog < 10){
 		this.pos = {x:this.pos.x+(.8+Math.random()*.6)*this.plan.x, y:this.pos.y+(.8+Math.random()*.6)*this.plan.y}
 		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
 	}
