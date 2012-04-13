@@ -19,7 +19,7 @@ describe UsersController do
     it "returns http success" do
       get :show, :id => @user
       response.should be_success
-    end
+    end       
 
     it "should find the right user" do
       get :show, :id => @user

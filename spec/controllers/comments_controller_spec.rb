@@ -4,7 +4,8 @@ require 'authlogic/test_case'
 describe CommentsController do
   describe "POST 'create'" do
     before(:each) do
-      @comment = { content: "Comment number one", relationship_id: 1 }
+      relationship = FactoryGirl.create(:relationship)
+      @comment = { content: "Comment number one", relationship_id: relationship.id }
       request.env["HTTP_REFERER"] = "where_i_came_from" 
     end
 
