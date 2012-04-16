@@ -139,6 +139,8 @@
 #article .title {
 	text-align: center;
 	font-weight: bold;
+	padding-top:40px;
+	padding-bottom: 0px;
 }
 
 #lets_go_button {

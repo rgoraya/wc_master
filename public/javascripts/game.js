@@ -16,10 +16,12 @@ var first_edge = true //if the (next) edge the first edge built?
 var DEPLOY_TIME = 1
 var SPAWN_TIME = 4
 var PACE_TIME = 120
+var HESITATE_TIME = 20
 if(continuous){ //currently sort of fast, can slow down as we test
 	DEPLOY_TIME = 100 
 	SPAWN_TIME = 15
 	PACE_TIME = 330
+	HESITATE_TIME = 200 //should be 1/2 or 2/3 pace?
 }
 
 
@@ -70,7 +72,7 @@ Island.prototype.tick = function(){
 }
 Island.prototype.activate = function(){
 	this.activated = true
-	this.icon[2].insertAfter(this.icon[0]) //hard-code move "house" after "island" to show
+	this.icon[2].show();//insertAfter(this.icon[0]) //hard-code move "house" after "island" to show
 }
 Island.prototype.spawnAnt = function(){
 	var ant = new Ant(all_ants.length, [], this.n); //create a new ant on this island
@@ -89,20 +91,7 @@ Island.prototype.deployOneAnt = function(){ //deploy a single ant along an edge
 	
 	var edge = currEdges[this.bridges[0]]
 	// console.log('checking',edge.a.id,edge.b.id,(edge.reltype ? 1 : -1))
-	try{
-		if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid bridge
-			ant.stat = ant.ON_PATH
-		}
-		else{
-			// console.log('legit wrong path');
-			ant.stat = ant.ON_WRONG_PATH
-		}
-	}
-	catch(err){ //has problem reading undefined directions; if we couldn't read the object, then it was wrong!
-		//console.log('error wrong path',edge.a.id, edge.b.id,(edge.reltype ? 1 : -1))
-		ant.stat = ant.ON_WRONG_PATH
-	}
-
+	ant.stat = ant.ON_PATH
 	ant.path = this.bridges[0] //set them on the bridge!
 	//console.log('error around here [',this.bridges.toString(), ']')
 	ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
@@ -128,20 +117,7 @@ Island.prototype.deployAnts = function(){ //deploy ants along available edge
 
 			var edge = currEdges[this.bridges[i]]
 			// console.log('checking',edge.a.id,edge.b.id,(edge.reltype ? 1 : -1))
-			try{
-				if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid bridge
-					ant.stat = ant.ON_PATH
-				}
-				else{
-					// console.log('legit wrong path');
-					ant.stat = ant.ON_WRONG_PATH
-				}
-			}
-			catch(err){ //has problem reading undefined directions; if we couldn't read the object, then it was wrong!
-				//console.log('error wrong path',edge.a.id, edge.b.id,(edge.reltype ? 1 : -1))
-				ant.stat = ant.ON_WRONG_PATH
-			}
-
+			ant.stat = ant.ON_PATH
 			ant.path = this.bridges[i] //set them on the bridge!
 			ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
 			ant.prog = 0
@@ -220,7 +196,7 @@ Island.prototype.reset = function(){
 	this.deploy_timer = 0
 	this.activated = false
 	this.emptied = false
-	this.icon[2].insertBefore(this.icon[0]) //hard-code move "house" before "island" to hide (for next run)
+	this.icon[2].hide();//insertBefore(this.icon[0]) //hard-code move "house" before "island" to hide (for next run)
 }
 
 //initialize the islands by adding icons, qtips, bridges, etc
@@ -234,7 +210,6 @@ function initIslands(){
   }
   // console.log('initialized', islands);
 }
-
 
 /*** ANTS (Causlings) ***/
 function Ant(n,plan,island){
@@ -254,7 +229,7 @@ function Ant(n,plan,island){
 }
 Ant.prototype.WAITING = 0;
 Ant.prototype.ON_PATH = 1;
-Ant.prototype.ON_WRONG_PATH = 2;
+Ant.prototype.HESITATING = 2;
 Ant.prototype.GETTING_LOST = 3;
 Ant.prototype.SWIMMING = 4;
 Ant.prototype.ARRIVED = 5;
@@ -273,8 +248,8 @@ Ant.prototype.tick = function(){
 	else if(this.stat == this.ON_PATH){
 		this.walkPath()
 	}
-	else if(this.stat == this.ON_WRONG_PATH){
-		this.wrongPath()
+	else if(this.stat == this.HESITATING){
+		this.hesitate()
 	}
 	else if(this.stat == this.GETTING_LOST){
 		this.getLost()
@@ -291,7 +266,7 @@ Ant.prototype.tick = function(){
 }
 Ant.prototype.walkPath = function(){
 	this.prog += 10; //take a step (sizable)
-	if(this.prog < this.pathlen){ //if we're still on the path
+	if(this.prog < this.pathlen){ //if we're still on the path, take a step
 		try{
 			if(this.reverse)
 				this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
@@ -301,10 +276,28 @@ Ant.prototype.walkPath = function(){
 		catch(err){ //this should include deleting and swapping the edge
 			this.stat = this.GETTING_LOST
 			this.prog = 0
-			this.icon.attr({'fill':'#A63E3E'})			
+			this.icon.attr({'fill':'#A63E3E'})
+			return;
 		}
 	}
-	else{ //we arrived
+
+	if(this.prog*3 > this.pathlen){ //if more than 1/4 way down the path, check for validity
+		var validity = validPath(currEdges[this.path]);
+		if(validity <= 0){ //always hesitate before dying on bad paths
+			this.stat = this.HESITATING
+			this.pathlen = [this.prog, this.pathlen]; //store the progress inside the pathlen
+			this.prog = 0
+			this.icon.attr({'fill':'#FFFF00'})
+			return;
+		}
+		else if(validity < 0){
+			this.stat = this.GETTING_LOST
+			this.prog = 0
+			this.icon.attr({'fill':'#A63E3E'})
+			return;
+		}
+	}
+	if(this.prog > this.pathlen){ //check if we're done
 		if(this.reverse)
 			this.island = currEdges[this.path].a.id;
 		else
@@ -312,25 +305,39 @@ Ant.prototype.walkPath = function(){
 		islands[this.island].addAnt(this,true) //set our new island (and we came from a journey). That will set our status
 	}
 }
-Ant.prototype.wrongPath = function(){
-	this.prog += 10; //take a step (sizable)
-	if(this.prog*2 < this.pathlen){ //if we're less than halfway, walk as normal
-		try{
-			if(this.reverse)
-				this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
-			else
-				this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
-		}
-		catch(err){
-			this.stat = this.GETTING_LOST
-			this.prog = 0
-			this.icon.attr({'fill':'#A63E3E'})			
-		}
+Ant.prototype.hesitate = function(){
+	if(validPath(currEdges[this.path]) > 0){ //if now a valid path, then just mark as good
+		this.stat = this.ON_PATH
+		this.prog = this.pathlen[0]
+		this.pathlen = this.pathlen[1]
+		this.icon.attr({'fill':'#0f0'})
+		return;
 	}
-	else{ //otherwise, get lost!
+
+	this.prog += 1;
+	if(this.prog > HESITATE_TIME){
 		this.stat = this.GETTING_LOST
 		this.prog = 0
 		this.icon.attr({'fill':'#A63E3E'})
+		return;
+	}
+	if(this.prog%8 == 0){ //step back
+		this.pathlen[0] -= 2
+	}
+	else if(this.prog%4 == 0) //step forward
+		this.pathlen[0] += 2
+
+	try{ //try and take a step as we waver
+		if(this.reverse)
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen[1] - this.pathlen[0]);
+		else
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen[0]);
+	}
+	catch(err){ //this should include deleting and swapping the edge
+		this.stat = this.GETTING_LOST
+		this.prog = 0
+		this.icon.attr({'fill':'#A63E3E'})
+		return;
 	}
 }
 Ant.prototype.getLost = function(){
@@ -344,6 +351,7 @@ Ant.prototype.getLost = function(){
 		this.prog = 0
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
+		return;
 	}
 }
 Ant.prototype.randomWalk = function(step){
@@ -358,6 +366,7 @@ Ant.prototype.pace = function(){
 		this.stat = this.SWIMMING
 		this.prog = 0
 		this.icon.attr({'fill':'#A63E3E'})
+		return;
 	}
 	else if(this.prog > 5 && this.prog%15 == 0){ //circle
 		this.pos = {x:islands[this.island].node.x+20*Math.cos(this.prog/150+this.plan), y:islands[this.island].node.y+20*Math.sin(this.prog/150+this.plan)} //get a trajectory and assign it to plan
@@ -393,6 +402,7 @@ Ant.prototype.goSwimming = function(){
 		this.prog = 0
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
+		return;
 	}
 }
 Ant.prototype.arrive = function(){
@@ -405,6 +415,7 @@ Ant.prototype.victoryDance = function(){
 	if(this.prog > 25){
 		this.stat = this.GOING_HOME //settle down
 		this.prog = 0
+		return;
 	}
 	else if(this.prog%20 < 10){
 		this.pos = {x:this.pos.x, y:this.pos.y-0.3} //bounce up
@@ -429,9 +440,33 @@ Ant.prototype.settleDown = function(){
 		this.stat = this.SETTLED //stop moving for future ticks
 		this.prog = 0
 		this.icon.insertBefore(islands[this.island].icon[3]) //move behind the coast to hide entirely
-		this.icon.attr({'opacity':0, 'stroke-opacity':0}) //also just outright hide :p
+		this.icon.hide() //also just outright hide :p
+		return;
 		//console.log(this.n, 'settled down at', currNodes[this.island].name)
 	}
+}
+
+//convenience method to check validity of an edge. Returns 1 if valid, 0 if bad relationship, or -1 if totally invalid
+function validPath(edge){
+	var reltype = (edge.reltype ? 1 : -1)
+	try{
+		if(yes[edge.a.id][edge.b.id][reltype] > 0) //check if it is a valid bridge
+			return 1;
+	}catch(err){} //if we couldn't read the edge, then we know it wasn't valid
+	try{
+		if(yes[edge.a.id][edge.b.id][-1*reltype] > 0) //check if swap is a valid bridge
+			return 0;
+	}catch(err){}
+	try{
+		if(yes[edge.b.id][edge.a.id][reltype] > 0) //check if reverse is a valid bridge
+			return 0;
+	}catch(err){}
+	try{
+		if(yes[edge.b.id][edge.a.id][-1*reltype] > 0) //check if reverse swap is a valid bridge
+			return 0;
+	}catch(err){}
+	
+	return -1; //none of the options were valid
 }
 
 
@@ -553,26 +588,27 @@ function drawNode(node, paper){
 		var island_style = Math.floor(Math.random()*4)
 		var coast = paper.circle(node.x,node.y,21).attr({
 			'fill': 'r#b3eeee:85-#fff','stroke-width':0,'stroke-opacity':0 //#b3eeee - #3d5a9d
-		})
+		});
 		
 		var island = paper.path(ISLAND_PATHS[island_style]).attr({
 			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
 		});
+
 		var bb = island.getBBox();
 		var trans_string = "t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2))
 		island.transform(trans_string)
 
 		var content = node.name;
+		// _textWrapp(content,80)
 		if(content.length > 15)
 			content = content.substring(0,15)+"..."
 		var txt = paper.text(node.x, node.y+T_OFF, content)
-		// _textWrapp(txt,80)
 
 		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
 		var house = paper.path(house_path).attr({
 			gradient: '0-#71695e-#52483a','stroke-width':0,'stroke-opacity':0
 		})
-		.insertBefore(island) //hide the house for now
+		.hide();// .insertBefore(island) //hide the house for now
 
 		var icon = paper.set()
 		.push(island,txt,house)
@@ -607,7 +643,7 @@ function drawEdge(edge, paper){
 		var b = edge.b;
 
 		var curve = getPath(edge) //get the curve's path		
-		var e = paper.path(curve).attr({'stroke-width':2}).toBack()
+		var e = paper.path(curve).attr({'stroke-width':5}).toBack()
 		
 		//set attributes based on relationship type (bitcheck with constants)
 		if(edge.reltype&INCREASES)
@@ -618,7 +654,9 @@ function drawEdge(edge, paper){
 			e.attr({stroke:EDGE_COLORS['decreases']})
 		
 		var arrow = drawArrow(edge, curve, paper)
+		arrow.insertAfter(e)
 		var dots = drawDots(edge, curve, paper)
+		dots.insertAfter(e)
 
 		var center = getPathCenter(curve,-2)
 		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
@@ -746,8 +784,10 @@ var dragend = function (x,y,event)
 		var curve = getPath(dragged_edges[i]) //get new curve
 		var arrow = drawArrow(dragged_edges[i],curve,paper) //just go ahead and redraw the arrow and dots
 		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
+		arrow.insertAfter(edgeIcons[dragged_edges[i].id][0])
 		var dots = drawDots(dragged_edges[i],curve,paper)
 		edgeIcons[dragged_edges[i].id].push(dots)
+		dots.insertAfter(edgeIcons[dragged_edges[i].id][0])
 		var center = getPathCenter(curve,-2)
 		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
 		edgeIcons[dragged_edges[i].id].push(selector)
