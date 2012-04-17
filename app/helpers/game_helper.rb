@@ -19,8 +19,8 @@ module GameHelper
     	paper = myPaper = new Raphael(canvas_container, canvas_container.offsetWidth, canvas_container.offsetHeight); //graphics context
     	paper_size = {width:canvas_container.offsetWidth, height:canvas_container.offsetHeight};
     	CANVAS_OFFSET = $(this.paper.canvas).parent().offset();
-      drawInitGame(myPaper);
       drawElements(currNodes, currEdges, myPaper) //call draw on the nodes. These are the ones defined in the helper
+      drawInitGame(myPaper);
       initIslands()
     }"
   end

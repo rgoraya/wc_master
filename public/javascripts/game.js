@@ -4,6 +4,8 @@
  *** GLOBAL VARIABLES 
  ***/
 var startBox; //the box where our islands start
+
+
 var now_building = null; //the thing we're dragging
 var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
 var selector_canvases_drawn = []; //canvases we've drawn before
@@ -11,6 +13,7 @@ var all_ants = []; //all the ants (for tracking)
 var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
 var first_edge = true //if the (next) edge the first edge built?
+
 
 //timer constants
 var DEPLOY_TIME = 1
@@ -574,13 +577,32 @@ function startAnimation(paper) {
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
-	startBox = paper.rect(paper_size.width-203,150,200,paper_size.height-150-3).attr({'stroke': '#000000', 'stroke-width':3})
-	var boxLabel = paper.text(paper_size.width-203+5,150+15,'Concepts').attr({
+  var startBoxSize = [120,paper_size.height];
+  var startBoxTopLeft = [paper_size.width-122,0];
+
+	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke': '#000000', 'stroke-width':1});
+  paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],30).attr({'fill':'#FFFFFF','fill-opacity':1});
+	paper.text(paper_size.width-115,15,'Concepts').attr({
 		'text-anchor':'start', 
 		'font':'lucida grande', 'font-family':'sans-serif',
 		'font-size':24, 'font-weight':'bold',
-		'fill':'#BEBEBE'
+		'fill':'#BEBEBE',
+    
 	})
+	paper.rect(startBoxTopLeft[0],30,startBoxSize[0],15)
+    .attr({'fill':'#000000','stroke':'#000000'})
+    .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
+    .mouseout(function(){this.attr({'fill':'#000000'})})
+    .click(function(){
+      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,-30"); //go up
+    });
+	paper.rect(startBoxTopLeft[0],paper_size.height-15,startBoxSize[0],15)
+    .attr({'fill':'#000000', 'stroke':'#000000'})
+    .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
+    .mouseout(function(){this.attr({'fill':'#000000'})})
+    .click(function(){
+      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,30"); //go down
+    });
 }
 
 //details on drawing/laying out a node
@@ -615,6 +637,7 @@ function drawNode(node, paper){
 		.mouseover(function() {this.node.style.cursor='move';})//hoverNode(node)})
 		.mousedown(function(e) {now_dragging = {icon:icon, node:node};})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
+
 
 		icon.push(coast)
 		coast.mouseover(function() {this.node.style.cursor='crosshair';})
