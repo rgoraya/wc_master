@@ -25,7 +25,7 @@ describe Issue do
 
   describe "when you show an issue" do
     before(:each) do 
-      @issue = Issue.find_by_title("Electricity")
+      @issue = FactoryGirl.create(:issue)
     end
 
     it "should retrieve suggestions" do

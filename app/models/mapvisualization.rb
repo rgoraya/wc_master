@@ -351,13 +351,13 @@ class Mapvisualization #< ActiveRecord::Base
 
   # puts the specified nodes in a grid within the specified box
   # IGNORES STATIC PROPERTY
-  def grid_nodes_in_box(nodeset=@nodes, topleft=Vector[0,0], size=Vector[@width,@height])
+  def grid_nodes_in_box(nodeset=@nodes, topleft=Vector[0,0], size=Vector[@width,@height], spacing=Vector[0,0])
     num_cols = (Math.sqrt(nodeset.length)*(size[0]/size[1].to_f)).round
     num_rows = (nodeset.length/num_cols.to_f).ceil
     col_len = size[0]/num_cols
     row_len = size[1]/num_rows
     nodeset.each_with_index{|(key, node), i| nodeset[key].location = 
-      Vector[topleft[0] + (0.5 + (i%num_cols))*col_len, topleft[1] + (0.5 + (i/num_cols))*row_len]}
+      Vector[topleft[0] + (0.5 + (i%num_cols))*col_len + spacing[0]*i, topleft[1] + (0.5 + (i/num_cols))*row_len + spacing[1]*i]}
   end
 
   #put the nodes in random locations

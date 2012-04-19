@@ -87,8 +87,10 @@ function drawEdge(edge, paper){
 		else //if decreases
 			e.attr({stroke:EDGE_COLORS['decreases']})
 		
-		var arrow = drawArrow(edge, curve, paper)		
+		var arrow = drawArrow(edge, curve, paper)
+		arrow.insertAfter(e)
 		var dots = drawDots(edge, curve, paper)
+		dots.insertAfter(e)
 
 		if(hasSelection){
 			if((edge.reltype&HIGHLIGHTED)==0){ //if not highlighted
