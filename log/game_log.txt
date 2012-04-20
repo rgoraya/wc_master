@@ -48,3 +48,98 @@
 20120416015634465|20120416015645872|buildEnd|edge.id:2:edge.name:Menhaden population increases Demand for Omega-3 as a food supplement:edge.a:19:edge.b:11:edge.reltype:1:edge.expandable::edge.n:0|nil
 20120416015634465|20120416015647042|buildStart|start_node.id:11:start_node.name:Demand for Omega-3 as a food supplement:edge.reltype:1|nil
 20120416015634465|20120416015647705|buildEnd|edge.id:3:edge.name:Demand for Omega-3 as a food supplement increases El Nino:edge.a:11:edge.b:13:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420074548928|20120420074553350|dragStart|node.id:10:node.name:Demand for Livestock feed:node.x:945:node.y:403:node.url::node.h:0|nil
+20120420074548928|20120420074553759|dragEnd|node.id:10:node.name:Demand for Livestock feed:node.x:554:node.y:415:node.url::node.h:0|nil
+20120420074548928|20120420074555234|dragStart|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:945:node.y:356:node.url::node.h:0|nil
+20120420074548928|20120420074555522|dragEnd|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:485:node.y:307:node.url::node.h:0|nil
+20120420074548928|20120420074558021|buildStart|start_node.id:8:start_node.name:Demand for farm-raised fish feed (aquaculture):edge.reltype:1|nil
+20120420074548928|20120420074558609|buildEnd|edge.id:1:edge.name:Demand for farm-raised fish feed (aquaculture) increases Samaki population:edge.a:8:edge.b:19:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420074548928|20120420074600120|buildStart|start_node.id:10:start_node.name:Demand for Livestock feed:edge.reltype:1|nil
+20120420074548928|20120420074600627|buildEnd|edge.id:-1:edge.name::edge.a:10:edge.b:-1:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420074548928|20120420074603532|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420074548928|20120420074604282|buildEnd|edge.id:2:edge.name:Samaki population increases Demand for Livestock feed:edge.a:19:edge.b:10:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420075541259|20120420075543857|dragStart|node.id:7:node.name:Society Affluence:node.x:945:node.y:309:node.url::node.h:0|nil
+20120420075541259|20120420075544112|dragEnd|node.id:7:node.name:Society Affluence:node.x:509:node.y:258:node.url::node.h:0|nil
+20120420075541259|20120420075545548|buildStart|start_node.id:7:start_node.name:Society Affluence:edge.reltype:1|nil
+20120420075541259|20120420075545806|buildEnd|edge.id:1:edge.name:Society Affluence increases Samaki population:edge.a:7:edge.b:19:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420075541259|20120420075546774|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420075541259|20120420075547451|buildEnd|edge.id:2:edge.name:Samaki population increases Society Affluence:edge.a:19:edge.b:7:edge.reltype:1:edge.expandable::edge.n:2|nil
+20120420075541259|20120420075549165|dragStart|node.id:6:node.name:Cost per unit catch:node.x:945:node.y:262:node.url::node.h:0|nil
+20120420075541259|20120420075549425|dragEnd|node.id:6:node.name:Cost per unit catch:node.x:560:node.y:363:node.url::node.h:0|nil
+20120420075541259|20120420075550548|dragStart|node.id:5:node.name:Coastal water quality:node.x:945:node.y:215:node.url::node.h:0|nil
+20120420075541259|20120420075550790|dragEnd|node.id:5:node.name:Coastal water quality:node.x:619:node.y:170:node.url::node.h:0|nil
+20120420075541259|20120420075551940|dragStart|node.id:4:node.name:Amount of samaki caught:node.x:945:node.y:168:node.url::node.h:0|nil
+20120420075541259|20120420075552210|dragEnd|node.id:4:node.name:Amount of samaki caught:node.x:723:node.y:332:node.url::node.h:0|nil
+20120420075541259|20120420075553872|buildStart|start_node.id:4:start_node.name:Amount of samaki caught:edge.reltype:1|nil
+20120420075541259|20120420075554393|buildEnd|edge.id:3:edge.name:Amount of samaki caught increases Coastal water quality:edge.a:4:edge.b:5:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420075541259|20120420075555478|buildStart|start_node.id:5:start_node.name:Coastal water quality:edge.reltype:1|nil
+20120420075541259|20120420075556567|buildEnd|edge.id:4:edge.name:Coastal water quality increases Cost per unit catch:edge.a:5:edge.b:6:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420075541259|20120420075557911|buildStart|start_node.id:6:start_node.name:Cost per unit catch:edge.reltype:1|nil
+20120420075541259|20120420075558498|buildEnd|edge.id:5:edge.name:Cost per unit catch increases Amount of samaki caught:edge.a:6:edge.b:4:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080130733|20120420080133787|dragStart|node.id:7:node.name:Society Affluence:node.x:945:node.y:309:node.url::node.h:0|nil
+20120420080130733|20120420080134085|dragEnd|node.id:7:node.name:Society Affluence:node.x:584:node.y:288:node.url::node.h:0|nil
+20120420080130733|20120420080135233|dragStart|node.id:6:node.name:Cost per unit catch:node.x:945:node.y:262:node.url::node.h:0|nil
+20120420080130733|20120420080135679|dragEnd|node.id:6:node.name:Cost per unit catch:node.x:552:node.y:376:node.url::node.h:0|nil
+20120420080130733|20120420080137432|buildStart|start_node.id:6:start_node.name:Cost per unit catch:edge.reltype:1|nil
+20120420080130733|20120420080138059|buildEnd|edge.id:1:edge.name:Cost per unit catch increases Samaki population:edge.a:6:edge.b:19:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080130733|20120420080141276|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080130733|20120420080141898|buildEnd|edge.id:2:edge.name:Samaki population increases Society Affluence:edge.a:19:edge.b:7:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080130733|20120420080144075|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080130733|20120420080144381|buildEnd|edge.id:3:edge.name:Samaki population increases Cost per unit catch:edge.a:19:edge.b:6:edge.reltype:1:edge.expandable::edge.n:2|nil
+20120420080130733|20120420080146203|dragStart|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:945:node.y:356:node.url::node.h:0|nil
+20120420080130733|20120420080146500|dragEnd|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:350:node.y:280:node.url::node.h:0|nil
+20120420080130733|20120420080148595|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080130733|20120420080149092|buildEnd|edge.id:4:edge.name:Samaki population increases Demand for farm-raised fish feed (aquaculture):edge.a:19:edge.b:8:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080130733|20120420080150611|dragStart|node.id:10:node.name:Demand for Livestock feed:node.x:945:node.y:403:node.url::node.h:0|nil
+20120420080130733|20120420080151004|dragEnd|node.id:10:node.name:Demand for Livestock feed:node.x:315:node.y:488:node.url::node.h:0|nil
+20120420080130733|20120420080153120|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080130733|20120420080153656|buildEnd|edge.id:5:edge.name:Samaki population increases Demand for Livestock feed:edge.a:19:edge.b:10:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420080950282|dragStart|node.id:5:node.name:Coastal water quality:node.x:945:node.y:215:node.url::node.h:0|nil
+20120420080947892|20120420080950748|dragEnd|node.id:5:node.name:Coastal water quality:node.x:468:node.y:194:node.url::node.h:0|nil
+20120420080947892|20120420080951588|dragStart|node.id:4:node.name:Amount of samaki caught:node.x:945:node.y:168:node.url::node.h:0|nil
+20120420080947892|20120420080952028|dragEnd|node.id:4:node.name:Amount of samaki caught:node.x:595:node.y:353:node.url::node.h:0|nil
+20120420080947892|20120420080953416|dragStart|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:945:node.y:356:node.url::node.h:0|nil
+20120420080947892|20120420080953777|dragEnd|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:590:node.y:250:node.url::node.h:0|nil
+20120420080947892|20120420081002886|dragStart|node.id:10:node.name:Demand for Livestock feed:node.x:945:node.y:403:node.url::node.h:0|nil
+20120420080947892|20120420081003210|dragEnd|node.id:10:node.name:Demand for Livestock feed:node.x:483:node.y:433:node.url::node.h:0|nil
+20120420080947892|20120420081004580|dragStart|node.id:11:node.name:Demand for Omega-3 as a food supplement:node.x:945:node.y:450:node.url::node.h:0|nil
+20120420080947892|20120420081004901|dragEnd|node.id:11:node.name:Demand for Omega-3 as a food supplement:node.x:193:node.y:232:node.url::node.h:0|nil
+20120420080947892|20120420081012361|buildStart|start_node.id:11:start_node.name:Demand for Omega-3 as a food supplement:edge.reltype:1|nil
+20120420080947892|20120420081013454|buildEnd|edge.id:1:edge.name:Demand for Omega-3 as a food supplement increases Samaki population:edge.a:11:edge.b:19:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081014700|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081014979|buildEnd|edge.id:2:edge.name:Samaki population increases Coastal water quality:edge.a:19:edge.b:5:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081017027|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081018464|buildEnd|edge.id:3:edge.name:Samaki population increases Demand for Omega-3 as a food supplement:edge.a:19:edge.b:11:edge.reltype:1:edge.expandable::edge.n:2|nil
+20120420080947892|20120420081022349|swapEdge|edge.id.before:3:edge.id.after:3:edge.reltype.before:1:edge.reltype.after:0:edge.a:19:edge.b:11:edge.expandable::edge.n:2|nil
+20120420080947892|20120420081024378|swapEdge|edge.id.before:2:edge.id.after:2:edge.reltype.before:1:edge.reltype.after:0:edge.a:19:edge.b:5:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081025585|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081026091|buildEnd|edge.id:4:edge.name:Samaki population increases Demand for Livestock feed:edge.a:19:edge.b:10:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081031854|swapEdge|edge.id.before:4:edge.id.after:4:edge.reltype.before:1:edge.reltype.after:0:edge.a:19:edge.b:10:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081034376|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081034905|buildEnd|edge.id:5:edge.name:Samaki population increases Amount of samaki caught:edge.a:19:edge.b:4:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081038145|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081038898|buildEnd|edge.id:6:edge.name:Samaki population increases Demand for farm-raised fish feed (aquaculture):edge.a:19:edge.b:8:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081041303|dragStart|node.id:13:node.name:El Nino:node.x:945:node.y:544:node.url::node.h:0|nil
+20120420080947892|20120420081041728|dragEnd|node.id:13:node.name:El Nino:node.x:288:node.y:465:node.url::node.h:0|nil
+20120420080947892|20120420081043989|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081044511|buildEnd|edge.id:7:edge.name:Samaki population increases El Nino:edge.a:19:edge.b:13:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081056078|dragStart|node.id:12:node.name:Effort put into catching samaki:node.x:945:node.y:497:node.url::node.h:0|nil
+20120420080947892|20120420081056989|dragEnd|node.id:12:node.name:Effort put into catching samaki:node.x:487:node.y:558:node.url::node.h:0|nil
+20120420080947892|20120420081058915|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081059762|buildEnd|edge.id:8:edge.name:Samaki population increases Effort put into catching samaki:edge.a:19:edge.b:12:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081100925|dragStart|node.id:15:node.name:Lifespan of samaki:node.x:945:node.y:591:node.url::node.h:0|nil
+20120420080947892|20120420081101550|dragEnd|node.id:15:node.name:Lifespan of samaki:node.x:123:node.y:383:node.url::node.h:0|nil
+20120420080947892|20120420081105891|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081106826|buildEnd|edge.id:9:edge.name:Samaki population increases Lifespan of samaki:edge.a:19:edge.b:15:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081108393|dragStart|node.id:16:node.name:Management at the ecosystem level:node.x:945:node.y:638:node.url::node.h:0|nil
+20120420080947892|20120420081108794|dragEnd|node.id:16:node.name:Management at the ecosystem level:node.x:635:node.y:451:node.url::node.h:0|nil
+20120420080947892|20120420081111811|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120420080947892|20120420081112347|buildEnd|edge.id:10:edge.name:Samaki population increases Management at the ecosystem level:edge.a:19:edge.b:16:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081114686|swapEdge|edge.id.before:10:edge.id.after:10:edge.reltype.before:1:edge.reltype.after:0:edge.a:19:edge.b:16:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081123204|dragStart|node.id:6:node.name:Cost per unit catch:node.x:945:node.y:262:node.url::node.h:0|nil
+20120420080947892|20120420081124003|dragEnd|node.id:6:node.name:Cost per unit catch:node.x:337:node.y:205:node.url::node.h:0|nil
+20120420080947892|20120420081125579|buildStart|start_node.id:6:start_node.name:Cost per unit catch:edge.reltype:1|nil
+20120420080947892|20120420081126263|buildEnd|edge.id:11:edge.name:Cost per unit catch increases Amount of samaki caught:edge.a:6:edge.b:4:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081129068|swapEdge|edge.id.before:11:edge.id.after:11:edge.reltype.before:1:edge.reltype.after:0:edge.a:6:edge.b:4:edge.expandable::edge.n:0|nil
+20120420080947892|20120420081133243|buildStart|start_node.id:4:start_node.name:Amount of samaki caught:edge.reltype:1|nil
+20120420080947892|20120420081133729|buildEnd|edge.id:12:edge.name:Amount of samaki caught increases Demand for farm-raised fish feed (aquaculture):edge.a:4:edge.b:8:edge.reltype:1:edge.expandable::edge.n:0|nil

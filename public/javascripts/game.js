@@ -27,6 +27,42 @@ if(continuous){ //currently sort of fast, can slow down as we test
 	HESITATE_TIME = 200 //should be 1/2 or 2/3 pace?
 }
 
+/***
+ *** PLAY SOUNDS
+ ***/
+
+function html5_audio(){
+  var a = document.createElement('audio');
+  return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+}
+
+function get_random_int(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+var play_html5_audio = false;
+if(html5_audio()) play_html5_audio = true;
+
+var snd; 
+
+function play_sound(url){
+  if(get_random_int(0, 10) > 8){
+    if(play_html5_audio){
+      snd = new Audio(url);
+      snd.load();
+      snd.play();      
+    }else{
+      $("#sound").remove();
+      var sound = $("<embed id='sound' type='audio/mpeg' />");
+      sound.attr('src', url);
+      sound.attr('loop', false);
+      sound.attr('hidden', true);
+      sound.attr('autostart', true);
+      $('body').append(sound);
+    }                 
+  }
+}  
+
 
 /***
  *** CLASS DEFINITIONS
@@ -354,6 +390,7 @@ Ant.prototype.getLost = function(){
 		this.prog = 0
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
+    play_sound("/sounds/incorrect.wav");
 		return;
 	}
 }
@@ -405,6 +442,7 @@ Ant.prototype.goSwimming = function(){
 		this.prog = 0
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
+    play_sound("/sounds/incorrect.wav")
 		return;
 	}
 }
@@ -412,6 +450,7 @@ Ant.prototype.arrive = function(){
 	this.stat = this.DANCING //start dancing
 	this.prog = 0
 	this.icon.attr({'fill':'#3CA03C'});
+  play_sound("/sounds/correct.wav")
 }
 Ant.prototype.victoryDance = function(){
 	this.prog += 1
