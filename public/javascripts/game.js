@@ -5,7 +5,7 @@
  ***/
 var startBox; //the box where our islands start
 
-
+var game_running = false;
 var now_building = null; //the thing we're dragging
 var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
 var selector_canvases_drawn = []; //canvases we've drawn before
@@ -26,6 +26,42 @@ if(continuous){ //currently sort of fast, can slow down as we test
 	PACE_TIME = 330
 	HESITATE_TIME = 200 //should be 1/2 or 2/3 pace?
 }
+
+/***
+ *** PLAY SOUNDS
+ ***/
+
+function html5_audio(){
+  var a = document.createElement('audio');
+  return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+}
+
+function get_random_int(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+var play_html5_audio = false;
+if(html5_audio()) play_html5_audio = true;
+
+var snd; 
+
+function play_sound(url){
+  if(get_random_int(0, 10) > 8){
+    if(play_html5_audio){
+      snd = new Audio(url);
+      snd.load();
+      snd.play();      
+    }else{
+      $("#sound").remove();
+      var sound = $("<embed id='sound' type='audio/mpeg' />");
+      sound.attr('src', url);
+      sound.attr('loop', false);
+      sound.attr('hidden', true);
+      sound.attr('autostart', true);
+      $('body').append(sound);
+    }                 
+  }
+}  
 
 
 /***
@@ -354,6 +390,7 @@ Ant.prototype.getLost = function(){
 		this.prog = 0
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
+    play_sound("/sounds/incorrect.wav");
 		return;
 	}
 }
@@ -405,6 +442,7 @@ Ant.prototype.goSwimming = function(){
 		this.prog = 0
 		this.icon.attr({'opacity':0.6})
 		this.icon.toBack()
+    play_sound("/sounds/incorrect.wav")
 		return;
 	}
 }
@@ -412,6 +450,7 @@ Ant.prototype.arrive = function(){
 	this.stat = this.DANCING //start dancing
 	this.prog = 0
 	this.icon.attr({'fill':'#3CA03C'});
+  play_sound("/sounds/correct.wav")
 }
 Ant.prototype.victoryDance = function(){
 	this.prog += 1
@@ -565,6 +604,7 @@ function startAnimation(paper) {
 				block.remove()
 
 			console.log('#actives',active_ants.length)
+      game_running = false;
 		}
 	}, 30);
 
@@ -1208,18 +1248,10 @@ $(document).ready(function(){
 	});
 	
 	$("#run_button").click(function(){
-		beginGame();
-		// show_progress_message("loading...")
-		// console.log("Run button was clicked! (currEdges:",currEdges,")")
-		// 
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: '/game/run',
-		// 	data: {'edges':currEdges},
-		// 	// complete: function(data) {func(data);},
-		// 	dataType: 'script'
-		// });
-
+		if (game_running === false) {
+      beginGame();
+      game_running = true;
+    }
 	});
 });
 
