@@ -143,3 +143,7 @@
 20120420080947892|20120420081129068|swapEdge|edge.id.before:11:edge.id.after:11:edge.reltype.before:1:edge.reltype.after:0:edge.a:6:edge.b:4:edge.expandable::edge.n:0|nil
 20120420080947892|20120420081133243|buildStart|start_node.id:4:start_node.name:Amount of samaki caught:edge.reltype:1|nil
 20120420080947892|20120420081133729|buildEnd|edge.id:12:edge.name:Amount of samaki caught increases Demand for farm-raised fish feed (aquaculture):edge.a:4:edge.b:8:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120420083332637|20120420083358611|dragStart|node.id:19:node.name:Samaki population:node.x:373:node.y:535:node.url::node.h:0|nil
+20120420083332637|20120420083359088|dragEnd|node.id:19:node.name:Samaki population:node.x:328:node.y:528:node.url::node.h:0|nil
+20120420083414354|20120420083438376|dragStart|node.id:13:node.name:El Nino:node.x:950:node.y:255:node.url::node.h:0|nil
+20120420083414354|20120420083441403|dragEnd|node.id:13:node.name:El Nino:node.x:920:node.y:266:node.url::node.h:0|nil

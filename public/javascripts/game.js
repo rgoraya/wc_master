@@ -5,7 +5,7 @@
  ***/
 var startBox; //the box where our islands start
 
-
+var game_running = false;
 var now_building = null; //the thing we're dragging
 var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
 var selector_canvases_drawn = []; //canvases we've drawn before
@@ -604,6 +604,7 @@ function startAnimation(paper) {
 				block.remove()
 
 			console.log('#actives',active_ants.length)
+      game_running = false;
 		}
 	}, 30);
 
@@ -1247,18 +1248,10 @@ $(document).ready(function(){
 	});
 	
 	$("#run_button").click(function(){
-		beginGame();
-		// show_progress_message("loading...")
-		// console.log("Run button was clicked! (currEdges:",currEdges,")")
-		// 
-		// $.ajax({
-		// 	type: 'POST',
-		// 	url: '/game/run',
-		// 	data: {'edges':currEdges},
-		// 	// complete: function(data) {func(data);},
-		// 	dataType: 'script'
-		// });
-
+		if (game_running === false) {
+      beginGame();
+      game_running = true;
+    }
 	});
 });
 
