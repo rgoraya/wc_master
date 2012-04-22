@@ -14,7 +14,6 @@ var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
 var first_edge = true //if the (next) edge the first edge built?
 
-
 //timer constants
 var DEPLOY_TIME = 1
 var SPAWN_TIME = 4
@@ -31,6 +30,8 @@ if(continuous){ //currently sort of fast, can slow down as we test
  *** PLAY SOUNDS
  ***/
 
+var SOUNDS = false; //toggle sound
+
 function html5_audio(){
   var a = document.createElement('audio');
   return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
@@ -46,22 +47,24 @@ if(html5_audio()) play_html5_audio = true;
 var snd; 
 
 function play_sound(url){
-  if(get_random_int(0, 10) > 8){
-    if(play_html5_audio){
-      snd = new Audio(url);
-      snd.load();
-      snd.play();      
-    }else{
-      $("#sound").remove();
-      var sound = $("<embed id='sound' type='audio/mpeg' />");
-      sound.attr('src', url);
-      sound.attr('loop', false);
-      sound.attr('hidden', true);
-      sound.attr('autostart', true);
-      $('body').append(sound);
-    }                 
-  }
-}  
+	if(SOUNDS){
+	  if(get_random_int(0, 10) > 8){
+	    if(play_html5_audio){
+	      snd = new Audio(url);
+	      snd.load();
+	      snd.play();      
+	    }else{
+	      $("#sound").remove();
+	      var sound = $("<embed id='sound' type='audio/mpeg' />");
+	      sound.attr('src', url);
+	      sound.attr('loop', false);
+	      sound.attr('hidden', true);
+	      sound.attr('autostart', true);
+	      $('body').append(sound);
+	    }                 
+	  }
+	}
+}
 
 
 /***
@@ -647,24 +650,30 @@ function drawInitGame(paper){
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
-		var island_style = Math.floor(Math.random()*4)
-		var coast = paper.circle(node.x,node.y,21).attr({
-			'fill': 'r#b3eeee:85-#fff','stroke-width':0,'stroke-opacity':0 //#b3eeee - #3d5a9d
-		});
-		
-		var island = paper.path(ISLAND_PATHS[island_style]).attr({
-			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
-		});
+		//var island_style = Math.floor(Math.random()*4)
+		var island_style = node.id%ISLAND_PATHS.length
 
-		var bb = island.getBBox();
+		var island = paper.image("/images/game/island_center_"+Math.ceil(Math.random()*5)+".png",node.x-12.5,node.y-12.5,25,25);
+
+		var coast = paper.path(ISLAND_PATHS[island_style]).attr({
+			fill: '#3E8653', 'stroke': '#3E8653', 'stroke-width': 1,
+		}).insertBefore(island);
+		var coast_shadow = paper.path(ISLAND_PATHS[island_style]).attr({
+			fill: '#BDBDBD', 'stroke-width':0, 'stroke-opacity':0
+		}).insertBefore(coast);
+
+		var bb = coast.getBBox();
 		var trans_string = "t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2))
-		island.transform(trans_string)
+		coast.transform(trans_string)
+		coast_shadow.transform(trans_string+"...t0,2.5")
 
-		var content = node.name;
+		var content = node.name.toUpperCase();
 		// _textWrapp(content,80)
 		if(content.length > 15)
 			content = content.substring(0,15)+"..."
-		var txt = paper.text(node.x, node.y+T_OFF, content)
+		var txt = paper.text(node.x, node.y+30, content).attr({
+			'fill': '#fff', 'font-size':10.5, 'font-weight':'bold',
+		});
 
 		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
 		var house = paper.path(house_path).attr({
@@ -678,8 +687,7 @@ function drawNode(node, paper){
 		.mousedown(function(e) {now_dragging = {icon:icon, node:node};})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
 
-
-		icon.push(coast)
+		icon.push(coast,coast_shadow)
 		coast.mouseover(function() {this.node.style.cursor='crosshair';})
 		.mousedown(function(e) {now_building = {start_node:node};})
 		.undrag()
@@ -691,10 +699,6 @@ function drawNode(node, paper){
 			position:{target: 'mouse',adjust: {y:4}},
 			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
 		});
-
-		//var data = ["drawNode",["node.id",node.id,"node.name",node.name,"node.x",node.x,"node.y",node.y,"node.url",node.url,"node.h",node.h].join(":")].join("|");	
-		//console.log(data);
-		//sendLog(data);
 
 		return icon;  
 }
@@ -1301,6 +1305,14 @@ _textWrapp = function(t, width, max_length) {
 };
 
 var ISLAND_PATHS = [
+	"m -0,0 -7.088,1.492 -2.999,-5.582 -2.472,-5.198 -0.885,-5.659 2.414,-5.164 1.653,-5.178 3.623,-4.266 4.225,-5.049 6.387,-1.183 6.041,2.246 5.867,2.206 1.856,6.39 4.868,3.944 3.066,6.054 -1.885,6.437 -3.694,5.276 -3.636,5.463 -6.785,0.361 -5.698,-0.188 z",
+	"m 0,0 -2.157,6.67 -6.13,-0.169 -5.553,-0.426 -5.177,-1.979 -3.174,-4.509 -3.55,-3.879 -1.84,-5.094 -2.207,-5.977 2.079,-5.931 4.793,-3.991 4.673,-3.865 6.256,1.516 5.654,-2.19 6.558,0.337 4.497,4.681 2.653,5.639 2.837,5.681 -2.96,5.869 -2.898,4.695 z",
+	"m 0,0 -2.157,6.67 -6.13,-0.17 -5.553,-0.425 -5.176,-1.98 -3.174,-4.509 -3.551,-3.879 -1.84,-5.094 -2.207,-5.977 2.079,-5.93 4.793,-3.991 2.673,-3.865 6.257,1.515 5.653,-2.19 6.559,0.338 6.497,4.68 2.652,5.639 2.837,5.682 -2.96,5.868 -2.897,4.696 z",
+	"m 0,0 2.821,-5.664 3.183,-3.811 4.273,-4.318 5.829,2.469 4.65,2.001 6.153,-1.063 4.062,3.888 2.887,5.67 3.617,5.686 -4.731,5.164 -0.815,6.23 -5.704,2.288 -4.633,2.976 -5.551,1.189 -5.97,0.845 -5.11,-3.277 -7.486,-2.388 4.021,-7.891 -0.179,-4.986 z",
+	"m 0,0 6.677,1.676 4.793,2.496 5.587,3.535 -1.264,6.772 -1.043,5.41 2.565,6.291 -3.185,5.226 -5.352,4.393 -5.202,5.172 -6.593,-3.826 -6.812,0.587 -3.762,-5.531 -4.244,-4.23 -2.56,-5.623 -2.29,-6.149 2.291,-6.195 0.793,-8.516 9.325,2.434 5.259,-1.354 z"
+]
+
+var OLD_ISLAND_PATHS = [
 	"m 0,0 c -1.91236,1.98339 -2.80708,3.61839 -5.61026,3.81571 -2.80316,0.19731 -4.31423,-1.70427 -6.79667,-3.14318 -2.48243,-1.43893 -6.42395,-1.98616 -7.70867,-4.3606 -1.28472,-2.37444 1.6344,-5.25816 2.13987,-7.95092 0.50547,-2.69276 -1.90255,-6.34614 0.0583,-8.26862 1.96082,-1.92249 6.30872,0.7799 9.18689,0.76381 2.87817,-0.016 6.79908,-2.90242 9.09492,-1.17821 2.29585,1.72422 0.79516,5.56878 1.48178,8.1391 0.68663,2.57031 2.58603,4.8535 1.98816,7.58076 -0.59787,2.72726 -1.92192,2.61877 -3.83429,4.60215 z",
 	"m 0,0 c -2.55529,-1.74975 -3.49186,-3.24455 -3.97569,-6.18062 -0.48384,-2.93608 8.4e-4,-2.69556 1.69371,-5.42447 1.69281,-2.72892 -2.342,-7.29109 0.77652,-8.10212 3.1185,-0.81105 4.87228,1.23266 7.67865,1.82399 2.80636,0.59134 10.6187,-2.64803 12.47562,-0.14235 1.85693,2.50569 -0.82957,2.34996 -0.69902,5.6157 0.13054,3.26575 2.79614,8.75285 1.97668,11.47121 -0.81946,2.71838 -6.85279,1.10439 -9.18567,3.31862 -2.33288,2.21422 -3.57679,2.18539 -6.52846,1.56554 -2.95166,-0.61986 -1.65707,-2.19576 -4.21234,-3.9455 z",
 	"m 0,0 c -1.48637,1.5628 -0.73525,2.93289 -2.83352,3.28257 -2.09825,0.34968 -5.81339,-1.59274 -7.90259,-1.78665 -2.0892,-0.19393 -4.52388,2.56908 -6.38447,1.51744 -1.86057,-1.05161 2.00929,-5.37364 0.96399,-7.25919 -1.04531,-1.88553 -3.28922,-2.68468 -3.6286,-4.85667 -0.33937,-2.172 1.77845,-2.78699 2.54256,-4.84833 0.7641,-2.06134 -2.18913,-4.70518 -0.66511,-6.22 1.52404,-1.51481 6.89374,2.06774 9.12329,1.81582 2.22954,-0.25193 3.04729,-2.91462 5.07328,-2.67444 2.02599,0.24019 2.10648,2.05826 3.71392,3.4869 1.60743,1.42865 3.64994,-0.24296 4.63342,1.66989 0.98348,1.91285 -2.56473,5.12155 -2.44593,7.27044 0.1188,2.14891 2.97378,5.01849 2.31651,7.05368 -0.65729,2.03519 -3.02038,-0.0143 -4.50675,1.54854 z",
