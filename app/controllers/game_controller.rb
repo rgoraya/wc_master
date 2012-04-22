@@ -98,12 +98,19 @@ class GameController < ApplicationController
 		render :nothing => true
 	end
 
-  #temporary
-  def edge_qtip
-    render :partial => "edge_qtip", :content_type => 'text/html', :locals => {:edge => params[:edge]}
+  def research
+    #the introductory paragraph
+    
   end
 
-  def research
+  def survey_demographic
+    @user_id = 'random_id_should_be_made_here'
+    ## show survey
+    ## on submit, should redirect to game
+  end
+
+  def survey_evaluation
+    ## show the survey, etc
   end
 
 end

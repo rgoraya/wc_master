@@ -5,10 +5,11 @@ Wikicausality::Application.routes.draw do
   match '/signup', :to  => 'users#new' 
   match 'game/welcome' => 'game#welcome'
   match 'game/article' => 'game#article'
-  match 'game/edge_qtip' => 'game#edge_qtip'
   match 'game/run' => 'game#run'
   match 'game/play' => 'game#play'
   match 'game/research' => 'game#research'
+  match 'game/research/survey' => 'game#survey_demographic'
+  match 'game/research/evaluation' => 'game#survey_evaluation'
   resources :game
   match 'mapvisualizations/search_bars' => 'mapvisualizations#search_bars'
   match 'mapvisualizations/qtip' => 'mapvisualizations#qtip'
