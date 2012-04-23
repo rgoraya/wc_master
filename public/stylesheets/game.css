@@ -71,8 +71,8 @@ button{
 #score_notice {
 	font: normal 16px "lucida grande",tahoma,verdana,arial,sans-serif;
 	display:none;
-	width:280px;
-	height:100px;
+	width:300px;
+	height:110px;
 	text-align:center;
 	color: #ffffff;
 	background-color:#434343;

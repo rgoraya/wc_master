@@ -84,6 +84,7 @@ function Island(n,opt_degree){
 	//do we want two timers, or will just 1 do? (depends on whether we want to deploy immediately after spawn...)
 	this.spawn_timer = 0 
 	this.spawn_count = 0
+	this.max_spawn = 30 //degree is like 100; should be based on bridge count if not continuous?
 	this.deploy_timer = 0
 	this.activated = false
 	this.emptied = false
@@ -92,7 +93,7 @@ function Island(n,opt_degree){
 Island.prototype.tick = function(){
 	if(this.activated){
 		if(!this.emptied && this.spawn_timer >= SPAWN_TIME){
-			if(this.spawn_count < this.degree) //max spawning limit?
+			if(this.spawn_count < this.max_spawn)
 				this.spawnAnt()
 			else
 				this.emptied = true
@@ -248,7 +249,7 @@ function initIslands(){
 		$([islands[i].icon[2].node]).data('island',i) //store the island in the node, so we can look up stuff about it in jquery
 		$([islands[i].icon[2].node]).qtip(get_house_qtip(islands[i]))
 
-		islands[i].updateEdges()
+		islands[i].updateEdges()		
   }
   // console.log('initialized', islands);
 }
@@ -663,8 +664,8 @@ function drawNode(node, paper){
 
 		var content = node.name.toUpperCase();
 		// _textWrapp(content,80)
-		if(content.length > 15)
-			content = content.substring(0,15)+"..."
+		if(content.length > 17)
+			content = content.substring(0,16)+"..."
 		var txt = paper.text(node.x, node.y+30, content).attr({
 			'fill': '#fff', 'font-size':10.5, 'font-weight':'bold',
 		});
@@ -1114,11 +1115,11 @@ function getScoreBoard(){
 				rubric += yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]
 			}
 			else{
-				rubric += -0.5 //hard-code the penalty atm
+				rubric += yes['w'] //hard-code the penalty atm
 			}
 		}
 		catch(err){ //has problem reading undefined directions; if we couldn't read the object, then it was wrong!
-			rubric += -0.5
+			rubric += yes['w']
 		}
 	}
 
