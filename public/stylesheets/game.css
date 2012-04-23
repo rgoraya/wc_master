@@ -1,18 +1,27 @@
+div#container{
+  background-image: url('/images/game/wood_1.png') 
+}
+
+div#contentwrapper{
+  margin-top: 20px;
+}
+
+div#canvas_container{
+  background-color:#9abfc3; 
+}
+
 #relation_qtip {
 	width:200px;
 }
 
 #relation_qtip .selector_container {
-/*	border: 1px solid red; */	
 	float:left;
 	width: 40px;
 }
 
 #relation_qtip .descr_container {
-/*	border: 1px solid green;*/
 	text-decoration:none;
 	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
-/*	text-shadow:0 0px 1px rgba(0,0,0,0.2);*/	
 	color: #434343;
 }
 
@@ -31,9 +40,26 @@
 	color: #434343;
 }
 
+#title_game{
+  float: left;
+  margin-top: 10px;
+  font-family:sans-serif;
+  color: gray;
+  font-size: xx-large;
+}
+
 #go_buttons {
-/*	position:absolute;
-	top: 15px;*/
+	float: right;
+  margin-top: 10px;
+}
+
+button{
+  font-size: large;
+  font-family: sans-serif;
+  color: white;
+  width: 150px;
+  height: 40px;
+  background-image: url("/images/game/wood_3.png");
 }
 
 #progress_container{

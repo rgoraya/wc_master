@@ -620,31 +620,25 @@ function startAnimation(paper) {
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
-  var startBoxSize = [120,paper_size.height];
-  var startBoxTopLeft = [paper_size.width-122,0];
+  var startBoxSize = [paper_size.width, 80];
+  var startBoxTopLeft = [0, paper_size.height-80];
 
-	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke': '#000000', 'stroke-width':1});
-  paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],30).attr({'fill':'#FFFFFF','fill-opacity':1});
-	paper.text(paper_size.width-115,15,'Concepts').attr({
-		'text-anchor':'start', 
-		'font':'lucida grande', 'font-family':'sans-serif',
-		'font-size':24, 'font-weight':'bold',
-		'fill':'#BEBEBE',
-    
-	})
-	paper.rect(startBoxTopLeft[0],30,startBoxSize[0],15)
+	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).
+    attr({'fill': "url('/images/game/wood_2.png')"});
+
+	paper.rect(0, paper_size.height - 80, 15, startBoxSize[1])
     .attr({'fill':'#000000','stroke':'#000000'})
     .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
     .mouseout(function(){this.attr({'fill':'#000000'})})
     .click(function(){
-      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,-30"); //go up
+      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,-30"); //go left
     });
-	paper.rect(startBoxTopLeft[0],paper_size.height-15,startBoxSize[0],15)
+	paper.rect(paper_size.width - 15, paper_size.height - 80, 15, startBoxSize[1])
     .attr({'fill':'#000000', 'stroke':'#000000'})
     .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
     .mouseout(function(){this.attr({'fill':'#000000'})})
     .click(function(){
-      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,30"); //go down
+      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,30"); //go right
     });
 }
 
