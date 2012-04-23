@@ -34,6 +34,10 @@ module GameHelper
   end
 
   def javascript_correctness(correct)
+    # pull out degree and wrongness rubric
+    degree = correct.delete('degree')
+    wrong = correct.delete('wrong')
+
     #clean up correctness matrix (get rid of empty values)
     correct.each_key do |i| 
       correct[i] = correct[i].each_key{|j| correct[i][j] = correct[i][j].reject{|k,v| v <= 0}}
@@ -57,6 +61,7 @@ module GameHelper
       out += "},"
     end
     out = out[0...-1]
+    out += ",w:"+(Game::RUBRIC[-1*Game::DEGREE] || Game::RUBRIC[0]).to_s
     out += "};"
 
     puts out
