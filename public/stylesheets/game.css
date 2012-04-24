@@ -1,18 +1,52 @@
+/* Shadows */
+
+.outside_shadow {
+  -moz-box-shadow:    3px 3px 5px 6px #ccc;
+  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+  box-shadow:         3px 3px 5px 6px #ccc;
+}
+
+.inner_shadow {
+   -moz-box-shadow:    inset 0 0 10px #000000;
+   -webkit-box-shadow: inset 0 0 10px #000000;
+   box-shadow:         inset 0 0 10px #000000;
+}
+
+div#contentwrapper{
+  background-image: url('/images/game/wood_1.png');
+  padding-top: 30px;
+  padding-bottom: 20px;
+  overflow: visible;
+  -moz-box-shadow:    3px 3px 5px 6px #ccc;
+  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+  box-shadow:         3px 3px 5px 6px #ccc;
+}
+
+div#canvas_container{
+  background-color:#9abfc3; 
+  -moz-box-shadow:    inset 0 0 15px #000000;
+  -webkit-box-shadow: inset 0 0 15px #000000;
+  box-shadow:         inset 0 0 15px #000000;
+}
+
+div#game_box{
+  width: auto;
+  height: auto;
+  float: center;
+}
+
 #relation_qtip {
 	width:200px;
 }
 
 #relation_qtip .selector_container {
-/*	border: 1px solid red; */	
 	float:left;
 	width: 40px;
 }
 
 #relation_qtip .descr_container {
-/*	border: 1px solid green;*/
 	text-decoration:none;
 	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
-/*	text-shadow:0 0px 1px rgba(0,0,0,0.2);*/	
 	color: #434343;
 }
 
@@ -31,9 +65,32 @@
 	color: #434343;
 }
 
+#bottom_bar{
+  margin-top: 10px;
+  height: auto;
+}
+
+#title_game{
+  float: left;
+  font-family:sans-serif;
+  color: gray;
+  font-size: xx-large;
+}
+
 #go_buttons {
-/*	position:absolute;
-	top: 15px;*/
+	float: right;
+}
+
+button{
+  font-size: large;
+  font-family: sans-serif;
+  color: white;
+  width: 150px;
+  height: 40px;
+  background-image: url("/images/game/wood_3.png");
+  -moz-box-shadow:    3px 3px 5px 6px #ccc;
+  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+  box-shadow:         3px 3px 5px 6px #ccc;
 }
 
 #progress_container{
@@ -315,3 +372,4 @@ top:-3px;
 -o-box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 }
+
