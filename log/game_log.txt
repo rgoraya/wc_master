@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 20120410231615506|20120410231932329|dragStart|node.id:33:node.name:Disagreement over menhaden poplation health:node.x:50:node.y:172:node.url::node.h:0|nil
 20120410231615506|20120410231932735|dragEnd|node.id:33:node.name:Disagreement over menhaden poplation health:node.x:56:node.y:173:node.url::node.h:0|nil
 20120410231615506|20120410231933815|dragStart|node.id:33:node.name:Disagreement over menhaden poplation health:node.x:56:node.y:173:node.url::node.h:0|nil
@@ -264,3 +265,56 @@
 20120423080712372|20120423080804167|swapEdge|edge.id.before:6:edge.id.after:6:edge.reltype.before:1:edge.reltype.after:0:edge.a:19:edge.b:6:edge.expandable::edge.n:0|nil
 20120423080712372|20120423080806067|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
 20120423080712372|20120423080806907|buildEnd|edge.id:7:edge.name:Samaki population increases Demand for Omega-3 as a food supplement:edge.a:19:edge.b:11:edge.reltype:1:edge.expandable::edge.n:0|nil
+=======
+20120423221530818|20120423221534646|dragStart|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:458:node.y:649:node.url::node.h:0|nil
+20120423221530818|20120423221535359|dragEnd|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:541:node.y:457:node.url::node.h:0|nil
+20120423221530818|20120423221557371|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120423221530818|20120423221558579|buildEnd|edge.id:1:edge.name:Samaki population increases Demand for farm-raised fish feed (aquaculture):edge.a:19:edge.b:8:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120423221530818|20120423221616089|dragStart|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:541:node.y:457:node.url::node.h:0|nil
+20120423221530818|20120423221616667|dragEnd|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:330:node.y:510:node.url::node.h:0|nil
+20120423221530818|20120423221825455|dragStart|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:330:node.y:510:node.url::node.h:0|nil
+20120423221530818|20120423221833809|dragEnd|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:568:node.y:416:node.url::node.h:0|nil
+20120423221530818|20120423221835528|dragStart|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:568:node.y:416:node.url::node.h:0|nil
+20120423221530818|20120423221837067|dragEnd|node.id:8:node.name:Demand for farm-raised fish feed (aquaculture):node.x:354:node.y:483:node.url::node.h:0|nil
+20120423222106834|20120423222143266|dragStart|node.id:19:node.name:Samaki population:node.x:400:node.y:350:node.url::node.h:0|nil
+20120423222106834|20120423222144525|dragEnd|node.id:19:node.name:Samaki population:node.x:436:node.y:371:node.url::node.h:0|nil
+20120423222106834|20120423222146682|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120423222106834|20120423222151014|buildEnd|edge.id:-1:edge.name::edge.a:19:edge.b:-1:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120423222106834|20120423222151884|dragStart|node.id:33:node.name:Disagreement over samaki poplation health:node.x:498:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222154478|dragEnd|node.id:33:node.name:Disagreement over samaki poplation health:node.x:522:node.y:459:node.url::node.h:0|nil
+20120423222106834|20120423222158643|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120423222106834|20120423222200192|buildEnd|edge.id:1:edge.name:Samaki population increases Disagreement over samaki poplation health:edge.a:19:edge.b:33:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120423222106834|20120423222200954|dragStart|node.id:33:node.name:Disagreement over samaki poplation health:node.x:522:node.y:459:node.url::node.h:0|nil
+20120423222106834|20120423222213603|dragEnd|node.id:33:node.name:Disagreement over samaki poplation health:node.x:623:node.y:346:node.url::node.h:0|nil
+20120423222106834|20120423222215136|dragStart|node.id:33:node.name:Disagreement over samaki poplation health:node.x:623:node.y:346:node.url::node.h:0|nil
+20120423222106834|20120423222215678|dragEnd|node.id:33:node.name:Disagreement over samaki poplation health:node.x:616:node.y:406:node.url::node.h:0|nil
+20120423222106834|20120423222225701|dragStart|node.id:33:node.name:Disagreement over samaki poplation health:node.x:616:node.y:406:node.url::node.h:0|nil
+20120423222106834|20120423222236333|dragEnd|node.id:33:node.name:Disagreement over samaki poplation health:node.x:646:node.y:293:node.url::node.h:0|nil
+20120423222106834|20120423222251433|destroyEdge|edge.id:1:edge.name:Samaki population increases Disagreement over samaki poplation health:edge.a:19:edge.b:33:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120423222106834|20120423222252712|dragStart|node.id:33:node.name:Disagreement over samaki poplation health:node.x:646:node.y:293:node.url::node.h:0|nil
+20120423222106834|20120423222255367|dragEnd|node.id:33:node.name:Disagreement over samaki poplation health:node.x:568:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222301840|dragStart|node.id:33:node.name:Disagreement over samaki poplation health:node.x:568:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222303048|dragEnd|node.id:33:node.name:Disagreement over samaki poplation health:node.x:428:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222834810|dragStart|node.id:15:node.name:Lifespan of samaki:node.x:708:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222835456|dragEnd|node.id:15:node.name:Lifespan of samaki:node.x:732:node.y:535:node.url::node.h:0|nil
+20120423222106834|20120423222836868|dragStart|node.id:15:node.name:Lifespan of samaki:node.x:732:node.y:535:node.url::node.h:0|nil
+20120423222106834|20120423222841447|dragEnd|node.id:15:node.name:Lifespan of samaki:node.x:708:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222844090|dragStart|node.id:15:node.name:Lifespan of samaki:node.x:708:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222909781|dragEnd|node.id:15:node.name:Lifespan of samaki:node.x:708:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222921421|dragStart|node.id:15:node.name:Lifespan of samaki:node.x:708:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222924330|dragEnd|node.id:15:node.name:Lifespan of samaki:node.x:676:node.y:540:node.url::node.h:0|nil
+20120423222106834|20120423222925830|dragStart|node.id:16:node.name:Management at the ecosystem level:node.x:708:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222933076|dragEnd|node.id:16:node.name:Management at the ecosystem level:node.x:781:node.y:555:node.url::node.h:0|nil
+20120423222106834|20120423222935208|dragStart|node.id:18:node.name:Marine mammals:node.x:778:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423222939161|dragEnd|node.id:18:node.name:Marine mammals:node.x:778:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423223242616|dragStart|node.id:17:node.name:Management of samaki catch:node.x:708:node.y:649:node.url::node.h:0|nil
+20120423222106834|20120423223248129|dragEnd|node.id:17:node.name:Management of samaki catch:node.x:685:node.y:384:node.url::node.h:0|nil
+20120423223427932|20120423223440649|dragStart|node.id:7:node.name:Society Affluence:node.x:788:node.y:649:node.url::node.h:0|nil
+20120423223427932|20120423223442312|dragEnd|node.id:7:node.name:Society Affluence:node.x:773:node.y:491:node.url::node.h:0|nil
+20120423223427932|20120423223444297|dragStart|node.id:7:node.name:Society Affluence:node.x:773:node.y:491:node.url::node.h:0|nil
+20120423223427932|20120423223445684|dragEnd|node.id:7:node.name:Society Affluence:node.x:788:node.y:649:node.url::node.h:0|nil
+20120423223427932|20120423223448858|dragStart|node.id:7:node.name:Society Affluence:node.x:788:node.y:649:node.url::node.h:0|nil
+20120423223427932|20120423223450130|dragEnd|node.id:7:node.name:Society Affluence:node.x:745:node.y:558:node.url::node.h:0|nil
+20120423223427932|20120423223618316|dragStart|node.id:4:node.name:Amount of samaki caught:node.x:438:node.y:649:node.url::node.h:0|nil
+20120423223427932|20120423223619054|dragEnd|node.id:4:node.name:Amount of samaki caught:node.x:471:node.y:502:node.url::node.h:0|nil
+>>>>>>> c0c76bf8dfe8c3bea2f78a91c7362c07f60025f6

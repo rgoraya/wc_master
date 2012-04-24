@@ -42,7 +42,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #@edges[1] = Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES)
 
     @nodes[@home].location = Vector[(@width-200)/2, @height/2] #pull out Samaki Population and center
-    grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[@width-100+50, 15],Vector[90, @height],Vector[0,30]) #hard-coded starting box
+    grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[-20, @height-100+50],Vector[@width, 100],Vector[100,0]) #hard-coded starting box
   end
 
   def show_expert_graph(num)
