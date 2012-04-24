@@ -1,8 +1,0 @@
-20120424004303451|20120424004307211|dragStart|node.id:4:node.name:Amount of samaki caught:node.x:338:node.y:649:node.url::node.h:0|nil
-20120424004303451|20120424004307596|dragEnd|node.id:4:node.name:Amount of samaki caught:node.x:523:node.y:428:node.url::node.h:0|nil
-20120424020724334|20120424020731620|dragStart|node.id:3:node.name:Bad weather:node.x:188:node.y:649:node.url::node.h:0|nil
-20120424020724334|20120424020733388|dragEnd|node.id:3:node.name:Bad weather:node.x:263:node.y:488:node.url::node.h:0|nil
-20120424020724334|20120424020734502|dragStart|node.id:4:node.name:Amount of samaki caught:node.x:188:node.y:649:node.url::node.h:0|nil
-20120424020724334|20120424020735446|dragEnd|node.id:4:node.name:Amount of samaki caught:node.x:173:node.y:454:node.url::node.h:0|nil
-20120424020724334|20120424020804171|dragStart|node.id:3:node.name:Bad weather:node.x:263:node.y:488:node.url::node.h:0|nil
-20120424020724334|20120424020805523|dragEnd|node.id:3:node.name:Bad weather:node.x:388:node.y:649:node.url::node.h:0|nil
