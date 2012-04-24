@@ -2,6 +2,7 @@
 = stylesheet_link_tag "colorbox"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
+  #bottom_bar {width: #{@default_width+2*@default_border}px;}
   #vis_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
   #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
@@ -27,28 +28,30 @@
 :javascript
   #{javascript_islands(@game.nodes, @game.optimal_degrees)}
 
-#contentwrapper{:style => "margin-top:0px"}
-  .contentmain
+#contentwrapper
+  .game_box
     #score_notice
       #score_content
         Calculating score...
       .closebutton{:style=>"float:right;width:15px;position:relative;top:-10px"}
         %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
       .clearboth
-    #vis_container{:style => "margin-top:0px;"}
-      #canvas_container{:style => "background-color:#9abfc3;"}
+    #vis_container
+      #canvas_container
     .clearboth
-    #go_buttons
-      %button{:id => 'run_button'}
-        Run Simulation
-      /can we convert these to just buttons instead of anchors?
-      %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
-        %button{:id => 'read_article'}
-          Read article
-      %a{:href => "/documents/quickhelp.html", :title => "How to Play", :class => "colorbox_popup"}            
-        %button{:id => 'quick_help'}
-          Help
-    #sidebar_container
+    #bottom_bar
+      #title_game
+        %img{ :src => '/images/game/title_game.png' }
+      #go_buttons
+        %button{:id => 'run_button'}
+          DEPLOY!
+        %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
+          %button{:id => 'read_article'}
+            READ
+        %a{:href => "/documents/quickhelp.html", :title => "How to Play", :class => "colorbox_popup"}            
+          %button{:id => 'quick_help'}
+            HELP
 .clearboth
 
 #tmp
+

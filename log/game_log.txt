@@ -318,3 +318,15 @@
 20120423223427932|20120423223618316|dragStart|node.id:4:node.name:Amount of samaki caught:node.x:438:node.y:649:node.url::node.h:0|nil
 20120423223427932|20120423223619054|dragEnd|node.id:4:node.name:Amount of samaki caught:node.x:471:node.y:502:node.url::node.h:0|nil
 >>>>>>> c0c76bf8dfe8c3bea2f78a91c7362c07f60025f6
+20120424032449973|20120424032503221|dragStart|node.id:15:node.name:Lifespan of samaki:node.x:428:node.y:649:node.url::node.h:0|nil
+20120424032449973|20120424032503537|dragEnd|node.id:15:node.name:Lifespan of samaki:node.x:486:node.y:443:node.url::node.h:0|nil
+20120424032449973|20120424032505073|buildStart|start_node.id:15:start_node.name:Lifespan of samaki:edge.reltype:1|nil
+20120424032449973|20120424032506453|buildEnd|edge.id:1:edge.name:Lifespan of samaki increases Samaki population:edge.a:15:edge.b:19:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120424032449973|20120424032507721|dragStart|node.id:16:node.name:Management at the ecosystem level:node.x:428:node.y:649:node.url::node.h:0|nil
+20120424032449973|20120424032508109|dragEnd|node.id:16:node.name:Management at the ecosystem level:node.x:244:node.y:463:node.url::node.h:0|nil
+20120424032449973|20120424032510789|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120424032449973|20120424032511383|buildEnd|edge.id:2:edge.name:Samaki population increases Management at the ecosystem level:edge.a:19:edge.b:16:edge.reltype:1:edge.expandable::edge.n:0|nil
+20120424032449973|20120424032514001|dragStart|node.id:17:node.name:Management of samaki catch:node.x:428:node.y:649:node.url::node.h:0|nil
+20120424032449973|20120424032514684|dragEnd|node.id:17:node.name:Management of samaki catch:node.x:503:node.y:259:node.url::node.h:0|nil
+20120424032449973|20120424032516292|buildStart|start_node.id:19:start_node.name:Samaki population:edge.reltype:1|nil
+20120424032449973|20120424032516841|buildEnd|edge.id:3:edge.name:Samaki population increases Management of samaki catch:edge.a:19:edge.b:17:edge.reltype:1:edge.expandable::edge.n:0|nil

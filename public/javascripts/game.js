@@ -633,28 +633,6 @@ function startAnimation(paper) {
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
-<<<<<<< HEAD
-  var startBoxSize = [paper_size.width, 80];
-  var startBoxTopLeft = [0, paper_size.height-80];
-
-	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).
-    attr({'fill': "url('/images/game/wood_2.png')"});
-
-	paper.rect(0, paper_size.height - 80, 15, startBoxSize[1])
-    .attr({'fill':'#000000','stroke':'#000000'})
-    .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
-    .mouseout(function(){this.attr({'fill':'#000000'})})
-    .click(function(){
-      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,-30"); //go left
-    });
-	paper.rect(paper_size.width - 15, paper_size.height - 80, 15, startBoxSize[1])
-    .attr({'fill':'#000000', 'stroke':'#000000'})
-    .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
-    .mouseout(function(){this.attr({'fill':'#000000'})})
-    .click(function(){
-      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,30"); //go right
-    });
-=======
   startBoxSize = [paper_size.width, 100];
   startBoxTopLeft = [0, paper_size.height-103];
 
@@ -707,7 +685,6 @@ function drawInitGame(paper){
     })
     .mouseup(function(){clearInterval(interval);});
 
->>>>>>> c0c76bf8dfe8c3bea2f78a91c7362c07f60025f6
 }
 
 //details on drawing/laying out a node
