@@ -5,6 +5,18 @@
  ***/
 var startBox; //the box where our islands start
 
+
+//for selection box ====
+var startBoxSize = [];
+var startBoxTopLeft = [];
+var boxNodes = {}; //nodes that are in the selection box
+var leftMost;
+var rightMost;
+var interval;
+var spacing = 150;
+var speed = 70;
+//======================
+
 var game_running = false;
 var now_building = null; //the thing we're dragging
 var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
@@ -621,32 +633,58 @@ function startAnimation(paper) {
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
-  var startBoxSize = [120,paper_size.height];
-  var startBoxTopLeft = [paper_size.width-122,0];
+  startBoxSize = [paper_size.width, 100];
+  startBoxTopLeft = [0, paper_size.height-103];
 
-	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke': '#000000', 'stroke-width':1});
-  paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],30).attr({'fill':'#FFFFFF','fill-opacity':1});
-	paper.text(paper_size.width-115,15,'Concepts').attr({
-		'text-anchor':'start', 
-		'font':'lucida grande', 'font-family':'sans-serif',
-		'font-size':24, 'font-weight':'bold',
-		'fill':'#BEBEBE',
+  for (var index in currNodes){
+      if (currNodes[index].y > startBoxTopLeft[1]) boxNodes[currNodes[index].id] = {id:currNodes[index].id, x:currNodes[index].x, y:currNodes[index].y};
+  }
+  condense();
+
+	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke': '#000000', 'stroke-width':1}).toBack();
+
+  paper.image("/images/game/wood_bkgr.png",startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).toBack();
+
+	//paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],15,startBoxSize[1])
     
-	})
-	paper.rect(startBoxTopLeft[0],30,startBoxSize[0],15)
-    .attr({'fill':'#000000','stroke':'#000000'})
-    .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
-    .mouseout(function(){this.attr({'fill':'#000000'})})
-    .click(function(){
-      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,-30"); //go up
-    });
-	paper.rect(startBoxTopLeft[0],paper_size.height-15,startBoxSize[0],15)
-    .attr({'fill':'#000000', 'stroke':'#000000'})
-    .mouseover(function(){this.attr({'fill':'#BEBEBE'})})
-    .mouseout(function(){this.attr({'fill':'#000000'})})
-    .click(function(){
-      for (var i in nodeIcons) if(paper_size.width-currNodes[i].x<startBoxSize[0]) nodeIcons[i].transform("...t0,30"); //go down
-    });
+    var leftArrow = "M 22,29  L 9,18  L 22,7  L 22,14  L 34,14  L 34,22  L 22,22 ";
+    paper.path(leftArrow).transform("...t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
+    .attr({'fill':'#ffffff','stroke':'#000000'})
+    .mouseover(function(){this.attr({'transform':'...s1.6'})})
+    .mouseout(function(){this.attr({'transform':'...s0.625'})})
+    .mousedown(function(){
+      interval = setInterval(function(){
+        if (rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
+          for (var i in nodeIcons)
+            if(paper_size.height-currNodes[i].y<startBoxSize[1]){
+              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x -= speed;
+              currNodes[i].x -=speed;
+              nodeIcons[i].transform("...t-"+speed+",0"); //go left
+            }
+      }, 1);
+    })
+    .mouseup(function(){clearInterval(interval);});
+
+	//paper.rect(paper_size.width-15,startBoxTopLeft[1],15, startBoxSize[1])
+
+    var rightArrow = "M 65,29  L 77,18  L 65,7  L 65,14  L 52,14  L 52,22  L 65,22";
+    paper.path(rightArrow).transform("...t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
+    .attr({'fill':'#ffffff', 'stroke':'#ffffff'})
+    .mouseover(function(){this.attr({'transform':'...s1.6'})})
+    .mouseout(function(){this.attr({'transform':'...s0.625'})})
+    .mousedown(function(){
+      interval = setInterval(function(){
+        if (leftMost.x < startBoxTopLeft[0] + 50)
+          for (var i in nodeIcons)
+            if(paper_size.height-currNodes[i].y<startBoxSize[1]){
+              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x += speed;
+              currNodes[i].x +=speed;
+              nodeIcons[i].transform("...t"+speed+",0"); //go right
+            }
+      }, 1);
+    })
+    .mouseup(function(){clearInterval(interval);});
+
 }
 
 //details on drawing/laying out a node
@@ -700,7 +738,6 @@ function drawNode(node, paper){
 			position:{target: 'mouse',adjust: {y:4}},
 			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
 		});
-
 		return icon;  
 }
 
@@ -829,11 +866,23 @@ var dragmove = function (dx,dy,x,y,event)
 	if(now_dragging) {
 		trans_x = dx-this.ox
 		trans_y = dy-this.oy
+    
+    if (dragged_edges.length > 0 && now_dragging.node.y + trans_y >= startBoxTopLeft[1]){
+        trans_y = startBoxTopLeft[1] - now_dragging.node.y; //can't go back once you're committed
+    }
+
+    var originalX = now_dragging.node.x;
+    var originalY = now_dragging.node.y;
+
 		now_dragging.node.x += trans_x
 		now_dragging.node.y += trans_y //move the node itself; this will move the appropriate edges
 		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
 		this.ox = dx;
-		this.oy = dy;		
+		this.oy = dy;
+
+    if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condense();}
+    else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y >	startBoxTopLeft[1]){ boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, x:now_dragging.node.x, y:now_dragging.node.y};}
+
 
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
@@ -862,6 +911,7 @@ var dragend = function (x,y,event)
 		$(selector.node).qtip(get_edge_qtip(dragged_edges[i]))
 		// $([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
 	}
+  if (now_dragging.node.y > startBoxTopLeft[1]) condense();
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
 	//console.log(data);
@@ -894,9 +944,12 @@ var buildstart = function (x,y,event)
 var buildmove = function (dx,dy,x,y,event) 
 {
 	// console.log("buildmove",dx,dy,x,y,event)
-	if(now_building) {
+	if(now_building && now_building.start_node.y <= startBoxTopLeft[1]) {
 		now_building.target_node.x = x-CANVAS_OFFSET.left //don't forget the offset to bring mouse in line!
 		now_building.target_node.y = y-CANVAS_OFFSET.top
+
+    if (now_building.target_node.y >= startBoxTopLeft[1]) now_building.target_node.y = startBoxTopLeft[1]; //you shall not pass... the box's top edge!
+
 		now_building.selected_node = null;
 		
 		//snap to targets!!
@@ -1265,6 +1318,39 @@ $(document).ready(function(){
 	});
 });
 
+function condense(){
+  var arr = [];
+  for (var index in boxNodes){
+    arr.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
+  }
+  arr.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
+
+
+  leftMost = boxNodes[arr[0].id];
+  rightMost = boxNodes[arr[arr.length-1].id];  
+
+  var ox = null;
+  var oy = null;
+
+  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/2;
+
+  for(var index = 0; index < arr.length; index++){
+    if (index < arr.length-1){
+      arr[index+1].x = arr[index].x + spacing;
+      arr[index+1].y = arr[index].y;
+    }
+  }
+
+  for(var index in boxNodes){
+    ox = currNodes[index].x;
+    oy = currNodes[index].y;
+    currNodes[index].x = boxNodes[index].x;
+    currNodes[index].y = boxNodes[index].y;
+    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
+  }
+}
+
+
 function sendLog(info){
 	//console.log(time_stamp);
 	$.ajax({
@@ -1317,4 +1403,5 @@ var ISLAND_PATHS = [
 	"m 0,0 2.821,-5.664 3.183,-3.811 4.273,-4.318 5.829,2.469 4.65,2.001 6.153,-1.063 4.062,3.888 2.887,5.67 3.617,5.686 -4.731,5.164 -0.815,6.23 -5.704,2.288 -4.633,2.976 -5.551,1.189 -5.97,0.845 -5.11,-3.277 -7.486,-2.388 4.021,-7.891 -0.179,-4.986 z",
 	"m 0,0 6.677,1.676 4.793,2.496 5.587,3.535 -1.264,6.772 -1.043,5.41 2.565,6.291 -3.185,5.226 -5.352,4.393 -5.202,5.172 -6.593,-3.826 -6.812,0.587 -3.762,-5.531 -4.244,-4.23 -2.56,-5.623 -2.29,-6.149 2.291,-6.195 0.793,-8.516 9.325,2.434 5.259,-1.354 z"
 ]
+
 
