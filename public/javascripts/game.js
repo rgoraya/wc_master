@@ -648,10 +648,10 @@ function drawInitGame(paper){
 	//paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],15,startBoxSize[1])
     
     var leftArrow = "M 22,29  L 9,18  L 22,7  L 22,14  L 34,14  L 34,22  L 22,22 ";
-    paper.path(leftArrow).transform("...t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
+    paper.path(leftArrow).transform("t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
     .attr({'fill':'#ffffff','stroke':'#000000'})
-    .mouseover(function(){this.attr({'transform':'...s1.6'})})
-    .mouseout(function(){this.attr({'transform':'...s0.625'})})
+    .mouseover(function(){this.attr({'transform':'...s1.2'})})
+    .mouseout(function(){this.attr({'transform':"t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
     .mousedown(function(){
       interval = setInterval(function(){
         if (rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
@@ -670,8 +670,8 @@ function drawInitGame(paper){
     var rightArrow = "M 65,29  L 77,18  L 65,7  L 65,14  L 52,14  L 52,22  L 65,22";
     paper.path(rightArrow).transform("...t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
     .attr({'fill':'#ffffff', 'stroke':'#ffffff'})
-    .mouseover(function(){this.attr({'transform':'...s1.6'})})
-    .mouseout(function(){this.attr({'transform':'...s0.625'})})
+    .mouseover(function(){this.attr({'transform':'...s1.2'})})
+    .mouseout(function(){this.attr({'transform':"t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
     .mousedown(function(){
       interval = setInterval(function(){
         if (leftMost.x < startBoxTopLeft[0] + 50)
