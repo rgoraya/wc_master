@@ -64,7 +64,7 @@ module GameHelper
     out += ",w:"+(Game::RUBRIC[-1*Game::DEGREE] || Game::RUBRIC[0]).to_s
     out += "};"
 
-    puts out
+    #puts out
     return out
   end
 
