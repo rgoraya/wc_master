@@ -38,6 +38,11 @@ if(continuous){ //currently sort of fast, can slow down as we test
 	HESITATE_TIME = 200 //should be 1/2 or 2/3 pace?
 }
 
+var ARROW_LENGTH = 15 // arrowhead length
+var ARROW_HEIGHT = 12 // arrowhead height
+var EDGE_COLORS = {'increases':'#C27E60','decreases':'#A0A7AD','superset':'#BBBBBB'}
+var EDGE_HIGHLIGHT_COLORS = {'increases':'#B6664E','decreases':'#7C7F86','superset':'#BBBBBB'}
+
 /***
  *** PLAY SOUNDS
  ***/
@@ -747,21 +752,38 @@ function drawEdge(edge, paper){
 		var a = edge.a;
 		var b = edge.b;
 
-		var curve = getPath(edge) //get the curve's path		
+		var curve = getPath(edge) //get the curve's path
+		var normal = getUnitNormal(edge)
 		var e = paper.path(curve).attr({'stroke-width':5}).toBack()
-		
-		//set attributes based on relationship type (bitcheck with constants)
-		if(edge.reltype&INCREASES)
-			e.attr({stroke:EDGE_COLORS['increases']})
-		else if(edge.reltype&SUPERSET)
-			e.attr({stroke:EDGE_COLORS['superset']})
-		else //if decreases
-			e.attr({stroke:EDGE_COLORS['decreases']})
-		
+		.transform("...t"+(1*normal[0])+","+(1*normal[1]))
+		var e2 = paper.path(curve).attr({'stroke-width':5})
+			.transform("...t"+(-1*normal[0])+","+(-1*normal[1]))
+			.insertBefore(e)
+			
+		var stipple = paper.path(getThickPath(edge,5))
+			.attr({'stroke-opacity':0,'fill':'url(/images/game/bridgepattern.png)','fill-opacity':0.2})
+			.insertAfter(e)
+			
 		var arrow = drawArrow(edge, curve, paper)
-		arrow.insertAfter(e)
-		var dots = drawDots(edge, curve, paper)
-		dots.insertAfter(e)
+		arrow[0].attr({'stroke-linejoin':'round','stroke-opacity':0}).insertAfter(e2)
+		arrow[1].insertAfter(e)
+
+		//set attributes based on relationship type (bitcheck with constants)
+		if(edge.reltype&INCREASES){
+			e.attr({stroke:EDGE_COLORS['increases']})
+			e2.attr({stroke:EDGE_HIGHLIGHT_COLORS['increases']})
+			arrow[0].attr({fill:EDGE_HIGHLIGHT_COLORS['increases']})
+		}
+		else if(edge.reltype&SUPERSET){
+			e.attr({stroke:EDGE_COLORS['superset']})
+			e2.attr({stroke:EDGE_HIGHLIGHT_COLORS['superset']})
+			arrow[0].attr({fill:EDGE_HIGHLIGHT_COLORS['superset']})
+		}
+		else{ //if decreases
+			e.attr({stroke:EDGE_COLORS['decreases']})
+			e2.attr({stroke:EDGE_HIGHLIGHT_COLORS['decreases']})
+			arrow[0].attr({fill:EDGE_HIGHLIGHT_COLORS['decreases']})
+		}
 
 		var center = getPathCenter(curve,-2)
 		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
@@ -769,10 +791,13 @@ function drawEdge(edge, paper){
 		$(e.node).qtip(get_edge_qtip_small(edge))
 
 		var icon = paper.set() //for storing pieces of the line as needed
-		.push(e, arrow[0], arrow[1], dots, selector)
+		.push(e, e2, arrow[0], arrow[1], selector, stipple)
 
 		return icon;
 }
+
+
+
 
 //draws the edge-editing box for a given edge and canvas_id
 function drawEdgeSelectors(edge, canvas_id){
@@ -798,14 +823,14 @@ function drawEdgeSelectors(edge, canvas_id){
 	//draw alternative arrow
 	var arrowPath = getArrowPath(midPoint, 0)
 	var arrow = canvas.path(arrowPath) //draw the arrowhead
-		.attr({stroke:'none'})
-		.transform('s1.2')
+		.attr({'stroke-linejoin':'round','stroke-opacity':0})
+		// .transform('s1.0')
 		.transform("...r"+(midPoint.alpha)) //rotate and flip
 	if(!edge_incr){ //if we're not increasing, make this the 'increase' option
-		arrow.attr({fill:EDGE_COLORS['increases']})
+		arrow.attr({fill:EDGE_HIGHLIGHT_COLORS['increases']})
 	}
 	else{ //if decreases
-		arrow.attr({fill:EDGE_COLORS['decreases']});	
+		arrow.attr({fill:EDGE_HIGHLIGHT_COLORS['decreases']});	
 	}
 	var arrowSymbolPath = getArrowSymbolPath(midPoint, (edge_incr ? 0 : 1))
 	var arrowSymbol = canvas.path(arrowSymbolPath) //draw the symbol on the arrow
@@ -823,7 +848,7 @@ function drawEdgeSelectors(edge, canvas_id){
 	var deletePath = 'M -1 1 L 1 -1 M -1 -1 L 1 1'
 	var deleteSymbol = canvas.path(deletePath)
 		.attr({'stroke-width':3, 'stroke':'#d24648', 'stroke-linecap':'round'})
-		.transform('...s5 T15,35')
+		.transform('...s5.5 T15,35')
 	var deleteSelector = canvas.circle(15,35,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
 		.mouseover(function() {
 			this.node.style.cursor='pointer';
@@ -851,7 +876,7 @@ var dragstart = function (x,y,event)
 			if(edge.a == now_dragging.node || edge.b == now_dragging.node){
 				// console.log(edge.name, edge.id, edgeIcons[edge.id])
 				dragged_edges.push(edge) //SHOULD THIS BE STORING THE ICONS RATHER THAN THE EDGES?? NO, SINCE WE'LL WANT TO ADJUST
-				oldSymbol = edgeIcons[edge.id].splice(1,4) //remove the symbol, since we're not moving it
+				oldSymbol = edgeIcons[edge.id].splice(2,4) //remove the arrow, stipple, etc
 				oldSymbol.remove()
 			}
 		}
@@ -898,18 +923,9 @@ var dragend = function (x,y,event)
 {
 	for(var i=0, len=dragged_edges.length; i<len; i++) //redraw the icons on the edges
 	{
-		var curve = getPath(dragged_edges[i]) //get new curve
-		var arrow = drawArrow(dragged_edges[i],curve,paper) //just go ahead and redraw the arrow and dots
-		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
-		arrow.insertAfter(edgeIcons[dragged_edges[i].id][0])
-		var dots = drawDots(dragged_edges[i],curve,paper)
-		edgeIcons[dragged_edges[i].id].push(dots)
-		dots.insertAfter(edgeIcons[dragged_edges[i].id][0])
-		var center = getPathCenter(curve,-2)
-		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-		edgeIcons[dragged_edges[i].id].push(selector)
-		$(selector.node).qtip(get_edge_qtip(dragged_edges[i]))
-		// $([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
+		//just redraw the whole damn edge at this point. Easier. Not sure why we didn't do this before :p
+		edgeIcons[dragged_edges[i].id].remove()
+		edgeIcons[dragged_edges[i].id] = drawEdge(dragged_edges[i], paper)
 	}
   if (now_dragging.node.y > startBoxTopLeft[1]) condense();
 

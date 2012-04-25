@@ -23,7 +23,8 @@ div#contentwrapper{
 }
 
 div#canvas_container{
-  background-color:#9abfc3; 
+  background-color:#119dc5;
+/*  background-color:#9abfc3; */
   -moz-box-shadow:    inset 0 0 15px #000000;
   -webkit-box-shadow: inset 0 0 15px #000000;
   box-shadow:         inset 0 0 15px #000000;

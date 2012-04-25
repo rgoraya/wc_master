@@ -4,6 +4,7 @@ Wikicausality::Application.routes.draw do
 
   match '/signup', :to  => 'users#new' 
   match 'game/welcome' => 'game#welcome'
+  match 'game/howtoplay' => 'game#how_to_play'
   match 'game/article' => 'game#article'
   match 'game/run' => 'game#run'
   match 'game/play' => 'game#play'

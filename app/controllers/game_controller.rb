@@ -23,6 +23,9 @@ class GameController < ApplicationController
   def welcome
   end
 
+  def how_to_play
+  end
+
   def article
   end
 
