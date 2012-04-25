@@ -3,8 +3,12 @@ require 'set'
 
 class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and stuff
 
+  #constants
   START = 19
-
+  DEGREE = 5 #degree of indirection included
+  
+  attr_accessor :correct, :optimal_degrees, :home
+  
   def initialize(args)
     puts "===game initialize args===" #debugging
     puts args
@@ -16,6 +20,8 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   	@nodes = @graph.nodes
   	@edges = @graph.edges
     @adjacency = Hash.new(nil)
+    @correct = get_accuracy_matrix(DEGREE)
+    @home = START
 
     if args[:blank]
       make_blank_graph
@@ -35,19 +41,19 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #testing
     #@edges[1] = Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES)
 
-    @nodes[START].location = Vector[(@width-200)/2, @height/2] #pull out Menhaden Population and center
-    grid_nodes_in_box(@nodes.reject{|k,v| k==START},Vector[@width-200+50, 130],Vector[200, @height-130+50]) #hard-coded starting box
+    @nodes[@home].location = Vector[@width/2, (@height-150)/2] #pull out Samaki Population and center
+    grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[-20, @height-100+50],Vector[@width, 100],Vector[100,0]) #hard-coded starting box
   end
 
   def show_expert_graph(num)
     ISSUE_NAMES.each_with_index {|name, i| @nodes[i] = Graph::Node.new(i, name, "") unless name.blank? }
 
-    ISSUE_NAMES.each_with_index {|name, i| puts 'Sport fish health'+(i+1).to_s if name=='Sport fish health'}
-
     if(num=='master')
-      matrix = get_accuracy_matrix # matrix is form [a,b,direction]=>rubric score
-      matrix.each_with_index{|(key,value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (key[2] > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) if value > 0}
-    else    
+      @correct.each_key {|i| @correct[i].each_key {|j| @correct[i][j].each_key {|k|
+        @edges[i*50*4+j*4+k] = Graph::Edge.new(i*50*4+j*4+k, @nodes[i-1], @nodes[j-1], (k > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) if @correct[i][j][k] > 0}}}
+      # @correct.each_with_index{|(key,value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (key[2] > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) if value > 1}
+        puts "NUM EDGES: "+@edges.length.to_s
+    else
       EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) }
     end
     
@@ -57,7 +63,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   def make_user_graph(edges)
     #puts "MAKING USER GRAPH FROM",edges.to_s
 
-    @nodes[START] = Graph::Node.new(START,ISSUE_NAMES[START],"") #have at least the one node (Mehanad Population) to start with...
+    @nodes[@home] = Graph::Node.new(@home,ISSUE_NAMES[@home],"") #have at least the one node (Mehanad Population) to start with...
 
     #construct the nodes
     edges.each do |key, edge|
@@ -86,8 +92,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     # puts @edges
     # puts @adjacency
 
-    correct = get_accuracy_matrix
-    @validity = Hash[*@edges.values.collect {|e| [e.id, correct[[e.a.id+1, e.b.id+1, (e.rel_type == 1 ? 1 : -1)]] ] }.flatten]
+    @validity = Hash[*@edges.values.collect {|e| [e.id, @correct[e.a.id+1][e.b.id+1][(e.rel_type == 1 ? 1 : -1)] ] }.flatten]
     #puts @validity, @validity.values.inject(0, :+)
   end
 
@@ -121,7 +126,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 	  attr_accessor :id, :island, :plan
 		def initialize(n)
 		  @id = n
-		  @island = START
+		  @island = @home
 		  @plan = []
 	  end
 	  def to_s
@@ -132,15 +137,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
   # define all the ants that represent this game simulation!
   def get_ants
     puts "ANT FARM!"
-    ants = Array.new #ants could probably just be an array of hashes, since we don't yet need a full object...
-    
-    #make 100 ants
-    num_ants = 100
-    (0...num_ants).each do |i|
-      ant = Ant.new(i)
-      ants.push(ant)
-    end
-    
+            
     edges_to_check = Set.new
     edges_by_node = @nodes.merge(@nodes) {|k| []}
     @edges.each do |e_id, edge|
@@ -149,7 +146,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       edges_by_node[edge.b.id].push(e_id)
     end
 
-    journeys = [[START]] #last item of journey array is the current island
+    journeys = [[@home]] #last item of journey array is the current island
     journeys.each do |path| #go through each journey on the path      
       island = path[-1] #the last item is where we're moving from
       #grab all the edges connected to that path that are new or involve new terminals
@@ -178,6 +175,14 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
     puts 'journeys: '+journeys.to_s, 'number of journeys: '+journeys.length.to_s    
 
+    #make how many ants?
+    ants = Array.new #ants could probably just be an array of hashes, since we don't yet need a full object...
+    num_ants = journeys.length #100
+    (0...num_ants).each do |i|
+      ant = Ant.new(i)
+      ants.push(ant)
+    end
+
     #divide the journeys among the ants
     ants.each_with_index {|ant,i| ant.plan = journeys[(i+1)%journeys.length]}
         
@@ -193,25 +198,99 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 ### CONSTANTS FOR THE GRAPHS ###
 ################################
 
-  #we could also hard-code this for a speed increase...
-  def get_accuracy_matrix
-    matrix = Hash.new
+  def indirect_graph(graph, order)
+    #make matrix out of given graph hash
+    matrix = Matrix.build(ISSUE_NAMES.length, ISSUE_NAMES.length) do |row, col|
+      graph[[row+1, col+1]] || 0
+    end
+    # puts "*********matrix form********", matrix
 
-    (1..ISSUE_NAMES.length).each do |i| #for every pair
-      (1..ISSUE_NAMES.length).each do |j|
-      
-        num_incr = 0
-        num_decr = 0
-        EXPERT_GRAPHS.each_value do |expert| #count how many experts had an edge in each direction
-          num_incr += 1 if expert[[i,j]] == 1
-          num_decr += 1 if expert[[i,j]] == -1
-        end
-        
-        matrix[[i,j,1]] = RUBRIC[num_incr] #have increase and decrease, so technically 3d matrix
-        matrix[[i,j,-1]] = RUBRIC[num_decr]
+    indirect = matrix
+    (2..order).each {|i| indirect += matrix**order}
+    # indirect = matrix**order
+    #puts "*********indirect matrix "+order.to_s+"********", indirect
+
+    # interesting problem; how do I deal with loops in making plans available? Just data format problem, really...
+    # So maybe first parse the EXPERT_GRAPHS into 3d matrixes when multiplying back together, in construction of accuracy?
+      # method to draw "accuracy" graph? that's basically what the master draw is!
+    # need to not lose things that already exist
+    # This method needs to be included in the accuracy matrix. Or at least the "square matrix" part
+    
+    #convert back to hash
+    hash = Hash.new
+    indirect.each_with_index {|v,r,c| hash[[r+1,c+1]] = v/v.abs unless v==0}
+
+    return hash
+  end
+
+  #we SHOULD also hard-code this for a speed increase...
+  def get_accuracy_matrix(degree=1)
+    matrix = Hash.new
+    
+    #construct indirect graphs for the experts, and then run through those below
+    #indirect[expert][order] = Matrix ???
+    indirect = Hash.new
+    EXPERT_GRAPHS.each do |num, graph|
+      indirect[num] = Hash.new
+      indirect[num][1] = Matrix.build(ISSUE_NAMES.length, ISSUE_NAMES.length) {|row, col| graph[[row+1, col+1]] || 0}
+      (2..degree).each do |i|
+        tmp = indirect[num][i-1]*indirect[num][1] #multiply out
+        #tmp.each_with_index {|v,r,c| tmp[r,c]=0 if r==c; tmp[r,c]=v/v.abs unless v==0} #simplify and clear out loops
+        indirect[num][i] = tmp
       end
     end
-  
+    # puts indirect
+
+    
+    (1..ISSUE_NAMES.length).each do |i| #for every pair
+      matrix[i] = Hash.new
+      (1..ISSUE_NAMES.length).each do |j|
+        matrix[i][j] = Hash.new(0)
+        matrix[i][j][1] = 0 #init these guys cause
+        matrix[i][j][-1] = 0
+        
+        if i!=j
+          num_incr = 0
+          num_decr = 0
+          EXPERT_GRAPHS.each_key do |key| #count how many experts had an edge in each direction
+            pos_found = false
+            neg_found = false
+            indirect[key].each_value do |graph|
+              # puts "****************************************\n***************** GRAPH WE'RE LOOKING AT****************",i,j,graph
+              pos_found = (pos_found or graph[i-1,j-1] > 0) #mark if we found an edge for this expert at some degree
+              neg_found = (neg_found or graph[i-1,j-1] < 0)
+            end
+            
+            num_incr += 1 if pos_found
+            num_decr += 1 if neg_found
+          end
+        
+          matrix[i][j][1] += RUBRIC[num_incr] #have increase and decrease, so technically 3d matrix
+          matrix[i][j][-1] += RUBRIC[num_decr]
+        end
+      end
+    end
+
+    # puts "***CONNECTIVITY***"
+    # # puts matrix
+    @optimal_degrees = Hash.new(0)
+    matrix.each_key do |i|
+      matrix[i].each_key do |j|
+        matrix[i][j].each_key do |k|
+          if matrix[i][j][k] > 0
+            @optimal_degrees[i-1]+=1
+            @optimal_degrees[j-1]+=1
+          end
+        end
+      end
+    end
+    # matrix['degree'] = degree
+    # matrix['wrong'] = RUBRIC[-1*degree] || RUBRIC[0]
+
+    # puts "optimal_degrees: "+@optimal_degrees.to_s
+    ## {0=>8, 3=>6, 4=>15, 5=>22, 6=>12, 7=>8, 8=>4, 10=>6, 11=>6, 12=>10, 13=>4, 15=>4, 16=>28, 17=>17, 18=>11, 19=>31, 20=>10, 21=>7,22=>13, 23=>12, 24=>4, 25=>12, 26=>9, 27=>13, 28=>4, 29=>12, 30=>20, 31=>13, 32=>8, 33=>12, 34=>5, 35=>4, 36=>5, 37=>8, 38=>16, 39=>7}
+    ## {0=>100, 4=>114, 5=>90, 6=>100, 12=>113, 15=>87, 16=>102, 17=>117, 18=>107, 19=>110, 20=>91, 21=>80, 22=>92, 23=>107, 25=>102, 26=>100, 27=>92, 29=>101, 30=>108, 31=>106, 32=>98, 33=>83, 36=>70, 37=>97, 39=>96, 3=>44, 7=>40, 8=>27, 10=>30, 11=>33, 28=>23, 34=>28, 13=>45, 24=>27, 35=>30, 38=>54}
+
     #matrix.each {|key,value| puts key.to_s+":"+value.to_s if value > 0}
     ### should probably just hard-code this once it's done...
     return matrix
@@ -232,34 +311,34 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     ' ',
     'Demand for Livestock feed',
     'Demand for Omega-3 as a food supplement',
-    'Effort put into catching menhaden',
+    'Effort put into catching samaki',
     'El Nino',
     ' ',
-    'Lifespan of menhaden',
+    'Lifespan of samaki',
     'Management at the ecosystem level',
-    'Management of menhaden catch',
+    'Management of samaki catch',
     'Marine mammals',
-    'Menhaden population',
+    'Samaki population',
     'Dissolved oxygen levels',
     'Nutrients in the water',
     'Omega Corporation profits',
     'Predatory bird populations',
     'Public information to increase fish oil intake',
-    'Public worry about decrease of menhaden',
-    'Reproduction rate of menhaden',
+    'Public worry about decrease of samaki',
+    'Reproduction rate of samaki',
     'Sales price per unit catch',
     'Soybeans sales',
     'Sport fish health',
     'Sport fish populations',
     'Scientific speculation of overfishing',
-    'Menhaden industry leaders\' claim of healthy fishery',
-    'Disagreement over menhaden poplation health',
-    'Price of competing products (soybeans and vegetable oils)',
+    'Samaki industry leaders\' claim of healthy fishery',
+    'Disagreement over samaki poplation health',
+    'Price of competing products (soybeans/vegetable oils)',
     'Reproduction rate per unit fish',
     'Production from international fish oil competitors',
     'Amount of sport fish caught',
     'Human population',
-    'Food eaten per fish (menhaden)',
+    'Food eaten per fish (samaki)',
   ]
 
   EXPERT_GRAPH_1 = { #group 1

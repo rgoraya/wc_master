@@ -2,9 +2,8 @@ class GameController < ApplicationController
   layout "game_layout" #don't use normal headers and such for now...
 
   @@DEFAULT_WIDTH = 900#900*1.0 #defaults
-  @@DEFAULT_HEIGHT = 600#675*1.0
+  @@DEFAULT_HEIGHT = 500#675*1.0
   # for large map, 900x900 looks good
-
   @@DEFAULT_BORDER = 50
 
 	log_path = nil
@@ -18,7 +17,19 @@ class GameController < ApplicationController
 	@@GAME_LOG = Logger.new(log_path)
 
   def index
+    render 'welcome.html.haml'
+  end
 
+  def welcome
+  end
+
+  def how_to_play
+  end
+
+  def article
+  end
+
+  def play
 		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
 
     @default_width = @@DEFAULT_WIDTH
@@ -28,6 +39,7 @@ class GameController < ApplicationController
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
     #puts "verbose: "+@verbose.to_s
+    @continuous = !params[:c].nil? #continuous = false unless otherwise specified. Eventually will be randomly determined
 
     # puts "===Controller Params==="
     # puts params
@@ -35,10 +47,14 @@ class GameController < ApplicationController
     respond_to do |format|
       format.html do #on html calls
         if params[:expert]
-          @vis = Game.new(:width => @default_width, :height => @default_height, :expert => params[:expert])
+          @game = Game.new(:width => @default_width, :height => @default_height, :expert => params[:expert])
         else
-          @vis = Game.new(:width => @default_width, :height => @default_height, :blank => true)
+          @game = Game.new(:width => @default_width, :height => @default_height, :blank => true)
         end
+
+        @home_island = @game.home
+        
+        puts "***** HOME ISLAND *****", @home_island
 
         # flash[:notice] = @vis.notice
         # 
@@ -68,12 +84,13 @@ class GameController < ApplicationController
     respond_to do |format|
       format.js do #respond to ajax calls
     
-        @game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
-        @result = @game.compare_to_expert.to_s
-        @ants = @game.get_ants
+        #@game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
+        
+        #@result = @game.compare_to_expert.to_s
+        #@ants = @game.get_ants
         
         # flash[:notice] = 'Your score: '+@result.to_s
-        
+      
         
       end
     end
@@ -84,9 +101,19 @@ class GameController < ApplicationController
 		render :nothing => true
 	end
 
-  #temporary
-  def edge_qtip
-    render :partial => "edge_qtip", :content_type => 'text/html', :locals => {:edge => params[:edge]}
+  def research
+    #the introductory paragraph
+    
+  end
+
+  def survey_demographic
+    @user_id = 'random_id_should_be_made_here'
+    ## show survey
+    ## on submit, should redirect to game
+  end
+
+  def survey_evaluation
+    ## show the survey, etc
   end
 
 end
