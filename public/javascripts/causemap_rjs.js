@@ -87,8 +87,10 @@ function drawEdge(edge, paper){
 		else //if decreases
 			e.attr({stroke:EDGE_COLORS['decreases']})
 		
-		var arrow = drawArrow(edge, curve, paper)		
+		var arrow = drawArrow(edge, curve, paper)
+		arrow.insertAfter(e)
 		var dots = drawDots(edge, curve, paper)
+		dots.insertAfter(e)
 
 		if(hasSelection){
 			if((edge.reltype&HIGHLIGHTED)==0){ //if not highlighted
@@ -138,11 +140,39 @@ function drawEdge(edge, paper){
 //so for example: the 0th edge could be straight, 1st could curve up, 2nd could curve down, etc
 function getPath(edge)
 {
-	var a = edge.a //for quick access
-	var b = edge.b
+	var a = edge.a; //for quick access
+	var b = edge.b;
 
 	if(edge.n == 0){ //if the odd curve, then just draw a straight line
-		return "M "+a.x+","+a.y+" L "+b.x+","+b.y
+		return "M "+a.x+","+a.y+" L "+b.x+","+b.y;
+	}
+	else{ //otherwise, calculate curves. Control point is some distance along the perpendicular bisector
+		var center = [(a.x+b.x)/2, (a.y+b.y)/2];
+		var normal = [center[1]-a.y, a.x-center[0]];
+		var scale = .3*Math.ceil(edge.n/2); //scale bend based on how many edges there are
+		//may need to invert scale if we have two edges going in the same direction
+		if(edge.n%2==0 && a.id < b.id || edge.n%2==1 && a.id > b.id)
+			scale = scale*-1;
+
+		var control = [center[0]+scale*normal[0], center[1]+scale*normal[1]];
+		
+		// console.log("control",control)
+		return "M"+a.x+","+a.y+" Q "+control[0]+","+control[1]+" "+b.x+","+b.y;
+	}
+
+	return ""; //in case we didn't get anything?
+}
+
+//returns a path for the edge with a particular thickness (basically calculates two curves offset by width)
+function getThickPath(edge, wi){
+	var a = edge.a; //for quick access
+	var b = edge.b;	
+	var unit_normal = getUnitNormal(edge);
+	var w = {x:(unit_normal[0]*wi/2), y:(unit_normal[1]*wi/2)}
+
+	if(edge.n == 0){ //if the odd curve, then just draw a straight line
+		return "M "+(a.x+w.x)+","+(a.y+w.y)+" L "+(b.x+w.x)+","+(b.y+w.y)+
+						"L "+(b.x-w.x)+","+(b.y-w.y)+" L "+(a.x-w.x)+","+(a.y-w.y)+"z"
 	}
 	else{ //otherwise, calculate curves. Control point is some distance along the perpendicular bisector
 		var center = [(a.x+b.x)/2, (a.y+b.y)/2]
@@ -155,10 +185,19 @@ function getPath(edge)
 		var control = [center[0]+scale*normal[0], center[1]+scale*normal[1]]
 		
 		// console.log("control",control)
-		return "M"+a.x+","+a.y+" Q "+control[0]+","+control[1]+" "+b.x+","+b.y
+		return "M"+(a.x+w.x)+","+(a.y+w.y)+" Q "+(control[0]+w.x)+","+(control[1]+w.y)+" "+(b.x+w.x)+","+(b.y+w.y)+
+						"L"+(b.x-w.x)+","+(b.y-w.y)+" Q "+(control[0]-w.x)+","+(control[1]-w.y)+" "+(a.x-w.x)+","+(a.y-w.y)+"z"
 	}
 
 	return "" //in case we didn't get anything?
+}
+
+//returns a transformation string to move the edge perpendicular the given offset
+function getUnitNormal(edge){
+	var center = [(edge.a.x+edge.b.x)/2, (edge.a.y+edge.b.y)/2]
+	var normal = [center[1]-edge.a.y, edge.a.x-center[0]]
+	var norm_len = Math.sqrt(normal[0]*normal[0]+normal[1]*normal[1])
+	return [normal[0]/norm_len, normal[1]/norm_len]
 }
 
 function getPathCenter(path, offset, flip)
@@ -188,9 +227,9 @@ function getArrowPath(point, reltype)
 
 //gets the path to draw the symbol inside an arrow
 //should this be a text function instead?
-function getArrowSymbolPath(point, reltype)
+function getArrowSymbolPath(point, reltype, symbolSize)
 {
-	var symbolSize = 2;
+	var symbolSize = typeof symbolSize !== 'undefined' ? symbolSize : 2.5;
 	var x_off = symbolSize*1.5
 	var y_off = symbolSize*.5
 

@@ -3,8 +3,14 @@ Wikicausality::Application.routes.draw do
 	post 'game/log' => 'game#log'
 
   match '/signup', :to  => 'users#new' 
-  match 'game/edge_qtip' => 'game#edge_qtip'
+  match 'game/welcome' => 'game#welcome'
+  match 'game/howtoplay' => 'game#how_to_play'
+  match 'game/article' => 'game#article'
   match 'game/run' => 'game#run'
+  match 'game/play' => 'game#play'
+  match 'game/research' => 'game#research'
+  match 'game/research/survey' => 'game#survey_demographic'
+  match 'game/research/evaluation' => 'game#survey_evaluation'
   resources :game
   match 'mapvisualizations/search_bars' => 'mapvisualizations#search_bars'
   match 'mapvisualizations/qtip' => 'mapvisualizations#qtip'

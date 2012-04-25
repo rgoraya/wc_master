@@ -1,65 +1,747 @@
 /// THIS FILE CONTAINS THE JAVASCRIPT FOR THE GAME, OVERWRITING causemap_rjs AND mapvizualization_index WHERE APPROPRIATE
 
-var startBox;
-var now_building = null //the thing we're dragging
-var tooltip = null
+/*** 
+ *** GLOBAL VARIABLES 
+ ***/
+
+var game_running = false;
+var now_building = null; //the thing we're dragging
+var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
+var selector_canvases_drawn = []; //canvases we've drawn before
+var all_ants = []; //all the ants (for tracking)
+var active_ants = []; //the ants that we're animating
+//var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
+var first_edge = true //if the (next) edge the first edge built?
+
+//timer constants
+var DEPLOY_TIME = 1
+var SPAWN_TIME = 4
+var PACE_TIME = 120
+var HESITATE_TIME = 20
+if(continuous){ //currently sort of fast, can slow down as we test
+	DEPLOY_TIME = 100 
+	SPAWN_TIME = 15
+	PACE_TIME = 330
+	HESITATE_TIME = 200 //should be 1/2 or 2/3 pace?
+}
+
+var ARROW_LENGTH = 15 // arrowhead length
+var ARROW_HEIGHT = 12 // arrowhead height
+var EDGE_COLORS = {'increases':'#C27E60','decreases':'#A0A7AD','superset':'#BBBBBB'}
+var EDGE_HIGHLIGHT_COLORS = {'increases':'#B6664E','decreases':'#7C7F86','superset':'#BBBBBB'}
+
+//for selection box ====
+var startBox; //the box where our islands start
+var startBoxSize = [];
+var startBoxTopLeft = [];
+var boxNodes = {}; //nodes that are in the selection box
+var leftMost;
+var rightMost;
+var interval;
+var spacing = 150;
+var speed = 70;
+//======================
+
+/***
+ *** PLAY SOUNDS
+ ***/
+
+var SOUNDS = false; //toggle sound
+
+function html5_audio(){
+  var a = document.createElement('audio');
+  return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+}
+
+function get_random_int(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+var play_html5_audio = false;
+if(html5_audio()) play_html5_audio = true;
+
+var snd; 
+
+function play_sound(url){
+	if(SOUNDS){
+	  if(get_random_int(0, 10) > 8){
+	    if(play_html5_audio){
+	      snd = new Audio(url);
+	      snd.load();
+	      snd.play();      
+	    }else{
+	      $("#sound").remove();
+	      var sound = $("<embed id='sound' type='audio/mpeg' />");
+	      sound.attr('src', url);
+	      sound.attr('loop', false);
+	      sound.attr('hidden', true);
+	      sound.attr('autostart', true);
+	      $('body').append(sound);
+	    }                 
+	  }
+	}
+}
+
+
+/***
+ *** CLASS DEFINITIONS
+ ***/
+
+/*** ISLANDS ***/
+function Island(n,opt_degree){
+	this.n = n
+	this.degree = opt_degree //how many edges we WANT to have coming out of us...
+	this.bridges = []
+	this.node = currNodes[this.n]
+	this.icon = nodeIcons[this.n] //try to define, though will likely get null
+	this.ants = []
+	this.settled = []
+
+	//do we want two timers, or will just 1 do? (depends on whether we want to deploy immediately after spawn...)
+	this.spawn_timer = 0 
+	this.spawn_count = 0
+	this.max_spawn = 30 //degree is like 100; should be based on bridge count if not continuous?
+	this.deploy_timer = 0
+	this.activated = false
+	this.emptied = false
+	this.deploy_lock = [false,false,-1]
+}
+Island.prototype.tick = function(){
+	if(this.activated){
+		if(!this.emptied && this.spawn_timer >= SPAWN_TIME){
+			if(this.spawn_count < this.max_spawn)
+				this.spawnAnt()
+			else
+				this.emptied = true
+			this.spawn_timer = 0
+		}
+		this.spawn_timer += 1
+
+		if(this.deploy_timer > DEPLOY_TIME){
+			if(this.ants.length > 0 && this.bridges.length > 0){ //only deploy if we actually have ants and bridges to send them on
+				if(continuous)
+					this.deployOneAnt()
+				else
+					this.deployAnts()
+				this.deploy_timer = 0 //reset after we have deployed
+			}
+		}
+		this.deploy_timer += 1
+	}
+}
+Island.prototype.activate = function(){
+	this.activated = true
+	this.icon[2].show();//insertAfter(this.icon[0]) //hard-code move "house" after "island" to show
+}
+Island.prototype.spawnAnt = function(){
+	var ant = new Ant(all_ants.length, [], this.n); //create a new ant on this island
+	all_ants.push(ant)
+	active_ants.push(ant)
+	this.spawn_count += 1
+}
+Island.prototype.deployOneAnt = function(){ //deploy a single ant along an edge
+	// console.log('deploying ants from',this)
+
+	// this.deploy_lock[0] = true; //peterson's lock
+	// this.deploy_lock[2] = 1;
+	// while(this.deploy_lock[1] && this.deploy_lock[2] == 1){/*busy wait*/}
+	
+	var ant = this.ants.shift() //first waiting person
+	
+	var edge = currEdges[this.bridges[0]]
+	// console.log('checking',edge.a.id,edge.b.id,(edge.reltype ? 1 : -1))
+	ant.stat = ant.ON_PATH
+	ant.path = this.bridges[0] //set them on the bridge!
+	//console.log('error around here [',this.bridges.toString(), ']')
+	ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
+	ant.prog = 0
+	//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
+	ant.reverse = (ant.island == edge.b.id)
+	// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+		
+	//cycle the bridges for next launch
+	this.bridges = this.bridges.slice(1).concat(this.bridges.slice(0,1))
+
+	// this.deploy_lock[0] = false;
+
+}
+Island.prototype.deployAnts = function(){ //deploy ants along available edge
+	// console.log('deploying ants from',this)
+
+	//on "deploy" stage, go through the bridges, and send 1 ant down each
+	for(var i=0, len=this.bridges.length; i<len; i++){ //go through the bridges
+		if(this.ants.length > 0){
+			var ant = this.ants.shift() //first waiting person
+			// console.log('deploying',ant, this.ants.length, 'left')
+
+			var edge = currEdges[this.bridges[i]]
+			// console.log('checking',edge.a.id,edge.b.id,(edge.reltype ? 1 : -1))
+			ant.stat = ant.ON_PATH
+			ant.path = this.bridges[i] //set them on the bridge!
+			ant.pathlen = edgeIcons[ant.path][0].getTotalLength()
+			ant.prog = 0
+			//figure out if we're moving the reverse of the path or not--if our island is the b item on the path we're taking
+			ant.reverse = (ant.island == edge.b.id)
+			// console.log(this.n,'starting on new path',this.path,'from', this.island, this.plan, this.reverse)
+
+		}
+		else{
+			this.bridges = this.bridges.slice(i).concat(this.bridges.slice(0,i))
+			//this.bridges.push(this.bridges.splice(0,i))	//cycle the bridge list for when we have more ants
+			break;
+		}
+	}
+}
+Island.prototype.addAnt = function(ant,journeyed){
+	if(!this.activated) //we're ready to go now that we've been reached!
+		this.activate()
+	if(journeyed){ //if we got here after a trip, settle down
+		this.settled.push(ant)
+		ant.stat = ant.ARRIVED
+		ant.prog = 0
+	}
+	else{ //otherwise wait for orders
+		this.ants.push(ant)
+		ant.stat = ant.WAITING
+		ant.prog = 0
+	}
+	//anything else that needs to be done?
+}
+Island.prototype.updateEdges = function(){
+	// this.deploy_lock[1] = true; //peterson's lock
+	// this.deploy_lock[2] = 0;
+	// while(this.deploy_lock[0] && this.deploy_lock[2] == 0){/*busy wait*/}
+
+	var old_bridges = this.bridges
+	// console.log('old_bridges [',old_bridges.toString(), ']')
+
+	this.bridges = [] //just refreshes the bridges; probably faster and easier for the amount of times we need to do it
+	for(var i=0, len=currEdges['keys'].length; i<len; i++){
+		if(currEdges[currEdges['keys'][i]].a == this.node || currEdges[currEdges['keys'][i]].b == this.node){
+			this.bridges.push(currEdges[currEdges['keys'][i]].id)
+			// console.log("adding",currEdges[currEdges['keys'][i]].id,"to bridges for",this,this.n)
+		}
+	}
+
+	// console.log('before cycle [',this.bridges.toString(), ']')
+	if(old_bridges.length > 0){
+		var cycle = this.bridges.indexOf(old_bridges.slice(-1)[0]) //old last guy
+		if(cycle < 0)
+			cycle = this.bridges.indexOf(old_bridges[0])
+		this.bridges = this.bridges.slice(cycle+1).concat(this.bridges.slice(0,cycle+1))
+	}
+
+	// this.deploy_lock[1] = false
+}
+Island.prototype.updatePos = function(dx,dy){ //moves the island (and all its ants) by [dx,dy]
+	for(var i=0; i<this.ants.length; i++){
+		//hard-moving because we don't want to add transforms to the ants
+		this.ants[i].pos = {x:this.ants[i].pos.x+dx, y:this.ants[i].pos.y+dy}
+		this.ants[i].icon.attr({'cx':this.ants[i].pos.x, 'cy':this.ants[i].pos.y})
+	}
+	for(var i=0; i<this.settled.length; i++){
+		//hard-moving because we don't want to add transforms to the ants
+		// var ant = this.settled[i]
+		this.settled[i].pos = {x:this.settled[i].pos.x+dx, y:this.settled[i].pos.y+dy}
+		this.settled[i].icon.attr({'cx':this.settled[i].pos.x, 'cy':this.settled[i].pos.y})
+	}
+}
+Island.prototype.reset = function(){
+	this.updateEdges() //reset the edges
+	this.ants = []
+	this.settled = []
+	this.spawn_timer = 0 
+	this.spawn_count = 0
+	this.deploy_timer = 0
+	this.activated = false
+	this.emptied = false
+	this.icon[2].hide();//insertBefore(this.icon[0]) //hard-code move "house" before "island" to hide (for next run)
+}
+
+//initialize the islands by adding icons, qtips, bridges, etc
+function initIslands(){
+	for(i in islands){
+    islands[i].icon = nodeIcons[islands[i].n]; //add icons once they are drawn
+		$([islands[i].icon[2].node]).data('island',i) //store the island in the node, so we can look up stuff about it in jquery
+		$([islands[i].icon[2].node]).qtip(get_house_qtip(islands[i]))
+
+		islands[i].updateEdges()		
+  }
+  // console.log('initialized', islands);
+}
+
+/*** ANTS (Causlings) ***/
+function Ant(n,plan,island){
+	this.n = n
+	this.plan = plan
+	this.stat = 0
+	this.path = -1
+	this.pathlen = 0
+	this.prog = 0
+	this.reverse = false
+	this.island = island
+	islands[island].addAnt(this,false)
+	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
+	this.icon = paper.circle(this.pos.x, this.pos.y,3)
+		.attr({'fill':'#0f0'})
+	// ant_nodes.push(this.icon.node) //for the d3 version
+}
+Ant.prototype.WAITING = 0;
+Ant.prototype.ON_PATH = 1;
+Ant.prototype.HESITATING = 2;
+Ant.prototype.GETTING_LOST = 3;
+Ant.prototype.SWIMMING = 4;
+Ant.prototype.ARRIVED = 5;
+Ant.prototype.GOING_HOME = 6;
+Ant.prototype.DANCING = 7;
+Ant.prototype.SETTLED = 8;
+Ant.prototype.DEAD = 9;
+Ant.prototype.DONE = 10;
+Ant.prototype.tick = function(){
+	if(this.stat == this.ARRIVED){
+		this.arrive()
+	}
+	else if(this.stat == this.WAITING){ //waiting for a path...
+		this.pace()
+	}
+	else if(this.stat == this.ON_PATH){
+		this.walkPath()
+	}
+	else if(this.stat == this.HESITATING){
+		this.hesitate()
+	}
+	else if(this.stat == this.GETTING_LOST){
+		this.getLost()
+	}
+	else if(this.stat == this.SWIMMING){
+		this.goSwimming()
+	}
+	else if(this.stat == this.DANCING){
+		this.victoryDance()
+	}
+	else if(this.stat == this.GOING_HOME){
+		this.settleDown()
+	}
+}
+Ant.prototype.walkPath = function(){
+	this.prog += 10; //take a step (sizable)
+	if(this.prog < this.pathlen){ //if we're still on the path, take a step
+		try{
+			if(this.reverse)
+				this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen - this.prog);
+			else
+				this.pos = edgeIcons[this.path][0].getPointAtLength(this.prog);
+		}
+		catch(err){ //this should include deleting and swapping the edge
+			this.stat = this.GETTING_LOST
+			this.prog = 0
+			this.icon.attr({'fill':'#A63E3E'})
+			return;
+		}
+	}
+
+	if(this.prog*3 > this.pathlen){ //if more than 1/4 way down the path, check for validity
+		var validity = validPath(currEdges[this.path]);
+		if(validity <= 0){ //always hesitate before dying on bad paths
+			this.stat = this.HESITATING
+			this.pathlen = [this.prog, this.pathlen]; //store the progress inside the pathlen
+			this.prog = 0
+			this.icon.attr({'fill':'#FFFF00'})
+			return;
+		}
+		else if(validity < 0){
+			this.stat = this.GETTING_LOST
+			this.prog = 0
+			this.icon.attr({'fill':'#A63E3E'})
+			return;
+		}
+	}
+	if(this.prog > this.pathlen){ //check if we're done
+		if(this.reverse)
+			this.island = currEdges[this.path].a.id;
+		else
+			this.island = currEdges[this.path].b.id;
+		islands[this.island].addAnt(this,true) //set our new island (and we came from a journey). That will set our status
+	}
+}
+Ant.prototype.hesitate = function(){
+	if(validPath(currEdges[this.path]) > 0){ //if now a valid path, then just mark as good
+		this.stat = this.ON_PATH
+		this.prog = this.pathlen[0]
+		this.pathlen = this.pathlen[1]
+		this.icon.attr({'fill':'#0f0'})
+		return;
+	}
+
+	this.prog += 1;
+	if(this.prog > HESITATE_TIME){
+		this.stat = this.GETTING_LOST
+		this.prog = 0
+		this.icon.attr({'fill':'#A63E3E'})
+		return;
+	}
+	if(this.prog%8 == 0){ //step back
+		this.pathlen[0] -= 2
+	}
+	else if(this.prog%4 == 0) //step forward
+		this.pathlen[0] += 2
+
+	try{ //try and take a step as we waver
+		if(this.reverse)
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen[1] - this.pathlen[0]);
+		else
+			this.pos = edgeIcons[this.path][0].getPointAtLength(this.pathlen[0]);
+	}
+	catch(err){ //this should include deleting and swapping the edge
+		this.stat = this.GETTING_LOST
+		this.prog = 0
+		this.icon.attr({'fill':'#A63E3E'})
+		return;
+	}
+}
+Ant.prototype.getLost = function(){
+	this.prog += 1
+	if(this.prog%3==0){
+		this.randomWalk(4)
+		this.icon.attr({'opacity':1-(this.prog/100)})
+	}	
+	else if(this.prog > 60){
+		this.stat = this.DEAD
+		this.prog = 0
+		this.icon.attr({'opacity':0.6})
+		this.icon.toBack()
+    play_sound("/sounds/incorrect.wav");
+		return;
+	}
+}
+Ant.prototype.randomWalk = function(step){
+	this.pos = {x:this.pos.x+(Math.random()*step*2-step), y:this.pos.y+(Math.random()*step*2-step)}
+}
+Ant.prototype.pace = function(){
+	this.prog += 1
+	//short delay
+	if(this.prog == 5)
+		this.plan = Math.random()*360 //initial spot on the circle stored in plan
+	else if(this.prog >= PACE_TIME) { //give up threshold
+		this.stat = this.SWIMMING
+		this.prog = 0
+		this.icon.attr({'fill':'#A63E3E'})
+		return;
+	}
+	else if(this.prog > 5 && this.prog%15 == 0){ //circle
+		this.pos = {x:islands[this.island].node.x+20*Math.cos(this.prog/150+this.plan), y:islands[this.island].node.y+20*Math.sin(this.prog/150+this.plan)} //get a trajectory and assign it to plan
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+
+	// if(this.prog%PACE_TIME <= PACE_TIME/4 || this.prog%PACE_TIME > 3*PACE_TIME/4){
+	// 	this.pos.x += -1 //pace left
+	// 	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	// }
+	// else{
+	// 	this.pos.x += 1 //pace right
+	// 	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	// }
+}
+Ant.prototype.goSwimming = function(){
+	this.prog += 1
+	if(this.prog == 1){
+		// var angle = Math.random()*360
+		// this.plan = {x:Math.cos(angle),y:Math.sin(angle)} //get a trajectory and assign it to plan		
+		var dx = this.pos.x-islands[this.island].node.x
+		var dy = this.pos.y-islands[this.island].node.y
+		var dist = Math.sqrt(dx*dx+dy*dy)
+		this.plan = {x:dx/dist, y:dy/dist }
+		islands[this.island].ants.splice(islands[this.island].ants.indexOf(this),1) //remove from island's list
+	}
+	if(this.prog < 10){
+		this.pos = {x:this.pos.x+(.8+Math.random()*.6)*this.plan.x, y:this.pos.y+(.8+Math.random()*.6)*this.plan.y}
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+	else{ //we're dead
+		this.stat = this.DEAD
+		this.prog = 0
+		this.icon.attr({'opacity':0.6})
+		this.icon.toBack()
+    play_sound("/sounds/incorrect.wav")
+		return;
+	}
+}
+Ant.prototype.arrive = function(){
+	this.stat = this.DANCING //start dancing
+	this.prog = 0
+	this.icon.attr({'fill':'#3CA03C'});
+  play_sound("/sounds/correct.wav")
+}
+Ant.prototype.victoryDance = function(){
+	this.prog += 1
+	if(this.prog > 25){
+		this.stat = this.GOING_HOME //settle down
+		this.prog = 0
+		return;
+	}
+	else if(this.prog%20 < 10){
+		this.pos = {x:this.pos.x, y:this.pos.y-0.3} //bounce up
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+	else if(this.prog%20 < 20){
+		this.pos = {x:this.pos.x, y:this.pos.y+0.3} //bounce down
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+}
+Ant.prototype.settleDown = function(){
+	this.prog += 1
+	if(this.prog == 1)
+		this.icon.insertBefore(islands[this.island].icon[2]) //move the ant behind the house (currently #2)
+	if(this.prog <= 4){
+		var vx = .25*(currNodes[this.island].x - this.pos.x) //quarter of the distance to the center
+		var vy = .25*(currNodes[this.island].y - this.pos.y)
+		this.pos = {x:this.pos.x+vx, y:this.pos.y+vy}
+		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	}
+	else{
+		this.stat = this.SETTLED //stop moving for future ticks
+		this.prog = 0
+		this.icon.insertBefore(islands[this.island].icon[3]) //move behind the coast to hide entirely
+		this.icon.hide() //also just outright hide :p
+		return;
+		//console.log(this.n, 'settled down at', currNodes[this.island].name)
+	}
+}
+
+//convenience method to check validity of an edge. Returns 1 if valid, 0 if bad relationship, or -1 if totally invalid
+function validPath(edge){
+	var reltype = (edge.reltype ? 1 : -1)
+	try{
+		if(yes[edge.a.id][edge.b.id][reltype] > 0) //check if it is a valid bridge
+			return 1;
+	}catch(err){} //if we couldn't read the edge, then we know it wasn't valid
+	try{
+		if(yes[edge.a.id][edge.b.id][-1*reltype] > 0) //check if swap is a valid bridge
+			return 0;
+	}catch(err){}
+	try{
+		if(yes[edge.b.id][edge.a.id][reltype] > 0) //check if reverse is a valid bridge
+			return 0;
+	}catch(err){}
+	try{
+		if(yes[edge.b.id][edge.a.id][-1*reltype] > 0) //check if reverse swap is a valid bridge
+			return 0;
+	}catch(err){}
+	
+	return -1; //none of the options were valid
+}
+
+
+/***
+ *** GAME INTERACTION METHODS
+ ***/
+
+//starts the game!
+function beginGame(){
+	clearTheBoard()
+	startAnimation(paper)
+}
+
+//removes all the ants, resets the islands
+function clearTheBoard(){
+	for(i in islands){ //reset the islands
+		islands[i].reset()
+	}
+
+	islands[HOME].activate() //open the home island
+	islands[HOME].spawn_timer = SPAWN_TIME //first island begins spawning and deploying
+	islands[HOME].deploy_timer = DEPLOY_TIME-5
+
+	if(typeof all_ants !== 'undefined') {
+		console.log("clearing ants for subsequent run")
+		for(var i=0, len=all_ants.length; i<len; i++)
+			all_ants[i].icon.remove()
+	}
+	//clear out the ants for next time
+	var all_ants = [];
+	var active_ants = [];
+}
+
+//starts animating!
+function startAnimation(paper) {
+	console.log('starting animation')
+
+	//block out all the other interactions so that the user doesn't break things
+	if(!continuous)
+		var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
+
+	// var d3nodes = d3.selectAll(ant_nodes)
+	var count = 0
+	animator = setInterval(function() {
+
+		//raphael implementation
+		for(key in islands){
+			islands[key].tick() //tick the islands, who spawn and deploy their ants
+		}
+
+		inactive = []
+		for(var i=0, len=active_ants.length; i<len; i++){
+			active_ants[i].tick() //do what they do!
+			active_ants[i].icon.attr({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y})
+			// active_ants[i].icon.animate({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y},10) //can be replaced with d3
+			if(active_ants[i].stat == active_ants[i].DONE || 
+				 active_ants[i].stat == active_ants[i].SETTLED || 
+				 active_ants[i].stat == active_ants[i].DEAD){ //if we're done, we shouldn't be in this list!
+				inactive.push(active_ants[i]) //prepare to drop anyone who is done
+			}
+		}
+		for(var i=0, len=inactive.length; i<len; i++){
+			active_ants.splice(active_ants.indexOf(inactive[i]),1)
+		}
+
+		//d3 implementation, for potentially smoother animation? Doesn't seem to help much, as we're doing complex calculations.
+		// http://stackoverflow.com/questions/8239235/smoothly-animate-attribute-changes-to-3000-raphael-objects-at-once
+		// http://jsfiddle.net/ekMd6/
+		// d3nodes
+		// 	.transition()
+		// 	.attr('cx', function(d,i){return ants[i].pos.x;})
+		// 	.attr('cy', function(d,i){return ants[i].pos.y;})
+		// 	.duration(1)
+
+		count += 1;
+		var done = active_ants.length == 0
+		if(done){ //only check island status if we don't have anyone else moving, to save time
+			for(i in islands){ if(islands[i].activated && !islands[i].emptied){ done = false;break; }}
+		}
+
+		// console.log('step',count, done)
+		if(done){
+		// if(done || count > 100){
+			console.log('done animating at count',count)
+			clearInterval(animator);
+
+			//show the score after animation is done (or before?)
+			var score_str = getScoreBoard();
+			$('#score_content').html(score_str);
+			$('#score_notice').toggle(true);
+
+			if(typeof block !== 'undefined')
+				block.remove()
+
+			console.log('#actives',active_ants.length)
+      game_running = false;
+		}
+	}, 30);
+
+}
+
+
+/***
+ *** DRAWING CODE
+ ***/
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
-	startBox = paper.rect(paper_size.width-203,150,200,paper_size.height-150-3).attr({'stroke': '#000000', 'stroke-width':3})
-	var boxLabel = paper.text(paper_size.width-203+5,150+15,'Concepts').attr({
-		'text-anchor':'start', 
-		'font':'lucida grande', 'font-family':'sans-serif',
-		'font-size':24, 'font-weight':'bold',
-		'fill':'#BEBEBE'
-	})
+  startBoxSize = [paper_size.width, 100];
+  startBoxTopLeft = [0, paper_size.height-103];
+
+  for (var index in currNodes){
+      if (currNodes[index].y > startBoxTopLeft[1]) boxNodes[currNodes[index].id] = {id:currNodes[index].id, x:currNodes[index].x, y:currNodes[index].y};
+  }
+  condenseSelectBox();
+
+	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke': '#000000', 'stroke-width':1}).toBack();
+
+  paper.image("/images/game/wood_bkgr.png",startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).toBack();
+
+	//paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],15,startBoxSize[1])
+    
+    var leftArrow = "M 22,29  L 9,18  L 22,7  L 22,14  L 34,14  L 34,22  L 22,22 ";
+    paper.path(leftArrow).transform("t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
+    .attr({'fill':'#ffffff','stroke':'#000000'})
+    .mouseover(function(){this.attr({'transform':'...s1.2'})})
+    .mouseout(function(){this.attr({'transform':"t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
+    .mousedown(function(){
+      interval = setInterval(function(){
+        if (rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
+          for (var i in nodeIcons)
+            if(paper_size.height-currNodes[i].y<startBoxSize[1]){
+              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x -= speed;
+              currNodes[i].x -=speed;
+              nodeIcons[i].transform("...t-"+speed+",0"); //go left
+            }
+      }, 1);
+    })
+    .mouseup(function(){clearInterval(interval);});
+
+	//paper.rect(paper_size.width-15,startBoxTopLeft[1],15, startBoxSize[1])
+
+    var rightArrow = "M 65,29  L 77,18  L 65,7  L 65,14  L 52,14  L 52,22  L 65,22";
+    paper.path(rightArrow).transform("...t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
+    .attr({'fill':'#ffffff', 'stroke':'#ffffff'})
+    .mouseover(function(){this.attr({'transform':'...s1.2'})})
+    .mouseout(function(){this.attr({'transform':"t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
+    .mousedown(function(){
+      interval = setInterval(function(){
+        if (leftMost.x < startBoxTopLeft[0] + 50)
+          for (var i in nodeIcons)
+            if(paper_size.height-currNodes[i].y<startBoxSize[1]){
+              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x += speed;
+              currNodes[i].x +=speed;
+              nodeIcons[i].transform("...t"+speed+",0"); //go right
+            }
+      }, 1);
+    })
+    .mouseup(function(){clearInterval(interval);});
+
 }
 
 //details on drawing/laying out a node
 function drawNode(node, paper){
-		var island_num = Math.floor(Math.random()*4)
-		// var coast = paper.path(ISLAND_PATHS[island_num]).attr({
-		// 	'stroke': '#b3eeee', 'stroke-width': 10,
-		// });
-		var coast = paper.circle(node.x,node.y,20).attr({
-			'fill': '#b3eeee','stroke-width':0
-		})
-		
-		var island = paper.path(ISLAND_PATHS[island_num]).attr({
-			fill: '#FFD673', 'stroke': '#434343', 'stroke-width': 1,
-		});
-		var bb = island.getBBox();
-		var trans_string = "t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2))
-		island.transform(trans_string)
+		//var island_style = Math.floor(Math.random()*4)
+		var island_style = node.id%ISLAND_PATHS.length
 
-		var content = node.name;
-		if(content.length > 15)
-			content = content.substring(0,15)+"..."
-		var txt = paper.text(node.x, node.y+T_OFF, content)
-		// _textWrapp(txt,80)
+		var island = paper.image("/images/game/island_center_"+Math.ceil(Math.random()*5)+".png",node.x-12.5,node.y-12.5,25,25);
+
+		var coast = paper.path(ISLAND_PATHS[island_style]).attr({
+			fill: '#3E8653', 'stroke': '#3E8653', 'stroke-width': 1,
+		}).insertBefore(island);
+		var coast_shadow = paper.path(ISLAND_PATHS[island_style]).attr({
+			fill: '#BDBDBD', 'stroke-width':0, 'stroke-opacity':0
+		}).insertBefore(coast);
+
+		var bb = coast.getBBox();
+		var trans_string = "t"+(node.x-(bb.x+bb.width/2))+","+(node.y-(bb.y+bb.height/2))
+		coast.transform(trans_string)
+		coast_shadow.transform(trans_string+"...t0,2.5")
+
+		var content = node.name.toUpperCase();
+		// if(content.length > 17)
+		// 	content = content.substring(0,16)+"..."
+		var txt = paper.text(node.x, node.y+30, content).attr({
+			'fill': '#fff', 'font-size':10.5, 'font-weight':'bold',
+		});
+		_textWrapp(txt,50) //default to showing all text, wrapped
+
+		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
+		var house = paper.path(house_path).attr({
+			gradient: '0-#71695e-#52483a','stroke-width':0,'stroke-opacity':0
+		})
+		.hide();// .insertBefore(island) //hide the house for now
 
 		var icon = paper.set()
-		.push(island,txt)
+		.push(island,txt,house)
 		.mouseover(function() {this.node.style.cursor='move';})//hoverNode(node)})
 		.mousedown(function(e) {now_dragging = {icon:icon, node:node};})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
 
-		icon.push(coast)
+		icon.push(coast,coast_shadow)
 		coast.mouseover(function() {this.node.style.cursor='crosshair';})
 		.mousedown(function(e) {now_building = {start_node:node};})
-		.drag(buildmove, buildstart, buildend)
+		.undrag()
+		coast.drag(buildmove, buildstart, buildend)
 
-		$(island.node).qtip(get_node_qtip(node)); //if we want a tooltip
+		$([island.node,txt.node]).qtip(get_node_qtip(node)); //if we want a tooltip
 		$(coast.node).qtip({
-			content:{text: 'Drag to create a path'},
+			content:{text: '<div class="help_qtip">Drag to create a path</div>'},
 			position:{target: 'mouse',adjust: {y:4}},
 			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
 		});
-
-		//var data = ["drawNode",["node.id",node.id,"node.name",node.name,"node.x",node.x,"node.y",node.y,"node.url",node.url,"node.h",node.h].join(":")].join("|");	
-		//console.log(data);
-		//sendLog(data);
-
 		return icon;  
 }
 
@@ -69,38 +751,126 @@ function drawEdge(edge, paper){
 		var a = edge.a;
 		var b = edge.b;
 
-		var curve = getPath(edge) //get the curve's path		
-		var e = paper.path(curve).attr({'stroke-width':2}).toBack()
-		
-		//set attributes based on relationship type (bitcheck with constants)
-		if(edge.reltype&INCREASES)
-			e.attr({stroke:EDGE_COLORS['increases']})
-		else if(edge.reltype&SUPERSET)
-			e.attr({stroke:EDGE_COLORS['superset']})
-		else //if decreases
-			e.attr({stroke:EDGE_COLORS['decreases']})
-		
+		var curve = getPath(edge) //get the curve's path
+		var normal = getUnitNormal(edge)
+		var e = paper.path(curve).attr({'stroke-width':5}).toBack()
+		.transform("...t"+(1*normal[0])+","+(1*normal[1]))
+		var e2 = paper.path(curve).attr({'stroke-width':5})
+			.transform("...t"+(-1*normal[0])+","+(-1*normal[1]))
+			.insertBefore(e)
+			
+		var stipple = paper.path(getThickPath(edge,5))
+			.attr({'stroke-opacity':0,'fill':'url(/images/game/bridgepattern.png)','fill-opacity':0.2})
+			.insertAfter(e)
+			
 		var arrow = drawArrow(edge, curve, paper)
-		var dots = drawDots(edge, curve, paper)
+		arrow[0].attr({'stroke-linejoin':'round','stroke-opacity':0}).insertAfter(e2)
+		arrow[1].insertAfter(e)
+
+		//set attributes based on relationship type (bitcheck with constants)
+		if(edge.reltype&INCREASES){
+			e.attr({stroke:EDGE_COLORS['increases']})
+			e2.attr({stroke:EDGE_HIGHLIGHT_COLORS['increases']})
+			arrow[0].attr({fill:EDGE_HIGHLIGHT_COLORS['increases']})
+		}
+		else if(edge.reltype&SUPERSET){
+			e.attr({stroke:EDGE_COLORS['superset']})
+			e2.attr({stroke:EDGE_HIGHLIGHT_COLORS['superset']})
+			arrow[0].attr({fill:EDGE_HIGHLIGHT_COLORS['superset']})
+		}
+		else{ //if decreases
+			e.attr({stroke:EDGE_COLORS['decreases']})
+			e2.attr({stroke:EDGE_HIGHLIGHT_COLORS['decreases']})
+			arrow[0].attr({fill:EDGE_HIGHLIGHT_COLORS['decreases']})
+		}
 
 		var center = getPathCenter(curve,-2)
 		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-		$(selector.node).qtip(get_edge_qtip(edge))
-		// .mouseover(function() {tooltip = drawSelectorTooltip(edge, paper);})
-		// .mouseout(function() {tooltip.remove()})
-		$(e.node).qtip(get_edge_qtip_small(edge))
-
+		// $(selector.node).qtip(get_edge_qtip(edge))
+		selector.dblclick(function() {toggleEdge(edge);})
+		$(selector.node).on("contextmenu", function(e){destroyEdge(edge);e.preventDefault();});
+		$(selector.node).qtip({
+			content:{text: '<div class="help_qtip">Double-click to change direction<br>Right-click to delete</div>'},
+			position:{target: 'mouse',adjust: {y:4}},
+			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
+		});
+		if(edge.id >= 0) //only if edge exists
+			$([e.node, e2.node, stipple.node]).qtip(get_edge_qtip_small(edge))
 		var icon = paper.set() //for storing pieces of the line as needed
-		.push(e, arrow[0], arrow[1], dots, selector)
+		.push(e, e2, arrow[0], arrow[1], selector, stipple)
 
 		return icon;
 }
 
+//draws the edge-editing box for a given edge and canvas_id
+function drawEdgeSelectors(edge, canvas_id){
+	// console.log('selector_canvas_'+canvas_id)
+	var canvas = new Raphael('selector_canvas_'+canvas_id, 40, 45) //the canvas to draw on
+
+	edge.a.x = parseInt(edge.a.x) //convert from json strings to ints, if necessary
+	edge.a.y = parseInt(edge.a.y)
+	edge.b.x = parseInt(edge.b.x)
+	edge.b.y = parseInt(edge.b.y)
+	var edge_incr = parseInt(edge.reltype)&INCREASES //is the edge an increaser?
+
+	var curve = getPath(edge) //get the curve's path		
+	var midPoint = getPathCenter(curve)//, ARROW_LENGTH/2); //midpoint offset by arrow-length
+	if(edge.a.x <= edge.b.x && edge.b.y <= edge.a.y){ //sometimes we need to flip the alpha, seems to be covered by this
+		if(!(edge.b.y == edge.a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
+			midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
+	}}
+
+	midPoint.x = 15 //force our 'midpoint'
+	midPoint.y = 12
+	
+	//draw alternative arrow
+	var arrowPath = getArrowPath(midPoint, 0)
+	var arrow = canvas.path(arrowPath) //draw the arrowhead
+		.attr({'stroke-linejoin':'round','stroke-opacity':0})
+		// .transform('s1.0')
+		.transform("...r"+(midPoint.alpha)) //rotate and flip
+	if(!edge_incr){ //if we're not increasing, make this the 'increase' option
+		arrow.attr({fill:EDGE_HIGHLIGHT_COLORS['increases']})
+	}
+	else{ //if decreases
+		arrow.attr({fill:EDGE_HIGHLIGHT_COLORS['decreases']});	
+	}
+	var arrowSymbolPath = getArrowSymbolPath(midPoint, (edge_incr ? 0 : 1))
+	var arrowSymbol = canvas.path(arrowSymbolPath) //draw the symbol on the arrow
+		.attr({fill:'#ffffff', stroke:'none'})
+		.transform('...r'+midPoint.alpha+'t-3,0') //apply offset after rotation
+	var swapSelector = canvas.circle(15,10,12).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
+		.mouseover(function() {
+			this.node.style.cursor='pointer';
+			this.g = arrow.glow({width:3})
+		})
+		.mouseout(function() { this.g.remove() })
+		.click(function() {swapEdge(edge, (edge_incr ? 0 : 1));})
+
+	//draw delete X
+	var deletePath = 'M -1 1 L 1 -1 M -1 -1 L 1 1'
+	var deleteSymbol = canvas.path(deletePath)
+		.attr({'stroke-width':3, 'stroke':'#d24648', 'stroke-linecap':'round'})
+		.transform('...s5.5 T15,35')
+	var deleteSelector = canvas.circle(15,35,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
+		.mouseover(function() {
+			this.node.style.cursor='pointer';
+			this.g = deleteSymbol.glow({width:3})
+		})
+		.mouseout(function() { this.g.remove() })
+		.click(function() {destroyEdge(edge);})
+}
+
+
+/***
+ *** MOUSE INTERACTION
+ ***/
 
 //methods to control dragging
 var dragstart = function (x,y,event) 
 {
 	if(now_dragging) {
+		now_dragging.start_in_box = (now_dragging.node.y > startBoxTopLeft[1])
 		this.ox = 0;
 		this.oy = 0;
 
@@ -110,48 +880,76 @@ var dragstart = function (x,y,event)
 			if(edge.a == now_dragging.node || edge.b == now_dragging.node){
 				// console.log(edge.name, edge.id, edgeIcons[edge.id])
 				dragged_edges.push(edge) //SHOULD THIS BE STORING THE ICONS RATHER THAN THE EDGES?? NO, SINCE WE'LL WANT TO ADJUST
-				oldSymbol = edgeIcons[edge.id].splice(1,4) //remove the symbol, since we're not moving it
+				oldSymbol = edgeIcons[edge.id].splice(2,4) //remove the arrow, stipple, etc
 				oldSymbol.remove()
 			}
 		}
 	}
 
-	var data = ["dragStart",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
-	//console.log(data);
-	sendLog(data);
+	// var data = ["dragStart",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
+	// //console.log(data);
+	// sendLog(data);
 };
 var dragmove = function (dx,dy,x,y,event) 
 {
 	if(now_dragging) {
 		trans_x = dx-this.ox
 		trans_y = dy-this.oy
+    
+    if (dragged_edges.length > 0 && now_dragging.node.y + trans_y >= startBoxTopLeft[1]){
+        trans_y = startBoxTopLeft[1] - now_dragging.node.y; //can't go back once you're committed
+    }
+
+    var originalX = now_dragging.node.x;
+    var originalY = now_dragging.node.y;
+
 		now_dragging.node.x += trans_x
 		now_dragging.node.y += trans_y //move the node itself; this will move the appropriate edges
 		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
 		this.ox = dx;
-		this.oy = dy;		
+		this.oy = dy;
+
+    if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condenseSelectBox();}
+    else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y >	startBoxTopLeft[1]){ boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, x:now_dragging.node.x, y:now_dragging.node.y};}
+
 
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
 			var curve = getPath(dragged_edges[i]) //get new curve
 			edgeIcons[dragged_edges[i].id].attr({'path':curve})
 		}
+
+		//tell the island to update as well
+		islands[now_dragging.node.id].updatePos(trans_x,trans_y)
 	}
 };
 var dragend = function (x,y,event) 
 {
 	for(var i=0, len=dragged_edges.length; i<len; i++) //redraw the icons on the edges
 	{
-		var curve = getPath(dragged_edges[i]) //get new curve
-		var arrow = drawArrow(dragged_edges[i],curve,paper) //just go ahead and redraw the arrow and dots
-		edgeIcons[dragged_edges[i].id].push(arrow[0],arrow[1])
-		var dots = drawDots(dragged_edges[i],curve,paper)
-		edgeIcons[dragged_edges[i].id].push(dots)
-		var center = getPathCenter(curve,-2)
-		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-		edgeIcons[dragged_edges[i].id].push(selector)
-		$(selector.node).qtip(get_edge_qtip(dragged_edges[i]))
-		// $([arrow[0].node,arrow[1].node]).qtip(get_edge_qtip(dragged_edges[i])); //add pop-up handler...
+		//just redraw the whole damn edge at this point. Easier. Not sure why we didn't do this before :p
+		edgeIcons[dragged_edges[i].id].remove()
+		edgeIcons[dragged_edges[i].id] = drawEdge(dragged_edges[i], paper)
+	}
+  if (now_dragging.node.y > startBoxTopLeft[1]){ //dropped in the box
+		if(!now_dragging.start_in_box){
+			now_dragging.icon[1].attr({'text':now_dragging.node.name.toUpperCase(),
+				'x':now_dragging.node.x,'y':now_dragging.node.y+30,'transform':''
+			});
+			_textWrapp(now_dragging.icon[1],50); //wrap the text
+		}
+		condenseSelectBox();
+	}
+	else { //dropped outside the box
+		if(now_dragging.start_in_box){
+			var content = now_dragging.node.name.toUpperCase();
+			if(content.length > 17)
+				content = content.substring(0,16)+"...";
+			now_dragging.icon[1].attr({'text':content,
+				'x':now_dragging.node.x,'y':now_dragging.node.y+30,'transform':''
+			})
+			.transform('...t0,'+(now_dragging.icon[1].getBBox().height/2)) //recenter
+		}
 	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
@@ -162,9 +960,6 @@ var dragend = function (x,y,event)
 	dragged_edges = []
 	now_dragging = null
 };
-
-// console.log(currEdges['keys'].length)
-var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
 
 //methods to control building via dragging
 var buildstart = function (x,y,event) 
@@ -188,16 +983,19 @@ var buildstart = function (x,y,event)
 var buildmove = function (dx,dy,x,y,event) 
 {
 	// console.log("buildmove",dx,dy,x,y,event)
-	if(now_building) {
+	if(now_building && now_building.start_node.y <= startBoxTopLeft[1]) {
 		now_building.target_node.x = x-CANVAS_OFFSET.left //don't forget the offset to bring mouse in line!
 		now_building.target_node.y = y-CANVAS_OFFSET.top
+
+    if (now_building.target_node.y >= startBoxTopLeft[1]) now_building.target_node.y = startBoxTopLeft[1]; //you shall not pass... the box's top edge!
+
 		now_building.selected_node = null;
 		
 		//snap to targets!!
 		for(var i=0, len=currNodes['keys'].length; i<len; i++){
 			var node = currNodes[currNodes['keys'][i]] //easy access
 			var icon = nodeIcons[node.id]
-			var bb = icon[2].getBBox() //compare to the bounding box of the circle currently
+			var bb = icon.getBBox() //compare to the bounding box of whole icon (circle is [4] atm)
 			if(	now_building.start_node != node &&
 					now_building.target_node.x > bb.x && now_building.target_node.x < bb.x+bb.width &&
 					now_building.target_node.y > bb.y && now_building.target_node.y < bb.y+bb.height ){ //if inside the bounding box
@@ -245,6 +1043,7 @@ var buildend = function (x,y,event)
 				edge.id = edge_count
 				//edge.id = currEdges['keys'].length+1; //give id that's just a count (1...n)
 				currEdges['keys'].push(key) //only push the key if this is a new edge (and so we need to add it to the list)
+
 			}
 			currEdges[key] = edge
 			edge_count += 1
@@ -273,6 +1072,19 @@ var buildend = function (x,y,event)
 					edgeIcons[e.id] = drawEdge(e, paper)
 				}
 			}
+			
+			//if this is the first edge we've made in continous mode, start the game!!
+			if(first_edge && continuous){
+				//should probably alert the user with a pop-up
+				first_edge = false;
+				beginGame()
+			}
+
+			islands[edge.a.id].updateEdges() //update the edges for the islands -- AFTER we've cleared the board and launched the game
+			islands[edge.b.id].updateEdges()
+			islands[edge.a.id].deploy_timer = DEPLOY_TIME
+			islands[edge.b.id].deploy_timer = DEPLOY_TIME
+
 		}
 		else {
 			now_building.icon.remove() //remove the icon, cause we didn't select anything
@@ -303,6 +1115,10 @@ function destroyEdge(edge) {
 			}
 		}
 		delete currEdges[key]
+		
+		islands[edge.a.id].updateEdges() //update the edges for the islands
+		islands[edge.b.id].updateEdges()
+		
 		edgeIcons[edge.id].remove() //remove icon
 
 		//de-arc other edges
@@ -330,48 +1146,136 @@ function destroyEdge(edge) {
 
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
-
 function swapEdge(e, new_reltype){
-
-	var idBefore = e.id;
-	var reltypeBefore = e.reltype;
-
+	var old_reltype = e.reltype;
 
 	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]
 	edge.reltype = new_reltype
 	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 
-	//remove old edge&key from list
-	for(var i=0, len=currEdges['keys'].length; i<len; i++){
-		if(currEdges['keys'][i]==key){
-			currEdges['keys'].splice(i,1)
-			break
-		}
-	}
-	delete currEdges[key]
-	
-	var newkey = edge.id //edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
-	currEdges[newkey] = edge
-	currEdges['keys'].push(newkey) //add to list with new key
+	edgeIcons[edge.id].remove() //remove old icon
+	edgeIcons[edge.id] = drawEdge(edge,paper)
+
+	var data = ["swapEdge",["edge.id",e.id,"edge.reltype.before",old_reltype,"edge.reltype.after",edge.reltype,"edge.a",e.a.id,"edge.b",e.b.id,"edge.expandable",e.expandable,"edge.n",e.n].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
+
+	$('.qtip.ui-tooltip').qtip('hide');	
+}
+function reverseEdge(e){
+	var old_a = e.a
+	var old_b = e.b
+
+	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
+	var edge = currEdges[key]
+	edge.reltype = INCREASES
+	edge.a = old_b
+	edge.b = old_a
+	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 
 	edgeIcons[edge.id].remove() //remove old icon
 	edgeIcons[edge.id] = drawEdge(edge,paper)
 
-	var data = ["swapEdge",["edge.id.before",idBefore,"edge.id.after",edge.id,"edge.reltype.before",reltypeBefore,"edge.reltype.after",edge.reltype,"edge.a",e.a.id,"edge.b",e.b.id,"edge.expandable",e.expandable,"edge.n",e.n].join(":")].join("|");
+	var data = ["reverseEdge",["edge.id",e.id,"edge.a.before",old_a.id,"edge.b.before",old_b.id,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n",edge.n].join(":")].join("|");
 	//console.log(data);
 	sendLog(data);
 
-
 	$('.qtip.ui-tooltip').qtip('hide');	
+}
+function toggleEdge(edge){
+	var edge_incr = parseInt(edge.reltype)&INCREASES //is the edge an increaser?
+	if(edge_incr)
+		swapEdge(edge, 0); //change to a decreaser
+	else
+		reverseEdge(edge); //reverse to an increaser
+}
+
+/***
+ *** QTIPS AND TEXT RENDERING
+ ***/
+
+//calculates the score based on current global variables; returns an html string displaying the score
+function getScoreBoard(){
+	var activated = 0
+	var total_islands = 0
+	for(i in islands){
+		if(islands[i].activated)
+			activated += 1
+		total_islands += 1
+	}
+
+	var settled = 0
+	var dead = 0
+	var total_ants = all_ants.length;
+	for(var i=0, len=all_ants.length; i<len; i++){
+		if(all_ants[i].stat == all_ants[i].SETTLED)
+			settled += 1
+		else if(all_ants[i].stat == all_ants[i].DEAD)
+			dead += 1
+	}
+
+	var rubric = 0
+	for(var i=0, len=currEdges['keys'].length; i<len; i++){
+		var edge = currEdges[currEdges['keys'][i]]
+		try{
+			if(yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]){ //check if it is a valid edge
+				rubric += yes[edge.a.id][edge.b.id][(edge.reltype ? 1 : -1)]
+			}
+			else{
+				rubric += yes['w'] //hard-code the penalty atm
+			}
+		}
+		catch(err){ //has problem reading undefined directions; if we couldn't read the object, then it was wrong!
+			rubric += yes['w']
+		}
+	}
+
+	//hard-code the layout here...
+	var out = "<b><u>Game Results</u></b><br>"+
+		"<table class='scoreboard'>"+
+		"<tr><td class='item'>Islands visited:</td><td class='score'>"+activated+" ("+Math.round(100*activated/total_islands)+"%)</td></tr>"+
+		"<tr><td class='item'>Causlings settled:</td><td class='score'>"+settled+" ("+Math.round(100*settled/total_ants)+"%)</td></tr>"+
+		"<tr><td class='item'>Mortality rate:</td><td class='score'>"+Math.round(100*dead/total_ants)+"%</td></tr>"+
+		"<tr><td class='item'>Final score:</td><td class='score'>"+rubric+" pts</td></tr>"+
+		"</table>"
+
+	return out;
 }
 
 //layout details for the node qtip
 function get_node_qtip(node) {
 	return {
 		content:{
-			text: '<div id="issue_qtip"><div class="formcontentdiv"><div class="heading">Concept: ' + 
+			text: '<div id="issue_qtip"><div class="formcontentdiv"><div class="heading">' + 
 							node.name + '</div></div></div>'
+		},
+		position: {
+			my: 'top-center',
+			at: 'bottom-center',
+			target: 'mouse',
+			adjust:{y:4},
+		},
+		style: {
+			classes: 'ui-tooltip-light ui-tooltip-shadow',
+			tip: {
+				//http://craigsworks.com/projects/qtip2/docs/plugins/tips/
+				width:10,
+				height:6,
+			},
+		},
+	};
+}
+//layout details for the house qtip
+function get_house_qtip() {
+	return {
+		content:{
+			text: function(api){
+				var island = islands[$(this).data('island')]
+				return '<div class="house_descr"><b>'+island.settled.length+' Causlings</b> <br> have settled at concept <br>' 
+								+ '<i>'+island.node.name+'</i>'
+								+ '</div>';
+			}
 		},
 		position: {
 			// my: 'top center',  // Position my top left...
@@ -437,7 +1341,7 @@ function get_edge_qtip(edge) {
 		events: {
 			show: function(event, api) {
 				if($.inArray(canvas_id, selector_canvases_drawn) < 0){
-					drawSelectors(edge, canvas_id);
+					drawEdgeSelectors(edge, canvas_id);
 					selector_canvases_drawn.push(canvas_id)
 				}
 			}
@@ -445,64 +1349,56 @@ function get_edge_qtip(edge) {
 	};	
 }
 
-var selector_canvases_drawn = [] //canvases we've drawn before
-function drawSelectors(edge, canvas_id){
-	// console.log('selector_canvas_'+canvas_id)
-	var canvas = new Raphael('selector_canvas_'+canvas_id, 40, 45) //the canvas to draw on
 
-	edge.a.x = parseInt(edge.a.x) //convert from json strings to ints, if necessary
-	edge.a.y = parseInt(edge.a.y)
-	edge.b.x = parseInt(edge.b.x)
-	edge.b.y = parseInt(edge.b.y)
-	var edge_incr = parseInt(edge.reltype)&INCREASES //is the edge an increaser?
+/***
+ *** AJAX SETUP AND METHODS
+ ***/
 
-	var curve = getPath(edge) //get the curve's path		
-	var midPoint = getPathCenter(curve)//, ARROW_LENGTH/2); //midpoint offset by arrow-length
-	if(edge.a.x <= edge.b.x && edge.b.y <= edge.a.y){ //sometimes we need to flip the alpha, seems to be covered by this
-		if(!(edge.b.y == edge.a.y && midPoint.alpha > 360)){ //handle special case, if b.y == a.y, seems to work 
-			midPoint.alpha = midPoint.alpha+180 % 360 //flip 180 degrees so pointed in right direction
-	}}
-
-	midPoint.x = 15 //force our 'midpoint'
-	midPoint.y = 12
+$(document).ready(function(){
+	$("#score_notice .closebutton").click(function(){
+		$("#score_notice").slideUp(100);
+	});
 	
-	//draw alternative arrow
-	var arrowPath = getArrowPath(midPoint, 0)
-	var arrow = canvas.path(arrowPath) //draw the arrowhead
-		.attr({stroke:'none'})
-		.transform('s1.2')
-		.transform("...r"+(midPoint.alpha)) //rotate and flip
-	if(!edge_incr){ //if we're not increasing, make this the 'increase' option
-		arrow.attr({fill:EDGE_COLORS['increases']})
-	}
-	else{ //if decreases
-		arrow.attr({fill:EDGE_COLORS['decreases']});	
-	}
-	var arrowSymbolPath = getArrowSymbolPath(midPoint, (edge_incr ? 0 : 1))
-	var arrowSymbol = canvas.path(arrowSymbolPath) //draw the symbol on the arrow
-		.attr({fill:'#ffffff', stroke:'none'})
-		.transform('...r'+midPoint.alpha+'t-3,0') //apply offset after rotation
-	var swapSelector = canvas.circle(15,10,12).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-		.mouseover(function() {
-			this.node.style.cursor='pointer';
-			this.g = arrow.glow({width:3})
-		})
-		.mouseout(function() { this.g.remove() })
-		.click(function() {swapEdge(edge, (edge_incr ? 0 : 1));})
+	$("#run_button").click(function(){
+		if (game_running === false) {
+      beginGame();
+      game_running = true;
+    }
+	});
+});
 
-	//draw delete X
-	var deletePath = 'M -1 1 L 1 -1 M -1 -1 L 1 1'
-	var deleteSymbol = canvas.path(deletePath)
-		.attr({'stroke-width':3, 'stroke':'#d24648', 'stroke-linecap':'round'})
-		.transform('...s5 T15,35')
-	var deleteSelector = canvas.circle(15,35,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-		.mouseover(function() {
-			this.node.style.cursor='pointer';
-			this.g = deleteSymbol.glow({width:3})
-		})
-		.mouseout(function() { this.g.remove() })
-		.click(function() {destroyEdge(edge);})
+function condenseSelectBox(){
+  var arr = [];
+  for (var index in boxNodes){
+    arr.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
+  }
+  arr.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
+
+
+  leftMost = boxNodes[arr[0].id];
+  rightMost = boxNodes[arr[arr.length-1].id];  
+
+  var ox = null;
+  var oy = null;
+
+  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
+
+  for(var index = 0; index < arr.length; index++){
+    if (index < arr.length-1){
+      arr[index+1].x = arr[index].x + spacing;
+      arr[index+1].y = arr[index].y;
+    }
+  }
+
+  for(var index in boxNodes){
+    ox = currNodes[index].x;
+    oy = currNodes[index].y;
+    currNodes[index].x = boxNodes[index].x;
+    currNodes[index].y = boxNodes[index].y;
+    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
+  }
 }
+
 
 function sendLog(info){
 	//console.log(time_stamp);
@@ -514,31 +1410,10 @@ function sendLog(info){
 }
 
 
-/*** AJAX SETUP ***/
-$(document).ready(function(){
-	$("#score_notice .closebutton").click(function(){
-		$("#score_notice").slideUp(100);
-	});
-	
-	$("#run_button").click(function(){
-		show_progress_message("loading...")
-		console.log("Run button was clicked!")
-		console.log('currEdges',currEdges)
-
-		$.ajax({
-			type: 'POST',
-			url: '/game/run',
-			data: {'edges':currEdges},
-			// complete: function(data) {func(data);},
-			dataType: 'script'
-		});
-
-	});
-
-});
-
-
-_textWrapp = function(t, width, max_length) {
+/***
+ *** MISC METHODS AND CONSTANTS
+ ***/
+_textWrapp = function(t, width) {
 	/**
 	 * adapted from
 	 * http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
@@ -556,7 +1431,7 @@ _textWrapp = function(t, width, max_length) {
     for ( var i = 0; i < words.length; i++) {
         var l = words[i].length;
         if(x+l>width) {
-            s.push("\n")
+            s.push("\n");
             x=0;
 						wrapped = true;
         }
@@ -568,11 +1443,15 @@ _textWrapp = function(t, width, max_length) {
     t.attr({"text": s.join("")});
 		// if(!wrapped)
 		t.attr({'text-anchor':'middle'});
+		t.transform('...t0,'+(t.getBBox().height/2)) //recenter
 };
 
 var ISLAND_PATHS = [
-	"m 0,0 c -1.91236,1.98339 -2.80708,3.61839 -5.61026,3.81571 -2.80316,0.19731 -4.31423,-1.70427 -6.79667,-3.14318 -2.48243,-1.43893 -6.42395,-1.98616 -7.70867,-4.3606 -1.28472,-2.37444 1.6344,-5.25816 2.13987,-7.95092 0.50547,-2.69276 -1.90255,-6.34614 0.0583,-8.26862 1.96082,-1.92249 6.30872,0.7799 9.18689,0.76381 2.87817,-0.016 6.79908,-2.90242 9.09492,-1.17821 2.29585,1.72422 0.79516,5.56878 1.48178,8.1391 0.68663,2.57031 2.58603,4.8535 1.98816,7.58076 -0.59787,2.72726 -1.92192,2.61877 -3.83429,4.60215 z",
-	"m 0,0 c -2.55529,-1.74975 -3.49186,-3.24455 -3.97569,-6.18062 -0.48384,-2.93608 8.4e-4,-2.69556 1.69371,-5.42447 1.69281,-2.72892 -2.342,-7.29109 0.77652,-8.10212 3.1185,-0.81105 4.87228,1.23266 7.67865,1.82399 2.80636,0.59134 10.6187,-2.64803 12.47562,-0.14235 1.85693,2.50569 -0.82957,2.34996 -0.69902,5.6157 0.13054,3.26575 2.79614,8.75285 1.97668,11.47121 -0.81946,2.71838 -6.85279,1.10439 -9.18567,3.31862 -2.33288,2.21422 -3.57679,2.18539 -6.52846,1.56554 -2.95166,-0.61986 -1.65707,-2.19576 -4.21234,-3.9455 z",
-	"m 0,0 c -1.48637,1.5628 -0.73525,2.93289 -2.83352,3.28257 -2.09825,0.34968 -5.81339,-1.59274 -7.90259,-1.78665 -2.0892,-0.19393 -4.52388,2.56908 -6.38447,1.51744 -1.86057,-1.05161 2.00929,-5.37364 0.96399,-7.25919 -1.04531,-1.88553 -3.28922,-2.68468 -3.6286,-4.85667 -0.33937,-2.172 1.77845,-2.78699 2.54256,-4.84833 0.7641,-2.06134 -2.18913,-4.70518 -0.66511,-6.22 1.52404,-1.51481 6.89374,2.06774 9.12329,1.81582 2.22954,-0.25193 3.04729,-2.91462 5.07328,-2.67444 2.02599,0.24019 2.10648,2.05826 3.71392,3.4869 1.60743,1.42865 3.64994,-0.24296 4.63342,1.66989 0.98348,1.91285 -2.56473,5.12155 -2.44593,7.27044 0.1188,2.14891 2.97378,5.01849 2.31651,7.05368 -0.65729,2.03519 -3.02038,-0.0143 -4.50675,1.54854 z",
-	"m 0,0 c -1.56443,1.50809 -2.12016,2.46473 -4.2006,3.14438 -2.08042,0.67966 -3.46726,-1.31608 -5.66384,-1.68055 -2.19658,-0.36447 -3.72518,2.37602 -5.23492,0.79678 -1.50975,-1.57924 -2.12979,-3.60796 -3.03127,-5.52163 -0.90148,-1.91367 -2.63688,-1.24025 -2.36471,-3.36832 0.27218,-2.12808 1.65957,-4.63604 2.68336,-6.46074 1.02379,-1.82469 0.7809,-5.1596 2.57971,-6.39225 1.79881,-1.23265 4.9418,0.88074 6.99592,0.38209 2.05412,-0.49866 1.8629,-2.76399 4.03571,-2.08593 2.1728,0.67807 2.18347,3.15114 3.74566,4.62981 1.5622,1.47866 3.16531,0.4639 4.11079,2.43625 0.94548,1.97235 -1.48818,4.39211 -1.67347,6.5347 -0.1853,2.14259 2.48874,4.50888 1.33492,6.38533 -1.15381,1.87644 -1.75284,-0.30801 -3.31726,1.20008 z",
+	"m -0,0 -7.088,1.492 -2.999,-5.582 -2.472,-5.198 -0.885,-5.659 2.414,-5.164 1.653,-5.178 3.623,-4.266 4.225,-5.049 6.387,-1.183 6.041,2.246 5.867,2.206 1.856,6.39 4.868,3.944 3.066,6.054 -1.885,6.437 -3.694,5.276 -3.636,5.463 -6.785,0.361 -5.698,-0.188 z",
+	"m 0,0 -2.157,6.67 -6.13,-0.169 -5.553,-0.426 -5.177,-1.979 -3.174,-4.509 -3.55,-3.879 -1.84,-5.094 -2.207,-5.977 2.079,-5.931 4.793,-3.991 4.673,-3.865 6.256,1.516 5.654,-2.19 6.558,0.337 4.497,4.681 2.653,5.639 2.837,5.681 -2.96,5.869 -2.898,4.695 z",
+	"m 0,0 -2.157,6.67 -6.13,-0.17 -5.553,-0.425 -5.176,-1.98 -3.174,-4.509 -3.551,-3.879 -1.84,-5.094 -2.207,-5.977 2.079,-5.93 4.793,-3.991 2.673,-3.865 6.257,1.515 5.653,-2.19 6.559,0.338 6.497,4.68 2.652,5.639 2.837,5.682 -2.96,5.868 -2.897,4.696 z",
+	"m 0,0 2.821,-5.664 3.183,-3.811 4.273,-4.318 5.829,2.469 4.65,2.001 6.153,-1.063 4.062,3.888 2.887,5.67 3.617,5.686 -4.731,5.164 -0.815,6.23 -5.704,2.288 -4.633,2.976 -5.551,1.189 -5.97,0.845 -5.11,-3.277 -7.486,-2.388 4.021,-7.891 -0.179,-4.986 z",
+	"m 0,0 6.677,1.676 4.793,2.496 5.587,3.535 -1.264,6.772 -1.043,5.41 2.565,6.291 -3.185,5.226 -5.352,4.393 -5.202,5.172 -6.593,-3.826 -6.812,0.587 -3.762,-5.531 -4.244,-4.23 -2.56,-5.623 -2.29,-6.149 2.291,-6.195 0.793,-8.516 9.325,2.434 5.259,-1.354 z"
 ]
+
+
