@@ -738,7 +738,7 @@ function drawNode(node, paper){
 
 		$([island.node,txt.node]).qtip(get_node_qtip(node)); //if we want a tooltip
 		$(coast.node).qtip({
-			content:{text: 'Drag to create a path'},
+			content:{text: '<div class="help_qtip">Drag to create a path</div>'},
 			position:{target: 'mouse',adjust: {y:4}},
 			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
 		});
@@ -786,17 +786,21 @@ function drawEdge(edge, paper){
 
 		var center = getPathCenter(curve,-2)
 		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-		$(selector.node).qtip(get_edge_qtip(edge))
-		$(e.node).qtip(get_edge_qtip_small(edge))
-
+		// $(selector.node).qtip(get_edge_qtip(edge))
+		selector.dblclick(function() {toggleEdge(edge);})
+		$(selector.node).on("contextmenu", function(e){destroyEdge(edge);e.preventDefault();});
+		$(selector.node).qtip({
+			content:{text: '<div class="help_qtip">Double-click to change direction<br>Right-click to delete</div>'},
+			position:{target: 'mouse',adjust: {y:4}},
+			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
+		});
+		if(edge.id >= 0) //only if edge exists
+			$([e.node, e2.node, stipple.node]).qtip(get_edge_qtip_small(edge))
 		var icon = paper.set() //for storing pieces of the line as needed
 		.push(e, e2, arrow[0], arrow[1], selector, stipple)
 
 		return icon;
 }
-
-
-
 
 //draws the edge-editing box for a given edge and canvas_id
 function drawEdgeSelectors(edge, canvas_id){
@@ -1142,40 +1146,50 @@ function destroyEdge(edge) {
 
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
-
 function swapEdge(e, new_reltype){
-	var idBefore = e.id;
-	var reltypeBefore = e.reltype;
+	var old_reltype = e.reltype;
 
 	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]
 	edge.reltype = new_reltype
 	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 
-	//remove old edge&key from list
-	for(var i=0, len=currEdges['keys'].length; i<len; i++){
-		if(currEdges['keys'][i]==key){
-			currEdges['keys'].splice(i,1)
-			break
-		}
-	}
-	delete currEdges[key]
-	
-	var newkey = edge.id //edge.a.id+(edge.reltype&INCREASES ? 'i' : 'd')+edge.b.id
-	currEdges[newkey] = edge
-	currEdges['keys'].push(newkey) //add to list with new key
+	edgeIcons[edge.id].remove() //remove old icon
+	edgeIcons[edge.id] = drawEdge(edge,paper)
+
+	var data = ["swapEdge",["edge.id",e.id,"edge.reltype.before",old_reltype,"edge.reltype.after",edge.reltype,"edge.a",e.a.id,"edge.b",e.b.id,"edge.expandable",e.expandable,"edge.n",e.n].join(":")].join("|");
+	//console.log(data);
+	sendLog(data);
+
+	$('.qtip.ui-tooltip').qtip('hide');	
+}
+function reverseEdge(e){
+	var old_a = e.a
+	var old_b = e.b
+
+	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
+	var edge = currEdges[key]
+	edge.reltype = INCREASES
+	edge.a = old_b
+	edge.b = old_a
+	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 
 	edgeIcons[edge.id].remove() //remove old icon
 	edgeIcons[edge.id] = drawEdge(edge,paper)
 
-	var data = ["swapEdge",["edge.id.before",idBefore,"edge.id.after",edge.id,"edge.reltype.before",reltypeBefore,"edge.reltype.after",edge.reltype,"edge.a",e.a.id,"edge.b",e.b.id,"edge.expandable",e.expandable,"edge.n",e.n].join(":")].join("|");
+	var data = ["reverseEdge",["edge.id",e.id,"edge.a.before",old_a.id,"edge.b.before",old_b.id,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n",edge.n].join(":")].join("|");
 	//console.log(data);
 	sendLog(data);
 
-
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
-
+function toggleEdge(edge){
+	var edge_incr = parseInt(edge.reltype)&INCREASES //is the edge an increaser?
+	if(edge_incr)
+		swapEdge(edge, 0); //change to a decreaser
+	else
+		reverseEdge(edge); //reverse to an increaser
+}
 
 /***
  *** QTIPS AND TEXT RENDERING
