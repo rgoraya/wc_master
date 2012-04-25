@@ -96,6 +96,7 @@ function Island(n,opt_degree){
 	this.icon = nodeIcons[this.n] //try to define, though will likely get null
 	this.ants = []
 	this.settled = []
+	this.capital = false
 
 	//do we want two timers, or will just 1 do? (depends on whether we want to deploy immediately after spawn...)
 	this.spawn_timer = 0 
@@ -267,6 +268,14 @@ function initIslands(){
 
 		islands[i].updateEdges()		
   }
+
+	//set up capital
+	islands[HOME].capital = true
+	var star = paper.path(starPath).attr({'stroke':'#19140F','stroke-width':1.5})
+		.transform('t'+(islands[HOME].node.x+12)+','+(islands[HOME].node.y-4))
+	islands[HOME].icon.push(star)
+	islands[HOME].icon[1].attr({'text':islands[HOME].icon[1].attr('text')+"\n[Causling Capital]"})
+
   // console.log('initialized', islands);
 }
 
@@ -637,7 +646,7 @@ function startAnimation(paper) {
 
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
-  startBoxSize = [paper_size.width, 100];
+  startBoxSize = [paper_size.width-3, 100];
   startBoxTopLeft = [0, paper_size.height-103];
 
   for (var index in currNodes){
@@ -653,7 +662,7 @@ function drawInitGame(paper){
     
     var leftArrow = "M 22,29  L 9,18  L 22,7  L 22,14  L 34,14  L 34,22  L 22,22 ";
     paper.path(leftArrow).transform("t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
-    .attr({'fill':'#ffffff','stroke':'#000000'})
+    .attr({'fill':'#ffffff','stroke':'#fff'})
     .mouseover(function(){this.attr({'transform':'...s1.2'})})
     .mouseout(function(){this.attr({'transform':"t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
     .mousedown(function(){
@@ -672,10 +681,10 @@ function drawInitGame(paper){
 	//paper.rect(paper_size.width-15,startBoxTopLeft[1],15, startBoxSize[1])
 
     var rightArrow = "M 65,29  L 77,18  L 65,7  L 65,14  L 52,14  L 52,22  L 65,22";
-    paper.path(rightArrow).transform("...t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
-    .attr({'fill':'#ffffff', 'stroke':'#ffffff'})
+    paper.path(rightArrow).transform("t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
+    .attr({'fill':'#ffffff', 'stroke':'#fff'})
     .mouseover(function(){this.attr({'transform':'...s1.2'})})
-    .mouseout(function(){this.attr({'transform':"t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
+ 		.mouseout(function(){this.attr({'transform':"t-65,-29t"+(paper_size.width-28)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
     .mousedown(function(){
       interval = setInterval(function(){
         if (leftMost.x < startBoxTopLeft[0] + 50)
@@ -689,6 +698,38 @@ function drawInitGame(paper){
     })
     .mouseup(function(){clearInterval(interval);});
 
+}
+
+function condenseSelectBox(){
+  var arr = [];
+  for (var index in boxNodes){
+    arr.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
+  }
+  arr.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
+
+
+  leftMost = boxNodes[arr[0].id];
+  rightMost = boxNodes[arr[arr.length-1].id];  
+
+  var ox = null;
+  var oy = null;
+
+  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
+
+  for(var index = 0; index < arr.length; index++){
+    if (index < arr.length-1){
+      arr[index+1].x = arr[index].x + spacing;
+      arr[index+1].y = arr[index].y;
+    }
+  }
+
+  for(var index in boxNodes){
+    ox = currNodes[index].x;
+    oy = currNodes[index].y;
+    currNodes[index].x = boxNodes[index].x;
+    currNodes[index].y = boxNodes[index].y;
+    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
+  }
 }
 
 //details on drawing/laying out a node
@@ -896,8 +937,8 @@ var dragmove = function (dx,dy,x,y,event)
 		trans_x = dx-this.ox
 		trans_y = dy-this.oy
     
-    if (dragged_edges.length > 0 && now_dragging.node.y + trans_y >= startBoxTopLeft[1]){
-        trans_y = startBoxTopLeft[1] - now_dragging.node.y; //can't go back once you're committed
+    if ((islands[now_dragging.node.id].capital || dragged_edges.length > 0) && now_dragging.node.y+trans_y+50 >= startBoxTopLeft[1]){
+        trans_y = 0;//startBoxTopLeft[1] - now_dragging.node.y; //can't go back once you have an edge or are the capital
     }
 
     var originalX = now_dragging.node.x;
@@ -909,8 +950,11 @@ var dragmove = function (dx,dy,x,y,event)
 		this.ox = dx;
 		this.oy = dy;
 
+		
     if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condenseSelectBox();}
-    else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y >	startBoxTopLeft[1]){ boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, x:now_dragging.node.x, y:now_dragging.node.y};}
+    else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y+30 >	startBoxTopLeft[1]){ 
+			boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, x:now_dragging.node.x, y:now_dragging.node.y};
+		}
 
 
 		for(var i=0, len=dragged_edges.length; i<len; i++)
@@ -1367,39 +1411,6 @@ $(document).ready(function(){
 	});
 });
 
-function condenseSelectBox(){
-  var arr = [];
-  for (var index in boxNodes){
-    arr.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
-  }
-  arr.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
-
-
-  leftMost = boxNodes[arr[0].id];
-  rightMost = boxNodes[arr[arr.length-1].id];  
-
-  var ox = null;
-  var oy = null;
-
-  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
-
-  for(var index = 0; index < arr.length; index++){
-    if (index < arr.length-1){
-      arr[index+1].x = arr[index].x + spacing;
-      arr[index+1].y = arr[index].y;
-    }
-  }
-
-  for(var index in boxNodes){
-    ox = currNodes[index].x;
-    oy = currNodes[index].y;
-    currNodes[index].x = boxNodes[index].x;
-    currNodes[index].y = boxNodes[index].y;
-    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
-  }
-}
-
-
 function sendLog(info){
 	//console.log(time_stamp);
 	$.ajax({
@@ -1447,11 +1458,11 @@ _textWrapp = function(t, width) {
 };
 
 var ISLAND_PATHS = [
-	"m -0,0 -7.088,1.492 -2.999,-5.582 -2.472,-5.198 -0.885,-5.659 2.414,-5.164 1.653,-5.178 3.623,-4.266 4.225,-5.049 6.387,-1.183 6.041,2.246 5.867,2.206 1.856,6.39 4.868,3.944 3.066,6.054 -1.885,6.437 -3.694,5.276 -3.636,5.463 -6.785,0.361 -5.698,-0.188 z",
+	"m 0,0 -7.088,1.492 -2.999,-5.582 -2.472,-5.198 -0.885,-5.659 2.414,-5.164 1.653,-5.178 3.623,-4.266 4.225,-5.049 6.387,-1.183 6.041,2.246 5.867,2.206 1.856,6.39 4.868,3.944 3.066,6.054 -1.885,6.437 -3.694,5.276 -3.636,5.463 -6.785,0.361 -5.698,-0.188 z",
 	"m 0,0 -2.157,6.67 -6.13,-0.169 -5.553,-0.426 -5.177,-1.979 -3.174,-4.509 -3.55,-3.879 -1.84,-5.094 -2.207,-5.977 2.079,-5.931 4.793,-3.991 4.673,-3.865 6.256,1.516 5.654,-2.19 6.558,0.337 4.497,4.681 2.653,5.639 2.837,5.681 -2.96,5.869 -2.898,4.695 z",
 	"m 0,0 -2.157,6.67 -6.13,-0.17 -5.553,-0.425 -5.176,-1.98 -3.174,-4.509 -3.551,-3.879 -1.84,-5.094 -2.207,-5.977 2.079,-5.93 4.793,-3.991 2.673,-3.865 6.257,1.515 5.653,-2.19 6.559,0.338 6.497,4.68 2.652,5.639 2.837,5.682 -2.96,5.868 -2.897,4.696 z",
 	"m 0,0 2.821,-5.664 3.183,-3.811 4.273,-4.318 5.829,2.469 4.65,2.001 6.153,-1.063 4.062,3.888 2.887,5.67 3.617,5.686 -4.731,5.164 -0.815,6.23 -5.704,2.288 -4.633,2.976 -5.551,1.189 -5.97,0.845 -5.11,-3.277 -7.486,-2.388 4.021,-7.891 -0.179,-4.986 z",
 	"m 0,0 6.677,1.676 4.793,2.496 5.587,3.535 -1.264,6.772 -1.043,5.41 2.565,6.291 -3.185,5.226 -5.352,4.393 -5.202,5.172 -6.593,-3.826 -6.812,0.587 -3.762,-5.531 -4.244,-4.23 -2.56,-5.623 -2.29,-6.149 2.291,-6.195 0.793,-8.516 9.325,2.434 5.259,-1.354 z"
 ]
 
-
+var starPath = "m0,0l-5.024-0.73c-1.089-0.158-2.378-1.095-2.864-2.081l-2.249-4.554c-0.487-0.986-1.284-0.986-1.771,0l-2.247,4.554c-0.487,0.986-1.776,1.923-2.864,2.081l-5.026,0.73c-1.088,0.158-1.334,0.916-0.547,1.684l3.637,3.544c0.788,0.769,1.28,2.283,1.094,3.368l-0.858,5.004c-0.186,1.085,0.458,1.553,1.432,1.041l4.495-2.363c0.974-0.512,2.566-0.512,3.541,0l4.495,2.363c0.974,0.512,1.618,0.044,1.433-1.041l-0.859-5.004c-0.186-1.085,0.307-2.6,1.095-3.368l3.636-3.544C27.857,13.209,27.611,12.452z";

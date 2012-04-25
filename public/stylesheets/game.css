@@ -184,7 +184,7 @@ button:hover{
 	text-align:left;
 }
 
-.welcome_text strong {
+#welcome_text_container strong {
 	font-weight:900;
 	font-size: 1.1em;
 	text-decoration: underline;
