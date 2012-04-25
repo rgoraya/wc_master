@@ -3,19 +3,6 @@
 /*** 
  *** GLOBAL VARIABLES 
  ***/
-var startBox; //the box where our islands start
-
-
-//for selection box ====
-var startBoxSize = [];
-var startBoxTopLeft = [];
-var boxNodes = {}; //nodes that are in the selection box
-var leftMost;
-var rightMost;
-var interval;
-var spacing = 150;
-var speed = 70;
-//======================
 
 var game_running = false;
 var now_building = null; //the thing we're dragging
@@ -42,6 +29,18 @@ var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 12 // arrowhead height
 var EDGE_COLORS = {'increases':'#C27E60','decreases':'#A0A7AD','superset':'#BBBBBB'}
 var EDGE_HIGHLIGHT_COLORS = {'increases':'#B6664E','decreases':'#7C7F86','superset':'#BBBBBB'}
+
+//for selection box ====
+var startBox; //the box where our islands start
+var startBoxSize = [];
+var startBoxTopLeft = [];
+var boxNodes = {}; //nodes that are in the selection box
+var leftMost;
+var rightMost;
+var interval;
+var spacing = 150;
+var speed = 70;
+//======================
 
 /***
  *** PLAY SOUNDS
@@ -644,7 +643,7 @@ function drawInitGame(paper){
   for (var index in currNodes){
       if (currNodes[index].y > startBoxTopLeft[1]) boxNodes[currNodes[index].id] = {id:currNodes[index].id, x:currNodes[index].x, y:currNodes[index].y};
   }
-  condense();
+  condenseSelectBox();
 
 	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke': '#000000', 'stroke-width':1}).toBack();
 
@@ -712,12 +711,12 @@ function drawNode(node, paper){
 		coast_shadow.transform(trans_string+"...t0,2.5")
 
 		var content = node.name.toUpperCase();
-		// _textWrapp(content,80)
-		if(content.length > 17)
-			content = content.substring(0,16)+"..."
+		// if(content.length > 17)
+		// 	content = content.substring(0,16)+"..."
 		var txt = paper.text(node.x, node.y+30, content).attr({
 			'fill': '#fff', 'font-size':10.5, 'font-weight':'bold',
 		});
+		_textWrapp(txt,50) //default to showing all text, wrapped
 
 		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
 		var house = paper.path(house_path).attr({
@@ -867,6 +866,7 @@ function drawEdgeSelectors(edge, canvas_id){
 var dragstart = function (x,y,event) 
 {
 	if(now_dragging) {
+		now_dragging.start_in_box = (now_dragging.node.y > startBoxTopLeft[1])
 		this.ox = 0;
 		this.oy = 0;
 
@@ -882,9 +882,9 @@ var dragstart = function (x,y,event)
 		}
 	}
 
-	var data = ["dragStart",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
-	//console.log(data);
-	sendLog(data);
+	// var data = ["dragStart",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
+	// //console.log(data);
+	// sendLog(data);
 };
 var dragmove = function (dx,dy,x,y,event) 
 {
@@ -905,7 +905,7 @@ var dragmove = function (dx,dy,x,y,event)
 		this.ox = dx;
 		this.oy = dy;
 
-    if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condense();}
+    if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condenseSelectBox();}
     else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y >	startBoxTopLeft[1]){ boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, x:now_dragging.node.x, y:now_dragging.node.y};}
 
 
@@ -927,7 +927,26 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].remove()
 		edgeIcons[dragged_edges[i].id] = drawEdge(dragged_edges[i], paper)
 	}
-  if (now_dragging.node.y > startBoxTopLeft[1]) condense();
+  if (now_dragging.node.y > startBoxTopLeft[1]){ //dropped in the box
+		if(!now_dragging.start_in_box){
+			now_dragging.icon[1].attr({'text':now_dragging.node.name.toUpperCase(),
+				'x':now_dragging.node.x,'y':now_dragging.node.y+30,'transform':''
+			});
+			_textWrapp(now_dragging.icon[1],50); //wrap the text
+		}
+		condenseSelectBox();
+	}
+	else { //dropped outside the box
+		if(now_dragging.start_in_box){
+			var content = now_dragging.node.name.toUpperCase();
+			if(content.length > 17)
+				content = content.substring(0,16)+"...";
+			now_dragging.icon[1].attr({'text':content,
+				'x':now_dragging.node.x,'y':now_dragging.node.y+30,'transform':''
+			})
+			.transform('...t0,'+(now_dragging.icon[1].getBBox().height/2)) //recenter
+		}
+	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
 	//console.log(data);
@@ -1334,7 +1353,7 @@ $(document).ready(function(){
 	});
 });
 
-function condense(){
+function condenseSelectBox(){
   var arr = [];
   for (var index in boxNodes){
     arr.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
@@ -1348,7 +1367,7 @@ function condense(){
   var ox = null;
   var oy = null;
 
-  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/2;
+  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
 
   for(var index = 0; index < arr.length; index++){
     if (index < arr.length-1){
@@ -1380,7 +1399,7 @@ function sendLog(info){
 /***
  *** MISC METHODS AND CONSTANTS
  ***/
-_textWrapp = function(t, width, max_length) {
+_textWrapp = function(t, width) {
 	/**
 	 * adapted from
 	 * http://stackoverflow.com/questions/3142007/how-to-either-determine-svg-text-box-width-or-force-line-breaks-after-x-chara
@@ -1398,7 +1417,7 @@ _textWrapp = function(t, width, max_length) {
     for ( var i = 0; i < words.length; i++) {
         var l = words[i].length;
         if(x+l>width) {
-            s.push("\n")
+            s.push("\n");
             x=0;
 						wrapped = true;
         }
@@ -1410,6 +1429,7 @@ _textWrapp = function(t, width, max_length) {
     t.attr({"text": s.join("")});
 		// if(!wrapped)
 		t.attr({'text-anchor':'middle'});
+		t.transform('...t0,'+(t.getBBox().height/2)) //recenter
 };
 
 var ISLAND_PATHS = [

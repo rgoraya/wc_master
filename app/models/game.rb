@@ -41,7 +41,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #testing
     #@edges[1] = Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES)
 
-    @nodes[@home].location = Vector[(@width-200)/2, @height/2] #pull out Samaki Population and center
+    @nodes[@home].location = Vector[@width/2, (@height-150)/2] #pull out Samaki Population and center
     grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[-20, @height-100+50],Vector[@width, 100],Vector[100,0]) #hard-coded starting box
   end
 
@@ -333,7 +333,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     'Scientific speculation of overfishing',
     'Samaki industry leaders\' claim of healthy fishery',
     'Disagreement over samaki poplation health',
-    'Price of competing products (soybeans and vegetable oils)',
+    'Price of competing products (soybeans/vegetable oils)',
     'Reproduction rate per unit fish',
     'Production from international fish oil competitors',
     'Amount of sport fish caught',
