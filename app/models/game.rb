@@ -5,7 +5,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
   #constants
   START = 19
-  DEGREE = 5 #degree of indirection included
+  DEGREE = 1 #degree of indirection included
   
   attr_accessor :correct, :optimal_degrees, :home
   

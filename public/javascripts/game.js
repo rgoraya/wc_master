@@ -29,6 +29,7 @@ var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 12 // arrowhead height
 var EDGE_COLORS = {'increases':'#C27E60','decreases':'#A0A7AD','superset':'#BBBBBB'}
 var EDGE_HIGHLIGHT_COLORS = {'increases':'#B6664E','decreases':'#7C7F86','superset':'#BBBBBB'}
+var ANT_COLORS = {stroke:'#E9E0C4', walk:'#0f0',lost:'#B01A2D',hesitate:'#D7D43B',home:'#779E4F'}
 
 //for selection box ====
 var startBox; //the box where our islands start
@@ -292,7 +293,7 @@ function Ant(n,plan,island){
 	islands[island].addAnt(this,false)
 	this.pos = {x:currNodes[island].x, y:currNodes[island].y}
 	this.icon = paper.circle(this.pos.x, this.pos.y,3)
-		.attr({'fill':'#0f0'})
+		.attr({'stroke':ANT_COLORS.stroke,'fill':ANT_COLORS.walk})
 	// ant_nodes.push(this.icon.node) //for the d3 version
 }
 Ant.prototype.WAITING = 0;
@@ -344,7 +345,7 @@ Ant.prototype.walkPath = function(){
 		catch(err){ //this should include deleting and swapping the edge
 			this.stat = this.GETTING_LOST
 			this.prog = 0
-			this.icon.attr({'fill':'#A63E3E'})
+			this.icon.attr({'fill':ANT_COLORS.lost})
 			return;
 		}
 	}
@@ -355,13 +356,13 @@ Ant.prototype.walkPath = function(){
 			this.stat = this.HESITATING
 			this.pathlen = [this.prog, this.pathlen]; //store the progress inside the pathlen
 			this.prog = 0
-			this.icon.attr({'fill':'#FFFF00'})
+			this.icon.attr({'fill':ANT_COLORS.hesitate})
 			return;
 		}
 		else if(validity < 0){
 			this.stat = this.GETTING_LOST
 			this.prog = 0
-			this.icon.attr({'fill':'#A63E3E'})
+			this.icon.attr({'fill':ANT_COLORS.lost})
 			return;
 		}
 	}
@@ -378,7 +379,7 @@ Ant.prototype.hesitate = function(){
 		this.stat = this.ON_PATH
 		this.prog = this.pathlen[0]
 		this.pathlen = this.pathlen[1]
-		this.icon.attr({'fill':'#0f0'})
+		this.icon.attr({'fill':ANT_COLORS.walk})
 		return;
 	}
 
@@ -386,7 +387,7 @@ Ant.prototype.hesitate = function(){
 	if(this.prog > HESITATE_TIME){
 		this.stat = this.GETTING_LOST
 		this.prog = 0
-		this.icon.attr({'fill':'#A63E3E'})
+		this.icon.attr({'fill':ANT_COLORS.lost})
 		return;
 	}
 	if(this.prog%8 == 0){ //step back
@@ -404,7 +405,7 @@ Ant.prototype.hesitate = function(){
 	catch(err){ //this should include deleting and swapping the edge
 		this.stat = this.GETTING_LOST
 		this.prog = 0
-		this.icon.attr({'fill':'#A63E3E'})
+		this.icon.attr({'fill':ANT_COLORS.lost})
 		return;
 	}
 }
@@ -434,7 +435,7 @@ Ant.prototype.pace = function(){
 	else if(this.prog >= PACE_TIME) { //give up threshold
 		this.stat = this.SWIMMING
 		this.prog = 0
-		this.icon.attr({'fill':'#A63E3E'})
+		this.icon.attr({'fill':ANT_COLORS.lost})
 		return;
 	}
 	else if(this.prog > 5 && this.prog%15 == 0){ //circle
@@ -478,22 +479,23 @@ Ant.prototype.goSwimming = function(){
 Ant.prototype.arrive = function(){
 	this.stat = this.DANCING //start dancing
 	this.prog = 0
-	this.icon.attr({'fill':'#3CA03C'});
+	this.icon.attr({'fill':ANT_COLORS.home});
   play_sound("/sounds/correct.wav")
 }
 Ant.prototype.victoryDance = function(){
+	//tweak dance length?
 	this.prog += 1
-	if(this.prog > 25){
+	if(this.prog > 12){
 		this.stat = this.GOING_HOME //settle down
 		this.prog = 0
 		return;
 	}
-	else if(this.prog%20 < 10){
-		this.pos = {x:this.pos.x, y:this.pos.y-0.3} //bounce up
+	else if(this.prog%10 < 5){
+		this.pos = {x:this.pos.x, y:this.pos.y-0.4} //bounce up
 		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
 	}
-	else if(this.prog%20 < 20){
-		this.pos = {x:this.pos.x, y:this.pos.y+0.3} //bounce down
+	else if(this.prog%10 < 10){
+		this.pos = {x:this.pos.x, y:this.pos.y+0.4} //bounce down
 		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
 	}
 }
