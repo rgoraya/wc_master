@@ -13,9 +13,9 @@
     %div.relationship_partial_toggle#toggle_inhibitors
       = link_to "is reduced by",{:controller=>"issues", :action=>"show", :rel_type=>"is reduced by"}, :remote=>true
     %div.relationship_partial_toggle#toggle_subsets
-      = link_to "is a superset of",{:controller=>"issues", :action=>"show", :rel_type=>"is a superset of"}, :remote=>true
+      = link_to "includes",{:controller=>"issues", :action=>"show", :rel_type=>"includes"}, :remote=>true
     %div.relationship_partial_toggle#toggle_supersets
-      = link_to "is a subset of ",{:controller=>"issues", :action=>"show", :rel_type=>"is a subset of"}, :remote=>true
+      = link_to "is a part of ",{:controller=>"issues", :action=>"show", :rel_type=>"is a part of"}, :remote=>true
        
 
 %div.issue_relationships_container

@@ -110,11 +110,11 @@ require 'backports'
         @issue_relations = @issue.inhibiteds.paginate(:per_page => 6, :page => @page)
         set_selected_relations_common_data('R','I',"add_inhibited_btn","inhibiteds")
              
-      when "is a subset of"
+      when "is a part of"
         @issue_relations = @issue.supersets.paginate(:per_page => 6, :page => @page)
         set_selected_relations_common_data('P','H',"add_superset_btn","supersets")
             
-      when "is a superset of"
+      when "includes"
         @issue_relations = @issue.subsets.paginate(:per_page => 6, :page => @page)
         set_selected_relations_common_data('S','H',"add_subset_btn","subsets")
          
@@ -140,9 +140,9 @@ require 'backports'
       records_before_this_one = @issue.inhibitors.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
       when "reduces"
       records_before_this_one = @issue.inhibiteds.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
-      when "is a subset of"
+      when "is a part of"
       records_before_this_one = @issue.supersets.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
-      when "is a superset of"
+      when "includes"
       records_before_this_one = @issue.subsets.count(:conditions => ['relationships.updated_at > ?', rel_to_check.updated_at], :order => 'relationships.updated_at DESC')
     end
 
@@ -220,7 +220,7 @@ require 'backports'
       when 'I'
         sentence = "reduces"
       when 'H'
-        sentence = "is a superset of" 
+        sentence = "includes" 
      end
   end  
 
@@ -231,7 +231,7 @@ require 'backports'
       when 'I'
         sentence = "is reduced by"
       when 'H'
-        sentence = "is a subset of" 
+        sentence = "is a part of" 
     end
   end     
 

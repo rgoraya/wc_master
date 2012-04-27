@@ -14,7 +14,7 @@ module RelationshipsHelper
         @sentence = "reduces"
         @css_id   = "inhibitory_arrow"
       when "H"
-        @sentence = "is a superset of"   
+        @sentence = "includes"   
         @css_id   = "heirarchical_arrow" 
     end
     return @sentence, @css_id

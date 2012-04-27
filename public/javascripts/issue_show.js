@@ -189,11 +189,11 @@ $(function() {
 	  case 'reduces':
 		suggestion_sentence = 'may reduce';
 	  break;
-	  case 'is a superset of':
-		suggestion_sentence = 'may be a superset of';
+	  case 'includes':
+		suggestion_sentence = 'may inlude';
 	  break;
-	  case 'is a subset of':
-		suggestion_sentence = 'may be a subset of';
+	  case 'is a part of':
+		suggestion_sentence = 'may be a part of';
 	  break;
 	  }
 	
@@ -922,12 +922,12 @@ $(".relationship_thumb_title a, .relationship_thumb_main a").live('click',functi
 		$("#title_causality").html('may reduce')
 		$("#frm_action").val('R')
 	  break;
-	  case 'is a superset of':
-		$("#title_causality").html('may be a superset of')
+	  case 'includes':
+		$("#title_causality").html('may include')
 		$("#frm_action").val('S')
 	  break;
-	  case 'is a subset of':
-		$("#title_causality").html('may be a subset of')
+	  case 'is a part of':
+		$("#title_causality").html('may be a part of')
 		$("#frm_action").val('P')
 	  break;
 	  }
