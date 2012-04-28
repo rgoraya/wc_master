@@ -12,6 +12,7 @@ var all_ants = []; //all the ants (for tracking)
 var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
 var first_edge = true //if the (next) edge the first edge built?
+var last_edge_drawn = false
 
 //timer constants
 var DEPLOY_TIME = 1
@@ -796,8 +797,13 @@ function drawEdge(edge, paper){
 
 		var curve = getPath(edge) //get the curve's path
 		var normal = getUnitNormal(edge)
-		var e = paper.path(curve).attr({'stroke-width':5}).toBack()
+		var e = paper.path(curve).attr({'stroke-width':5})
 		.transform("...t"+(1*normal[0])+","+(1*normal[1]))
+		if(last_edge_drawn && last_edge_drawn[0][0]) //hack to make sure we don't draw after removing an edge
+			e.insertAfter(last_edge_drawn)
+		else
+			e.toBack();
+		
 		var e2 = paper.path(curve).attr({'stroke-width':5})
 			.transform("...t"+(-1*normal[0])+","+(-1*normal[1]))
 			.insertBefore(e)
@@ -840,7 +846,10 @@ function drawEdge(edge, paper){
 		if(edge.id >= 0) //only if edge exists
 			$([e.node, e2.node, stipple.node]).qtip(get_edge_qtip_small(edge))
 		var icon = paper.set() //for storing pieces of the line as needed
-		.push(e, e2, arrow[0], arrow[1], selector, stipple)
+			.push(e, e2, arrow[0], arrow[1], selector, stipple)
+
+		if(edge.id >= 0) //only if edge exists
+			last_edge_drawn = icon
 
 		return icon;
 }
@@ -1041,7 +1050,7 @@ var buildmove = function (dx,dy,x,y,event)
 		for(var i=0, len=currNodes['keys'].length; i<len; i++){
 			var node = currNodes[currNodes['keys'][i]] //easy access
 			var icon = nodeIcons[node.id]
-			var bb = icon.getBBox() //compare to the bounding box of whole icon (circle is [4] atm)
+			var bb = icon[4].getBBox() //compare to the bounding box of whole icon (coast is [4] atm)
 			if(	now_building.start_node != node &&
 					now_building.target_node.x > bb.x && now_building.target_node.x < bb.x+bb.width &&
 					now_building.target_node.y > bb.y && now_building.target_node.y < bb.y+bb.height ){ //if inside the bounding box
