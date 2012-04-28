@@ -29,7 +29,7 @@ var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 12 // arrowhead height
 var EDGE_COLORS = {'increases':'#C27E60','decreases':'#A0A7AD','superset':'#BBBBBB'}
 var EDGE_HIGHLIGHT_COLORS = {'increases':'#B6664E','decreases':'#7C7F86','superset':'#BBBBBB'}
-var ANT_COLORS = {stroke:'#E9E0C4', walk:'#0f0',lost:'#B01A2D',hesitate:'#D7D43B',home:'#779E4F'}
+var ANT_COLORS = {stroke:'#E9E0C4', walk:'#7fff24',lost:'#B01A2D',hesitate:'#D7D43B',home:'#779E4F'}
 
 //for selection box ====
 var startBox; //the box where our islands start
@@ -1209,32 +1209,48 @@ function swapEdge(e, new_reltype){
 
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
-function reverseEdge(e){
+function alterEdge(e, new_reltype, reverse){
 	var old_a = e.a
 	var old_b = e.b
+	var old_reltype = e.reltype;
 
 	var key = e.id //e.a.id+(parseInt(e.reltype)&INCREASES ? 'i' : 'd')+e.b.id //the key we should have constructed
 	var edge = currEdges[key]
-	edge.reltype = INCREASES
-	edge.a = old_b
-	edge.b = old_a
+	if(reverse){
+		edge.a = old_b
+		edge.b = old_a
+	}
+	edge.reltype = new_reltype
 	edge.name = edge.a.name+(edge.reltype&INCREASES ? ' increases ' : ' decreases ')+edge.b.name
 
 	edgeIcons[edge.id].remove() //remove old icon
 	edgeIcons[edge.id] = drawEdge(edge,paper)
 
-	var data = ["reverseEdge",["edge.id",e.id,"edge.a.before",old_a.id,"edge.b.before",old_b.id,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n",edge.n].join(":")].join("|");
+	var data = ["alterEdge",["edge.id",e.id,"edge.a.before",old_a.id,"edge.b.before",old_b.id,"edge.reltype.before",old_reltype,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n",edge.n].join(":")].join("|");
 	//console.log(data);
 	sendLog(data);
 
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
 function toggleEdge(edge){
+	var options = [0|1,0|0,2|1,2|0] //default options samedir|increaser
+	var a_id = edge.a.id
+	var b_id = edge.b.id
 	var edge_incr = parseInt(edge.reltype)&INCREASES //is the edge an increaser?
-	if(edge_incr)
-		swapEdge(edge, 0); //change to a decreaser
-	else
-		reverseEdge(edge); //reverse to an increaser
+	options = options.slice(options.indexOf(0|edge_incr)+1,4).concat(options.slice(0,options.indexOf(0|edge_incr))) //remove my and shift
+	
+	for(var i=0,len=islands[a_id].bridges.length; i<len; i++){
+		var e = currEdges[islands[a_id].bridges[i]]
+		// console.log('looking at bridge',islands[a_id].bridges[i],e,currEdges)
+		if(e.id!=edge.id && e.a == edge.a && e.b == edge.b)
+			options.splice(options.indexOf(0|e.reltype&INCREASES),1) //remove from list
+		else if(e.id!=edge.id && e.a == edge.b && e.b == edge.a)
+			options.splice(options.indexOf(2|e.reltype&INCREASES),1) //remove from list
+	}
+	// console.log(options);
+	if(options.length > 0){ //make sure we have options
+		alterEdge(edge, options[0]&1, options[0]&2)
+	}
 }
 
 /***
