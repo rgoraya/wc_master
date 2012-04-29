@@ -255,6 +255,7 @@ Island.prototype.reset = function(){
 	this.settled = []
 	this.spawn_timer = 0 
 	this.spawn_count = 0
+	this.max_spawn = 30
 	this.deploy_timer = 0
 	this.activated = false
 	this.emptied = false
@@ -266,7 +267,7 @@ function initIslands(){
 	for(i in islands){
     islands[i].icon = nodeIcons[islands[i].n]; //add icons once they are drawn
 		$([islands[i].icon[2].node]).data('island',i) //store the island in the node, so we can look up stuff about it in jquery
-		$([islands[i].icon[2].node]).qtip(get_house_qtip(islands[i]))
+		$([islands[i].icon[2].node]).qtip(house_qtip(islands[i]))
 
 		islands[i].updateEdges()		
   }
@@ -558,6 +559,8 @@ function beginGame(){
 function clearTheBoard(){
 	for(i in islands){ //reset the islands
 		islands[i].reset()
+		if(!continuous)
+			islands[i].max_spawn = islands[i].bridges.length*3		
 	}
 
 	islands[HOME].activate() //open the home island
@@ -579,8 +582,9 @@ function startAnimation(paper) {
 	console.log('starting animation')
 
 	//block out all the other interactions so that the user doesn't break things
-	if(!continuous)
+	if(!continuous){
 		var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
+	}
 
 	// var d3nodes = d3.selectAll(ant_nodes)
 	var count = 0
@@ -780,12 +784,8 @@ function drawNode(node, paper){
 		.undrag()
 		coast.drag(buildmove, buildstart, buildend)
 
-		$([island.node,txt.node]).qtip(get_node_qtip(node)); //if we want a tooltip
-		$(coast.node).qtip({
-			content:{text: '<div class="help_qtip">Drag to create a path</div>'},
-			position:{target: 'mouse',adjust: {y:4}},
-			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
-		});
+		$([island.node,txt.node]).qtip(node_qtip(node)); //if we want a tooltip
+		$(coast.node).qtip(help_qtip('Drag to create a path'));
 		return icon;  
 }
 
@@ -835,16 +835,13 @@ function drawEdge(edge, paper){
 
 		var center = getPathCenter(curve,-2)
 		var selector = paper.circle(center.x,center.y,10).attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-		// $(selector.node).qtip(get_edge_qtip(edge))
+		// $(selector.node).qtip(edge_selector_qtip(edge))
 		selector.dblclick(function() {toggleEdge(edge);})
+		.mouseover(function() {this.node.style.cursor='pointer';})
 		$(selector.node).on("contextmenu", function(e){destroyEdge(edge);e.preventDefault();});
-		$(selector.node).qtip({
-			content:{text: '<div class="help_qtip">Double-click to change direction<br>Right-click to delete</div>'},
-			position:{target: 'mouse',adjust: {y:4}},
-			style:{classes: 'ui-tooltip-light ui-tooltip-shadow'}
-		});
+		$(selector.node).qtip(help_qtip('Double-click to change direction<br>Right-click to delete'));
 		if(edge.id >= 0) //only if edge exists
-			$([e.node, e2.node, stipple.node]).qtip(get_edge_qtip_small(edge))
+			$([e.node, e2.node, stipple.node]).qtip(edge_qtip(edge))
 		var icon = paper.set() //for storing pieces of the line as needed
 			.push(e, e2, arrow[0], arrow[1], selector, stipple)
 
@@ -1106,8 +1103,8 @@ var buildend = function (x,y,event)
 			//set up the icon
 			now_building.icon.remove() //remove our building icon
 			edgeIcons[edge.id] = drawEdge(edge, paper) //redraw with the correct edge associated
-			// $(icon[0].node).qtip(get_edge_qtip_small(edge))
-			// $(icon[3].node).qtip(get_edge_qtip(edge)); //add handlers
+			// $(icon[0].node).qtip(edge_qtip_small(edge))
+			// $(icon[3].node).qtip(edge_selector_qtip(edge)); //add handlers
 
 			//figure out if we need to adjust the 'n'
 			var tobend = []
@@ -1315,71 +1312,82 @@ function getScoreBoard(){
 }
 
 //layout details for the node qtip
-function get_node_qtip(node) {
+function node_qtip(node) {
 	return {
-		content:{
-			text: '<div id="issue_qtip"><div class="formcontentdiv"><div class="heading">' + 
-							node.name + '</div></div></div>'
-		},
+		content:{text: node.name},
 		position: {
-			my: 'top-center',
-			at: 'bottom-center',
-			target: 'mouse',
-			adjust:{y:4},
+			my: 'top-center', at: 'bottom-center',
+			target: 'mouse', adjust:{y:5},
 		},
 		style: {
-			classes: 'ui-tooltip-light ui-tooltip-shadow',
-			tip: {
-				//http://craigsworks.com/projects/qtip2/docs/plugins/tips/
-				width:10,
-				height:6,
-			},
+			classes: 'ui-tooltip-causling node-tip ui-tooltip-shadow',
+			tip: {width:14,height:7},
 		},
 	};
 }
+
+//layout details for the small edge qtip
+function edge_qtip(edge) {
+	return {
+		content:{text: 'Bridge: '+edge.name},
+		position: {
+			// my: 'top-center', at: 'bottom-center',
+			target: 'mouse', adjust:{y:5},
+		},
+		style: {
+			classes: 'ui-tooltip-causling edge-tip ui-tooltip-shadow',
+			// tip: {width:14,height:7},
+			width: 200,
+		},
+	};
+}
+
 //layout details for the house qtip
-function get_house_qtip() {
+function house_qtip() {
 	return {
 		content:{
 			text: function(api){
 				var island = islands[$(this).data('island')]
-				return '<div class="house_descr"><b>'+island.settled.length+' Causlings</b> <br> have settled at concept <br>' 
-								+ '<i>'+island.node.name+'</i>'
-								+ '</div>';
+				return island.settled.length+' Causlings<br> have settled at concept<br>'+island.node.name.toUpperCase();
 			}
 		},
 		position: {
-			// my: 'top center',  // Position my top left...
-			// at: 'bottom center', // at the bottom right of...
-			target: 'mouse',
-			adjust: {y:4}
+			my: 'top center', at: 'bottom center',
+			target: 'mouse', adjust: {y:5}
 		},
 		style: {
-			classes: 'ui-tooltip-light ui-tooltip-shadow'
+			classes: 'ui-tooltip-causling house-tip ui-tooltip-shadow',
+			tip: {width:14,height:7},
+			width: 165,
 		}
 	};
 }
-//layout details for the small edge qtip
-function get_edge_qtip_small(edge) {
+
+//show help
+function help_qtip(msg) {
 	return {
-		content:{
-			text: '<div class="edge_title">' + edge.name + '</div>'
-		},
-		position: {
-			target: 'mouse',
-			adjust: {y:4}
-		},
-		style: {
-			classes: 'ui-tooltip-light ui-tooltip-shadow',
-			width: 200,
-		},
-	};	
+		content:{text: msg},
+		position:{target: 'mouse',adjust: {x:3,y:3}},
+		style:{classes: 'ui-tooltip-causling help-tip ui-tooltip-shadow'}
+	}
 }
+
+function delete_confirmation_qtip(){
+	
+}
+
+function release_confirmation_qtip(){
+}
+
+function instruction_qtip(){
+}
+
 //layout details for the edge qtip
-function get_edge_qtip(edge) {
+function edge_selector_qtip(edge) {
 	var canvas_id = Math.random()
 	return {
 		content:{
+			//probably need to redo this layout if we want to use it...
 			text: "<div id='relation_qtip'><div class='selector_container'><div id='selector_canvas_"+canvas_id+"'></div></div>"+
 			  		"<div class='descr_container'><div class='heading'>"+edge.name+"</div></div></div>"
 			//currently not using ajax for faster load times (since we don't need to fetch from db, yet)
