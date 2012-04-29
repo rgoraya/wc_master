@@ -132,7 +132,7 @@ button:hover{
 }
 
 .node-tip .ui-tooltip-content{
-	font-size:14px;
+	font-size:13px;
 	text-transform:uppercase;
 }
 
@@ -148,6 +148,14 @@ button:hover{
 .help-tip .ui-tooltip-content{
 	font-size:10px;
 	font-style: italic;
+}
+
+.instruction-tip {max-width:none;}
+.instruction-tip .ui-tooltip-content{
+	font-size:14px;
+	text-transform:uppercase;	
+	border-width: 3px;
+	max-width:none;
 }
 
 /* old qtip styling */

@@ -705,6 +705,9 @@ function drawInitGame(paper){
     })
     .mouseup(function(){clearInterval(interval);});
 
+		// console.log(paper,startBox);
+		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
+
 }
 
 function condenseSelectBox(){
@@ -1323,6 +1326,9 @@ function node_qtip(node) {
 			classes: 'ui-tooltip-causling node-tip ui-tooltip-shadow',
 			tip: {width:14,height:7},
 		},
+		events: {
+			show: function(event){if(now_dragging){try { event.preventDefault(); } catch(e){} }}
+		}
 	};
 }
 
@@ -1379,7 +1385,40 @@ function delete_confirmation_qtip(){
 function release_confirmation_qtip(){
 }
 
-function instruction_qtip(){
+//a qtip giving the user instructions/feedback. Shows up either above the element or at specified coordinates, immediately when attached.
+function instruction_qtip(msg,x,y){
+	// console.log('instruction_qtip')
+	var q = {
+		content:{text: msg},
+		position:{
+			my: 'bottom-center', at: 'top-center',
+			// target:[x,y],
+			adjust:{y:-8}
+		},
+		style:{
+			classes: 'ui-tooltip-causling instruction-tip ui-tooltip-shadow',
+			tip:{
+				width:20,height:10,
+				corner:'bottom center',
+			},
+		},
+		show:{
+			ready:true,
+			event:false,
+		},
+		hide:{
+			// event:'click mousemove',
+			// delay:1000, //after doing something, wait a tick
+			event: 'mousedown',
+			target: $(document.body).children(),
+			// inactive: 3000,
+			effect: function() {$(this).fadeOut(300);}
+		},
+	};
+	if(x!=undefined && y!=undefined)
+		q.position = {target:[x,y]};
+	// console.log(q)
+	return q
 }
 
 //layout details for the edge qtip
