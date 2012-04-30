@@ -101,7 +101,7 @@ Island.prototype.tick = function(){
 }
 Island.prototype.activate = function(){
 	this.activated = true
-	this.icon[2].show();//insertAfter(this.icon[0]) //hard-code move "house" after "island" to show
+	this.icon[3].show();//insertAfter(this.icon[0]) //hard-code move "house" after "island" to show
 }
 Island.prototype.spawnAnt = function(){
 	var ant = new Ant(all_ants.length, [], this.n); //create a new ant on this island
@@ -226,15 +226,15 @@ Island.prototype.reset = function(){
 	this.deploy_timer = 0
 	this.activated = false
 	this.emptied = false
-	this.icon[2].hide();//insertBefore(this.icon[0]) //hard-code move "house" before "island" to hide (for next run)
+	this.icon[3].hide();//insertBefore(this.icon[0]) //hard-code move "house" before "island" to hide (for next run)
 }
 
 //initialize the islands by adding icons, qtips, bridges, etc
 function initIslands(){
 	for(i in islands){
     islands[i].icon = nodeIcons[islands[i].n]; //add icons once they are drawn
-		$([islands[i].icon[2].node]).data('island',i) //store the island in the node, so we can look up stuff about it in jquery
-		$([islands[i].icon[2].node]).qtip(house_qtip(islands[i]))
+		$([islands[i].icon[3].node]).data('island',i) //store the island in the node, so we can look up stuff about it in jquery
+		$([islands[i].icon[3].node]).qtip(house_qtip(islands[i]))
 
 		islands[i].updateEdges()		
   }
@@ -471,7 +471,7 @@ Ant.prototype.victoryDance = function(){
 Ant.prototype.settleDown = function(){
 	this.prog += 1
 	if(this.prog == 1)
-		this.icon.insertBefore(islands[this.island].icon[2]) //move the ant behind the house (currently #2)
+		this.icon.insertBefore(islands[this.island].icon[3]) //move the ant behind the house (currently #3)
 	if(this.prog <= 4){
 		var vx = .25*(currNodes[this.island].x - this.pos.x) //quarter of the distance to the center
 		var vy = .25*(currNodes[this.island].y - this.pos.y)
@@ -481,7 +481,7 @@ Ant.prototype.settleDown = function(){
 	else{
 		this.stat = this.SETTLED //stop moving for future ticks
 		this.prog = 0
-		this.icon.insertBefore(islands[this.island].icon[3]) //move behind the coast to hide entirely
+		this.icon.insertBefore(islands[this.island].icon[4]) //move behind the coast to hide entirely
 		this.icon.hide() //also just outright hide :p
 		return;
 		//console.log(this.n, 'settled down at', currNodes[this.island].name)
@@ -813,6 +813,10 @@ function drawNode(node, paper){
 			'fill': '#fff', 'font-size':10.5, 'font-weight':'bold',
 		});
 		_textWrapp(txt,50) //default to showing all text, wrapped
+		var txtbb = txt.getBBox();
+		var txt_selector = paper.rect(txtbb.x,txtbb.y,txtbb.width,txtbb.height)
+			.attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
+			.hover(function() {toggleFullName(node,txt,true)},function() {toggleFullName(node,txt,false)})
 
 		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
 		var house = paper.path(house_path).attr({
@@ -821,7 +825,7 @@ function drawNode(node, paper){
 		.hide();// .insertBefore(island) //hide the house for now
 
 		var icon = paper.set()
-		.push(island,txt,house)
+		.push(island,txt,txt_selector,house)
 		.mouseover(function() {this.node.style.cursor='move';})//hoverNode(node)})
 		.mousedown(function(e) {now_dragging = {icon:icon, node:node};})
 		.drag(dragmove, dragstart, dragend) //enable dragging!
@@ -833,8 +837,6 @@ function drawNode(node, paper){
 		coast.drag(buildmove, buildstart, buildend)
 
 		// $([txt.node]).qtip(node_qtip(node)); //if we want a tooltip
-		icon.mouseover(function() {toggleFullName(node,txt,true)})
-		.mouseout(function() {toggleFullName(node,txt,false)})	
 		
 		$(coast.node).qtip(help_qtip('Drag to create a path'));
 		return icon;  
@@ -862,7 +864,7 @@ function drawEdge(edge, paper){
 			.attr({'stroke-opacity':0,'fill':'url(/images/game/bridgepattern.png)','fill-opacity':0.2})
 			.insertAfter(e)
 		
-		var arrow = drawArrow(edge, curve, paper)
+		var arrow = drawArrow(edge, curve, paper, 2.5)
 		arrow[0].attr({'stroke-linejoin':'round','stroke-opacity':0}).insertAfter(e2)
 		arrow[1].insertAfter(e)
 
@@ -965,7 +967,7 @@ function toggleFullName(node,txt,show){
 	if(!islands[node.id].capital){ //or in selection box, once we have that
 		if(show){
 			txt.attr({'text':node.name,'x':node.x,'y':node.y+30,'transform':''});
-			_textWrapp(txt,50); //wrap the text		
+			_textWrapp(txt,50); //wrap the text
 		}
 		else{
 			var content = node.name;
