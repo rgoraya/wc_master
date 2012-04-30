@@ -11,9 +11,10 @@ var selector_canvases_drawn = []; //canvases we've drawn before
 var all_ants = []; //all the ants (for tracking)
 var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
-var first_edge = true; //if the (next) edge the first edge built?
+//// var first_edge = true; //if the (next) edge the first edge built?
 var last_edge_drawn = false;
 var game_running = false;
+var block;
 var ant_animator;
 var ant_anim_count;
 var clock;
@@ -550,7 +551,7 @@ function startAnts(paper) {
 
 	//block out all the other interactions so that the user doesn't break things
 	if(!continuous){
-		var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
+		block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
 	}
 	
 	// var d3nodes = d3.selectAll(ant_nodes)
@@ -1202,6 +1203,9 @@ var buildend = function (x,y,event)
 	//console.log(data);
 	sendLog(data);
 
+	if(currEdges['keys'].length > 0) //turn on run button if we have some edges now
+		$('#run_button').removeAttr('disabled');	
+
 	//reset variables
 	now_building = null
 };
@@ -1251,7 +1255,10 @@ function destroyEdge(edge) {
 	else
 		console.log('edge does not exist. PROBLEM.')
 
-	$('.qtip.ui-tooltip').qtip('hide');	
+	$('.qtip.ui-tooltip').qtip('hide');
+	
+	if(currEdges['keys'].length == 0) //turn off the run button if we have no more edges
+		$('#run_button').attr('disabled', 'disabled')	
 }
 function confirmDestroy(edge){
 	$(edgeIcons[edge.id][4].node).qtip(confirmation_qtip('Destroy bridge?',"destroyEdge(currEdges["+edge.id+"]);")).qtip('show');
@@ -1544,6 +1551,7 @@ function confirmation_qtip(msg, action){
 	}
 }
 
+
 /***
  *** PLAY SOUNDS
  ***/
@@ -1602,15 +1610,14 @@ $(document).ready(function(){
 	$('#run_button').qtip(confirmation_qtip(
 		'Are you sure you want to release the Causlings?',
 		'if(game_running==false){beginGame();}'
-	)).click(function(){$(this).qtip('show');})
-	
-	// ant_animator = setInterval(animateAnts, 30);
-	// clearInterval(ant_animator);
-	
+	)).click(function(){if(!$(this).is('disabled'))$(this).qtip('show');})
+	if(currEdges['keys'].length == 0)
+		$('#run_button').attr('disabled', 'disabled')
+
 	$("#article_button").colorbox({
 		href:'/documents/samakiarticle.html',
-		width:850, height:600, 
-		initialWidth:810, initialHeight:530, 
+		width:850, height:600,
+		initialWidth:810, initialHeight:530,
 		transition:'none',
 		onOpen:pauseAnimations,
 		onClosed:unpauseAnimations,
