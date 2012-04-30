@@ -774,7 +774,7 @@ function drawClock(){
 		'stroke':'#fff',
 		'stroke-width':2.5
 	})
-	var label = paper.text(90,80,'until Causlings leave!').attr({
+	var label = paper.text(90,87,'until Causlings begin\nto explore!').attr({
 		'font-size':13,
 		'font-family':'Helvetica, Arial, sans-serif',
 		'font-weight':'bold',
@@ -1181,11 +1181,11 @@ var buildend = function (x,y,event)
 			}
 			
 			//if this is the first edge we've made in continous mode, start the game!!
-			if(first_edge && continuous){
-				//should probably alert the user with a pop-up
-				first_edge = false;
-				beginGame()
-			}
+			// if(first_edge && continuous){
+			// 	//should probably alert the user with a pop-up
+			// 	first_edge = false;
+			// 	beginGame()
+			// }
 
 			islands[edge.a.id].updateEdges() //update the edges for the islands -- AFTER we've cleared the board and launched the game
 			islands[edge.b.id].updateEdges()
