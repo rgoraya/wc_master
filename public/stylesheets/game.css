@@ -222,8 +222,7 @@ button:hover{
 	background-color: rgb(250, 248, 229);	
 	color: rgb(115,133,140);
 	font-family: sans-serif;
-	font-size: 1 em;
-	line-height: 2em;
+	/*line-height: 1.5 em;*/	
 	padding: 20px;
 	margin-bottom:20px;
 	text-align:left;
@@ -232,7 +231,6 @@ button:hover{
 #welcome_text_container strong {
 	font-weight:900;
 	font-size: 1.1em;
-	text-decoration: underline;
 }
 
 #article {
@@ -247,7 +245,6 @@ button:hover{
 	background-color: rgb(250, 248, 229);
 	color: rgb(115,133,140);
 	font-family: sans-serif;
-	font-size: 1 em;
 /*	line-height: 2em;*/
 	text-align: left;
 }

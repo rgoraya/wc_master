@@ -4,15 +4,18 @@
  *** GLOBAL VARIABLES 
  ***/
 
+//state variables
 var game_running = false;
 var now_building = null; //the thing we're dragging
-var edge_count = 1+currEdges['keys'].length //edge number we're making (initialize based on number of existing edges...)
+var edge_count = 1+currEdges['keys'].length; //edge number we're making (initialize based on number of existing edges...)
 var selector_canvases_drawn = []; //canvases we've drawn before
 var all_ants = []; //all the ants (for tracking)
 var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
-var first_edge = true //if the (next) edge the first edge built?
-var last_edge_drawn = false
+var first_edge = true; //if the (next) edge the first edge built?
+var last_edge_drawn = false;
+var ant_animator;
+var ant_anim_count;
 
 //timer constants
 var DEPLOY_TIME = 1
@@ -552,7 +555,7 @@ function validPath(edge){
 //starts the game!
 function beginGame(){
 	clearTheBoard()
-	startAnimation(paper)
+	startAnts(paper)
 }
 
 //removes all the ants, resets the islands
@@ -577,8 +580,8 @@ function clearTheBoard(){
 	var active_ants = [];
 }
 
-//starts animating!
-function startAnimation(paper) {
+//preps and starts the ants!
+function startAnts(paper) {
 	console.log('starting animation')
 
 	//block out all the other interactions so that the user doesn't break things
@@ -587,63 +590,68 @@ function startAnimation(paper) {
 	}
 
 	// var d3nodes = d3.selectAll(ant_nodes)
-	var count = 0
-	animator = setInterval(function() {
+	ant_anim_count = 0
+	ant_animator = setInterval(animateAnts, 30);
 
-		//raphael implementation
-		for(key in islands){
-			islands[key].tick() //tick the islands, who spawn and deploy their ants
+}
+
+//finishes up the ant animation and shows the scoreboard
+function endAnts() {
+	console.log('done animating at count',ant_anim_count)
+	clearInterval(ant_animator);
+
+	//show the score after animation is done (or before?)
+	var score_str = getScoreBoard();
+	$('#score_content').html(score_str);
+	$('#score_notice').toggle(true);
+
+	if(typeof block !== 'undefined')
+		block.remove()
+
+	console.log('#actives',active_ants.length)
+  game_running = false;
+}
+
+//the ant animation
+function animateAnts(){
+	//raphael implementation
+	for(key in islands){
+		islands[key].tick() //tick the islands, who spawn and deploy their ants
+	}
+
+	inactive = []
+	for(var i=0, len=active_ants.length; i<len; i++){
+		active_ants[i].tick() //do what they do!
+		active_ants[i].icon.attr({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y})
+		// active_ants[i].icon.animate({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y},10) //can be replaced with d3
+		if(active_ants[i].stat == active_ants[i].DONE || 
+			 active_ants[i].stat == active_ants[i].SETTLED || 
+			 active_ants[i].stat == active_ants[i].DEAD){ //if we're done, we shouldn't be in this list!
+			inactive.push(active_ants[i]) //prepare to drop anyone who is done
 		}
+	}
+	for(var i=0, len=inactive.length; i<len; i++){
+		active_ants.splice(active_ants.indexOf(inactive[i]),1)
+	}
 
-		inactive = []
-		for(var i=0, len=active_ants.length; i<len; i++){
-			active_ants[i].tick() //do what they do!
-			active_ants[i].icon.attr({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y})
-			// active_ants[i].icon.animate({'cx':active_ants[i].pos.x, 'cy':active_ants[i].pos.y},10) //can be replaced with d3
-			if(active_ants[i].stat == active_ants[i].DONE || 
-				 active_ants[i].stat == active_ants[i].SETTLED || 
-				 active_ants[i].stat == active_ants[i].DEAD){ //if we're done, we shouldn't be in this list!
-				inactive.push(active_ants[i]) //prepare to drop anyone who is done
-			}
-		}
-		for(var i=0, len=inactive.length; i<len; i++){
-			active_ants.splice(active_ants.indexOf(inactive[i]),1)
-		}
+	//d3 implementation, for potentially smoother animation? Doesn't seem to help much, as we're doing complex calculations.
+	// http://stackoverflow.com/questions/8239235/smoothly-animate-attribute-changes-to-3000-raphael-objects-at-once
+	// http://jsfiddle.net/ekMd6/
+	// d3nodes
+	// 	.transition()
+	// 	.attr('cx', function(d,i){return ants[i].pos.x;})
+	// 	.attr('cy', function(d,i){return ants[i].pos.y;})
+	// 	.duration(1)
 
-		//d3 implementation, for potentially smoother animation? Doesn't seem to help much, as we're doing complex calculations.
-		// http://stackoverflow.com/questions/8239235/smoothly-animate-attribute-changes-to-3000-raphael-objects-at-once
-		// http://jsfiddle.net/ekMd6/
-		// d3nodes
-		// 	.transition()
-		// 	.attr('cx', function(d,i){return ants[i].pos.x;})
-		// 	.attr('cy', function(d,i){return ants[i].pos.y;})
-		// 	.duration(1)
+	ant_anim_count += 1;
+	var done = active_ants.length == 0
+	if(done){ //only check island status if we don't have anyone else moving, to save time
+		for(i in islands){ if(islands[i].activated && !islands[i].emptied){ done = false;break; }}
+	}
 
-		count += 1;
-		var done = active_ants.length == 0
-		if(done){ //only check island status if we don't have anyone else moving, to save time
-			for(i in islands){ if(islands[i].activated && !islands[i].emptied){ done = false;break; }}
-		}
-
-		// console.log('step',count, done)
-		if(done){
-		// if(done || count > 100){
-			console.log('done animating at count',count)
-			clearInterval(animator);
-
-			//show the score after animation is done (or before?)
-			var score_str = getScoreBoard();
-			$('#score_content').html(score_str);
-			$('#score_notice').toggle(true);
-
-			if(typeof block !== 'undefined')
-				block.remove()
-
-			console.log('#actives',active_ants.length)
-      game_running = false;
-		}
-	}, 30);
-
+	// console.log('step',ant_anim_count, done)
+	if(done) endAnts()
+	// if(done || ant_anim_count > 100) endAnts()
 }
 
 
@@ -762,7 +770,7 @@ function drawNode(node, paper){
 		coast.transform(trans_string)
 		coast_shadow.transform(trans_string+"...t0,2.5")
 
-		var content = node.name.toUpperCase();
+		var content = node.name;
 		// if(content.length > 17)
 		// 	content = content.substring(0,16)+"..."
 		var txt = paper.text(node.x, node.y+30, content).attr({
@@ -788,14 +796,16 @@ function drawNode(node, paper){
 		.undrag()
 		coast.drag(buildmove, buildstart, buildend)
 
-		$([txt.node]).qtip(node_qtip(node)); //if we want a tooltip
+		// $([txt.node]).qtip(node_qtip(node)); //if we want a tooltip
+		icon.mouseover(function() {toggleFullName(node,txt,true)})
+		.mouseout(function() {toggleFullName(node,txt,false)})	
+		
 		$(coast.node).qtip(help_qtip('Drag to create a path'));
 		return icon;  
 }
 
 //details on drawing/laying out an edge (a single line/relationship)
 function drawEdge(edge, paper){
-
 		var a = edge.a;
 		var b = edge.b;
 
@@ -815,7 +825,7 @@ function drawEdge(edge, paper){
 		var stipple = paper.path(getThickPath(edge,5))
 			.attr({'stroke-opacity':0,'fill':'url(/images/game/bridgepattern.png)','fill-opacity':0.2})
 			.insertAfter(e)
-			
+		
 		var arrow = drawArrow(edge, curve, paper)
 		arrow[0].attr({'stroke-linejoin':'round','stroke-opacity':0}).insertAfter(e2)
 		arrow[1].insertAfter(e)
@@ -915,6 +925,22 @@ function drawEdgeSelectors(edge, canvas_id){
 		.click(function() {destroyEdge(edge);})
 }
 
+function toggleFullName(node,txt,show){
+	if(!islands[node.id].capital){ //or in selection box, once we have that
+		if(show){
+			txt.attr({'text':node.name,'x':node.x,'y':node.y+30,'transform':''});
+			_textWrapp(txt,50); //wrap the text		
+		}
+		else{
+			var content = node.name;
+			if(content.length > 17)
+				content = content.substring(0,16)+"...";
+			txt.attr({'text':content,'x':node.x,'y':node.y+30,'transform':''})
+			.transform('...t0,'+(txt.getBBox().height/2)) //recenter		
+		}
+	}
+}
+
 
 /***
  *** MOUSE INTERACTION
@@ -989,24 +1015,13 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id] = drawEdge(dragged_edges[i], paper)
 	}
   if (now_dragging.node.y > startBoxTopLeft[1]){ //dropped in the box
-		if(!now_dragging.start_in_box){
-			now_dragging.icon[1].attr({'text':now_dragging.node.name.toUpperCase(),
-				'x':now_dragging.node.x,'y':now_dragging.node.y+30,'transform':''
-			});
-			_textWrapp(now_dragging.icon[1],50); //wrap the text
-		}
+		if(!now_dragging.start_in_box)
+			toggleFullName(now_dragging.node,now_dragging.icon[1],true)
 		condenseSelectBox();
 	}
 	else { //dropped outside the box
-		if(now_dragging.start_in_box){
-			var content = now_dragging.node.name.toUpperCase();
-			if(content.length > 17)
-				content = content.substring(0,16)+"...";
-			now_dragging.icon[1].attr({'text':content,
-				'x':now_dragging.node.x,'y':now_dragging.node.y+30,'transform':''
-			})
-			.transform('...t0,'+(now_dragging.icon[1].getBBox().height/2)) //recenter
-		}
+		if(now_dragging.start_in_box)
+			toggleFullName(now_dragging.node,now_dragging.icon[1],false)
 	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
@@ -1360,7 +1375,7 @@ function house_qtip() {
 		content:{
 			text: function(api){
 				var island = islands[$(this).data('island')]
-				return island.settled.length+' Causlings<br> have settled at concept<br>'+island.node.name.toUpperCase();
+				return island.settled.length+' Causlings<br> have settled at concept<br>'+island.node.name;
 			}
 		},
 		position: {

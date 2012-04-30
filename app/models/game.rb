@@ -340,6 +340,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     'Human population',
     'Food eaten per fish (samaki)',
   ]
+  ISSUE_NAMES.map!{|i| i.upcase} #issue names are uppercase currently
 
   EXPERT_GRAPH_1 = { #group 1
     [1,6]=>-1,											
