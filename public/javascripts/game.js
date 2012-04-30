@@ -5,7 +5,6 @@
  ***/
 
 //state variables
-var game_running = false;
 var now_building = null; //the thing we're dragging
 var edge_count = 1+currEdges['keys'].length; //edge number we're making (initialize based on number of existing edges...)
 var selector_canvases_drawn = []; //canvases we've drawn before
@@ -14,8 +13,13 @@ var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
 var first_edge = true; //if the (next) edge the first edge built?
 var last_edge_drawn = false;
+var game_running = false;
 var ant_animator;
 var ant_anim_count;
+var clock;
+var clock_running = false;
+var clock_animator;
+var clock_count = 180; //how many seconds on the clock initially
 
 //timer constants
 var DEPLOY_TIME = 1
@@ -35,7 +39,7 @@ var EDGE_COLORS = {'increases':'#C27E60','decreases':'#A0A7AD','superset':'#BBBB
 var EDGE_HIGHLIGHT_COLORS = {'increases':'#B6664E','decreases':'#7C7F86','superset':'#BBBBBB'}
 var ANT_COLORS = {stroke:'#E9E0C4', walk:'#7fff24',lost:'#B01A2D',hesitate:'#D7D43B',home:'#779E4F'}
 
-//for selection box ====
+//for selection box
 var startBox; //the box where our islands start
 var startBoxSize = [];
 var startBoxTopLeft = [];
@@ -46,47 +50,6 @@ var interval;
 var spacing = 150;
 var speed = 70;
 //======================
-
-/***
- *** PLAY SOUNDS
- ***/
-
-var SOUNDS = false; //toggle sound
-
-function html5_audio(){
-  var a = document.createElement('audio');
-  return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
-}
-
-function get_random_int(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-var play_html5_audio = false;
-if(html5_audio()) play_html5_audio = true;
-
-var snd; 
-
-function play_sound(url){
-	if(SOUNDS){
-	  if(get_random_int(0, 10) > 8){
-	    if(play_html5_audio){
-	      snd = new Audio(url);
-	      snd.load();
-	      snd.play();      
-	    }else{
-	      $("#sound").remove();
-	      var sound = $("<embed id='sound' type='audio/mpeg' />");
-	      sound.attr('src', url);
-	      sound.attr('loop', false);
-	      sound.attr('hidden', true);
-	      sound.attr('autostart', true);
-	      $('body').append(sound);
-	    }                 
-	  }
-	}
-}
-
 
 /***
  *** CLASS DEFINITIONS
@@ -554,10 +517,11 @@ function validPath(edge){
 
 //starts the game!
 function beginGame(){
+	game_running = true;
+	if(clock_running)	endClock();
 	clearTheBoard()
 	startAnts(paper)
 }
-
 //removes all the ants, resets the islands
 function clearTheBoard(){
 	for(i in islands){ //reset the islands
@@ -588,13 +552,12 @@ function startAnts(paper) {
 	if(!continuous){
 		var block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0})
 	}
-
+	
 	// var d3nodes = d3.selectAll(ant_nodes)
 	ant_anim_count = 0
 	ant_animator = setInterval(animateAnts, 30);
 
 }
-
 //finishes up the ant animation and shows the scoreboard
 function endAnts() {
 	console.log('done animating at count',ant_anim_count)
@@ -611,7 +574,6 @@ function endAnts() {
 	console.log('#actives',active_ants.length)
   game_running = false;
 }
-
 //the ant animation
 function animateAnts(){
 	//raphael implementation
@@ -652,6 +614,53 @@ function animateAnts(){
 	// console.log('step',ant_anim_count, done)
 	if(done) endAnts()
 	// if(done || ant_anim_count > 100) endAnts()
+}
+
+//clock animations
+function startClock(){
+	clock_running = true;
+	clock_animator = setInterval(clockTick, 1000);
+}
+function endClock(){
+	clearInterval(clock_animator);
+	clock.remove();
+	clock_running = false;
+
+	// console.log('blastoff causlings!')
+	if(!game_running)
+		beginGame(); //launch the ants!
+}
+function clockTick(){
+	clock_count -= 1
+	if(clock_count < 0)
+		endClock();
+	else{
+		clock[0].attr({'text':clockTime(clock_count)})
+		if(clock_count <= 15){
+			clock[0].attr({'stroke':'#ff9525'}) //what color should this be?
+			clock[1].attr({'fill':'#ff9525'})
+		}		
+	}
+}
+function clockTime(secs){
+	var sec = secs%60
+	var min = (secs - sec)/60
+	if(sec == 0) sec = '00'
+	else if(sec < 10) sec = '0'+sec
+	return min+':'+sec
+}
+
+function pauseAnimations(){
+	if(game_running)
+		clearInterval(ant_animator)
+	if(clock_running)
+		clearInterval(clock_animator)
+}
+function unpauseAnimations(){
+	if(game_running)
+		ant_animator = setInterval(animateAnts, 30);
+	if(clock_running)
+		clock_animator = setInterval(clockTick, 1000);
 }
 
 
@@ -716,6 +725,11 @@ function drawInitGame(paper){
 		// console.log(paper,startBox);
 		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
 
+	//set up the clock if needed
+	if(continuous){
+		clock = drawClock();
+		startClock();
+	}
 }
 
 function condenseSelectBox(){
@@ -749,6 +763,27 @@ function condenseSelectBox(){
 	    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
 	  }
 	}
+}
+
+function drawClock(){
+	var time = paper.text(30,45,clockTime(clock_count)).attr({
+		'font-size':60,
+		'font-family':'Helvetica, Arial, sans-serif',
+		'text-anchor':'start',
+		'fill':'#239dc7',
+		'stroke':'#fff',
+		'stroke-width':2.5
+	})
+	var label = paper.text(90,80,'until Causlings leave!').attr({
+		'font-size':13,
+		'font-family':'Helvetica, Arial, sans-serif',
+		'font-weight':'bold',
+		'fill':'#fff',
+	})
+	
+	icon = paper.set();
+	icon.push(time,label);
+	return icon;
 }
 
 //details on drawing/laying out a node
@@ -1358,12 +1393,12 @@ function edge_qtip(edge) {
 	return {
 		content:{text: 'Bridge: '+edge.name},
 		position: {
-			// my: 'top-center', at: 'bottom-center',
+			my: 'top-center', at: 'bottom-center',
 			target: 'mouse', adjust:{y:5},
 		},
 		style: {
 			classes: 'ui-tooltip-causling edge-tip ui-tooltip-shadow',
-			// tip: {width:14,height:7},
+			tip: {width:14,height:7},
 			width: 200,
 		},
 	};
@@ -1509,6 +1544,45 @@ function confirmation_qtip(msg, action){
 	}
 }
 
+/***
+ *** PLAY SOUNDS
+ ***/
+
+var SOUNDS = false; //toggle sound
+
+function html5_audio(){
+  var a = document.createElement('audio');
+  return !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+}
+
+function get_random_int(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+var play_html5_audio = false;
+if(html5_audio()) play_html5_audio = true;
+
+var snd; 
+
+function play_sound(url){
+	if(SOUNDS){
+	  if(get_random_int(0, 10) > 8){
+	    if(play_html5_audio){
+	      snd = new Audio(url);
+	      snd.load();
+	      snd.play();      
+	    }else{
+	      $("#sound").remove();
+	      var sound = $("<embed id='sound' type='audio/mpeg' />");
+	      sound.attr('src', url);
+	      sound.attr('loop', false);
+	      sound.attr('hidden', true);
+	      sound.attr('autostart', true);
+	      $('body').append(sound);
+	    }                 
+	  }
+	}
+}
 
 /***
  *** AJAX SETUP AND METHODS
@@ -1527,14 +1601,19 @@ $(document).ready(function(){
 	// });
 	$('#run_button').qtip(confirmation_qtip(
 		'Are you sure you want to release the Causlings?',
-		'if(game_running==false){beginGame();game_running = true;}'
+		'if(game_running==false){beginGame();}'
 	)).click(function(){$(this).qtip('show');})
+	
+	// ant_animator = setInterval(animateAnts, 30);
+	// clearInterval(ant_animator);
 	
 	$("#article_button").colorbox({
 		href:'/documents/samakiarticle.html',
 		width:850, height:600, 
 		initialWidth:810, initialHeight:530, 
 		transition:'none',
+		onOpen:pauseAnimations,
+		onClosed:unpauseAnimations,
 	});
 
 	$("#help_button").colorbox({
@@ -1542,6 +1621,8 @@ $(document).ready(function(){
 		width:850, height:520, 
 		initialWidth:810, initialHeight:450, 
 		transition:'none',
+		onOpen:pauseAnimations,
+		onClosed:unpauseAnimations,
 		// open:true, //uncomment to show on first load
 	});
 	  
