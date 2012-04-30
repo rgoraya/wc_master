@@ -30,7 +30,7 @@
 :javascript
   #{javascript_islands(@game.nodes, @game.optimal_degrees)}
 
-#contentwrapper{:style=>"margin-top:10px"}
+#contentwrapper
   .game_box
     #score_notice
       #score_content
@@ -46,13 +46,14 @@
         %img{ :src => '/images/game/title_game.png' }
       #go_buttons
         %button{:id => 'run_button'}
-          RELEASE CAUSLINGS!
-        %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
-          %button{:id => 'read_article'}
-            ABOUT THE SAMAKI
-        %a{:href => "/documents/quickhelp.html", :title => "How to Play", :class => "colorbox_popup"}            
-          %button{:id => 'quick_help'}
-            HELP!
+          RELEASE THE<br>CAUSLINGS!
+        / %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
+        %button{:id => 'article_button'}
+          ABOUT THE<br>SAMAKI
+        / %a{:href => "/documents/quickhelp.html", :title => "How to Play", :class => "colorbox_popup"}            
+        %button{:id => 'help_button', :style=>"width:100px;"}
+          HELP
+      .clearboth
 .clearboth
 
 #tmp

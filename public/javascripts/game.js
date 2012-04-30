@@ -717,29 +717,30 @@ function condenseSelectBox(){
   }
   arr.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
 
+	if(boxNodes.length > 0){
+	  leftMost = boxNodes[arr[0].id];
+	  rightMost = boxNodes[arr[arr.length-1].id];
 
-  leftMost = boxNodes[arr[0].id];
-  rightMost = boxNodes[arr[arr.length-1].id];  
+	  var ox = null;
+	  var oy = null;
 
-  var ox = null;
-  var oy = null;
+	  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
 
-  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
+	  for(var index = 0; index < arr.length; index++){
+	    if (index < arr.length-1){
+	      arr[index+1].x = arr[index].x + spacing;
+	      arr[index+1].y = arr[index].y;
+	    }
+	  }
 
-  for(var index = 0; index < arr.length; index++){
-    if (index < arr.length-1){
-      arr[index+1].x = arr[index].x + spacing;
-      arr[index+1].y = arr[index].y;
-    }
-  }
-
-  for(var index in boxNodes){
-    ox = currNodes[index].x;
-    oy = currNodes[index].y;
-    currNodes[index].x = boxNodes[index].x;
-    currNodes[index].y = boxNodes[index].y;
-    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
-  }
+	  for(var index in boxNodes){
+	    ox = currNodes[index].x;
+	    oy = currNodes[index].y;
+	    currNodes[index].x = boxNodes[index].x;
+	    currNodes[index].y = boxNodes[index].y;
+	    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
+	  }
+	}
 }
 
 //details on drawing/laying out a node
@@ -787,7 +788,7 @@ function drawNode(node, paper){
 		.undrag()
 		coast.drag(buildmove, buildstart, buildend)
 
-		$([island.node,txt.node]).qtip(node_qtip(node)); //if we want a tooltip
+		$([txt.node]).qtip(node_qtip(node)); //if we want a tooltip
 		$(coast.node).qtip(help_qtip('Drag to create a path'));
 		return icon;  
 }
@@ -841,7 +842,8 @@ function drawEdge(edge, paper){
 		// $(selector.node).qtip(edge_selector_qtip(edge))
 		selector.dblclick(function() {toggleEdge(edge);})
 		.mouseover(function() {this.node.style.cursor='pointer';})
-		$(selector.node).on("contextmenu", function(e){destroyEdge(edge);e.preventDefault();});
+		// $(selector.node).on("contextmenu", function(e){destroyEdge(edge);e.preventDefault();});
+		$(selector.node).on("contextmenu", function(e){confirmDestroy(edge);e.preventDefault();});
 		$(selector.node).qtip(help_qtip('Double-click to change direction<br>Right-click to delete'));
 		if(edge.id >= 0) //only if edge exists
 			$([e.node, e2.node, stipple.node]).qtip(edge_qtip(edge))
@@ -1201,6 +1203,10 @@ function destroyEdge(edge) {
 
 	$('.qtip.ui-tooltip').qtip('hide');	
 }
+function confirmDestroy(edge){
+	$(edgeIcons[edge.id][4].node).qtip(confirmation_qtip('Destroy bridge?',"destroyEdge(currEdges["+edge.id+"]);")).qtip('show');
+	// destroyEdge(edge);
+}
 function swapEdge(e, new_reltype){
 	var old_reltype = e.reltype;
 
@@ -1378,13 +1384,6 @@ function help_qtip(msg) {
 	}
 }
 
-function delete_confirmation_qtip(){
-	
-}
-
-function release_confirmation_qtip(){
-}
-
 //a qtip giving the user instructions/feedback. Shows up either above the element or at specified coordinates, immediately when attached.
 function instruction_qtip(msg,x,y){
 	// console.log('instruction_qtip')
@@ -1467,6 +1466,34 @@ function edge_selector_qtip(edge) {
 	};	
 }
 
+function confirmation_qtip(msg, action){
+	return {
+		content:{text: msg+'<a class="confirm" onclick="'+action+'">Yes</span'},
+		position:{
+			my: 'bottom-center', at: 'top-center',
+			// target:[x,y],
+			adjust:{y:-5}
+		},
+		style:{
+			classes: 'ui-tooltip-causling confirm-tip ui-tooltip-shadow',
+			tip:{
+				width:20,height:10,
+				corner:'bottom center',
+			},
+		},
+		show:{
+			event:false,
+			// ready:true,
+		},
+		hide:{
+			fixed:true,
+			event:'mousedown',
+			target: $(document.body).children(),
+			// effect: function() {console.log('hiding')}
+		},
+	}
+}
+
 
 /***
  *** AJAX SETUP AND METHODS
@@ -1477,12 +1504,32 @@ $(document).ready(function(){
 		$("#score_notice").slideUp(100);
 	});
 	
-	$("#run_button").click(function(){
-		if (game_running === false) {
-      beginGame();
-      game_running = true;
-    }
+	// $("#run_button").click(function(){
+	// 	if (game_running == false) {
+	//       beginGame();
+	//       game_running = true;
+	//     }
+	// });
+	$('#run_button').qtip(confirmation_qtip(
+		'Are you sure you want to release the Causlings?',
+		'if(game_running==false){beginGame();game_running = true;}'
+	)).click(function(){$(this).qtip('show');})
+	
+	$("#article_button").colorbox({
+		href:'/documents/samakiarticle.html',
+		width:850, height:600, 
+		initialWidth:810, initialHeight:530, 
+		transition:'none',
 	});
+
+	$("#help_button").colorbox({
+		href:'/documents/quickhelp.html',
+		width:850, height:520, 
+		initialWidth:810, initialHeight:450, 
+		transition:'none',
+		// open:true, //uncomment to show on first load
+	});
+	  
 });
 
 function sendLog(info){
