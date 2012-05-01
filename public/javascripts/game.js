@@ -692,7 +692,7 @@ function drawInitGame(paper){
     .mouseout(function(){this.attr({'transform':"t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
     .mousedown(function(){
       interval = setInterval(function(){
-        if (rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
+        if (rightMost && rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
           for (var i in nodeIcons)
             if(paper_size.height-currNodes[i].y<startBoxSize[1]){
               if (boxNodes.hasOwnProperty(i)) boxNodes[i].x -= speed;
@@ -712,7 +712,7 @@ function drawInitGame(paper){
  		.mouseout(function(){this.attr({'transform':"t-65,-29t"+(paper_size.width-28)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
     .mousedown(function(){
       interval = setInterval(function(){
-        if (leftMost.x < startBoxTopLeft[0] + 50)
+        if (leftMost && leftMost.x < startBoxTopLeft[0] + 50)
           for (var i in nodeIcons)
             if(paper_size.height-currNodes[i].y<startBoxSize[1]){
               if (boxNodes.hasOwnProperty(i)) boxNodes[i].x += speed;
@@ -740,7 +740,7 @@ function condenseSelectBox(){
   }
   arr.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
 
-	if(boxNodes.length > 0){
+	if(arr.length > 0){
 	  leftMost = boxNodes[arr[0].id];
 	  rightMost = boxNodes[arr[arr.length-1].id];
 
@@ -763,7 +763,7 @@ function condenseSelectBox(){
 	    currNodes[index].y = boxNodes[index].y;
 	    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
 	  }
-	}
+	}else{ leftMost = null; rightMost = null;}
 }
 
 function drawClock(){
