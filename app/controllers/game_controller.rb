@@ -45,7 +45,7 @@ class GameController < ApplicationController
     @verbose = !params[:v].nil?
     #puts "verbose: "+@verbose.to_s
 
-    @continuous = params[:c] ? params[:c]==1 : @game_user%2 == 0 #either as specified or random otherwise
+    @continuous = params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
 
     # puts "===Controller Params==="
     # puts params

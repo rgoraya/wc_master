@@ -28,9 +28,9 @@ var SPAWN_TIME = 4
 var PACE_TIME = 120
 var HESITATE_TIME = 20
 if(continuous){ //currently sort of fast, can slow down as we test
-	DEPLOY_TIME = 100 
-	SPAWN_TIME = 15
-	PACE_TIME = 330
+	DEPLOY_TIME = 100*5 
+	SPAWN_TIME = 15*5
+	PACE_TIME = 330*5
 	HESITATE_TIME = 200 //should be 1/2 or 2/3 pace?
 }
 
@@ -490,23 +490,18 @@ Ant.prototype.settleDown = function(){
 
 //convenience method to check validity of an edge. Returns 1 if valid, 0 if bad relationship, or -1 if totally invalid
 function validPath(edge){
-	var reltype = (edge.reltype ? 1 : -1)
 	try{
+		var reltype = (edge.reltype ? 1 : -1)
 		if(yes[edge.a.id][edge.b.id][reltype] > 0) //check if it is a valid bridge
 			return 1;
-	}catch(err){} //if we couldn't read the edge, then we know it wasn't valid
-	try{
 		if(yes[edge.a.id][edge.b.id][-1*reltype] > 0) //check if swap is a valid bridge
 			return 0;
-	}catch(err){}
-	try{
 		if(yes[edge.b.id][edge.a.id][reltype] > 0) //check if reverse is a valid bridge
 			return 0;
-	}catch(err){}
-	try{
 		if(yes[edge.b.id][edge.a.id][-1*reltype] > 0) //check if reverse swap is a valid bridge
 			return 0;
-	}catch(err){}
+
+	}catch(err){} //if we couldn't read the edge, then we know it wasn't valid
 	
 	return -1; //none of the options were valid
 }
@@ -734,6 +729,8 @@ function drawInitGame(paper){
 }
 
 function condenseSelectBox(){
+	//CAN WE SORT THE STUFF IN THE BOX ALPHABETICALLY?? THANKS!!
+
   var arr = [];
   for (var index in boxNodes){
     arr.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
@@ -1213,7 +1210,6 @@ var buildend = function (x,y,event)
 };
 
 function destroyEdge(edge) {
-
 	var data = ["destroyEdge",["edge.id",edge.id,"edge.name",edge.name,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n", edge.n].join(":")].join("|");
 	//console.log(data);
 	sendLog(data);
@@ -1263,7 +1259,7 @@ function destroyEdge(edge) {
 		$('#run_button').attr('disabled', 'disabled')	
 }
 function confirmDestroy(edge){
-	$(edgeIcons[edge.id][4].node).qtip(confirmation_qtip('Destroy bridge?',"destroyEdge(currEdges["+edge.id+"]);")).qtip('show');
+	$(edgeIcons[edge.id][4].node).qtip(confirmation_qtip('Destroy bridge?',"console.log('clicked');destroyEdge(currEdges["+edge.id+"]);")).qtip('show');
 	// destroyEdge(edge);
 }
 function swapEdge(e, new_reltype){
@@ -1526,8 +1522,9 @@ function edge_selector_qtip(edge) {
 }
 
 function confirmation_qtip(msg, action){
+	console.log('making confirmation with action',action)
 	return {
-		content:{text: msg+'<a class="confirm" onclick="'+action+'">Yes</span'},
+		content:{text: msg+'<a class="confirm" onclick="'+action+'">Yes</a>'},
 		position:{
 			my: 'bottom-center', at: 'top-center',
 			// target:[x,y],
@@ -1541,14 +1538,16 @@ function confirmation_qtip(msg, action){
 			},
 		},
 		show:{
+			solo:true,
 			event:false,
 			// ready:true,
 		},
 		hide:{
 			fixed:true,
-			event:'mousedown',
-			target: $(document.body).children(),
-			// effect: function() {console.log('hiding')}
+			delay: 1000, //doesn't allow us to click to close, but doesn't break either
+			// event:'mousedown',
+			// target: $(document.body).children().not('.confirm'),
+			//effect: function() {console.log('hiding')}
 		},
 	}
 }
@@ -1603,7 +1602,8 @@ $(document).ready(function(){
 		$("#score_notice").slideUp(100);
 	});
 	
-	showEvalNotification();
+	showEvalNotification(); //can call this whenever we want to show the link, such as after playing
+	
 		// $("#run_button").click(function(){
 	// 	if (game_running == false) {
 	//       beginGame();
@@ -1647,12 +1647,8 @@ function showEvalNotification(){
 		autoStart: false,
 		softClose: true,
 		openAnchor: '<img src="/images/down-arr-16x16.png" style="width:24px;height:20px"/>',
-		closeAnchor: '<img src="/images/close-16x16.png"/>',
+		closeAnchor: '<img src="/images/close-16x16.png" style="width:20px;height:20px"/>',
 	});
-}
-
-function goto_eval(){
-	$('#goto_eval_form').submit();
 }
 
 function sendLog(info){
