@@ -692,15 +692,15 @@ function drawInitGame(paper){
     .mouseout(function(){this.attr({'transform':"t-22,-29t"+(25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
     .mousedown(function(){
       interval = setInterval(function(){
-        if (rightMost && rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
+        if (leftMost && leftMost.x < startBoxTopLeft[0] + 50)
           for (var i in nodeIcons)
             if(paper_size.height-currNodes[i].y<startBoxSize[1]){
-              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x -= speed;
-              currNodes[i].x -=speed;
-              nodeIcons[i].transform("...t-"+speed+",0"); //go left
+              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x += speed;
+              currNodes[i].x +=speed;
+              nodeIcons[i].transform("...t"+speed+",0"); //go right
             }
       }, 1);
-    })
+    }) 
     .mouseup(function(){clearInterval(interval);});
 
 	//paper.rect(paper_size.width-15,startBoxTopLeft[1],15, startBoxSize[1])
@@ -709,15 +709,15 @@ function drawInitGame(paper){
     paper.path(rightArrow).transform("t-65,-29t"+(paper_size.width-25)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2") 
     .attr({'fill':'#ffffff', 'stroke':'#fff'})
     .mouseover(function(){this.attr({'transform':'...s1.2'})})
- 		.mouseout(function(){this.attr({'transform':"t-65,-29t"+(paper_size.width-28)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
-    .mousedown(function(){
+ 			.mouseout(function(){this.attr({'transform':"t-65,-29t"+(paper_size.width-28)+","+(startBoxTopLeft[1]+startBoxSize[1]/2+10)+"s1.2"})})
+   .mousedown(function(){
       interval = setInterval(function(){
-        if (leftMost && leftMost.x < startBoxTopLeft[0] + 50)
+        if (rightMost && rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
           for (var i in nodeIcons)
             if(paper_size.height-currNodes[i].y<startBoxSize[1]){
-              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x += speed;
-              currNodes[i].x +=speed;
-              nodeIcons[i].transform("...t"+speed+",0"); //go right
+              if (boxNodes.hasOwnProperty(i)) boxNodes[i].x -= speed;
+              currNodes[i].x -=speed;
+              nodeIcons[i].transform("...t-"+speed+",0"); //go left
             }
       }, 1);
     })
