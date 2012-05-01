@@ -1259,7 +1259,7 @@ function destroyEdge(edge) {
 		$('#run_button').attr('disabled', 'disabled')	
 }
 function confirmDestroy(edge){
-	$(edgeIcons[edge.id][4].node).qtip(confirmation_qtip('Destroy bridge?',"console.log('clicked');destroyEdge(currEdges["+edge.id+"]);")).qtip('show');
+	$(edgeIcons[edge.id][4].node).qtip(confirmation_qtip('Destroy bridge?',"destroyEdge(currEdges["+edge.id+"]);")).qtip('show');
 	// destroyEdge(edge);
 }
 function swapEdge(e, new_reltype){
@@ -1522,7 +1522,6 @@ function edge_selector_qtip(edge) {
 }
 
 function confirmation_qtip(msg, action){
-	console.log('making confirmation with action',action)
 	return {
 		content:{text: msg+'<a class="confirm" onclick="'+action+'">Yes</a>'},
 		position:{
