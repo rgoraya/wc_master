@@ -1642,7 +1642,7 @@ function sendLog(info){
 	$.ajax({
 		type:'POST',
 		url:'/game/log',
-		data:{'data':info, 'time_stamp':time_stamp}
+		data:{'player':player_id,'data':info}
 	});
 }
 

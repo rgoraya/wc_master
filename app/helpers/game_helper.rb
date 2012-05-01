@@ -8,7 +8,7 @@ module GameHelper
     var EXPANDABLE = #{MapvisualizationsHelper::EXPANDABLE};
     var HIGHLIGHTED = #{MapvisualizationsHelper::HIGHLIGHTED};
 
-    var time_stamp = \"#{@time_stamp}\";
+    var player_id = #{@game_user}
     var HOME = #{@home_island};
     var continuous = #{@continuous.to_s};
     
