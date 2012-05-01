@@ -121,8 +121,8 @@ class GameController < ApplicationController
   end
 
   def survey_evaluation
-    @game_user = :params['game_user'] || 5
-    ## show the survey, etc
+    @game_user = :params['game_user'] || 4
+    ## show survey!
   end
 
 end

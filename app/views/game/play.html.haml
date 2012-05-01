@@ -1,5 +1,6 @@
 /= stylesheet_link_tag "jquery.qtip.min" //included in layout so we can overwrite
 = stylesheet_link_tag "colorbox"
+= stylesheet_link_tag "howdydo-bar"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
   #bottom_bar {width: #{@default_width+2*@default_border}px;}
@@ -10,6 +11,7 @@
 /= javascript_include_tag "d3.v2.min.js"
 = javascript_include_tag "raphael-min-2.0.2.js" #for drawing
 = javascript_include_tag "jquery.colorbox-min.js"
+= javascript_include_tag "jquery.howdydo-bar.js"
 
 / specifies the data that we're going to be working with in javascript
 :javascript
@@ -25,6 +27,10 @@
   #{javascript_islands(@game.nodes, @game.optimal_degrees)}
 
 #contentwrapper
+  #eval_notification{:style=>"display:none"}
+    = link_to_function "Click here to evaluate the Causlings game!", "$('#goto_eval_form').submit();"
+    = form_tag({:action => "survey_evaluation"},{:id=>"goto_eval_form", :method => 'post'}) do
+      = hidden_field_tag :game_user, @game_user
   .game_box
     #score_notice
       #score_content

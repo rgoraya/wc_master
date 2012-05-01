@@ -1603,7 +1603,8 @@ $(document).ready(function(){
 		$("#score_notice").slideUp(100);
 	});
 	
-	// $("#run_button").click(function(){
+	showEvalNotification();
+		// $("#run_button").click(function(){
 	// 	if (game_running == false) {
 	//       beginGame();
 	//       game_running = true;
@@ -1636,6 +1637,23 @@ $(document).ready(function(){
 	});
 	  
 });
+
+function showEvalNotification(){
+	$("#eval_notification").howdyDo({
+		easing: 'easeInQuad',
+		duration: 75,
+		initState: 'open',
+		keepState: false,
+		autoStart: false,
+		softClose: true,
+		openAnchor: '<img src="/images/down-arr-16x16.png" style="width:24px;height:20px"/>',
+		closeAnchor: '<img src="/images/close-16x16.png"/>',
+	});
+}
+
+function goto_eval(){
+	$('#goto_eval_form').submit();
+}
 
 function sendLog(info){
 	//console.log(time_stamp);
