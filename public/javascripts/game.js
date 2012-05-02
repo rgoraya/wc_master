@@ -1673,8 +1673,8 @@ $(document).ready(function(){
 
 	$("#help_button").colorbox({
 		href:'/documents/quickhelp.html',
-		width:850, height:520, 
-		initialWidth:810, initialHeight:450, 
+		width:820, height:480, 
+		initialWidth:780, initialHeight:410, 
 		transition:'none',
 		onOpen:pauseAnimations('help'),
 		onClosed:unpauseAnimations,
