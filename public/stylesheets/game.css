@@ -95,7 +95,7 @@ button[disabled]:hover{
 	font: normal 16px "lucida grande",tahoma,verdana,arial,sans-serif;
 	display:none;
 	width:300px;
-	height:110px;
+	height:125px;
 	text-align:center;
 	color: #ffffff;
 	background-color:#434343;
@@ -107,7 +107,7 @@ button[disabled]:hover{
 	/* Positioning */
 	position: fixed; 
 	z-index:2;
-	top: 3px; 
+	top: 23px; 
 	left: 50%;
 	margin-left: -140px;
 	/* shadows */

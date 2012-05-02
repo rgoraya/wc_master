@@ -569,6 +569,7 @@ function endAnts() {
 
 	console.log('#actives',active_ants.length)
   game_running = false;
+	// showEvalNotification(true);
 }
 //the ant animation
 function animateAnts(){
@@ -1380,7 +1381,12 @@ function getScoreBoard(){
 		"<tr><td class='item'>Causlings settled:</td><td class='score'>"+settled+" ("+Math.round(100*settled/total_ants)+"%)</td></tr>"+
 		"<tr><td class='item'>Mortality rate:</td><td class='score'>"+Math.round(100*dead/total_ants)+"%</td></tr>"+
 		"<tr><td class='item'>Final score:</td><td class='score'>"+rubric+" pts</td></tr>"+
-		"</table>"
+		"</table>"+
+		
+		//add in form button temporarily
+		"<form action='/game/play' method='post' style='display:inline'>"+
+		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
+		"<input type='submit' value='Play again?' style='margin-top:5px;'/></form>"
 
 	return out;
 }
@@ -1611,7 +1617,7 @@ $(document).ready(function(){
 		$("#score_notice").slideUp(100);
 	});
 	
-	showEvalNotification(); //can call this whenever we want to show the link, such as after playing
+	showEvalNotification(); //can call this whenever we want to show the link, such as after playing??
 	
 		// $("#run_button").click(function(){
 	// 	if (game_running == false) {
@@ -1647,11 +1653,11 @@ $(document).ready(function(){
 	  
 });
 
-function showEvalNotification(){
+function showEvalNotification(open){
 	$("#eval_notification").howdyDo({
 		easing: 'easeInQuad',
 		duration: 75,
-		initState: 'closed',
+		initState: (open ? 'open' : 'closed'),
 		keepState: false,
 		autoStart: false,
 		softClose: true,
