@@ -670,7 +670,7 @@ function drawInitGame(paper){
   startBoxTopLeft = [0, paper_size.height-103];
 
   for (var index in currNodes){
-      if (currNodes[index].y > startBoxTopLeft[1]) boxNodes[currNodes[index].id] = {id:currNodes[index].id, x:currNodes[index].x, y:currNodes[index].y};
+      if (currNodes[index].y > startBoxTopLeft[1]) boxNodes[currNodes[index].id] = {id:currNodes[index].id, name:currNodes[index].name, x:currNodes[index].x, y:currNodes[index].y};
   }
   condenseSelectBox();
 
@@ -731,11 +731,21 @@ function drawInitGame(paper){
 function condenseSelectBox(){
 	//CAN WE SORT THE STUFF IN THE BOX ALPHABETICALLY?? THANKS!!
 
+  var arr1 = [];
   var arr = [];
+
   for (var index in boxNodes){
-    arr.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
+    arr1.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
+    arr.push(boxNodes[index]);
   }
-  arr.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
+
+  arr1.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
+  arr.sort(function(a,b){
+    if (a.name > b.name) return 1;
+    else if (a.name < b.name) return -1;
+    else return 0;
+  });
+
 
 	if(arr.length > 0){
 	  leftMost = boxNodes[arr[0].id];
@@ -745,6 +755,7 @@ function condenseSelectBox(){
 	  var oy = null;
 
 	  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
+    arr[0].x = arr1[0].x;
 
 	  for(var index = 0; index < arr.length; index++){
 	    if (index < arr.length-1){
@@ -1027,7 +1038,7 @@ var dragmove = function (dx,dy,x,y,event)
 		
     if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condenseSelectBox();}
     else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y+30 >	startBoxTopLeft[1]){ 
-			boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, x:now_dragging.node.x, y:now_dragging.node.y};
+			boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, name:now_dragging.node.name, x:now_dragging.node.x, y:now_dragging.node.y};
 		}
 
 
@@ -1057,6 +1068,7 @@ var dragend = function (x,y,event)
 	else { //dropped outside the box
 		if(now_dragging.start_in_box)
 			toggleFullName(now_dragging.node,now_dragging.icon[1],false)
+    condenseSelectBox();
 	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
