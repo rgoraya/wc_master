@@ -288,12 +288,12 @@ class Mapvisualization #< ActiveRecord::Base
   
 
   # the default set of layout commands (hopefully not slow)
-  def default_layout()
+  def default_layout(width=@width, height=@height)
     if @nodes.length > 0
-      set_static_nodes
-      static_wheel_nodes
-      fruchterman_reingold(100) #fast, little bit of layout for now
-      normalize_graph
+      set_static_nodes(width,height)
+      static_wheel_nodes(width,height)
+      fruchterman_reingold(100,width,height) #fast, little bit of layout for now
+      normalize_graph(width,height)
       #do_kamada_kawai
     else
       @notice = NO_ITEM_ERROR

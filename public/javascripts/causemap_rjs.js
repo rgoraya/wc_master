@@ -229,7 +229,7 @@ function getArrowPath(point, reltype)
 //should this be a text function instead?
 function getArrowSymbolPath(point, reltype, symbolSize)
 {
-	var symbolSize = typeof symbolSize !== 'undefined' ? symbolSize : 2.5;
+	var symbolSize = typeof symbolSize !== 'undefined' ? symbolSize : 2;
 	var x_off = symbolSize*1.5
 	var y_off = symbolSize*.5
 
@@ -246,7 +246,7 @@ function getArrowSymbolPath(point, reltype, symbolSize)
 	return "" //if problem
 }
 
-function drawArrow(edge, curve, paper)
+function drawArrow(edge, curve, paper, symbolsize)
 {
 	var a = edge.a
 	var b = edge.b
@@ -267,7 +267,7 @@ function drawArrow(edge, curve, paper)
 	var arrow = paper.path(arrowPath) //draw the arrowhead
 		.attr({stroke:'#FFFFFF', 'stroke-width': 1.3})
 		.rotate(midPoint.alpha, midPoint.x, midPoint.y)
-	var arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype)
+	var arrowSymbolPath = getArrowSymbolPath(midPoint, edge.reltype, symbolsize)
 	var arrowSymbol = paper.path(arrowSymbolPath, edge.reltype) //draw the symbol on the arrow
 		.attr({fill:'#FFFFFF', stroke:'none'})
 		.transform('...r'+midPoint.alpha+'t-2.5,0') //apply offset after rotation

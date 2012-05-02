@@ -5,7 +5,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
 
   #constants
   START = 19
-  DEGREE = 5 #degree of indirection included
+  DEGREE = 2 #degree of indirection included
   
   attr_accessor :correct, :optimal_degrees, :home
   
@@ -57,7 +57,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) }
     end
     
-    default_layout  
+    default_layout(@width,@height-100)
   end
 
   def make_user_graph(edges)
@@ -302,6 +302,10 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     'Algae Blooms/Dead Zones',
     ' ',
     ' ',
+    # 'ISLAND 1 - Number of People Who Watch a TV Show',
+    # 'ISLAND 2 - Number of People Who Talk About the Show Later',
+    # 'ISLAND 3 - Number of People Interested in Watching the Show',
+    # 'ISLAND 4 - Number of People Who Watch Another Show',
     'Bad weather',
     'Amount of samaki caught',
     'Coastal water quality',
@@ -340,7 +344,8 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     'Human population',
     'Food eaten per fish (samaki)',
   ]
-
+  ISSUE_NAMES.map!{|i| i.upcase} #issue names are uppercase currently
+  
   EXPERT_GRAPH_1 = { #group 1
     [1,6]=>-1,											
     [1,21]=>-1,																			
