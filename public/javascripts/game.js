@@ -669,9 +669,11 @@ function pauseAnimations(box){
 function unpauseAnimations(){
 	if(game_running)
 		ant_animator = setInterval(animateAnts, 30);
-	if(clock_running)
+	if(clock_running){
+		clearInterval(clock_animator) //make sure we're cleared!
 		clock_animator = setInterval(clockTick, 1000);
-
+	}
+	
 	if(notifies==0){
 		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
 		notifies += 1

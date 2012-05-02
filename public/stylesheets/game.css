@@ -223,7 +223,7 @@ button[disabled]:hover{
 
 #instructionscontainer {
 	position: relative;
-	margin: 0100px auto 0;
+	margin: 0px auto 0;
 	width: 770px;
 	height: 410px;
 	background-color: rgb(247, 248, 246);
