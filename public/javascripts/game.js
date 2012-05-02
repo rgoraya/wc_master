@@ -1017,11 +1017,13 @@ var dragstart = function (x,y,event)
 var dragmove = function (dx,dy,x,y,event) 
 {
 	if(now_dragging) {
+
+
 		trans_x = dx-this.ox
 		trans_y = dy-this.oy
     
     if ((islands[now_dragging.node.id].capital || dragged_edges.length > 0) && now_dragging.node.y+trans_y+50 >= startBoxTopLeft[1]){
-        trans_y = 0;//startBoxTopLeft[1] - now_dragging.node.y; //can't go back once you have an edge or are the capital
+      trans_y = startBoxTopLeft[1] - 50 - now_dragging.node.y; //can't go back once you have an edge or are the capital
     }
 
     var originalX = now_dragging.node.x;
@@ -1035,7 +1037,7 @@ var dragmove = function (dx,dy,x,y,event)
 
 		
     if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condenseSelectBox();}
-    else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y+30 >	startBoxTopLeft[1]){ 
+    else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y >	startBoxTopLeft[1]){ 
 			boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, name:now_dragging.node.name, x:now_dragging.node.x, y:now_dragging.node.y};
 		}
 
@@ -1066,7 +1068,7 @@ var dragend = function (x,y,event)
 	else { //dropped outside the box
 		if(now_dragging.start_in_box)
 			toggleFullName(now_dragging.node,now_dragging.icon[1],false)
-    condenseSelectBox();
+    //condenseSelectBox();
 	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
