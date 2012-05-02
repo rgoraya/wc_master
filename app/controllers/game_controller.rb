@@ -17,19 +17,24 @@ class GameController < ApplicationController
 	@@GAME_LOG = Logger.new(log_path)
 
   def index
+    @game_user = :params['game_user'] || rand(1000000000)
     render 'welcome.html.haml'
   end
 
   def welcome
+    @game_user = :params['game_user'] || rand(1000000000)
   end
 
   def how_to_play
+    @game_user = :params['game_user'] || rand(1000000000)
   end
 
   def article
+    @game_user = :params['game_user'] || rand(1000000000)
   end
 
   def play
+    @game_user = :params['game_user'] || rand(1000000000)
 		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
 
     @default_width = @@DEFAULT_WIDTH
@@ -39,7 +44,8 @@ class GameController < ApplicationController
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
     #puts "verbose: "+@verbose.to_s
-    @continuous = !params[:c].nil? #continuous = false unless otherwise specified. Eventually will be randomly determined
+
+    @continuous = params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
 
     # puts "===Controller Params==="
     # puts params
@@ -97,7 +103,9 @@ class GameController < ApplicationController
   end
 
 	def log
-		@@GAME_LOG.info([params[:time_stamp], DateTime.current.strftime("%Y%m%d%H%M%S%L"),params[:data],(current_user ? current_user.id : "nil")].join("|"))
+	  entry = [params[:player],DateTime.current.strftime("%Y%m%d%H%M%S%L"),params[:data]].join("|")
+	  puts entry
+		@@GAME_LOG.info(entry)
 		render :nothing => true
 	end
 
@@ -107,13 +115,14 @@ class GameController < ApplicationController
   end
 
   def survey_demographic
-    @user_id = 'random_id_should_be_made_here'
+    @game_user = :params['game_user'] || rand(1000000000)
     ## show survey
     ## on submit, should redirect to game
   end
 
   def survey_evaluation
-    ## show the survey, etc
+    @game_user = :params['game_user'] || rand(1000000000)
+    ## show survey!
   end
 
 end

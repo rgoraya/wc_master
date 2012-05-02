@@ -1,10 +1,15 @@
 :css
-  #container {background-color: #faf8e5;}
+  #container {background-image: url('/images/game/welcome_background.png');}
 
-#article
+#article_container
   %p.title
     Controlling Concepts for Causling Islands:
     %br <i>The Samaki</i>
+  %p 
+    The story in this article describes the controlling concepts of the Causling Islands. Use it to build the most stable bridges for the Causlings to cross!
+    %strong You can view this story at any time while playing the game by clicking the 'About the Samaki' button.
+
+  %br
   %p 
     %strong
       Samaki
@@ -49,5 +54,10 @@
     Because of the ecological importance of samaki, some argue that the federal government should pass laws that manage or limit the amount of samaki that can be caught. Others call for incorporating limits to samaki fishing into more strict management of the coastal ecosystems as a whole. Companies like Donestre & Sons have said they would oppose such laws.
   %p
     Fishermen will tell you that their industry offers very little certainty. But perhaps one thing is definite: the health and management of the samaki fishery will be hotly debated over the coming years.
-  %a#lets_play_button{:href => "/game/play"}
-    Let's play!
+    
+  %br
+
+%a{:href => "/game/play"}
+  %img#welcome_button{:alt => "", :src => "/images/game/welcome_button.png"}/
+  %p#welcome_button_label Learn more!
+  %small Description from Plate 2006.

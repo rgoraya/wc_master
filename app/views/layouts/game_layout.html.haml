@@ -8,6 +8,7 @@
       = content_for?(:title) ? content_for(:title) : 'Causality Project'
     = stylesheet_link_tag "styles"
     = stylesheet_link_tag "vis_style"
+    = stylesheet_link_tag "jquery.qtip.min"
     = stylesheet_link_tag "game"
     = yield :include_custom_stylesheet
     = javascript_include_tag :defaults

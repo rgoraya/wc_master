@@ -1,4 +1,44 @@
-%h2 Placeholder for instructions on how to play
+:css
+  #container {background-image: url('/images/game/welcome_background.png');}
+#howtoplay
+  %p.title Causal Bridges<br><i>(or How to Help the Causlings!)</i>
 
-%a#lets_go_button{:href => "/game/article"}
-  Learn about the island's concepts!
+  %p Causlings are only able to cross <strong>causal bridges</strong>. So what is a causal bridge?
+  %p Say that we have two islands. Island 1 has the controlling concept "Number of People Who Watch a TV Show", and Island 2 has the controlling concept "Number of People Who Talk About the Show Later"
+  / %p
+  /   %center
+  /     = image_tag("game/howto-islands.png")    
+  %p There are 3 different possible relationships between these concepts, each with a corresponding bridge:
+  %p 
+    1. An increase in Island 1's concept causes an increase in Island 2's concept 
+    = image_tag("game/howto-plus_arrow.png", :size=>'240x90')
+  %p 
+    2. An increase in Island 1's concept causes a decrease in Island 2's concept 
+    = image_tag("game/howto-minus_arrow.png", :size=>'240x90')
+  %p 
+    3. An increase in Island 1's concept does not directly affect Island 2's concept 
+    = image_tag("game/howto-no_arrow.png", :size=>'240x90')
+  %p Since the first relationship fits best (the more people who watch a show, the more people who will talk about it afterwards), that is the bridge we would want to build.
+  / %p Remember that a positive arrow doesn't always mean an increase, it just means that the two islands move in the same direction. So this bridge also means that a <i>decrease</i> in "Number of People who Watch a TV Show" causes a <i>decrease</i> in the "Number of People Who Talk About The TV Show Later". The main thing is that the two concepts move in the same direction.
+  %p Now, if your friends are all talking about how much they like a television show that you have never seen, you would probably be at least a little bit interested in watching the show too. So we can add Island 3 with the controlling concept "Number of People Interested in Watching the Show". We connect this Island with a "positive" bridge--the more people who are talking about the show, the more other people become interested in watching the show.
+  %p
+  = image_tag("game/howto-bridge_path.png", :size=>'386x81')
+  %p Note that according to these bridges, an increase in the "Number of People Who Watch a TV Show" will eventually lead to an increase in the “Number of People Interested in Watching the Show", because there is a path of bridges from Island 1 to Island 3. <strong>However, bridges that bypass middle islands not stable enough for the Causlings to cross.</strong> A bridge from Island 1 to Island 3 would be less stable than the bridges from Islands 1 to 2 and from Islands 2 to 3, and so our Causlings might fall off it! 
+  %p Bridges can point in any direction. Having the more people interested in watching will cause more people to watch a show, so we could build a "positive" bridge from Island 3 to Island 1. This bridge would be stable, because there is not another island that goes in the middle of this cause-and-effect relationship.
+  %p
+  = image_tag("game/howto-reverse_bridge.png", :size=>'373x127')
+  %p Finally, you can also use "negative" bridges to show when one island causes a decrease in another. Suppose Another Show that is on at the same time becomes popular. That show's popularity would likely decrease the number of people who watch our show, and so we could build a bridge like:
+  %p
+  = image_tag("game/howto-negative_bridge.png", :size=>'507x127')
+
+  = image_tag("game/Causlings2_lrg.png", :size=>'210x140', :style=>'float:right;')
+
+  %p
+    %strong Remember: there is no limit to the number of bridges you can build.
+    Just be careful to make bridges that reflect actual cause-and-effect relationships, so that the Causlings will be able to cross them!
+
+
+%a{:href => "/game/article"}
+  %img#welcome_button{:alt => "", :src => "/images/game/welcome_button.png"}/
+  %p#welcome_button_label Learn more!
+%small Description from Plate 2006.

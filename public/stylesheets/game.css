@@ -1,9 +1,8 @@
 /* Shadows */
-
 .outside_shadow {
-  -moz-box-shadow:    3px 3px 5px 6px #ccc;
-  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
-  box-shadow:         3px 3px 5px 6px #ccc;
+  -moz-box-shadow:    2px 2px 4px 4px #ccc;
+  -webkit-box-shadow: 2px 2px 4px 4px #ccc;
+  box-shadow:         2px 2px 4px 4px #ccc;
 }
 
 .inner_shadow {
@@ -14,12 +13,13 @@
 
 div#contentwrapper{
   background-image: url('/images/game/wood_1.png');
-  padding-top: 30px;
+	margin-top:10px;
+  padding-top: 20px;
   padding-bottom: 20px;
   overflow: visible;
-  -moz-box-shadow:    3px 3px 5px 6px #ccc;
-  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
-  box-shadow:         3px 3px 5px 6px #ccc;
+  -moz-box-shadow:    2px 2px 4px 4px #ccc;
+  -webkit-box-shadow: 2px 2px 4px 4px #ccc;
+  box-shadow:         2px 2px 4px 4px #ccc;
 }
 
 div#canvas_container{
@@ -34,42 +34,6 @@ div#game_box{
   width: auto;
   height: auto;
   float: center;
-}
-
-#relation_qtip {
-	width:200px;
-}
-
-#relation_qtip .selector_container {
-	float:left;
-	width: 40px;
-}
-
-#relation_qtip .descr_container {
-	text-decoration:none;
-	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
-	color: #434343;
-}
-
-#selector_canvas {
-}
-
-.edge_title {
-	text-decoration:none;
-	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
-	color: #434343;
-}
-
-.house_descr {
-	text-decoration:none;
-	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
-	color: #434343;
-}
-
-.help_qtip {
-	font:normal 10px "lucida grande",tahoma,verdana,arial,sans-serif; 
-	color: #434343;
-	font-style: italic;
 }
 
 #bottom_bar{
@@ -89,21 +53,35 @@ div#game_box{
 }
 
 button{
-  font-size: large;
+  font-size: 14px;
   font-family: sans-serif;
   color: white;
-  width: 150px;
-  height: 40px;
+  width: 140px;
+  height: 50px;
   background-image: url("/images/game/wood_3.png");
-  -moz-box-shadow:    3px 3px 5px 6px #ccc;
-  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
-  box-shadow:         3px 3px 5px 6px #ccc;
+  -moz-box-shadow:    1px 1px 2px 3px #ccc;
+  -webkit-box-shadow: 1px 1px 2px 3px #ccc;
+  box-shadow:         1px 1px 2px 3px #ccc;
   cursor: pointer;
+	margin-right:8px;
+	float:left;
 }
 
 button:hover{
-  background-color:rgba(255,255,255,1);
-  -webkit-box-shadow:0px 1px 6px rgba(0,0,0,1); box-shadow:0px 1px 6px rgba(0,0,0,1);
+/*  background-color:rgba(255,255,255,1);*/  
+	-moz-box-shadow:    0px 1px 6px rgba(0,0,0,1);
+	-webkit-box-shadow:	0px 1px 6px rgba(0,0,0,1); 
+	box-shadow:					0px 1px 6px rgba(0,0,0,1);
+}
+
+button[disabled]{
+	opacity: 0.5;
+}
+
+button[disabled]:hover{
+  -moz-box-shadow:    1px 1px 2px 3px #ccc;
+  -webkit-box-shadow: 1px 1px 2px 3px #ccc;
+  box-shadow:         1px 1px 2px 3px #ccc;
 }
 
 
@@ -117,7 +95,7 @@ button:hover{
 	font: normal 16px "lucida grande",tahoma,verdana,arial,sans-serif;
 	display:none;
 	width:300px;
-	height:110px;
+	height:125px;
 	text-align:center;
 	color: #ffffff;
 	background-color:#434343;
@@ -129,7 +107,7 @@ button:hover{
 	/* Positioning */
 	position: fixed; 
 	z-index:2;
-	top: 3px; 
+	top: 23px; 
 	left: 50%;
 	margin-left: -140px;
 	/* shadows */
@@ -159,10 +137,355 @@ button:hover{
 	padding-right:20px;
 }
 
+.ui-tooltip-causling .ui-tooltip-content{
+	background: #f5e7c5;
+	border-color: #f5e7c5;
+	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	color: #000;
+/*	text-transform:uppercase;
+*/	font-weight:bold;
+/*	font-style: italic;*/
+}
+
+.node-tip .ui-tooltip-content{
+	font-size:13px;
+	text-transform:uppercase;
+}
+
+.edge-tip .ui-tooltip-content{
+	font-size:10px;
+/*	text-transform:uppercase;*/	
+}
+
+.house-tip .ui-tooltip-content{
+	text-align:center;
+}
+
+.help-tip .ui-tooltip-content{
+	font-size:10px;
+	font-style: italic;
+}
+
+.instruction-tip {max-width:none;}
+.instruction-tip .ui-tooltip-content{
+	font-size:14px;
+	text-transform:uppercase;	
+	border-width: 3px;
+	max-width:none;
+}
+
+.confirm-tip {max-width:none;}
+.confirm-tip .ui-tooltip-content{
+	font-size:14px;
+	text-transform:uppercase;	
+	border-width: 0px;
+}
+
+.confirm {
+	color:#175714;
+	background-color:#fefbec;
+	padding:10px;
+	margin-left:5px;
+	margin-right:-10px;
+	cursor:pointer;
+	font-weight:bold;
+}
+.confirm:hover{
+	color:#093907;
+}
+
+/* old qtip styling */
+#relation_qtip {
+	width:200px;
+}
+
+#relation_qtip .selector_container {
+	float:left;
+	width: 40px;
+}
+
+#relation_qtip .descr_container {
+	text-decoration:none;
+	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	color: #434343;
+}
+
+.edge_title {
+	text-decoration:none;
+	font:normal 12px "lucida grande",tahoma,verdana,arial,sans-serif; 
+	color: #434343;
+}
+
+
 /**************************
  * INTRO AND INSTRUCTIONS *
  **************************/
 
+#instructionscontainer {
+	position: relative;
+	margin: 0px auto 0;
+	width: 770px;
+	height: 410px;
+	background-color: rgb(247, 248, 246);
+	-moz-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+	-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+	opacity: 1;
+}
+
+.figurebox {
+	position: absolute;
+	width: 230px;
+	height: 273px;
+	border: 1px solid #474747;
+	margin-top: 42px;
+	padding-top: 40px;
+}
+
+#one {
+	left: 20px
+}
+
+#two {
+	left: 270px;
+}
+
+#three {
+	left: 520px;
+}
+
+#instructionstitle {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 14px;
+	font-weight: 700;
+	left: 20px;
+	top: 2px;
+	letter-spacing: 4px;
+}
+
+#figure1text {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	line-height: 18px;
+	font-weight: 500;
+	left: 40px;
+	top: 42px;
+}
+
+#figure2text {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	line-height: 18px;
+	font-weight: 500;
+	left: 290px;
+	top: 42px;
+}
+
+#figure3text {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	line-height: 18px;
+	font-weight: 500;
+	left: 540px;
+	top: 42px;
+}
+
+#figure1box {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	top: 344px;
+	left: 20px;
+	border: 1px solid #333;
+	padding-top: 10px;
+	padding-bottom: 9px;
+	padding-left: 30px;
+}
+
+#figure2box {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	top: 344px;
+	left: 270px;
+	border: 1px solid #333;
+	padding-top: 10px;
+	padding-bottom: 9px;
+	padding-left: 30px;
+}
+
+#figure3box {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	top: 344px;
+	left: 520px;
+	border: 1px solid #333;
+	padding-top: 10px;
+	padding-bottom: 9px;
+	padding-left: 30px;
+}
+
+
+a {
+  	text-decoration: none;
+  }
+  #welcome_title_container {
+  		position: relative;
+  		width: 900px;
+  		height: 800px;
+  		margin: 0 auto;
+  		}
+
+  #welcome_title {
+  	position: relative;
+  	padding-left: 250px;
+  	padding-right: 250px;
+  	top: 50px;
+  }
+
+  #welcome_story {
+  	position: relative;
+  	top: 50px;
+  	font-family: "Helvetica";
+  	font-size: 16px;
+		text-align:left;
+  	line-height: 24px;
+  	width: 840px;
+  	padding-left: 80px;
+  	padding-right: 80px;
+  	padding-top: 25px;
+  	padding-bottom: 25px;
+  	background-color: #F6F6F6;
+  	-moz-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  #welcome_button {
+  	position: relative;
+  	margin-left: 403px;
+  	margin-right: 403px;
+  	top: 70px;
+  	-moz-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  #welcome_button_label {
+  	position: relative;
+  	width: 150px;
+  	text-align: center;
+  	height: 100px;
+  	top: 27px;
+  	margin: 0 auto;
+  	font-family: "Helvetica";
+  	font-size: 12pt;
+  	margin-left: auto;
+  	margin-right: auto;	
+  	color: black;
+  	text-decoration: none;
+  }
+
+  #howtoplay {
+	background-color: white;
+	font-family: "Helvetica";
+  	font-size: 16px;
+  	line-height: 24px;
+	padding-top: 20px;
+	padding-right: 20px;
+	padding-left: 20px;
+	padding-bottom: 100px;
+	width: 900px;
+	text-align: left!important;
+}
+
+  #article_container {
+	background-color: white;
+	font-family: "Helvetica";
+  	font-size: 16px;
+  	line-height: 24px;
+	padding-top: 20px;
+	padding-right: 20px;
+	padding-left: 20px;
+	padding-bottom: 20px;
+	width: 900px;
+	text-align: left!important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* OLD CSS SAVED JUST IN CASE
 #causlings_title {
 	margin-top: 40px;
 	width: 900px;
@@ -177,17 +500,14 @@ button:hover{
 	background-color: rgb(250, 248, 229);	
 	color: rgb(115,133,140);
 	font-family: sans-serif;
-	font-size: 1 em;
-	line-height: 2em;
+	/*line-height: 1.5 em;	
 	padding: 20px;
 	margin-bottom:20px;
 	text-align:left;
 }
 
-.welcome_text strong {
+#welcome_text_container strong {
 	font-weight:900;
-	font-size: 1.1em;
-	text-decoration: underline;
 }
 
 #article {
@@ -202,9 +522,7 @@ button:hover{
 	background-color: rgb(250, 248, 229);
 	color: rgb(115,133,140);
 	font-family: sans-serif;
-	font-size: 1 em;
-/*	line-height: 2em;*/
-	text-align: left;
+	text-align: left!important;
 }
 
 #article .title {
@@ -386,4 +704,4 @@ top:-3px;
 -o-box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 }
-
+*/
