@@ -28,7 +28,7 @@
 
 #contentwrapper
   #eval_notification{:style=>"display:none"}
-    = link_to_function "Click here to evaluate the Causlings game!", "$('#goto_eval_form').submit();"
+    = link_to_function "When finished, click here to evaluate the Causlings game!", "$('#goto_eval_form').submit();"
     = form_tag({:action => "survey_evaluation"},{:id=>"goto_eval_form", :method => 'post'}) do
       = hidden_field_tag :game_user, @game_user
   .game_box

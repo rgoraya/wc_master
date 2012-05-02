@@ -729,8 +729,6 @@ function drawInitGame(paper){
 }
 
 function condenseSelectBox(){
-	//CAN WE SORT THE STUFF IN THE BOX ALPHABETICALLY?? THANKS!!
-
   var arr1 = [];
   var arr = [];
 
@@ -1477,7 +1475,7 @@ function instruction_qtip(msg,x,y){
 			// delay:1000, //after doing something, wait a tick
 			event: 'mousedown',
 			target: $(document.body).children(),
-			// inactive: 3000,
+			inactive: 3000,
 			effect: function() {$(this).fadeOut(300);}
 		},
 	};
@@ -1653,7 +1651,7 @@ function showEvalNotification(){
 	$("#eval_notification").howdyDo({
 		easing: 'easeInQuad',
 		duration: 75,
-		initState: 'open',
+		initState: 'closed',
 		keepState: false,
 		autoStart: false,
 		softClose: true,

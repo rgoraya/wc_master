@@ -17,24 +17,24 @@ class GameController < ApplicationController
 	@@GAME_LOG = Logger.new(log_path)
 
   def index
-    @game_user = :params['game_user'] || 5
+    @game_user = :params['game_user'] || rand(1000000000)
     render 'welcome.html.haml'
   end
 
   def welcome
-    @game_user = :params['game_user'] || 5
+    @game_user = :params['game_user'] || rand(1000000000)
   end
 
   def how_to_play
-    @game_user = :params['game_user'] || 5
+    @game_user = :params['game_user'] || rand(1000000000)
   end
 
   def article
-    @game_user = :params['game_user'] || 5
+    @game_user = :params['game_user'] || rand(1000000000)
   end
 
   def play
-    @game_user = :params['game_user'] || 5
+    @game_user = :params['game_user'] || rand(1000000000)
 		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
 
     @default_width = @@DEFAULT_WIDTH
@@ -115,13 +115,13 @@ class GameController < ApplicationController
   end
 
   def survey_demographic
-    @game_user = :params['game_user'] || 5
+    @game_user = :params['game_user'] || rand(1000000000)
     ## show survey
     ## on submit, should redirect to game
   end
 
   def survey_evaluation
-    @game_user = :params['game_user'] || 4
+    @game_user = :params['game_user'] || rand(1000000000)
     ## show survey!
   end
 
