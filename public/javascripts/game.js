@@ -21,6 +21,7 @@ var clock;
 var clock_running = false;
 var clock_animator;
 var clock_count = 180; //how many seconds on the clock initially
+var notifies = 0
 
 //timer constants
 var DEPLOY_TIME = 1
@@ -517,6 +518,9 @@ function beginGame(){
 	if(clock_running)	endClock();
 	clearTheBoard()
 	startAnts(paper)
+
+	var data = ["game begun"].join("|");
+	sendLog(data);
 }
 //removes all the ants, resets the islands
 function clearTheBoard(){
@@ -570,6 +574,9 @@ function endAnts() {
 	console.log('#actives',active_ants.length)
   game_running = false;
 	// showEvalNotification(true);
+
+	var data = ["game finished"].join("|");
+	sendLog(data);
 }
 //the ant animation
 function animateAnts(){
@@ -617,6 +624,9 @@ function animateAnts(){
 function startClock(){
 	clock_running = true;
 	clock_animator = setInterval(clockTick, 1000);
+	
+	var data = ["clock started"].join("|");
+	sendLog(data);
 }
 function endClock(){
 	clearInterval(clock_animator);
@@ -647,17 +657,28 @@ function clockTime(secs){
 	return min+':'+sec
 }
 
-function pauseAnimations(){
+function pauseAnimations(box){
 	if(game_running)
 		clearInterval(ant_animator)
 	if(clock_running)
 		clearInterval(clock_animator)
+
+	var data = ["viewing "+box].join("|");
+	sendLog(data);
 }
 function unpauseAnimations(){
 	if(game_running)
 		ant_animator = setInterval(animateAnts, 30);
 	if(clock_running)
 		clock_animator = setInterval(clockTick, 1000);
+
+	if(notifies==0){
+		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
+		notifies += 1
+	}
+
+	var data = ["game resumed"].join("|");
+	sendLog(data);
 }
 
 
@@ -720,13 +741,16 @@ function drawInitGame(paper){
     .mouseup(function(){clearInterval(interval);});
 
 		// console.log(paper,startBox);
-		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
+		// $(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
 
 	//set up the clock if needed
 	if(continuous){
 		clock = drawClock();
 		startClock();
 	}
+
+	var data = ["initialized game"].join("|");
+	sendLog(data);
 }
 
 function condenseSelectBox(){
@@ -1222,7 +1246,6 @@ var buildend = function (x,y,event)
 
 function destroyEdge(edge) {
 	var data = ["destroyEdge",["edge.id",edge.id,"edge.name",edge.name,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n", edge.n].join(":")].join("|");
-	//console.log(data);
 	sendLog(data);
 
 	var key = edge.id //edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
@@ -1387,6 +1410,9 @@ function getScoreBoard(){
 		"<form action='/game/play' method='post' style='display:inline'>"+
 		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
 		"<input type='submit' value='Play again?' style='margin-top:5px;'/></form>"
+
+	var data = ["final score",["islands activated",activated,"ants settled",settled,"ants dead",dead,"total ants",total_ants,"rubric score",rubric].join(":")].join("|");
+	sendLog(data);
 
 	return out;
 }
@@ -1637,7 +1663,7 @@ $(document).ready(function(){
 		width:850, height:600,
 		initialWidth:810, initialHeight:530,
 		transition:'none',
-		onOpen:pauseAnimations,
+		onOpen:pauseAnimations('article'),
 		onClosed:unpauseAnimations,
 	});
 
@@ -1646,9 +1672,9 @@ $(document).ready(function(){
 		width:850, height:520, 
 		initialWidth:810, initialHeight:450, 
 		transition:'none',
-		onOpen:pauseAnimations,
+		onOpen:pauseAnimations('help'),
 		onClosed:unpauseAnimations,
-		// open:true, //uncomment to show on first load
+		open:true, //uncomment to show on first load
 	});
 	  
 });
