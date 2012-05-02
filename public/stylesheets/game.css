@@ -221,6 +221,266 @@ button[disabled]:hover{
  * INTRO AND INSTRUCTIONS *
  **************************/
 
+#instructionscontainer {
+	position: relative;
+	margin: 0100px auto 0;
+	width: 770px;
+	height: 410px;
+	background-color: rgb(247, 248, 246);
+	-moz-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+	-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+	opacity: 1;
+}
+
+.figurebox {
+	position: absolute;
+	width: 230px;
+	height: 273px;
+	border: 1px solid #474747;
+	margin-top: 42px;
+	padding-top: 40px;
+}
+
+#one {
+	left: 20px
+}
+
+#two {
+	left: 270px;
+}
+
+#three {
+	left: 520px;
+}
+
+#instructionstitle {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 14px;
+	font-weight: 700;
+	left: 20px;
+	top: 2px;
+	letter-spacing: 4px;
+}
+
+#figure1text {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	line-height: 18px;
+	font-weight: 500;
+	left: 40px;
+	top: 42px;
+}
+
+#figure2text {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	line-height: 18px;
+	font-weight: 500;
+	left: 290px;
+	top: 42px;
+}
+
+#figure3text {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	line-height: 18px;
+	font-weight: 500;
+	left: 540px;
+	top: 42px;
+}
+
+#figure1box {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	top: 344px;
+	left: 20px;
+	border: 1px solid #333;
+	padding-top: 10px;
+	padding-bottom: 9px;
+	padding-left: 30px;
+}
+
+#figure2box {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	top: 344px;
+	left: 270px;
+	border: 1px solid #333;
+	padding-top: 10px;
+	padding-bottom: 9px;
+	padding-left: 30px;
+}
+
+#figure3box {
+	position: absolute;
+	font-family: "Helvetica";
+	font-size: 12px;
+	width: 200px;
+	top: 344px;
+	left: 520px;
+	border: 1px solid #333;
+	padding-top: 10px;
+	padding-bottom: 9px;
+	padding-left: 30px;
+}
+
+
+a {
+  	text-decoration: none;
+  }
+  #welcome_title_container {
+  		position: relative;
+  		width: 1000px;
+  		height: 800px;
+  		margin: 0 auto;
+  		}
+
+  #welcome_title {
+  	position: relative;
+  	padding-left: 250px;
+  	padding-right: 250px;
+  	top: 50px;
+  }
+
+  #welcome_story {
+  	position: relative;
+  	top: 50px;
+  	font-family: "Helvetica";
+  	font-size: 16px;
+  	line-height: 24px;
+  	width: 840px;
+  	padding-left: 80px;
+  	padding-right: 80px;
+  	padding-top: 25px;
+  	padding-bottom: 25px;
+  	background-color: #F6F6F6;
+  	-moz-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  #welcome_button {
+  	position: relative;
+  	margin-left: 403px;
+  	margin-right: 403px;
+  	top: 70px;
+  	-moz-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  #welcome_button_label {
+  	position: relative;
+  	width: 150px;
+  	text-align: center;
+  	height: 100px;
+  	top: 27px;
+  	margin: 0 auto;
+  	font-family: "Helvetica";
+  	font-size: 12pt;
+  	margin-left: auto;
+  	margin-right: auto;	
+  	color: black;
+  	text-decoration: none;
+  }
+
+  #howtoplay {
+	background-color: white;
+	font-family: "Helvetica";
+  	font-size: 16px;
+  	line-height: 24px;
+	padding-top: 20px;
+	padding-right: 20px;
+	padding-left: 20px;
+	padding-bottom: 100px;
+}
+
+  #article_container {
+	background-color: white;
+	font-family: "Helvetica";
+  	font-size: 16px;
+  	line-height: 24px;
+	padding-top: 20px;
+	padding-right: 20px;
+	padding-left: 20px;
+	padding-bottom: 20px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* OLD CSS SAVED JUST IN CASE
 #causlings_title {
 	margin-top: 40px;
 	width: 900px;
@@ -441,4 +701,4 @@ top:-3px;
 -o-box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 box-shadow:inset 0px 1px 0px #2ab7ec, 0px 5px 0px 0px #032b3a, 1px 1px 0px 0px #044a64, 2px 2px 0px 0px #044a64, 2px 5px 0px 0px #044a64, 6px 4px 2px #0b698b, 0px 10px 5px #999 ;
 }
-
+*/

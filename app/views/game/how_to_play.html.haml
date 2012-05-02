@@ -1,7 +1,6 @@
 :css
-  #container {background-color: #faf8e5;}
-
-#article
+  #container {background-image: url('/images/game/welcome_background.png');}
+#howtoplay
   %p.title Causal Bridges<br><i>(or How to Help the Causlings!)</i>
 
   %p Causlings are only able to cross <strong>causal bridges</strong>. So what is a causal bridge?
@@ -39,8 +38,7 @@
     Just be careful to make bridges that reflect actual cause-and-effect relationships, so that the Causlings will be able to cross them!
 
 
-%a#lets_go_button{:href => "/game/article"}
-  Learn about the island's concepts!
-%br
-%br
-%small Description from Plate 2006.
+%a{:href => "/game/article"}
+  %img#welcome_button{:alt => "", :src => "/images/game/welcome_button.png"}/
+  %p#welcome_button_label Learn more!
+  %small Description from Plate 2006.
