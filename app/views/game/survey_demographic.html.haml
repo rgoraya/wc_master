@@ -1,12 +1,22 @@
 / LINK TO FORM 
 / https://docs.google.com/spreadsheet/viewform?formkey=dEpmZ3dBWWVuZHJmWTdyYnFqVTVEcWc6MQ
-
 / this stuff is copy/pasted to avoid the gdoc iframe
 / http://www.morningcopy.com.au/tutorials/how-to-style-google-forms-redux/ has more details on how to make things work potentially...
 
 :plain
+  <head>
   <link href='https://docs.google.com/static/spreadsheets/client/css/779923916-published_form_compiled.css' type='text/css' rel='stylesheet'>
-  <style type='text/css'>@media print{@page {size:A5}body{padding:0;background-color:#fff}.ss-form-container{width:100%;border:none}}h2.ss-section-title{background-color:transparent}div.ss-submit div.ss-form-entry{background:none;border:none}</style></head>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.js" type="text/javascript"></script>
+  <script src="http://www.morningcopy.com.au/js/jquery.validate.js" type="text/javascript"></script>
+ 
+
+  <script type="text/javascript">
+  $(document).ready(function() {
+  $("#commentForm").validate({meta: "validate"});
+  });</script>
+  
+  
+  <style type='text/css'>@media print{@page {size:A5}body{padding:0;background-color:#fff;}.ss-form-container{width:100%;border:none}} h1.ss-form-title{text-align:left; font-size:20px} h2.ss-section-title{background-color:00FF00; } div.ss-form-entry{border:none; align: left; text-align: left; } .ss-choice-item{ padding: 3px; font-size: larger; text-align:left; align:left; margin-right:0px;line-height:1.5em} .ss-q-title { font-size: larger; font-weight: bold; text-align: left; } input.ss-q-short { width: 125px; align: left; text-align: left; } .ss-text { align: left; text-align: left; } #entry_1 { font-size: larger; align: left; text-align: left; margin: 0px; } .ss-required-asterisk{align: left; text-align: left; font-size:larger} .ss-navigate{font-size:larger} label.error{display: block;cursor:pointer; color: #ff0600; font-size: 10px; list-style-position: inside; padding: 5px 0 0; clear: left; display: inline; float:right;} </style></head>
 
   <div class="ss-form-container">
   <div class="ss-form-heading"><h1 class="ss-form-title">Demographic Information</h1>
@@ -15,55 +25,66 @@
 
   <hr class="ss-email-break" style="display:none;">
   <div class="ss-required-asterisk">* Required</div></div>
-  <div class="ss-form"><form action="https://docs.google.com/spreadsheet/formResponse?formkey=dEpmZ3dBWWVuZHJmWTdyYnFqVTVEcWc6MQ&amp;theme=0AX42CRMsmRFbUy03NTAzM2Q4My03ODU1LTQ2NzItODI2YS1kZmU5YzdiMzZjOGQ&amp;ifq" method="POST" id="ss-form">
+  <div class="ss-form"><script type="text/javascript">var submitted=false;</script>
+  <iframe name="hidden_iframe" id="hidden_iframe"
+   style="display:none;" onload="if(submitted)
+    {window.location='/game/';}"></iframe>
+   <form action="https://docs.google.com/spreadsheet/formResponse?formkey=dEpmZ3dBWWVuZHJmWTdyYnFqVTVEcWc6MQ&amp;theme=0AX42CRMsmRFbUy03NTAzM2Q4My03ODU1LTQ2NzItODI2YS1kZmU5YzdiMzZjOGQ&amp;ifq" method="post"
+    target="hidden_iframe" id="commentForm" onsubmit="submitted=true;"><br>
 
-  <br>
   <div class="errorbox-good">
   <div class="ss-item ss-item-required ss-text"><div class="ss-form-entry"><label class="ss-q-title" for="entry_0">Age
   <span class="ss-required-asterisk">*</span></label>
   <label class="ss-q-help" for="entry_0"></label>
-  <input type="text" name="entry.0.single" value="" class="ss-q-short" id="entry_0"></div></div></div>
-  <br> <div class="errorbox-good">
-  <div class="ss-item ss-item-required ss-select"><div class="ss-form-entry"><label class="ss-q-title" for="entry_1">Gender
+  <input type="text" name="entry.0.single" value="" class="required" id="entry_0"></div></div></div>
+  <br> 
+
+  <div class="errorbox-good">
+  <div class="ss-item ss-select"><div class="ss-form-entry"><label class="ss-q-title" for="entry_1">Gender
   <span class="ss-required-asterisk">*</span></label>
-  <label class="ss-q-help" for="entry_1"></label>
-  <select name="entry.1.single" id="entry_1"><option value="Male">Male</option> <option value="Female">Female</option></select></div></div></div>
-  <br> <div class="errorbox-good">
-  <div class="ss-item ss-item-required ss-radio"><div class="ss-form-entry"><label class="ss-q-title" for="entry_2">Are you good at using computers?
+  <label class=ss-q-help" for="entry_1"></label>
+  <select name="entry.1.single" id="entry_1" class = "required"><option value = ""> Select </option><option value="Male">Male</option><option value="Female">Female</option></select></div></div></div>
+  
+  <br><div class="errorbox-good">
+  <div class="ss-item ss-radio"><div class="ss-form-entry"><label class="ss-q-title" for="entry_2">Are you good at using computers?
   <span class="ss-required-asterisk">*</span></label>
-  <label class="ss-q-help" for="entry_2"></label>
-  <ul class="ss-choices"><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="Yes" class="ss-q-radio" id="group_2_1">
-  Yes</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="I&#39;m okay I guess" class="ss-q-radio" id="group_2_2">
-  I&#39;m okay I guess</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="No" class="ss-q-radio" id="group_2_3">
-  No</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="I never use them" class="ss-q-radio" id="group_2_4">
+  <label class="ss-q-radio"  for="entry_2"></label>
+  <ul class="ss-choices"><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="Yes" id="group_2_1" class = "required" validate="required:true">
+  Yes</label></li><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="I'm okay I guess" id="group_2_2">
+  I'm okay I guess</label></li><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="No" id="group_2_3">
+  No</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.2.group" value="I never use them" id="group_2_4">
   I never use them</label></li>
   </ul></div></div></div>
+
   <br> <div class="errorbox-good">
   <div class="ss-item ss-item-required ss-radio"><div class="ss-form-entry"><label class="ss-q-title" for="entry_3">Do you play computer games or video games?
   <span class="ss-required-asterisk">*</span></label>
   <label class="ss-q-help" for="entry_3"></label>
-  <ul class="ss-choices"><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.3.group" value="Yes, I play them all the time" class="ss-q-radio" id="group_3_1">
+  <ul class="ss-choices"><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.3.group" value="Yes, I play them all the time" class = "required" id="group_3_1">
   Yes, I play them all the time</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.3.group" value="Yes, I play them sometimes" class="ss-q-radio" id="group_3_2">
   Yes, I play them sometimes</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.3.group" value="I rarely play them" class="ss-q-radio" id="group_3_3">
   I rarely play them</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.3.group" value="No, I never play them" class="ss-q-radio" id="group_3_4">
   No, I never play them</label></li>
   </ul></div></div></div>
+
   <br> <div class="errorbox-good">
   <div class="ss-item ss-item-required ss-radio"><div class="ss-form-entry"><label class="ss-q-title" for="entry_4">Compared to other people you know, how important is the environment and environmental issues to you (e.g., pollution, climate change)?
   <span class="ss-required-asterisk">*</span></label>
   <label class="ss-q-help" for="entry_4"></label>
-  <ul class="ss-choices"><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment much more than other people." class="ss-q-radio" id="group_4_1">
-  I care about the environment much more than other people.</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment a little more than other people." class="ss-q-radio" id="group_4_2">
+  <ul class="ss-choices"><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment much more than other people." class="required" id="group_4_1">
+  I care about the environment much more than other people.</label></li><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment a little more than other people." class="ss-q-radio" id="group_4_2">
   I care about the environment a little more than other people.</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment about the same as other people" class="ss-q-radio" id="group_4_3">
   I care about the environment about the same as other people</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment a little less than other people" class="ss-q-radio" id="group_4_4">
-  I care about the environment a little less than other people</label></li> <li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment a lot less than other people" class="ss-q-radio" id="group_4_5">
+  I care about the environment a little less than other people</label></li><li class="ss-choice-item"><label class="ss-choice-label"><input type="radio" name="entry.4.group" value="I care about the environment a lot less than other people" class="ss-q-radio" id="group_4_5">
   I care about the environment a lot less than other people</label></li>
   </ul></div></div></div>
+
+
   <br> <div class="errorbox-good">
   <div class="ss-item  ss-text" style="display:none;"><div class="ss-form-entry"><label class="ss-q-title" for="entry_5">user_Id
   </label>
   <label class="ss-q-help" for="entry_5"></label>
-  <input type="text" name="entry.5.single" value="" class="ss-q-short" id="entry_5"></div></div></div>
+  <input type="text" name="entry.5.single" value="#{@game_user}" class="ss-q-short" id="entry_5"></div></div></div>
   <br>
   <input type="hidden" name="pageNumber" value="0">
   <input type="hidden" name="backupCache" value="">

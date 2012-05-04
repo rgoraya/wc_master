@@ -92,14 +92,16 @@ class GameController < ApplicationController
   def survey_demographic
     @game_user = rand(1000000000)
     session[:game_user] = @game_user
-    ## show survey
-    ## on submit, should redirect to game
   end
 
   def survey_evaluation
     @game_user = session[:game_user] || params[:player]
     session[:game_user] = @game_user
-    ## show survey!
+  end
+  
+  def thank_you #redirect after evaluation is completed
+    @game_user = session[:game_user] || params[:player]
+    session[:game_user] = @game_user
   end
 
 end
