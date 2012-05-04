@@ -14,8 +14,8 @@
 div#contentwrapper{
   background-image: url('/images/game/wood_1.png');
 	margin-top:10px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 15px;
+  padding-bottom: 15px;
   overflow: visible;
   -moz-box-shadow:    2px 2px 4px 4px #ccc;
   -webkit-box-shadow: 2px 2px 4px 4px #ccc;
@@ -36,9 +36,8 @@ div#game_box{
   float: center;
 }
 
-#bottom_bar{
-  margin-top: 10px;
-  height: auto;
+#button_bar{
+  margin-top: 0px;
 }
 
 #title_game{
@@ -172,6 +171,7 @@ button[disabled]:hover{
 	text-transform:uppercase;	
 	border-width: 3px;
 	max-width:none;
+	text-align:center;
 }
 
 .confirm-tip {max-width:none;}

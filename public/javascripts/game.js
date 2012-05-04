@@ -76,6 +76,7 @@ function Island(n,opt_degree){
 	this.activated = false
 	this.emptied = false
 	this.deploy_lock = [false,false,-1]
+	this.ondeck = true
 }
 Island.prototype.tick = function(){
 	if(this.activated){
@@ -675,7 +676,7 @@ function unpauseAnimations(){
 	}
 	
 	if(notifies==0){
-		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
+		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!<br>(you don\'t need to use all the items)'));
 		notifies += 1
 	}
 
@@ -997,7 +998,7 @@ function drawEdgeSelectors(edge, canvas_id){
 }
 
 function toggleFullName(node,txt,show){
-	if(!islands[node.id].capital){ //or in selection box, once we have that
+	if(!islands[node.id].capital && !islands[node.id].ondeck){ //can also just turn this off, depending on room
 		if(show){
 			txt.attr({'text':node.name,'x':node.x,'y':node.y+30,'transform':''});
 			_textWrapp(txt,50); //wrap the text
@@ -1567,8 +1568,8 @@ function edge_selector_qtip(edge) {
 	};	
 }
 
-function confirmation_qtip(msg, action){
-	return {
+function confirmation_qtip(msg, action, below){
+	var tip = {
 		content:{text: msg+'<a class="confirm" onclick="'+action+'">Yes</a>'},
 		position:{
 			my: 'bottom-center', at: 'top-center',
@@ -1595,6 +1596,18 @@ function confirmation_qtip(msg, action){
 			//effect: function() {console.log('hiding')}
 		},
 	}
+	
+	if(below){
+		tip.position.my = 'top-center';
+		tip.position.at = 'bottom-center';
+		tip.style.tip = {
+			width:20,height:10,
+			corner:'top center',
+		};
+		
+	}
+	
+	return tip
 }
 
 
@@ -1657,7 +1670,7 @@ $(document).ready(function(){
 	// });
 	$('#run_button').qtip(confirmation_qtip(
 		'Are you sure you want to release the Causlings?',
-		'if(game_running==false){beginGame();}'
+		'if(game_running==false){beginGame();}',true
 	)).click(function(){if(!$(this).is('disabled'))$(this).qtip('show');})
 	if(currEdges['keys'].length == 0)
 		$('#run_button').attr('disabled', 'disabled')

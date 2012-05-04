@@ -16,25 +16,10 @@ class GameController < ApplicationController
 
 	@@GAME_LOG = Logger.new(log_path)
 
-  def index
-    @game_user = :params['game_user'] || rand(1000000000)
-    render 'welcome.html.haml'
-  end
-
-  def welcome
-    @game_user = :params['game_user'] || rand(1000000000)
-  end
-
-  def how_to_play
-    @game_user = :params['game_user'] || rand(1000000000)
-  end
-
-  def article
-    @game_user = :params['game_user'] || rand(1000000000)
-  end
-
   def play
-    @game_user = :params['game_user'] || rand(1000000000)
+    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    session[:game_user] = @game_user
+    puts @game_user
 		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
 
     @default_width = @@DEFAULT_WIDTH
@@ -43,13 +28,9 @@ class GameController < ApplicationController
     
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
-    #puts "verbose: "+@verbose.to_s
 
     @continuous = params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
 
-    # puts "===Controller Params==="
-    # puts params
-    
     respond_to do |format|
       format.html do #on html calls
         if params[:expert]
@@ -59,45 +40,14 @@ class GameController < ApplicationController
         end
 
         @home_island = @game.home
-        
-        puts "***** HOME ISLAND *****", @home_island
-
-        # flash[:notice] = @vis.notice
-        # 
-        # session[:vis] = @vis #we want to not use sessions for storage as soon as we have a db backing us (forever)
+        # puts "***** HOME ISLAND *****", @home_island
         return
       end
 
       format.js do #respond to ajax calls
         puts "*** HANDLING GAME AJAX ***"
         puts params
-
         return
-      end
-    end
-  end
-
-
-  def run #everything is handled as JS for this
-    @default_width = @@DEFAULT_WIDTH
-    @default_height = @@DEFAULT_HEIGHT
-    @default_border = @@DEFAULT_BORDER
-
-    # puts "**** RUNNING PARAMETERS ****"
-    # puts params
-    # puts params[:edges] ## this is the edges that the user created
-
-    respond_to do |format|
-      format.js do #respond to ajax calls
-    
-        #@game = Game.new(:width => @default_width, :height => @default_height, :edges => params[:edges] || Hash.new())
-        
-        #@result = @game.compare_to_expert.to_s
-        #@ants = @game.get_ants
-        
-        # flash[:notice] = 'Your score: '+@result.to_s
-      
-        
       end
     end
   end
@@ -110,18 +60,45 @@ class GameController < ApplicationController
 	end
 
   def research
-    #the introductory paragraph
-    
+    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    session[:game_user] = @game_user
+    puts @game_user
   end
 
+  def index
+    welcome
+    render 'welcome.html.haml'
+  end
+
+  def welcome
+    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    session[:game_user] = @game_user
+    puts @game_user
+  end
+
+  def how_to_play
+    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    session[:game_user] = @game_user
+    puts @game_user
+  end
+
+  def article
+    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    session[:game_user] = @game_user
+    puts @game_user
+  end
+
+
   def survey_demographic
-    @game_user = :params['game_user'] || rand(1000000000)
+    @game_user = rand(1000000000)
+    session[:game_user] = @game_user
     ## show survey
     ## on submit, should redirect to game
   end
 
   def survey_evaluation
-    @game_user = :params['game_user'] || rand(1000000000)
+    @game_user = session[:game_user] || params[:player]
+    session[:game_user] = @game_user
     ## show survey!
   end
 

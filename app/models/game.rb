@@ -309,7 +309,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     'Bad weather',
     'Amount of samaki caught',
     'Coastal water quality',
-    'Cost per unit catch',
+    'Cost of samaki per unit catch',
     'Society Affluence',
     'Demand for farm-raised fish feed (aquaculture)',
     ' ',
