@@ -693,7 +693,7 @@ function unpauseAnimations(){
 //sets up initial boxes and stuff for the game
 function drawInitGame(paper){
   startBoxSize = [paper_size.width-3, 100];
-  startBoxTopLeft = [0, paper_size.height-103];
+  startBoxTopLeft = [0,0];
 
   startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke':'#000000','stroke-width':1}).toBack();
   sbbb = startBox.getBBox();
@@ -1073,13 +1073,13 @@ var dragmove = function (dx,dy,x,y,event)
 {
 	if(now_dragging) {
 
-    var originalBB = copyBBox(now_dragging.icon.getBBox()); //don't bother to assign now_dragging.icon.getBBox() to a variable; it's not a reference
+    var originalBB = now_dragging.icon.getBBox(); //don't bother to assign now_dragging.icon.getBBox() to a variable; it's not a reference
 
 		trans_x = dx-this.ox
 		trans_y = dy-this.oy
     
     if ((islands[now_dragging.node.id].capital || dragged_edges.length > 0) && isOverlapped(now_dragging.icon.getBBox(), sbbb)){
-      trans_y = sbbb.y - (now_dragging.icon.getBBox().height)- now_dragging.node.y; //can't go back once you have an edge or are the capital
+      trans_y = (sbbb.y+sbbb.height) + (now_dragging.icon.getBBox().height)- now_dragging.node.y; //can't go back once you have an edge or are the capital
     }
 
 		now_dragging.node.x += trans_x
@@ -1162,7 +1162,7 @@ var buildmove = function (dx,dy,x,y,event)
 		now_building.target_node.x = x-CANVAS_OFFSET.left //don't forget the offset to bring mouse in line!
 		now_building.target_node.y = y-CANVAS_OFFSET.top
 
-    if (isContainedHorizontally({x:now_building.target_node.x,y:now_building.target_node.y,width:0,height:0},sbbb)) now_building.target_node.y = sbbb.y; //you shall not pass... the box's top edge!
+    if (isContainedHorizontally({x:now_building.target_node.x,y:now_building.target_node.y,width:0,height:0},sbbb)) now_building.target_node.y = sbbb.y+sbbb.height; //you shall not pass... the box's top edge!
 
 		now_building.selected_node = null;
 		
