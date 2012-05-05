@@ -751,7 +751,18 @@ function drawInitGame(paper){
 
 //== Code for select box == 
 
-
+function organizePages(){
+  for (var i = 0; i < pages.length; i++){
+    for (var j = 0; j < pages[i].length; j++){
+      if (boxNodes.hasOwnProperty(pages[i][j].id)){
+        boxNodes[pages[i][j].id].x = pages[i][j].x;
+        boxNodes[pages[i][j].id].y = pages[i][j].y;
+      }else continue;
+    }
+  }
+  
+  update();
+}
 
 var showNextPage = function(){
   if (current_page < max_page) current_page++;
@@ -792,15 +803,8 @@ function setupPages(){
   }
   pages.push(page);
 
-  var ox, oy;
+  update();
 
-  for(var index in boxNodes){
-	  ox = currNodes[index].x;
-	  oy = currNodes[index].y;
-	  currNodes[index].x = boxNodes[index].x;
-	  currNodes[index].y = boxNodes[index].y;
-	  nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
-	}
   current_page = 0;
   max_page = pages.length-1;
 
@@ -812,8 +816,8 @@ function showCurrentPage(){
       if(i == current_page){
         if (boxNodes.hasOwnProperty(pages[i][j].id)){
           nodeIcons[pages[i][j].id].show();
-          nodeIcons[pages[i][j].id][3].hide(); 
-        } //hide the house; WARNING: if the house position in icon changes, change this line
+          nodeIcons[pages[i][j].id][3].hide(); //hide the house; WARNING: if the house position in icon changes, change this line
+        } 
       }else{
         if (boxNodes.hasOwnProperty(pages[i][j].id)) nodeIcons[pages[i][j].id].hide();
       } 
@@ -861,9 +865,6 @@ function condenseSelectBox(){
 	  leftMost = boxNodes[arr[0].id];
 	  rightMost = boxNodes[arr[arr.length-1].id];
 
-	  var ox = null;
-	  var oy = null;
-
 	  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
     arr[0].x = arr1[0].x;
 
@@ -874,14 +875,20 @@ function condenseSelectBox(){
 	    }
 	  }
 
-	  for(var index in boxNodes){
-	    ox = currNodes[index].x;
-	    oy = currNodes[index].y;
-	    currNodes[index].x = boxNodes[index].x;
-	    currNodes[index].y = boxNodes[index].y;
-	    nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
-	  }
+    update();
 	}else{ leftMost = null; rightMost = null;}
+}
+
+function update(){ //updates coordinates of nodes in the select box; remember: boxNodes is a copy by value, so changes in boxNodes must be manually reflected back to currNodes and nodeIcons
+  var ox, oy;
+
+  for(var index in boxNodes){
+	  ox = currNodes[index].x;
+	  oy = currNodes[index].y;
+	  currNodes[index].x = boxNodes[index].x;
+	  currNodes[index].y = boxNodes[index].y;
+	  nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
+	}
 }
 
 //== End code for select box ==
@@ -1178,12 +1185,18 @@ var dragend = function (x,y,event)
   if (isOverlapped(now_dragging.icon.getBBox(), sbbb)){ //dropped in the box
 		if(!now_dragging.start_in_box)
 			toggleFullName(now_dragging.node,now_dragging.icon[1],true)
-		//condenseSelectBox();
-	}
-	else { //dropped outside the box
+
+    organizePages();
+    showCurrentPage();
+
+	}else {
 		if(now_dragging.start_in_box)
 			toggleFullName(now_dragging.node,now_dragging.icon[1],false)
-    //condenseSelectBox();
+
+    if (now_dragging.start_in_box){ //dropped out of the box
+      organizePages();
+      showCurrentPage();
+    }
 	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
