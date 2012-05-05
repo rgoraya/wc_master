@@ -732,10 +732,6 @@ function drawInitGame(paper){
   leftArrow.mousedown(showPreviousPage);
   rightArrow.mousedown(showNextPage);
 
-  if (current_page == 0) leftArrow.hide(); //uncommenting these line to have a more consistent display
-  if (current_page == max_page) rightArrow.hide();
-
-
 		// console.log(paper,startBox);
 		// $(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!'));
 
@@ -766,16 +762,14 @@ function organizePages(){
 
 var showNextPage = function(){
   if (current_page < max_page) current_page++;
+  else current_page = 0;
   showCurrentPage();
-  if (current_page == max_page) rightArrow.hide();
-  if (current_page > 0) leftArrow.show();
 }
 
 var showPreviousPage = function(){
   if (current_page > 0) current_page--;
+  else current_page = max_page;
   showCurrentPage();
-  if (current_page == 0) leftArrow.hide();
-  if (current_page < max_page) rightArrow.show();
 } 
 
 function setupPages(){
