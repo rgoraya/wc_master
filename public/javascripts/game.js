@@ -51,6 +51,7 @@ var rightMost;
 var interval;
 var spacing = 150;
 var speed = 70;
+var sbbb = null; // BBox for select box
 //======================
 
 /***
@@ -694,14 +695,16 @@ function drawInitGame(paper){
   startBoxSize = [paper_size.width-3, 100];
   startBoxTopLeft = [0, paper_size.height-103];
 
-  for (var index in currNodes){
-      if (currNodes[index].y > startBoxTopLeft[1]) boxNodes[currNodes[index].id] = {id:currNodes[index].id, name:currNodes[index].name, x:currNodes[index].x, y:currNodes[index].y};
+  startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke':'#000000','stroke-width':1}).toBack();
+  sbbb = startBox.getBBox();
+  paper.image("/images/game/wood_bkgr.png",startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).toBack();
+
+  for (var index in nodeIcons){
+      if (isContainedHorizontally({x:currNodes[index].x,y:currNodes[index].y,width:0,height:0}, sbbb)) boxNodes[currNodes[index].id] = {id:currNodes[index].id, name:currNodes[index].name, x:currNodes[index].x, y:currNodes[index].y};
   }
   condenseSelectBox();
 
-	startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke': '#000000', 'stroke-width':1}).toBack();
-
-  paper.image("/images/game/wood_bkgr.png",startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).toBack();
+	
 
 	//paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],15,startBoxSize[1])
     
@@ -714,7 +717,7 @@ function drawInitGame(paper){
       interval = setInterval(function(){
         if (leftMost && leftMost.x < startBoxTopLeft[0] + 50)
           for (var i in nodeIcons)
-            if(paper_size.height-currNodes[i].y<startBoxSize[1]){
+            if(isContainedHorizontally(nodeIcons[i].getBBox(),sbbb)){
               if (boxNodes.hasOwnProperty(i)) boxNodes[i].x += speed;
               currNodes[i].x +=speed;
               nodeIcons[i].transform("...t"+speed+",0"); //go right
@@ -734,7 +737,7 @@ function drawInitGame(paper){
       interval = setInterval(function(){
         if (rightMost && rightMost.x > startBoxTopLeft[0]+startBoxSize[0]-50) //give it some space
           for (var i in nodeIcons)
-            if(paper_size.height-currNodes[i].y<startBoxSize[1]){
+            if(isContainedHorizontally(nodeIcons[i].getBBox(),sbbb)){
               if (boxNodes.hasOwnProperty(i)) boxNodes[i].x -= speed;
               currNodes[i].x -=speed;
               nodeIcons[i].transform("...t-"+speed+",0"); //go left
@@ -754,6 +757,27 @@ function drawInitGame(paper){
 
 	var data = ["initialized game"].join("|");
 	sendLog(data);
+}
+
+//== Code for select box == 
+
+function isContainedVertically(bbox1, bbox2){ //true if bbox1 is contained vertically within bbox2: --> | (bbox1) |
+  if (bbox1.x > bbox2.x && (bbox1.x+bbox1.width) < (bbox2.x+bbox2.width)) return true;
+  else return false;
+}
+
+function isContainedHorizontally(bbox1, bbox2){ //true if bbox1 is contained horizontally within bbox2: 
+  if (bbox1.y > bbox2.y && (bbox1.y+bbox1.height) < (bbox2.y+bbox2.height)) return true;
+  else return false;
+}
+
+function isOverlapped(bbox1, bbox2){ //for some reason bbox.y2 and bbox.x2 are undefined???
+  if (bbox1.y > (bbox2.y+bbox2.height) || bbox2.y > (bbox1.y+bbox1.height) || bbox1.x > (bbox2.x+bbox2.width) || bbox2.x > (bbox1.x+bbox1.width)) return false;
+  else return true;
+}
+
+function copyBBox(bbox){ //just copy value
+  return {x:bbox.x, y:bbox.y, x2:(bbox.x+bbox.width), y2:(bbox.y+bbox.height), width:bbox.width, height:bbox.height};
 }
 
 function condenseSelectBox(){
@@ -799,6 +823,9 @@ function condenseSelectBox(){
 	  }
 	}else{ leftMost = null; rightMost = null;}
 }
+
+
+//== End code for select box ==
 
 function drawClock(){
 	var time = paper.text(30,45,clockTime(clock_count)).attr({
@@ -1022,7 +1049,7 @@ function toggleFullName(node,txt,show){
 var dragstart = function (x,y,event) 
 {
 	if(now_dragging) {
-		now_dragging.start_in_box = (now_dragging.node.y > startBoxTopLeft[1])
+		now_dragging.start_in_box = isOverlapped(nodeIcons[now_dragging.node.id].getBBox(),sbbb);//(now_dragging.node.y > startBoxTopLeft[1])
 		this.ox = 0;
 		this.oy = 0;
 
@@ -1046,29 +1073,30 @@ var dragmove = function (dx,dy,x,y,event)
 {
 	if(now_dragging) {
 
+    var originalBB = copyBBox(now_dragging.icon.getBBox()); //don't bother to assign now_dragging.icon.getBBox() to a variable; it's not a reference
 
 		trans_x = dx-this.ox
 		trans_y = dy-this.oy
     
-    if ((islands[now_dragging.node.id].capital || dragged_edges.length > 0) && now_dragging.node.y+trans_y+50 >= startBoxTopLeft[1]){
-      trans_y = startBoxTopLeft[1] - 50 - now_dragging.node.y; //can't go back once you have an edge or are the capital
+    if ((islands[now_dragging.node.id].capital || dragged_edges.length > 0) && isOverlapped(now_dragging.icon.getBBox(), sbbb)){
+      trans_y = sbbb.y - (now_dragging.icon.getBBox().height)- now_dragging.node.y; //can't go back once you have an edge or are the capital
     }
-
-    var originalX = now_dragging.node.x;
-    var originalY = now_dragging.node.y;
 
 		now_dragging.node.x += trans_x
 		now_dragging.node.y += trans_y //move the node itself; this will move the appropriate edges
 		now_dragging.icon.transform("...t"+trans_x+","+trans_y)
 		this.ox = dx;
 		this.oy = dy;
-
 		
-    if (originalY > startBoxTopLeft[1] && now_dragging.node.y <= startBoxTopLeft[1]){ delete boxNodes[now_dragging.node.id]; condenseSelectBox();}
-    else if (originalY <= startBoxTopLeft[1] && now_dragging.node.y >	startBoxTopLeft[1]){ 
+    //console.log("dragmove");
+    //console.log(originalBB.x2, originalBB.y2);
+    //console.log(copyBBox(now_dragging.icon.getBBox()).x2, copyBBox(now_dragging.icon.getBBox()).y2);
+
+    if (isOverlapped(originalBB, sbbb) && !isOverlapped(now_dragging.icon.getBBox(), sbbb)){
+      delete boxNodes[now_dragging.node.id];
+    }else if (!isOverlapped(originalBB, sbbb) && isOverlapped(now_dragging.icon.getBBox(), sbbb)){
 			boxNodes[now_dragging.node.id] = {id:now_dragging.node.id, name:now_dragging.node.name, x:now_dragging.node.x, y:now_dragging.node.y};
 		}
-
 
 		for(var i=0, len=dragged_edges.length; i<len; i++)
 		{
@@ -1088,7 +1116,7 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].remove()
 		edgeIcons[dragged_edges[i].id] = drawEdge(dragged_edges[i], paper)
 	}
-  if (now_dragging.node.y > startBoxTopLeft[1]){ //dropped in the box
+  if (isOverlapped(now_dragging.icon.getBBox(), sbbb)){ //dropped in the box
 		if(!now_dragging.start_in_box)
 			toggleFullName(now_dragging.node,now_dragging.icon[1],true)
 		condenseSelectBox();
@@ -1096,7 +1124,7 @@ var dragend = function (x,y,event)
 	else { //dropped outside the box
 		if(now_dragging.start_in_box)
 			toggleFullName(now_dragging.node,now_dragging.icon[1],false)
-    //condenseSelectBox();
+    condenseSelectBox();
 	}
 
 	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
@@ -1130,11 +1158,11 @@ var buildstart = function (x,y,event)
 var buildmove = function (dx,dy,x,y,event) 
 {
 	// console.log("buildmove",dx,dy,x,y,event)
-	if(now_building && now_building.start_node.y <= startBoxTopLeft[1]) {
+	if(now_building && !isOverlapped(nodeIcons[now_building.start_node.id].getBBox(),sbbb)) {
 		now_building.target_node.x = x-CANVAS_OFFSET.left //don't forget the offset to bring mouse in line!
 		now_building.target_node.y = y-CANVAS_OFFSET.top
 
-    if (now_building.target_node.y >= startBoxTopLeft[1]) now_building.target_node.y = startBoxTopLeft[1]; //you shall not pass... the box's top edge!
+    if (isContainedHorizontally({x:now_building.target_node.x,y:now_building.target_node.y,width:0,height:0},sbbb)) now_building.target_node.y = sbbb.y; //you shall not pass... the box's top edge!
 
 		now_building.selected_node = null;
 		
