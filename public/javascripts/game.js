@@ -12,7 +12,6 @@ var all_ants = []; //all the ants (for tracking)
 var active_ants = []; //the ants that we're animating
 //var ant_nodes = [] //for the d3 animation version; the DOM nodes for the ants
 //// var first_edge = true; //if the (next) edge the first edge built?
-var last_edge_drawn = false;
 var game_running = false;
 var block;
 var ant_animator;
@@ -29,11 +28,12 @@ var SPAWN_TIME = 4
 var PACE_TIME = 120
 var HESITATE_TIME = 20
 if(continuous){
-	DEPLOY_TIME = 180
+	DEPLOY_TIME = 150
 	SPAWN_TIME = 120 //not bad atm, but could be slower
-	PACE_TIME = 1800
-	HESITATE_TIME = 250 //should be 1/2 or 2/3 pace? feels not bad atm
+	PACE_TIME = 750 //note they never actually fall off at the current rates...
+	HESITATE_TIME = 200 //or 250?
 }
+var MAX_SPAWN = 20
 
 var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 12 // arrowhead height
@@ -82,7 +82,7 @@ function Island(n,opt_degree){
 	//do we want two timers, or will just 1 do? (depends on whether we want to deploy immediately after spawn...)
 	this.spawn_timer = 0 
 	this.spawn_count = 0
-	this.max_spawn = 30 //degree is like 100; should be based on bridge count if not continuous?
+	this.max_spawn = MAX_SPAWN //degree is like 100; should be based on bridge count if not continuous?
 	this.deploy_timer = 0
 	this.activated = false
 	this.emptied = false
@@ -91,7 +91,7 @@ function Island(n,opt_degree){
 }
 Island.prototype.tick = function(){
 	if(this.activated){
-		if(!this.emptied && this.spawn_timer >= SPAWN_TIME){
+		if(this.spawn_timer >= SPAWN_TIME && !this.emptied && this.ants.length < 4){
 			if(this.spawn_count < this.max_spawn)
 				this.spawnAnt()
 			else
@@ -235,7 +235,7 @@ Island.prototype.reset = function(){
 	this.settled = []
 	this.spawn_timer = 0 
 	this.spawn_count = 0
-	this.max_spawn = 30
+	this.max_spawn = MAX_SPAWN
 	this.deploy_timer = 0
 	this.activated = false
 	this.emptied = false
@@ -399,12 +399,7 @@ Ant.prototype.getLost = function(){
 		this.icon.attr({'opacity':1-(this.prog/100)})
 	}	
 	else if(this.prog > 60){
-		this.stat = this.DEAD
-		this.prog = 0
-		this.icon.attr({'opacity':0.6})
-		this.icon.toBack()
-    play_sound("/sounds/incorrect.wav");
-		return;
+		this.beDead();
 	}
 }
 Ant.prototype.randomWalk = function(step){
@@ -473,19 +468,22 @@ Ant.prototype.goSwimming = function(){
 		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
 	}
 	else{ //we're dead
-		this.stat = this.DEAD
-		this.prog = 0
-		this.icon.attr({'opacity':0.6})
-		this.icon.toBack()
-    play_sound("/sounds/incorrect.wav")
-		return;
+		this.beDead();
 	}
+}
+Ant.prototype.beDead = function(){
+	this.stat = this.DEAD
+	this.prog = 0
+	this.icon.attr({'opacity':0.6})
+	this.icon.hide();//toBack()
+  // play_sound("/sounds/incorrect.wav")
+	return;	
 }
 Ant.prototype.arrive = function(){
 	this.stat = this.DANCING //start dancing
 	this.prog = 0
 	this.icon.attr({'fill':ANT_COLORS.home});
-  play_sound("/sounds/correct.wav")
+  //play_sound("/sounds/correct.wav")
 }
 Ant.prototype.victoryDance = function(){
 	//tweak dance length?
@@ -862,18 +860,15 @@ function drawEdge(edge, paper){
 		var normal = getUnitNormal(edge)
 		var e = paper.path(curve).attr({'stroke-width':5})
 		.transform("...t"+(1*normal[0])+","+(1*normal[1]))
-		if(last_edge_drawn && last_edge_drawn[0][0]) //hack to make sure we don't draw after removing an edge
-			e.insertAfter(last_edge_drawn)
-		else
-			e.toBack();
+		.insertBefore(nodeDivider);//put behind the islands
 		
 		var e2 = paper.path(curve).attr({'stroke-width':5})
 			.transform("...t"+(-1*normal[0])+","+(-1*normal[1]))
 			.insertBefore(e)
 			
-		var stipple = paper.path(getThickPath(edge,5))
-			.attr({'stroke-opacity':0,'fill':'url(/images/game/bridgepattern.png)','fill-opacity':0.2})
-			.insertAfter(e)
+		// var stipple = paper.path(getThickPath(edge,5))
+		// 	.attr({'stroke-opacity':0,'fill':'url(/images/game/bridgepattern.png)','fill-opacity':0.2})
+		// 	.insertAfter(e)
 		
 		var arrow = drawArrow(edge, curve, paper, 2.5)
 		arrow[0].attr({'stroke-linejoin':'round','stroke-opacity':0}).insertAfter(e2)
@@ -905,12 +900,9 @@ function drawEdge(edge, paper){
 		$(selector.node).on("contextmenu", function(e){confirmDestroy(edge);e.preventDefault();});
 		$(selector.node).qtip(help_qtip('Double-click to change direction<br>Right-click to delete'));
 		if(edge.id >= 0) //only if edge exists
-			$([e.node, e2.node, stipple.node]).qtip(edge_qtip(edge))
+			$([e.node, e2.node/*, stipple.node*/]).qtip(edge_qtip(edge))
 		var icon = paper.set() //for storing pieces of the line as needed
-			.push(e, e2, arrow[0], arrow[1], selector, stipple)
-
-		if(edge.id >= 0) //only if edge exists
-			last_edge_drawn = icon
+			.push(e, e2, arrow[0], arrow[1], selector);/*, stipple)*/
 
 		return icon;
 }
@@ -1162,7 +1154,7 @@ var dragmove = function (dx,dy,x,y,event)
 		trans_y = dy-this.oy
     
     if ((islands[now_dragging.node.id].capital || dragged_edges.length > 0) && isOverlapped(now_dragging.icon.getBBox(), sbbb)){
-      trans_y = (sbbb.y+sbbb.height) + (now_dragging.icon.getBBox().height)- now_dragging.node.y; //can't go back once you have an edge or are the capital
+      trans_y = (sbbb.y+sbbb.height) + (now_dragging.icon.getBBox().height/2) - now_dragging.node.y; //can't go back once you have an edge or are the capital
     }
 
 		now_dragging.node.x += trans_x

@@ -57,6 +57,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) }
     end
     
+    # grid_nodes_in_box(@nodes, Vector[0,150], Vector[@width,@height-150])    
     default_layout(@width,@height-100)
   end
 

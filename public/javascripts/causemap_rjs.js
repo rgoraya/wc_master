@@ -17,6 +17,7 @@ var DESEL_OP = 0.4
 //hashes to store the things we've drawn, so we can manipulate them. Keyed by id
 var nodeIcons = {} 
 var edgeIcons = {}
+var nodeDivider = null
 
 var now_detailing = 0 //status variable for what we're currently displaying on hover
 var now_dragging = null //the thing we're dragging
@@ -337,6 +338,8 @@ function drawElements(nodes, edges, paper)
 		var edge = edges[edges['keys'][i]]
 		edgeIcons[edge.id] = drawEdge(edge, paper)
 	}
+
+	nodeDivider = paper.rect(0,0,0,0).hide();
 
 	//draw nodes
 	for(var i=0, len=nodes['keys'].length; i<len; i++){
