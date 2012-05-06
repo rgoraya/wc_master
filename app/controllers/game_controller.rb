@@ -2,7 +2,7 @@ class GameController < ApplicationController
   layout "game_layout" #don't use normal headers and such for now...
 
   @@DEFAULT_WIDTH = 900#900*1.0 #defaults
-  @@DEFAULT_HEIGHT = 500#675*1.0
+  @@DEFAULT_HEIGHT = 600#675*1.0
   # for large map, 900x900 looks good
   @@DEFAULT_BORDER = 50
 

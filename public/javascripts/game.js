@@ -712,7 +712,7 @@ function unpauseAnimations(){
 	}
 	
 	if(notifies==0){
-		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!<br>(you don\'t need to use all the islands)'));
+		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!<br>(you don\'t need to use all the islands)',true));
 		notifies += 1
 	}
 
@@ -770,150 +770,8 @@ function drawInitGame(paper){
 	sendLog(data);
 }
 
-//== Code for select box == 
-
-function organizePages(){
-  for (var i = 0; i < pages.length; i++){
-    for (var j = 0; j < pages[i].length; j++){
-      if (boxNodes.hasOwnProperty(pages[i][j].id)){
-        boxNodes[pages[i][j].id].x = pages[i][j].x;
-        boxNodes[pages[i][j].id].y = pages[i][j].y;
-      }else continue;
-    }
-  }
-  
-  update();
-}
-
-var showNextPage = function(){
-  if (current_page < max_page) current_page++;
-  else current_page = 0;
-  showCurrentPage();
-}
-
-var showPreviousPage = function(){
-  if (current_page > 0) current_page--;
-  else current_page = max_page;
-  showCurrentPage();
-} 
-
-function setupPages(){
-  var arr = [];
-
-  for (var index in boxNodes){ arr.push(boxNodes[index]); }
-
-  arr.sort(function(a,b){
-    if (a.name > b.name) return 1;
-    else if (a.name < b.name) return -1;
-    else return 0;
-  });
-
-  var index = 0;
-  var count = 0;
-  var page = [];
-
-  while(index < arr.length){
-    if (count >= per_page){count = 0; pages.push(page); page = [];}
-    arr[index].x = startBoxTopLeft[0]+startBoxSize[0]/per_page*(count+1/2);
-    arr[index].y = startBoxTopLeft[1]+startBoxSize[1]/3;
-    page.push({id:arr[index].id,x:arr[index].x,y:arr[index].y, name:arr[index].name}); //keep the fixed coordinates 
-    count++;
-    index++;
-  }
-  pages.push(page);
-
-  update();
-
-  current_page = 0;
-  max_page = pages.length-1;
-
-}
-
-function showCurrentPage(){
-  for (var i = 0; i < pages.length; i++){
-    for (var j = 0; j < pages[i].length; j++){
-      if(i == current_page){
-        if (boxNodes.hasOwnProperty(pages[i][j].id)){
-          nodeIcons[pages[i][j].id].show();
-          nodeIcons[pages[i][j].id][3].hide(); //hide the house; WARNING: if the house position in icon changes, change this line
-        } 
-      }else{
-        if (boxNodes.hasOwnProperty(pages[i][j].id)) nodeIcons[pages[i][j].id].hide();
-      } 
-    }
-  }
-}
-
-function isContainedVertically(bbox1, bbox2){ //true if bbox1 is contained vertically within bbox2: --> | (bbox1) |
-  if (bbox1.x > bbox2.x && (bbox1.x+bbox1.width) < (bbox2.x+bbox2.width)) return true;
-  else return false;
-}
-
-function isContainedHorizontally(bbox1, bbox2){ //true if bbox1 is contained horizontally within bbox2: 
-  if (bbox1.y > bbox2.y && (bbox1.y+bbox1.height) < (bbox2.y+bbox2.height)) return true;
-  else return false;
-}
-
-function isOverlapped(bbox1, bbox2){ //for some reason bbox.y2 and bbox.x2 are undefined???
-  if (bbox1.y > (bbox2.y+bbox2.height) || bbox2.y > (bbox1.y+bbox1.height) || bbox1.x > (bbox2.x+bbox2.width) || bbox2.x > (bbox1.x+bbox1.width)) return false;
-  else return true;
-}
-
-function copyBBox(bbox){ //just copy value
-  return {x:bbox.x, y:bbox.y, x2:(bbox.x+bbox.width), y2:(bbox.y+bbox.height), width:bbox.width, height:bbox.height};
-}
-
-function condenseSelectBox(){
-  var arr1 = [];
-  var arr = [];
-
-  for (var index in boxNodes){
-    arr1.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
-    arr.push(boxNodes[index]);
-  }
-
-  arr1.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
-  arr.sort(function(a,b){
-    if (a.name > b.name) return 1;
-    else if (a.name < b.name) return -1;
-    else return 0;
-  });
-
-
-	if(arr.length > 0){
-	  leftMost = boxNodes[arr[0].id];
-	  rightMost = boxNodes[arr[arr.length-1].id];
-
-	  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
-    arr[0].x = arr1[0].x;
-
-	  for(var index = 0; index < arr.length; index++){
-	    if (index < arr.length-1){
-	      arr[index+1].x = arr[index].x + spacing;
-	      arr[index+1].y = arr[index].y;
-	    }
-	  }
-
-    update();
-	}else{ leftMost = null; rightMost = null;}
-}
-
-function update(){ //updates coordinates of nodes in the select box; remember: boxNodes is a copy by value, so changes in boxNodes must be manually reflected back to currNodes and nodeIcons
-  var ox, oy;
-
-  for(var index in boxNodes){
-	  ox = currNodes[index].x;
-	  oy = currNodes[index].y;
-	  currNodes[index].x = boxNodes[index].x;
-	  currNodes[index].y = boxNodes[index].y;
-	  nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
-	}
-}
-
-//== End code for select box ==
-
 function drawClock(){
-	var time = paper.text(30,45,clockTime(clock_count)).attr({
+	var time = paper.text(30,145,clockTime(clock_count)).attr({
 		'font-size':60,
 		'font-family':'Helvetica, Arial, sans-serif',
 		'text-anchor':'start',
@@ -921,7 +779,7 @@ function drawClock(){
 		'stroke':'#fff',
 		'stroke-width':2.5
 	})
-	var label = paper.text(87,87,'until the Causlings\nstart to explore!').attr({
+	var label = paper.text(87,187,'until the Causlings\nstart to explore!').attr({
 		'font-size':13,
 		'font-family':'Helvetica, Arial, sans-serif',
 		'font-weight':'bold',
@@ -1129,6 +987,138 @@ function toggleFullName(node,txt,show){
 /***
  *** MOUSE INTERACTION
  ***/
+
+//== Code for select box == 
+function organizePages(){
+  for (var i = 0; i < pages.length; i++){
+    for (var j = 0; j < pages[i].length; j++){
+      if (boxNodes.hasOwnProperty(pages[i][j].id)){
+        boxNodes[pages[i][j].id].x = pages[i][j].x;
+        boxNodes[pages[i][j].id].y = pages[i][j].y;
+      }else continue;
+    }
+  }
+
+  updateBox();
+}
+var showNextPage = function(){
+  if (current_page < max_page) current_page++;
+  else current_page = 0;
+  showCurrentPage();
+}
+var showPreviousPage = function(){
+  if (current_page > 0) current_page--;
+  else current_page = max_page;
+  showCurrentPage();
+} 
+function setupPages(){
+  var arr = [];
+
+  for (var index in boxNodes){ arr.push(boxNodes[index]); }
+
+  arr.sort(function(a,b){
+    if (a.name > b.name) return 1;
+    else if (a.name < b.name) return -1;
+    else return 0;
+  });
+
+  var index = 0;
+  var count = 0;
+  var page = [];
+
+  while(index < arr.length){
+    if (count >= per_page){count = 0; pages.push(page); page = [];}
+    arr[index].x = startBoxTopLeft[0]+startBoxSize[0]/per_page*(count+1/2);
+    arr[index].y = startBoxTopLeft[1]+startBoxSize[1]/3;
+    page.push({id:arr[index].id,x:arr[index].x,y:arr[index].y, name:arr[index].name}); //keep the fixed coordinates 
+    count++;
+    index++;
+  }
+  pages.push(page);
+
+  updateBox();
+
+  current_page = 0;
+  max_page = pages.length-1;
+
+}
+function showCurrentPage(){
+  for (var i = 0; i < pages.length; i++){
+    for (var j = 0; j < pages[i].length; j++){
+      if(i == current_page){
+        if (boxNodes.hasOwnProperty(pages[i][j].id)){
+          nodeIcons[pages[i][j].id].show();
+          nodeIcons[pages[i][j].id][3].hide(); //hide the house; WARNING: if the house position in icon changes, change this line
+        } 
+      }else{
+        if (boxNodes.hasOwnProperty(pages[i][j].id)) nodeIcons[pages[i][j].id].hide();
+      } 
+    }
+  }
+}
+function isContainedVertically(bbox1, bbox2){ //true if bbox1 is contained vertically within bbox2: --> | (bbox1) |
+  if (bbox1.x > bbox2.x && (bbox1.x+bbox1.width) < (bbox2.x+bbox2.width)) return true;
+  else return false;
+}
+function isContainedHorizontally(bbox1, bbox2){ //true if bbox1 is contained horizontally within bbox2: 
+  if (bbox1.y > bbox2.y && (bbox1.y+bbox1.height) < (bbox2.y+bbox2.height)) return true;
+  else return false;
+}
+function isOverlapped(bbox1, bbox2){ //for some reason bbox.y2 and bbox.x2 are undefined???
+  if (bbox1.y > (bbox2.y+bbox2.height) || bbox2.y > (bbox1.y+bbox1.height) || bbox1.x > (bbox2.x+bbox2.width) || bbox2.x > (bbox1.x+bbox1.width)) return false;
+  else return true;
+}
+function copyBBox(bbox){ //just copy value
+  return {x:bbox.x, y:bbox.y, x2:(bbox.x+bbox.width), y2:(bbox.y+bbox.height), width:bbox.width, height:bbox.height};
+}
+function condenseSelectBox(){
+  var arr1 = [];
+  var arr = [];
+
+  for (var index in boxNodes){
+    arr1.push(boxNodes[index]); //pass by ref; modify arr[index] will modify boxNodes[index]; boxNodes[key] = {id,x,y}
+    arr.push(boxNodes[index]);
+  }
+
+  arr1.sort(function(a,b){return parseInt(a.x)-parseInt(b.x)});
+  arr.sort(function(a,b){
+    if (a.name > b.name) return 1;
+    else if (a.name < b.name) return -1;
+    else return 0;
+  });
+
+
+	if(arr.length > 0){
+	  leftMost = boxNodes[arr[0].id];
+	  rightMost = boxNodes[arr[arr.length-1].id];
+
+	  arr[0].y = startBoxTopLeft[1]+startBoxSize[1]/3;
+    arr[0].x = arr1[0].x;
+
+	  for(var index = 0; index < arr.length; index++){
+	    if (index < arr.length-1){
+	      arr[index+1].x = arr[index].x + spacing;
+	      arr[index+1].y = arr[index].y;
+	    }
+	  }
+
+    updateBox();
+	}else{ leftMost = null; rightMost = null;}
+}
+function updateBox(){ //updates coordinates of nodes in the select box; remember: boxNodes is a copy by value, so changes in boxNodes must be manually reflected back to currNodes and nodeIcons
+  var ox, oy;
+
+  for(var index in boxNodes){
+	  ox = currNodes[index].x;
+	  oy = currNodes[index].y;
+	  currNodes[index].x = boxNodes[index].x;
+	  currNodes[index].y = boxNodes[index].y;
+	  nodeIcons[index].transform("...t"+(currNodes[index].x-ox)+","+(currNodes[index].y-oy));
+	}
+}
+//== End code for select box ==
+
+
 
 //methods to control dragging
 var dragstart = function (x,y,event) 
@@ -1606,7 +1596,7 @@ function help_qtip(msg) {
 }
 
 //a qtip giving the user instructions/feedback. Shows up either above the element or at specified coordinates, immediately when attached.
-function instruction_qtip(msg,x,y){
+function instruction_qtip(msg,below,x,y){
 	// console.log('instruction_qtip')
 	var q = {
 		content:{text: msg},
@@ -1635,6 +1625,15 @@ function instruction_qtip(msg,x,y){
 			effect: function() {$(this).fadeOut(300);}
 		},
 	};
+	if(below){
+		q.position.my = 'top-center';
+		q.position.at = 'bottom-center';
+		q.position.adjust = {y:8};
+		q.style.tip = {
+			width:20,height:10,
+			corner:'top center',
+		};
+	}
 	if(x!=undefined && y!=undefined)
 		q.position = {target:[x,y]};
 	// console.log(q)
@@ -1724,7 +1723,6 @@ function confirmation_qtip(msg, action, below){
 			width:20,height:10,
 			corner:'top center',
 		};
-		
 	}
 	
 	return tip
