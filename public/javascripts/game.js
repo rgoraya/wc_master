@@ -28,11 +28,11 @@ var DEPLOY_TIME = 1
 var SPAWN_TIME = 4
 var PACE_TIME = 120
 var HESITATE_TIME = 20
-if(continuous){ //currently sort of fast, can slow down as we test
-	DEPLOY_TIME = 100*5 
-	SPAWN_TIME = 15*5
-	PACE_TIME = 330*5
-	HESITATE_TIME = 200 //should be 1/2 or 2/3 pace?
+if(continuous){
+	DEPLOY_TIME = 180
+	SPAWN_TIME = 120 //not bad atm, but could be slower
+	PACE_TIME = 1800
+	HESITATE_TIME = 250 //should be 1/2 or 2/3 pace? feels not bad atm
 }
 
 var ARROW_LENGTH = 15 // arrowhead length
@@ -401,18 +401,40 @@ Ant.prototype.randomWalk = function(step){
 Ant.prototype.pace = function(){
 	this.prog += 1
 	//short delay
-	if(this.prog == 5)
-		this.plan = Math.random()*360 //initial spot on the circle stored in plan
+	if(this.prog < 10){}
+	else if(this.prog == 10){
+		this.plan = {x:-10+Math.random()*20, y:6+Math.random()*10}
+	}
 	else if(this.prog >= PACE_TIME) { //give up threshold
 		this.stat = this.SWIMMING
 		this.prog = 0
 		this.icon.attr({'fill':ANT_COLORS.lost})
 		return;
 	}
-	else if(this.prog > 5 && this.prog%15 == 0){ //circle
-		this.pos = {x:islands[this.island].node.x+20*Math.cos(this.prog/150+this.plan), y:islands[this.island].node.y+20*Math.sin(this.prog/150+this.plan)} //get a trajectory and assign it to plan
+	else if(this.prog > 10 && this.prog <= 15){
+		this.pos = {x:this.pos.x+.2*this.plan.x, y:this.pos.y+.2*this.plan.y}
 		this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
 	}
+	else if(this.prog%8==0){
+		this.pos.y += 1; //bounce up
+	}
+	else if(this.prog%4==0){
+		this.pos.y -= 1; //bounce down
+	}
+
+	// if(this.prog == 5)
+	// 	this.plan = Math.random()*360 //initial spot on the circle stored in plan
+	// else if(this.prog >= PACE_TIME) { //give up threshold
+	// 	this.stat = this.SWIMMING
+	// 	this.prog = 0
+	// 	this.icon.attr({'fill':ANT_COLORS.lost})
+	// 	return;
+	// }
+	// else if(this.prog > 5 && this.prog%15 == 0){ //circle
+	// 	this.pos = {x:islands[this.island].node.x+20*Math.cos(this.prog/150+this.plan), y:islands[this.island].node.y+20*Math.sin(this.prog/150+this.plan)} //get a trajectory and assign it to plan
+	// 	this.icon.attr({'cx':this.pos.x, 'cy':this.pos.y})
+	// }
+
 
 	// if(this.prog%PACE_TIME <= PACE_TIME/4 || this.prog%PACE_TIME > 3*PACE_TIME/4){
 	// 	this.pos.x += -1 //pace left
@@ -431,7 +453,7 @@ Ant.prototype.goSwimming = function(){
 		var dx = this.pos.x-islands[this.island].node.x
 		var dy = this.pos.y-islands[this.island].node.y
 		var dist = Math.sqrt(dx*dx+dy*dy)
-		this.plan = {x:dx/dist, y:dy/dist }
+		this.plan = {x:2*dx/dist, y:2*dy/dist }
 		islands[this.island].ants.splice(islands[this.island].ants.indexOf(this),1) //remove from island's list
 	}
 	if(this.prog < 10){
@@ -519,6 +541,9 @@ function beginGame(){
 	if(clock_running)	endClock();
 	clearTheBoard()
 	startAnts(paper)
+
+	if(continuous)
+		$(islands[HOME].icon[5].node).qtip(instruction_qtip('The Causlings have started to explore! Keep building<br>bridges so they can reach all the islands')); //currently attached to the coast (icon[5])
 
 	var data = ["game begun"].join("|");
 	sendLog(data);
@@ -624,7 +649,7 @@ function animateAnts(){
 //clock animations
 function startClock(){
 	clock_running = true;
-	clock_animator = setInterval(clockTick, 1000);
+	// clock_animator = setInterval(clockTick, 1000);
 	
 	var data = ["clock started"].join("|");
 	sendLog(data);
@@ -676,7 +701,7 @@ function unpauseAnimations(){
 	}
 	
 	if(notifies==0){
-		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!<br>(you don\'t need to use all the items)'));
+		$(startBox.node).qtip(instruction_qtip('Drag islands into the Sea for the Causlings to visit!<br>(you don\'t need to use all the islands)'));
 		notifies += 1
 	}
 
@@ -809,7 +834,7 @@ function drawClock(){
 		'stroke':'#fff',
 		'stroke-width':2.5
 	})
-	var label = paper.text(90,87,'until Causlings begin\nto explore!').attr({
+	var label = paper.text(87,87,'until the Causlings\nstart to explore!').attr({
 		'font-size':13,
 		'font-family':'Helvetica, Arial, sans-serif',
 		'font-weight':'bold',
@@ -1591,7 +1616,8 @@ function confirmation_qtip(msg, action, below){
 		hide:{
 			fixed:true,
 			delay: 1000, //doesn't allow us to click to close, but doesn't break either
-			// event:'mousedown',
+			// event:false,
+
 			// target: $(document.body).children().not('.confirm'),
 			//effect: function() {console.log('hiding')}
 		},
