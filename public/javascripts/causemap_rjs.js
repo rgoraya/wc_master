@@ -564,6 +564,3 @@ function hoverEdge(edge){
 		now_detailing == edge.id
 	}
 }
-
-
-

@@ -18,6 +18,10 @@
 	text-decoration:underline;
 }
 
+.howdydo-style img{
+	border: 0px solid #2a231c;
+}
+
 #howdydo-wrapper {
 	overflow: visible;
 	padding: 0;

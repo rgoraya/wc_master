@@ -254,6 +254,7 @@ function initIslands(){
 
 	//set up capital
 	islands[HOME].capital = true
+	islands[HOME].ondeck = false
 	var star = paper.path(starPath).attr({'stroke':'#19140F','stroke-width':1.5})
 		.transform('t'+(islands[HOME].node.x+12)+','+(islands[HOME].node.y-4))
 	islands[HOME].icon.push(star)
@@ -730,12 +731,18 @@ function drawInitGame(paper){
   startBoxSize = [paper_size.width-3, 100];
   startBoxTopLeft = [0,0];
 
-  startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).attr({'stroke':'#000000','stroke-width':1}).toBack();
+  startBox = paper.rect(startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1])
+		.attr({'stroke':'#000000','stroke-width':1}).toBack();
   sbbb = startBox.getBBox();
   paper.image("/images/game/wood_bkgr.png",startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).toBack();
 
   for (var index in nodeIcons){
-      if (isContainedHorizontally({x:currNodes[index].x,y:currNodes[index].y,width:0,height:0}, sbbb)) boxNodes[currNodes[index].id] = {id:currNodes[index].id, name:currNodes[index].name, x:currNodes[index].x, y:currNodes[index].y};
+    if (isContainedHorizontally({x:currNodes[index].x,y:currNodes[index].y,width:0,height:0}, sbbb)) 
+		boxNodes[currNodes[index].id] = {
+			id:currNodes[index].id, name:currNodes[index].name, x:currNodes[index].x, y:currNodes[index].y
+		};
+		else
+			islands[index].ondeck = false
   }
   setupPages();
 	showCurrentPage();
@@ -820,7 +827,7 @@ function drawNode(node, paper){
 		var txtbb = txt.getBBox();
 		var txt_selector = paper.rect(txtbb.x,txtbb.y,txtbb.width,txtbb.height)
 			.attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
-			.hover(function() {toggleFullName(node,txt,true)},function() {toggleFullName(node,txt,false)})
+			// .hover(function() {toggleFullName(node,txt,true)},function() {toggleFullName(node,txt,false)})
 
 		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
 		var house = paper.path(house_path).attr({
@@ -836,7 +843,7 @@ function drawNode(node, paper){
 
 		icon.push(coast,coast_shadow)
 		coast.mouseover(function() {this.node.style.cursor='crosshair';})
-		.mousedown(function(e) {now_building = {start_node:node};})
+		.mousedown(function(e) {if(!islands[node.id].ondeck) now_building = {start_node:node};}) //only if not on deck
 		.undrag()
 		coast.drag(buildmove, buildstart, buildend)
 
@@ -1124,7 +1131,8 @@ function updateBox(){ //updates coordinates of nodes in the select box; remember
 var dragstart = function (x,y,event) 
 {
 	if(now_dragging) {
-		now_dragging.start_in_box = isOverlapped(nodeIcons[now_dragging.node.id].getBBox(),sbbb);//(now_dragging.node.y > startBoxTopLeft[1])
+		now_dragging.start_in_box = islands[now_dragging.node.id].ondeck
+		 //isOverlapped(nodeIcons[now_dragging.node.id].getBBox(),sbbb);//(now_dragging.node.y > startBoxTopLeft[1])
 		this.ox = 0;
 		this.oy = 0;
 
@@ -1191,16 +1199,22 @@ var dragend = function (x,y,event)
 		edgeIcons[dragged_edges[i].id].remove()
 		edgeIcons[dragged_edges[i].id] = drawEdge(dragged_edges[i], paper)
 	}
-  if (isOverlapped(now_dragging.icon.getBBox(), sbbb)){ //dropped in the box
-		if(!now_dragging.start_in_box)
-			toggleFullName(now_dragging.node,now_dragging.icon[1],true)
+  if(isOverlapped(now_dragging.icon.getBBox(), sbbb)){ //dropped in the box
+		islands[now_dragging.node.id].ondeck = true
+
+		//just always show full name for now
+		// if(!now_dragging.start_in_box)
+		// 	toggleFullName(now_dragging.node,now_dragging.icon[1],true)
 
     organizePages();
     showCurrentPage();
 
-	}else {
-		if(now_dragging.start_in_box)
-			toggleFullName(now_dragging.node,now_dragging.icon[1],false)
+	}
+	else {
+		islands[now_dragging.node.id].ondeck = false
+
+		// if(now_dragging.start_in_box)
+		// 	toggleFullName(now_dragging.node,now_dragging.icon[1],false)
 
     if (now_dragging.start_in_box){ //dropped out of the box
       organizePages();
@@ -1221,7 +1235,7 @@ var dragend = function (x,y,event)
 var buildstart = function (x,y,event) 
 {
 	// console.log("buildstart",x,y, event)
-	if(now_building) { //make sure we clicked something
+	if(now_building) { //make sure we clicked something, that wasn't on deck
 		now_building.target_node = {id:-1, x:x-CANVAS_OFFSET.left, y:y-CANVAS_OFFSET.top} //where we're drawing to, relative to canvas
 		now_building.edge = {id:-1, a:now_building.start_node, b:now_building.target_node, reltype:1, n:0} //the edge we're making
 
@@ -1229,37 +1243,36 @@ var buildstart = function (x,y,event)
 		// paper.circle(x,y,5)
 		this.ox = 0;
 		this.oy = 0;
+
+		var data = ["buildStart",["start_node.id",now_building.start_node.id,"start_node.name",now_building.start_node.name,"edge.reltype",now_building.edge.reltype].join(":")].join("|");
+		//console.log(data);
+		sendLog(data);
 	}
-
-	var data = ["buildStart",["start_node.id",now_building.start_node.id,"start_node.name",now_building.start_node.name,"edge.reltype",now_building.edge.reltype].join(":")].join("|");
-	//console.log(data);
-	sendLog(data);
-
 };
 var buildmove = function (dx,dy,x,y,event) 
 {
 	// console.log("buildmove",dx,dy,x,y,event)
-	if(now_building && !isOverlapped(nodeIcons[now_building.start_node.id].getBBox(),sbbb)) {
+	if(now_building) {
 		now_building.target_node.x = x-CANVAS_OFFSET.left //don't forget the offset to bring mouse in line!
 		now_building.target_node.y = y-CANVAS_OFFSET.top
-
-    if (isContainedHorizontally({x:now_building.target_node.x,y:now_building.target_node.y,width:0,height:0},sbbb)) now_building.target_node.y = sbbb.y+sbbb.height; //you shall not pass... the box's top edge!
 
 		now_building.selected_node = null;
 		
 		//snap to targets!!
 		for(var i=0, len=currNodes['keys'].length; i<len; i++){
 			var node = currNodes[currNodes['keys'][i]] //easy access
-			var icon = nodeIcons[node.id]
-			var bb = icon[4].getBBox() //compare to the bounding box of whole icon (coast is [4] atm)
-			if(	now_building.start_node != node &&
-					now_building.target_node.x > bb.x && now_building.target_node.x < bb.x+bb.width &&
-					now_building.target_node.y > bb.y && now_building.target_node.y < bb.y+bb.height ){ //if inside the bounding box
-				// console.log("snapped to",node.name)
-				now_building.target_node.x = node.x
-				now_building.target_node.y = node.y
-				now_building.selected_node = node //store who we've 'selected'
-				break
+			if(!islands[node.id].ondeck){
+				var icon = nodeIcons[node.id]
+				var bb = icon[4].getBBox() //compare to the bounding box of whole icon (coast is [4] atm)
+				if(	now_building.start_node != node &&
+						now_building.target_node.x > bb.x && now_building.target_node.x < bb.x+bb.width &&
+						now_building.target_node.y > bb.y && now_building.target_node.y < bb.y+bb.height ){ //if inside the bounding box
+					// console.log("snapped to",node.name)
+					now_building.target_node.x = node.x
+					now_building.target_node.y = node.y
+					now_building.selected_node = node //store who we've 'selected'
+					break
+				}
 			}
 		}
 		
@@ -1307,8 +1320,6 @@ var buildend = function (x,y,event)
 			//set up the icon
 			now_building.icon.remove() //remove our building icon
 			edgeIcons[edge.id] = drawEdge(edge, paper) //redraw with the correct edge associated
-			// $(icon[0].node).qtip(edge_qtip_small(edge))
-			// $(icon[3].node).qtip(edge_selector_qtip(edge)); //add handlers
 
 			//figure out if we need to adjust the 'n'
 			var tobend = []
@@ -1345,17 +1356,17 @@ var buildend = function (x,y,event)
 		else {
 			now_building.icon.remove() //remove the icon, cause we didn't select anything
 		}
+
+		var data = ["buildEnd",["edge.id",now_building.edge.id,"edge.name",now_building.edge.name,"edge.a",now_building.edge.a.id,"edge.b",now_building.edge.b.id,"edge.reltype",now_building.edge.reltype,"edge.expandable",now_building.edge.expandable,"edge.n", now_building.edge.n].join(":")].join("|");
+		//console.log(data);
+		sendLog(data);
+
+		if(currEdges['keys'].length > 0) //turn on run button if we have some edges now
+			$('#run_button').removeAttr('disabled');	
+
+		//reset variables
+		now_building = null
 	}
-
-	var data = ["buildEnd",["edge.id",now_building.edge.id,"edge.name",now_building.edge.name,"edge.a",now_building.edge.a.id,"edge.b",now_building.edge.b.id,"edge.reltype",now_building.edge.reltype,"edge.expandable",now_building.edge.expandable,"edge.n", now_building.edge.n].join(":")].join("|");
-	//console.log(data);
-	sendLog(data);
-
-	if(currEdges['keys'].length > 0) //turn on run button if we have some edges now
-		$('#run_button').removeAttr('disabled');	
-
-	//reset variables
-	now_building = null
 };
 
 function destroyEdge(edge) {
