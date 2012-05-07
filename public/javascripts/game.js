@@ -31,9 +31,9 @@ if(continuous){
 	DEPLOY_TIME = 150
 	SPAWN_TIME = 120 //not bad atm, but could be slower
 	PACE_TIME = 750 //note they never actually fall off at the current rates...
-	HESITATE_TIME = 200 //or 250?
+	HESITATE_TIME = 100 //or 250?
 }
-var MAX_SPAWN = 20
+var MAX_SPAWN = 5
 
 var ARROW_LENGTH = 15 // arrowhead length
 var ARROW_HEIGHT = 12 // arrowhead height
@@ -563,7 +563,9 @@ function clearTheBoard(){
 	for(i in islands){ //reset the islands
 		islands[i].reset()
 		if(!continuous)
-			islands[i].max_spawn = islands[i].bridges.length*3		
+			islands[i].max_spawn = islands[i].bridges.length*3;
+		else
+			islands[i].max_spawn += islands[i].bridges.length;
 	}
 
 	islands[HOME].activate() //open the home island
@@ -824,7 +826,7 @@ function drawNode(node, paper){
 		_textWrapp(txt,50) //default to showing all text, wrapped
 		var txtbb = txt.getBBox();
 		var txt_selector = paper.rect(txtbb.x,txtbb.y,txtbb.width,txtbb.height)
-			.attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0})
+			.attr({'fill':'#00ff00', 'opacity':0.0, 'stroke-width':0}).hide()
 			// .hover(function() {toggleFullName(node,txt,true)},function() {toggleFullName(node,txt,false)})
 
 		var house_path = 'M'+node.x+','+node.y+'m0,-7 l6,6 l0,7 l-12,0 l0,-7 z'
@@ -1341,6 +1343,9 @@ var buildend = function (x,y,event)
 
 			islands[edge.a.id].updateEdges() //update the edges for the islands -- AFTER we've cleared the board and launched the game
 			islands[edge.b.id].updateEdges()
+			islands[edge.a.id].max_spawn += 1
+			islands[edge.b.id].max_spawn += 1
+			
 			islands[edge.a.id].deploy_timer = DEPLOY_TIME
 			islands[edge.b.id].deploy_timer = DEPLOY_TIME
 
@@ -1520,7 +1525,7 @@ function getScoreBoard(){
 		"<tr><td class='item'>Islands visited:</td><td class='score'>"+activated+" ("+Math.round(100*activated/total_islands)+"%)</td></tr>"+
 		"<tr><td class='item'>Causlings settled:</td><td class='score'>"+settled+" ("+Math.round(100*settled/total_ants)+"%)</td></tr>"+
 		"<tr><td class='item'>Mortality rate:</td><td class='score'>"+Math.round(100*dead/total_ants)+"%</td></tr>"+
-		"<tr><td class='item'>Final score:</td><td class='score'>"+rubric+" pts</td></tr>"+
+		"<tr><td class='item'>Final score:</td><td class='score'>"+(rubric*10)+" pts</td></tr>"+
 		"</table>"+
 		
 		//add in form button temporarily
