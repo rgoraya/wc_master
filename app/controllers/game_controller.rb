@@ -60,6 +60,8 @@ class GameController < ApplicationController
 	end
 
   def research
+    @ref = params[:ref]
+    session[:ref] = @ref
     @game_user = session[:game_user] || params[:player] || rand(1000000000)
     session[:game_user] = @game_user
     puts @game_user
