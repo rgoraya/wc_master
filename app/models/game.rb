@@ -41,8 +41,8 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     #testing
     #@edges[1] = Graph::Edge.new(1, @nodes[0], @nodes[3], MapvisualizationsHelper::INCREASES)
 
-    @nodes[@home].location = Vector[@width/2, (@height-150)/2] #pull out Samaki Population and center
-    grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[-20, @height-100+50],Vector[@width, 100],Vector[100,0]) #hard-coded starting box
+    @nodes[@home].location = Vector[@width/2, (@height)/2] #pull out Samaki Population and center
+    grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[-20, -50],Vector[@width, 100],Vector[100,0]) #hard-coded starting box
   end
 
   def show_expert_graph(num)
@@ -57,6 +57,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
       EXPERT_GRAPHS[num].each_with_index {|(key, value), i| @edges[i] = Graph::Edge.new(i, @nodes[key[0]-1], @nodes[key[1]-1], (value > 0 ? MapvisualizationsHelper::INCREASES : MapvisualizationsHelper::DECREASES)) }
     end
     
+    # grid_nodes_in_box(@nodes, Vector[0,150], Vector[@width,@height-150])    
     default_layout(@width,@height-100)
   end
 
@@ -309,7 +310,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     'Bad weather',
     'Amount of samaki caught',
     'Coastal water quality',
-    'Cost per unit catch',
+    'Cost of samaki per unit catch',
     'Society Affluence',
     'Demand for farm-raised fish feed (aquaculture)',
     ' ',

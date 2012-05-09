@@ -14,15 +14,15 @@ module GameHelper
     
     var myPaper, paper, paper_size;
     var CANVAS_OFFSET;
-    window.onload = function(){
-    	canvas_container = $('#canvas_container').get(0);
+    $(document).ready(function(){
+    	var canvas_container = $('#canvas_container').get(0);
     	paper = myPaper = new Raphael(canvas_container, canvas_container.offsetWidth, canvas_container.offsetHeight); //graphics context
     	paper_size = {width:canvas_container.offsetWidth, height:canvas_container.offsetHeight};
-    	CANVAS_OFFSET = $(this.paper.canvas).parent().offset(); 
+    	CANVAS_OFFSET = $(paper.canvas).parent().offset(); 
       drawElements(currNodes, currEdges, myPaper); //call draw on the nodes. These are the ones defined in the helper
       drawInitGame(myPaper);
       initIslands();
-    }"
+    });"
   end
 
   def javascript_ants
