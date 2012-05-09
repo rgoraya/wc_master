@@ -1,8 +1,12 @@
 :css
   #container {background-image: url('/images/game/welcome_background.png');}
-#howtoplay
-  %p.title Causal Bridges<br><i>(or How to Help the Causlings!)</i>
 
+
+#how_to_play_header
+  %p#how_to_play_header_text
+    Causal Bridges & How to Help the Causlings
+
+#how_to_play_body
   %p Causlings are only able to cross <strong>causal bridges</strong>. So what is a causal bridge?
   %p Say that we have two islands. Island 1 has the controlling concept "Number of People Who Watch a TV Show," and Island 2 has the controlling concept "Number of People Who Talk About the Show Later"
   / %p
@@ -10,13 +14,13 @@
   /     = image_tag("game/howto-islands.png")    
   %p There are 3 different possible relationships between these concepts, each with a corresponding bridge:
   %p 
-    1. An increase in Island 1's concept causes an increase in Island 2's concept 
+    1. An increase in Island 1's concept causes an increase in Island 2's concept<br><br> 
     = image_tag("game/howto-plus_arrow.png", :size=>'240x90')
   %p 
-    2. An increase in Island 1's concept causes a decrease in Island 2's concept 
+    2. An increase in Island 1's concept causes a decrease in Island 2's concept<br><br> 
     = image_tag("game/howto-minus_arrow.png", :size=>'240x90')
   %p 
-    3. An increase in Island 1's concept does not directly affect Island 2's concept 
+    3. An increase in Island 1's concept does not directly affect Island 2's concept<br><br> 
     = image_tag("game/howto-no_arrow.png", :size=>'240x90')
   %p 
     Since the first relationship fits best (the more people who watch a show, the more people who will talk about it afterwards), that is the bridge we would want to build.
@@ -42,9 +46,12 @@
     %strong Remember: there is no limit to the number of bridges you can build.
     Just be careful to make bridges that reflect actual cause-and-effect relationships, so that the Causlings will be able to cross them!
 
+#welcome_button
+  %a{:href => "/game/article"}
+    %img.welcome_button{:alt => "", :src => "/images/game/welcome_button.png"}/
+    #welcome_button_label 
+      %p
+        Tell me more...
 
-%a{:href => "/game/article"}
-  %img#welcome_button{:alt => "", :src => "/images/game/welcome_button.png"}/
-  %p#welcome_button_label Learn about the island's concepts!
+%small Description from Plate 2006
 
-%small Description from Plate 2006.
