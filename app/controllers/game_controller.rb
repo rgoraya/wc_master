@@ -29,7 +29,7 @@ class GameController < ApplicationController
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
 
-    @continuous = params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
+    @continuous = true #params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
 
     respond_to do |format|
       format.html do #on html calls

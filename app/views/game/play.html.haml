@@ -42,9 +42,10 @@
       #title_game
         %img{:src => '/images/game/title_game.png'}
       #go_buttons
-        %button{:id => 'run_button'}
-          RELEASE THE<br>CAUSLINGS!
-        / %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
+        -if not @continuous
+          %button{:id => 'run_button'}
+            RELEASE THE<br>CAUSLINGS!
+          / %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
         %button{:id => 'article_button'}
           ABOUT THE<br>SAMAKI
         / %a{:href => "/documents/quickhelp.html", :title => "How to Play", :class => "colorbox_popup"}            
