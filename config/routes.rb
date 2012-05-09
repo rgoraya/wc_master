@@ -11,6 +11,7 @@ Wikicausality::Application.routes.draw do
   match 'game/research' => 'game#research'
   match 'game/research/survey' => 'game#survey_demographic'
   match 'game/research/evaluation' => 'game#survey_evaluation'
+  match 'game/research/thanks' => 'game#thank_you'
   resources :game
   match 'mapvisualizations/search_bars' => 'mapvisualizations#search_bars'
   match 'mapvisualizations/qtip' => 'mapvisualizations#qtip'
