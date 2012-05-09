@@ -14,8 +14,8 @@
 div#contentwrapper{
   background-image: url('/images/game/wood_1.png');
 	margin-top:10px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: 15px;
+  padding-bottom: 15px;
   overflow: visible;
   -moz-box-shadow:    2px 2px 4px 4px #ccc;
   -webkit-box-shadow: 2px 2px 4px 4px #ccc;
@@ -36,9 +36,8 @@ div#game_box{
   float: center;
 }
 
-#bottom_bar{
-  margin-top: 10px;
-  height: auto;
+#button_bar{
+  margin-top: 0px;
 }
 
 #title_game{
@@ -95,7 +94,7 @@ button[disabled]:hover{
 	font: normal 16px "lucida grande",tahoma,verdana,arial,sans-serif;
 	display:none;
 	width:300px;
-	height:110px;
+	height:125px;
 	text-align:center;
 	color: #ffffff;
 	background-color:#434343;
@@ -107,7 +106,7 @@ button[disabled]:hover{
 	/* Positioning */
 	position: fixed; 
 	z-index:2;
-	top: 3px; 
+	top: 23px; 
 	left: 50%;
 	margin-left: -140px;
 	/* shadows */
@@ -172,6 +171,7 @@ button[disabled]:hover{
 	text-transform:uppercase;	
 	border-width: 3px;
 	max-width:none;
+	text-align:center;
 }
 
 .confirm-tip {max-width:none;}
@@ -179,16 +179,22 @@ button[disabled]:hover{
 	font-size:14px;
 	text-transform:uppercase;	
 	border-width: 0px;
+	padding-top:5px;
+	padding-bottom:0px;
+	vertical-align:sub;
 }
 
 .confirm {
 	color:#175714;
 	background-color:#fefbec;
-	padding:10px;
+	float:right;
+	padding:5px;
+	margin-top:-5px;
 	margin-left:5px;
 	margin-right:-10px;
 	cursor:pointer;
 	font-weight:bold;
+
 }
 .confirm:hover{
 	color:#093907;
@@ -219,9 +225,13 @@ button[disabled]:hover{
 
 /*INSTRUCTIONS*/
 
+a {
+	text-decoration: none;
+}
+
 #instructionscontainer {
 	position: relative;
-	margin: 0100px auto 0;
+	margin: 0px auto 0;
 	width: 770px;
 	height: 410px;
 	background-color: rgb(247, 248, 246);
@@ -337,9 +347,6 @@ button[disabled]:hover{
 
 /*WELCOME PAGE*/
 
-a {
-	text-decoration: none;
-}
 
 #welcome_title_container {
 	width: 900px;

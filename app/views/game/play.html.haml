@@ -3,7 +3,7 @@
 = stylesheet_link_tag "howdydo-bar"
 -#set the size of the canvas to draw on to be the one defined in the controller
 :css
-  #bottom_bar {width: #{@default_width+2*@default_border}px;}
+  #button_bar {width: #{@default_width+2*@default_border}px;}
   #vis_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
   #canvas_container {width: #{@default_width+2*@default_border}px; height: #{@default_height+2*@default_border}px;}
 
@@ -29,31 +29,32 @@
 #contentwrapper
   #eval_notification{:style=>"display:none"}
     = link_to_function "When finished, click here to evaluate the Causlings game!", "$('#goto_eval_form').submit();"
-    = form_tag({:action => "survey_evaluation"},{:id=>"goto_eval_form", :method => 'post'}) do
-      = hidden_field_tag :game_user, @game_user
+    = form_tag({:action => "survey_evaluation"},{:id=>"goto_eval_form", :method => 'post', :target => "_blank"}) do
+      = hidden_field_tag :player, @game_user
   .game_box
     #score_notice
       #score_content
         Calculating score...
-      .closebutton{:style=>"float:right;width:15px;position:relative;top:-10px"}
-        %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
+      / .closebutton{:style=>"float:right;width:15px;position:relative;top:-10px"}
+      /   %img{:border =>'0', :src=>'/images/system/close.png', :alt=>'close button', :width=>'15', :height=>'15'}
       .clearboth
-    #vis_container
-      #canvas_container
-    .clearboth
-    #bottom_bar
+    #button_bar
       #title_game
         %img{:src => '/images/game/title_game.png'}
       #go_buttons
-        %button{:id => 'run_button'}
-          RELEASE THE<br>CAUSLINGS!
-        / %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
+        -if not @continuous
+          %button{:id => 'run_button'}
+            RELEASE THE<br>CAUSLINGS!
+          / %a{:href => "/documents/samakiarticle.html", :title => "About the Samaki", :class => "colorbox_popup" }
         %button{:id => 'article_button'}
           ABOUT THE<br>SAMAKI
         / %a{:href => "/documents/quickhelp.html", :title => "How to Play", :class => "colorbox_popup"}            
         %button{:id => 'help_button', :style=>"width:100px;"}
           HELP
       .clearboth
+    #vis_container
+      #canvas_container
+    .clearboth
 .clearboth
 
 #tmp

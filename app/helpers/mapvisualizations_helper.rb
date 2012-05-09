@@ -97,11 +97,11 @@ module MapvisualizationsHelper
     var compact = #{compact.to_s} //for compact drawing; can also pass as a variable if we want
     
     var myPaper, paper
-      window.onload = function(){
-    	canvas_container = $('#canvas_container').get(0);
+    $(document).ready(function(){
+    	var canvas_container = $('#canvas_container').get(0);
     	paper = myPaper = new Raphael(canvas_container, canvas_container.offsetWidth, canvas_container.offsetHeight) //graphics context
       drawElements(currNodes, currEdges, myPaper) //call draw on the nodes. These are the ones defined in the helper
-    }"
+    });"
   end
 
 end
