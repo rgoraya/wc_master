@@ -19,7 +19,7 @@ var ant_anim_count;
 var clock;
 var clock_running = false;
 var clock_animator;
-var clock_count = 180; //how many seconds on the clock initially
+var clock_count = 3;//180; //how many seconds on the clock initially
 var notifies = 0
 
 //timer constants
@@ -54,6 +54,7 @@ var current_page;
 var max_page; //min page starts at 0
 var leftArrow;
 var rightArrow;
+var sbb_page_num;
 
 //not used as often
 var leftMost;
@@ -694,15 +695,11 @@ function clockTime(secs){
 	else if(sec < 10) sec = '0'+sec
 	return min+':'+sec
 }
-
-function pauseAnimations(box){
+function pauseAnimations(){
 	if(game_running)
 		clearInterval(ant_animator)
 	if(clock_running)
 		clearInterval(clock_animator)
-
-	var data = ["viewing "+box].join("|");
-	sendLog(data);
 }
 function unpauseAnimations(){
 	if(game_running)
@@ -720,6 +717,16 @@ function unpauseAnimations(){
 	var data = ["game resumed"].join("|");
 	sendLog(data);
 }
+function clickArticle(){
+	pauseAnimations();
+	var data = ["viewing article"].join("|");
+	sendLog(data);
+}
+function clickHelp(){
+	pauseAnimations();
+	var data = ["viewing help"].join("|");
+	sendLog(data);
+}
 
 
 /***
@@ -735,6 +742,8 @@ function drawInitGame(paper){
 		.attr({'stroke':'#000000','stroke-width':1}).toBack();
   sbbb = startBox.getBBox();
   paper.image("/images/game/wood_bkgr.png",startBoxTopLeft[0],startBoxTopLeft[1],startBoxSize[0],startBoxSize[1]).toBack();
+	
+	sbb_page_num = paper.text(970, 15 ,'Page 5').attr({'fill': '#fff', 'font-size':10.5, 'font-weight':'bold'});
 
   for (var index in nodeIcons){
     if (isContainedHorizontally({x:currNodes[index].x,y:currNodes[index].y,width:0,height:0}, sbbb)) 
@@ -1056,6 +1065,7 @@ function showCurrentPage(){
       } 
     }
   }
+	sbb_page_num.attr('text','page '+(current_page+1)+'/'+pages.length);
 }
 function isContainedVertically(bbox1, bbox2){ //true if bbox1 is contained vertically within bbox2: --> | (bbox1) |
   if (bbox1.x > bbox2.x && (bbox1.x+bbox1.width) < (bbox2.x+bbox2.width)) return true;
@@ -1528,10 +1538,13 @@ function getScoreBoard(){
 		"<tr><td class='item'>Final score:</td><td class='score'>"+(rubric*10)+" pts</td></tr>"+
 		"</table>"+
 		
-		//add in form button temporarily
+		// form buttons for interaction; could probably be links or something for more style
 		"<form action='/game/play' method='post' style='display:inline'>"+
 		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
-		"<input type='submit' value='Play again?' style='margin-top:5px;'/></form>"
+		"<input type='submit' value='Play again?' style='margin-top:5px;;margin-right:20px;'/></form>"+
+		"<form action='/game/research/evaluation' method='post' style='display:inline'>"+
+		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
+		"<input type='submit' value='Evaluate Game!' style='margin-top:5px'/></form>"
 
 	var data = ["final score",["islands activated",activated,"ants settled",settled,"ants dead",dead,"total ants",total_ants,"rubric score",rubric].join(":")].join("|");
 	sendLog(data);
@@ -1626,7 +1639,7 @@ function instruction_qtip(msg,below,x,y){
 		},
 		hide:{
 			// event:'click mousemove',
-			// delay:1000, //after doing something, wait a tick
+			delay:1000, //after doing something, wait a tick
 			event: 'mousedown',
 			target: $(document.body).children(),
 			inactive: 3000,
@@ -1806,7 +1819,7 @@ $(document).ready(function(){
 		width:850, height:600,
 		initialWidth:810, initialHeight:530,
 		transition:'none',
-		onOpen:pauseAnimations('article'),
+		onOpen:clickArticle,
 		onClosed:unpauseAnimations,
 	});
 
@@ -1815,7 +1828,7 @@ $(document).ready(function(){
 		width:820, height:480, 
 		initialWidth:780, initialHeight:410, 
 		transition:'none',
-		onOpen:pauseAnimations('help'),
+		onOpen:clickHelp,
 		onClosed:unpauseAnimations,
 		open:true, //uncomment to show on first load
 	});
