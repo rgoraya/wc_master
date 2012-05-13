@@ -19,7 +19,7 @@ var ant_anim_count;
 var clock;
 var clock_running = false;
 var clock_animator;
-var clock_count = 3;//180; //how many seconds on the clock initially
+var clock_count = 180; //how many seconds on the clock initially
 var notifies = 0
 
 //timer constants
@@ -556,7 +556,7 @@ function beginGame(){
 	if(continuous)
 		$(islands[HOME].icon[5].node).qtip(instruction_qtip('The Causlings have started to explore! Keep building<br>bridges so they can reach all the islands')); //currently attached to the coast (icon[5])
 
-	var data = ["game begun"].join("|");
+	var data = "ANTS_STARTED|mode:"+(continuous ? 'continuous' : 'discrete')
 	sendLog(data);
 }
 //removes all the ants, resets the islands
@@ -614,7 +614,7 @@ function endAnts() {
   game_running = false;
 	// showEvalNotification(true);
 
-	var data = ["game finished"].join("|");
+	var data = "ANTS_FINISHED";
 	sendLog(data);
 }
 //the ant animation
@@ -664,7 +664,7 @@ function startClock(){
 	clock_running = true;
 	// clock_animator = setInterval(clockTick, 1000);
 	
-	var data = ["clock started"].join("|");
+	var data = "CLOCK_STARTED";
 	sendLog(data);
 }
 function endClock(){
@@ -714,17 +714,17 @@ function unpauseAnimations(){
 		notifies += 1
 	}
 
-	var data = ["game resumed"].join("|");
+	var data = "GAME_RESUMED";
 	sendLog(data);
 }
 function clickArticle(){
 	pauseAnimations();
-	var data = ["viewing article"].join("|");
+	var data = "GAME_PAUSED|viewing:article";
 	sendLog(data);
 }
 function clickHelp(){
 	pauseAnimations();
-	var data = ["viewing help"].join("|");
+	var data = "GAME_PAUSED|viewing:help";
 	sendLog(data);
 }
 
@@ -782,7 +782,7 @@ function drawInitGame(paper){
 		startClock();
 	}
 
-	var data = ["initialized game"].join("|");
+	var data = "GAME_INITIALIZED|mode:"+(continuous ? 'continuous' : 'discrete')
 	sendLog(data);
 }
 
@@ -1226,8 +1226,7 @@ var dragend = function (x,y,event)
     }
 	}
 
-	var data = ["dragEnd",["node.id",now_dragging.node.id,"node.name",now_dragging.node.name,"node.x",now_dragging.node.x,"node.y",now_dragging.node.y,"node.url",now_dragging.node.url,"node.h",now_dragging.node.h].join(":")].join("|");
-	//console.log(data);
+	var data = "NODE_MOVED|"+ ["id:"+now_dragging.node.id, "name:"+now_dragging.node.name, "x:"+now_dragging.node.x,"y:"+now_dragging.node.y].join(";");
 	sendLog(data);
 
 	//reset variables
@@ -1248,9 +1247,8 @@ var buildstart = function (x,y,event)
 		this.ox = 0;
 		this.oy = 0;
 
-		var data = ["buildStart",["start_node.id",now_building.start_node.id,"start_node.name",now_building.start_node.name,"edge.reltype",now_building.edge.reltype].join(":")].join("|");
-		//console.log(data);
-		sendLog(data);
+		// var data = "EDGE_STARTED|"+ ["from_id:"+now_building.start_node.id, "from_name:"+now_building.start_node.name].join(";");
+		// sendLog(data);
 	}
 };
 var buildmove = function (dx,dy,x,y,event) 
@@ -1364,8 +1362,7 @@ var buildend = function (x,y,event)
 			now_building.icon.remove() //remove the icon, cause we didn't select anything
 		}
 
-		var data = ["buildEnd",["edge.id",now_building.edge.id,"edge.name",now_building.edge.name,"edge.a",now_building.edge.a.id,"edge.b",now_building.edge.b.id,"edge.reltype",now_building.edge.reltype,"edge.expandable",now_building.edge.expandable,"edge.n", now_building.edge.n].join(":")].join("|");
-		//console.log(data);
+		var data = "EDGE_CREATED|"+ ["id:"+now_building.edge.id, "name:"+now_building.edge.name, "a_id:"+now_building.edge.a.id, "b_id:"+now_building.edge.b.id].join(";")
 		sendLog(data);
 
 		if(currEdges['keys'].length > 0) //turn on run button if we have some edges now
@@ -1377,7 +1374,7 @@ var buildend = function (x,y,event)
 };
 
 function destroyEdge(edge) {
-	var data = ["destroyEdge",["edge.id",edge.id,"edge.name",edge.name,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n", edge.n].join(":")].join("|");
+	var data = "EDGE_DESTROYED|"+ ["id:"+edge.id, "name:"+edge.name, "a_id:"+edge.a.id, "b_id:"+edge.b.id, "reltype:"+edge.reltype].join(";")
 	sendLog(data);
 
 	var key = edge.id //edge.a.id+(parseInt(edge.reltype)&INCREASES ? 'i' : 'd')+edge.b.id //the key we should have constructed
@@ -1462,8 +1459,8 @@ function alterEdge(e, new_reltype, reverse){
 	edgeIcons[edge.id].remove() //remove old icon
 	edgeIcons[edge.id] = drawEdge(edge,paper)
 
-	var data = ["alterEdge",["edge.id",e.id,"edge.a.before",old_a.id,"edge.b.before",old_b.id,"edge.reltype.before",old_reltype,"edge.a",edge.a.id,"edge.b",edge.b.id,"edge.reltype",edge.reltype,"edge.expandable",edge.expandable,"edge.n",edge.n].join(":")].join("|");
-	//console.log(data);
+	var data = "EDGE_CHANGED|"+ ["id:"+edge.id, "name:"+edge.name, "a_id:"+edge.a.id, "b_id:"+edge.b.id, "reltype:"+edge.reltype,
+"old_a_id:"+old_a.id, "old_b_id:"+old_b.id, "old_reltype:"+old_reltype].join(";");
 	sendLog(data);
 
 	$('.qtip.ui-tooltip').qtip('hide');	
@@ -1542,11 +1539,11 @@ function getScoreBoard(){
 		"<form action='/game/play' method='post' style='display:inline'>"+
 		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
 		"<input type='submit' value='Play again?' style='margin-top:5px;;margin-right:20px;'/></form>"+
-		"<form action='/game/research/evaluation' method='post' style='display:inline'>"+
+		"<form action='/game/research/evaluation' method='post' style='display:inline' target='_blank'>"+
 		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
 		"<input type='submit' value='Evaluate Game!' style='margin-top:5px'/></form>"
 
-	var data = ["final score",["islands activated",activated,"ants settled",settled,"ants dead",dead,"total ants",total_ants,"rubric score",rubric].join(":")].join("|");
+	var data = "FINAL_SCORE|"+["islands_activated:"+activated, "ants_settled:"+settled, "ants_dead:"+dead, "total_ants:"+total_ants, "rubric_score:"+rubric].join(";");
 	sendLog(data);
 
 	return out;
@@ -1832,6 +1829,13 @@ $(document).ready(function(){
 		onClosed:unpauseAnimations,
 		open:true, //uncomment to show on first load
 	});
+
+	window.onbeforeunload = function (e) {
+		var str = 'You will lose all progress if you leave the game.';
+    var e = e || window.event;
+    if (e) {e.returnValue = str;}
+    return str;
+	};	
 	  
 });
 
