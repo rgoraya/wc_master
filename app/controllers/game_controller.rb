@@ -2,7 +2,7 @@ class GameController < ApplicationController
   layout "game_layout" #don't use normal headers and such for now...
 
   @@DEFAULT_WIDTH = 900#900*1.0 #defaults
-  @@DEFAULT_HEIGHT = 600#675*1.0
+  @@DEFAULT_HEIGHT = 800#675*1.0
   # for large map, 900x900 looks good
   @@DEFAULT_BORDER = 50
 
@@ -29,7 +29,7 @@ class GameController < ApplicationController
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
 
-    @continuous = true #params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
+    @continuous = params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
 
     respond_to do |format|
       format.html do #on html calls
@@ -53,7 +53,7 @@ class GameController < ApplicationController
   end
 
 	def log
-	  entry = [params[:player],DateTime.current.strftime("%Y%m%d%H%M%S%L"),params[:data]].join("|")
+	  entry = [DateTime.current.strftime("%Y%m%d%H%M%S%L"),params[:player],params[:data]].join("|")
 	  puts entry
 		@@GAME_LOG.info(entry)
 		render :nothing => true
@@ -89,7 +89,6 @@ class GameController < ApplicationController
     session[:game_user] = @game_user
     puts @game_user
   end
-
 
   def survey_demographic
     @game_user = rand(1000000000)
