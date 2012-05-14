@@ -1256,7 +1256,7 @@ var buildmove = function (dx,dy,x,y,event)
 	// console.log("buildmove",dx,dy,x,y,event)
 	if(now_building) {
 		now_building.target_node.x = x-CANVAS_OFFSET.left //don't forget the offset to bring mouse in line!
-		now_building.target_node.y = y-CANVAS_OFFSET.top
+		now_building.target_node.y = y-CANVAS_OFFSET.top-20 //extra offset because of something...
 
 		now_building.selected_node = null;
 		
@@ -1805,7 +1805,7 @@ $(document).ready(function(){
 	//     }
 	// });
 	$('#run_button').qtip(confirmation_qtip(
-		'Are you sure you want to release the Causlings?',
+		'Are you ready to release the Causlings?',
 		'if(game_running==false){beginGame();}',true
 	)).click(function(){if(!$(this).is('disabled'))$(this).qtip('show');})
 	if(currEdges['keys'].length == 0)

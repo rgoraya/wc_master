@@ -364,7 +364,7 @@ padding-left: 30px;
 #welcome_image {
 	margin-left: auto;
 	margin-right: auto;
-	margin-top: 50px;
+	margin-top: 40px;
 	width: 500px;
 	height: 73px;
 }
@@ -482,9 +482,8 @@ padding-left: 30px;
 }
 
 #causlings_photo {
-	margin: 0 auto;
-	width: 400px;
 	text-align: center;
+	padding-bottom:5px;
 }
 
 
