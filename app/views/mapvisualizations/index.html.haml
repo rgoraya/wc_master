@@ -64,7 +64,9 @@
         #effect_detail_container{:style=>"margin-top:5px"}
           #effect_detail_fill
             = render(:partial => "issue_modal", :content_type => 'text/html', :locals => {:issue => @vis.effect_issue}) unless @vis.effect_issue.nil?
-
+        %hr
+      #key{:style => "text-align: center;"}      
+        %img{:src => "/images/key.png", :alt => "Key"}     
 
       
     .clearboth
