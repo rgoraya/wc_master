@@ -2,35 +2,37 @@
   = stylesheet_link_tag "styles"
   
 - content_for(:title, 'Welcome to Causality Project')
- 
-#contentwrapper
-  .contentmain
-    
-    %div.pageheading
-      Welcome to Causality Project
-    .clearboth
-      
-    %div{:class => "formcontentdiv"}
 
-      %div{:class=>"centralized"}
-        %div{:id=>"home_txt"}            
-          %div{:id => "wc_logo"} 
-          %p
-            %b
-              Causality Project 
-            aims to provide the users with a participatory environment where they can can identify Environmental issues and attach causal links to these issues.
-          %p
-            Users can access the Wikipedia information and geo-tagged media associated with these issues and locate geographic instances of these problems on Google Maps.
-          %p{:style=>"color:#b84030"}
-            %b The content is not yet public.
-          %p  
-            %b Once we release the website to public, 
-            we would welcome you to learn about the complex webs of causality that underlie various environmental issues and collaborate towards documenting the likely chains of causality underlying them.
-          
-            
-          .clearboth
-          
-          %div{:style=>"text-align:center; margin-top:40px; width:100%"}
-            /= link_to "View Issues", :issues, :class=>"issues_button", :title=>"view all issues"
-          
-#clear{:style => "clear:left;"}        
+:css
+  body {background: url('/images/system/homepage_background.png') center center;}
+
+
+#home_container
+  #home_title
+    Welcome to the Causality Project.
+  #home_line
+  #home_subtitle
+    Enter an issue to get started
+  #home_examples
+    Examples include "Deforestation", "Great White Sharks", and "Carbon Dioxide"
+      
+
+  .homepage_search
+    = form_tag "/issues/auto_complete_search", :class=>"issue_search_form", :id=>"issue_search_form", :method => 'get' do               
+      = text_field_tag :query, params[:query], :align=>"top", :placeholder => "Search &#8230;".html_safe, :autocomplete=>"off", :class=>"home_searchfield_appl", :id=>"search_visible_input"
+      = hidden_field_tag :selected_data #what thing we selected
+      %input{:type=>"submit", :value=>'', :name => nil, :class=>"home_search_appl_submit", :title=>"search", :id=>"search_submit_btn"}
+        #home_search_label
+          SEARCH
+
+        .clearboth  
+
+      #homepage_issues
+        #issue_search.issue_search
+          = render 'issues/issue_search'
+
+  #home_description
+    The Causality Project provides you the power to connect and visualize the environmental issues in our world with our own daily lives.<br><br>We aim to make the complex webs of causality in our world easy to visualize and understand.<br><br>Enter an issue to start exploring.
+
+ 
+ 
