@@ -607,8 +607,9 @@ function endAnts() {
 	$('#score_content').html(score_str);
 	$('#score_notice').toggle(true);
 
-	if(typeof block !== 'undefined')
-		block.remove()
+	//if(typeof block !== 'undefined')
+		//block.remove() //don't remove the block, since they're done playing!
+	block = paper.rect(0,0,paper.width,paper.height).attr({'opacity':0, 'fill-opacity':0,'stroke-width':0}) //add block so people stop!
 
 	console.log('#actives',active_ants.length)
   game_running = false;

@@ -496,6 +496,76 @@ z-index:0;
 	color:#bebebe;
 }
 
+#home_container {
+	position: absolute;
+	width: 680px;
+	height: 290px;
+	border-radius: 3px;
+	background-color: white;
+	top: 150px;
+	margin-left: 200px;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.9) 9 9px 2px;
+	-moz-box-shadow: rgba(0, 0, 0, 0.9) 9 9px 2px;
+	box-shadow: rgba(0, 0, 0, 0.9) 9 9px 2px;
+	
+}
+
+#home_description {
+	color: white;
+	font: bold 12pt "Helvetica";
+	width: 620px;
+	position: absolute;
+	left: 30px;
+	top: 330px;
+	text-align: left;
+	line-height: 24px;
+}
+
+#home_subtitle {
+	position: absolute;
+	float: left;
+	font: 10pt "Helvetica";
+	margin-left: 30px;
+	margin-top: 90px;
+	color: #484139;
+}
+
+#home_examples {
+	position: absolute;
+	float: left;
+	font: 10pt "Helvetica";
+	margin-left: 30px;
+	margin-top: 250px;
+	color: gray;
+}
+
+#home_line {
+	position: absolute;
+	height: 1px;
+	width: 620px;
+	background-color: #484139;
+	margin-top: 70px;
+	margin-left: 30px;
+}
+
+#home_title {
+	float:left; 
+	font: 18pt "Helvetica";
+	margin-left: 30px;
+	margin-top: 30px;
+	color: #484139;
+}
+
+#home_page_text {
+	float: left;
+	font: 18px "Helvetica";
+	color: white;
+	line-height: 24px;
+	width: 800px;
+	padding: 20px;
+	background-color: rgb(32, 73, 87);
+	
+}
 .formheading a{
 	text-decoration:none;
 	color:#434343;
@@ -2030,7 +2100,7 @@ a.issue-user:hover{
 }
 
 .search_container_appl{
-	margin-left:10px;
+	margin-left:0px;
 	padding-top:0px;
 }
 
@@ -2391,7 +2461,7 @@ a.issue-user:hover{
 }
 
 .searchfield_appl{
-	-webkit-appearance: textfield;
+-webkit-appearance: textfield;
 	box-shadow:inset 0px 0px 3px rgba(0,0,0,0.5); 
 	border:2px ridge #2f2f2f;
 	border-bottom:2px groove #6a6a6a;
@@ -2407,7 +2477,72 @@ a.issue-user:hover{
 	outline: none;
 	-moz-border-left-colors:  #000 #6a6a6a;
 	-moz-border-top-colors: #000 #6a6a6a;
-	-moz-border-bottom-colors:  #6a6a6a #000;	
+	-moz-border-bottom-colors:  #6a6a6a #000;
+}
+
+.home_search_appl_submit{
+	background-color:#4DB8DB;
+	width: 130px;
+	height:50px;
+	float:left;
+	cursor:pointer;
+	border: none!IMPORTANT;
+	border-radius: 3px;
+	position: absolute;
+	top: 140px;
+	left: 520px;
+	opacity: 1;
+	-webkit-transition: all .2s ease-in-out;
+	-moz-transition: all .2s ease-in-out;
+	-o-transition: all .2s ease-in-out;
+}
+
+#home_search_label {
+	position: absolute;
+	font: bold 12px "Helvetica";
+	top: 160px;
+	left: 558px;
+	color: white;
+	z-index: 1;
+	
+}
+
+#homepage_issues {
+	position: absolute!IMPORTANT;
+	top: 160px!IMPORTANT;
+	z-index: 5!IMPORTANT;
+}
+
+.home_search_appl_submit:hover {
+	opacity: .9;
+	border: 1px solid #15586d!IMPORTANT;
+}
+
+.home_search_appl_submit:active {
+	opacity: 1;
+	border: 1px solid #15586d!IMPORTANT;
+}
+
+.home_searchfield_appl{
+	-webkit-appearance: textfield;
+	left: 30px;
+	top: 140px;
+	position: absolute;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-radius: 5px;
+    width: 465px;
+    height: 50px;
+    color: #706559;
+    border: none;
+    outline: none;
+    z-index: 1;
+    background-color: #f7f7f7;
+    font-size: 14px;
+    font-family: "Helvetica Neue";
+    font-weight: 700;
+	padding-left: 15px;
+    -webkit-font-smoothing: antialiased;
 }
 
 .searchfield_appl:focus{
@@ -2434,6 +2569,8 @@ a.issue-user:hover{
 	-moz-border-top-colors: #000 #6a6a6a;
 	-moz-border-bottom-colors:  #6a6a6a #000;	
 }
+
+
 
 .search_appl_submit:hover{	
 	background:url("/images/issues/search_appl.png") no-repeat 5px -16px;

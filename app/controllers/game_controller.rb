@@ -33,7 +33,10 @@ class GameController < ApplicationController
 
     respond_to do |format|
       format.html do #on html calls
-        if params[:expert]
+        if params[:i]
+          @game = Game.new(:width => @default_width, :height => @default_height, :issue => params[:i])
+          # @game = Game.new(:width => @default_width, :height => @default_height, :blank => true) #tmp
+        elsif params[:expert]
           @game = Game.new(:width => @default_width, :height => @default_height, :expert => params[:expert])
         else
           @game = Game.new(:width => @default_width, :height => @default_height, :blank => true)
