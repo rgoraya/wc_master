@@ -26,6 +26,9 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     if args[:blank]
       make_blank_graph
 
+    elsif args[:issue]
+      make_graph_from_issue(args[:issue])
+
     elsif args[:edges]
       make_user_graph(args[:edges])
     
@@ -59,6 +62,19 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     
     # grid_nodes_in_box(@nodes, Vector[0,150], Vector[@width,@height-150])    
     default_layout(@width,@height-100)
+  end
+
+  def make_graph_from_issue(issue)
+    ## need to get everything within 3 (?) steps of issue?
+    ## select random 20 of those
+    ## compute directed path distances & direction between, in order to generate accuracy map
+    ## nodes are the random 20, edges are deleted, accuracy is as defined.
+
+	  #@graph.get_graph_of_issue_neighbors(issue, limit=20)
+	  ##@graph.get_all_pairs_paths_distances
+  	
+  	@nodes[@home].location = Vector[@width/2, (@height)/2] #pull out main issue and center
+    grid_nodes_in_box(@nodes.reject{|k,v| k==@home},Vector[-20, -50],Vector[@width, 100],Vector[100,0]) #hard-coded starting box
   end
 
   def make_user_graph(edges)
@@ -337,7 +353,7 @@ class Game < Mapvisualization #subclass Mapvis, so we can use it for layout and 
     'Sport fish populations',
     'Scientific speculation of overfishing',
     'Samaki industry leaders\' claim of healthy fishery',
-    'Disagreement over samaki poplation health',
+    'Disagreement over samaki population health',
     'Price of competing products (soybeans/vegetable oils)',
     'Reproduction rate per unit fish',
     'Production from international fish oil competitors',
