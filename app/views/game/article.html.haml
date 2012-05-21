@@ -61,7 +61,7 @@
   %p And now you know about the islands the Causlings have dreamed of visiting for so long! Are you ready to make their dreams come true?
 
 #intro_button
-  %a{:href => "/game/play"}
+  %a{:href => "/game/play?player="+@game_user.to_s}
     %img{:alt => "", :src => "/images/game/welcome_button.png"}/
     %p
       Start playing<br>Causlings!

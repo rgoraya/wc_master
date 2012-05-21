@@ -1537,11 +1537,11 @@ function getScoreBoard(){
 		"</table>"+
 		
 		// form buttons for interaction; could probably be links or something for more style
-		"<form action='/game/play' method='post' style='display:inline'>"+
-		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
-		"<input type='submit' value='Play again?' style='margin-top:5px;;margin-right:20px;'/></form>"+
-		"<form action='/game/research/evaluation' method='post' style='display:inline' target='_blank'>"+
-		"<input name='game_user' type='hidden' value='"+player_id+"'/>"+
+		"<form action='/game/play' method='get' style='display:inline;'>"+
+		"<input name='player' type='hidden' value='"+player_id+"'/>"+
+		"<input type='submit' value='Play again?' style='margin-top:5px;margin-right:20px;'/></form>"+
+		"<form action='/game/research/evaluation' method='post' style='display:inline;' target='_blank'>"+
+		"<input name='player' type='hidden' value='"+player_id+"'/>"+
 		"<input type='submit' value='Evaluate Game!' style='margin-top:5px'/></form>"
 
 	var data = "FINAL_SCORE|"+["islands_activated:"+activated, "ants_settled:"+settled, "ants_dead:"+dead, "total_ants:"+total_ants, "rubric_score:"+rubric].join(";");
