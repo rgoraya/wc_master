@@ -99,12 +99,12 @@ class GameController < ApplicationController
   end
 
   def survey_evaluation
-    @game_user = session[:game_user] || params[:player]
+    @game_user = params[:player] || session[:game_user] || 'u'
     session[:game_user] = @game_user
   end
   
   def thank_you #redirect after evaluation is completed
-    @game_user = session[:game_user] || params[:player]
+    @game_user = params[:player] || session[:game_user] || 'u'
     session[:game_user] = @game_user
   end
 
