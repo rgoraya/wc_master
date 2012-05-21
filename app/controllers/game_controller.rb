@@ -17,9 +17,9 @@ class GameController < ApplicationController
 	@@GAME_LOG = Logger.new(log_path)
 
   def play
-    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
-    puts @game_user
+    puts "game user: "+@game_user.to_s
 		@time_stamp = DateTime.current.strftime("%Y%m%d%H%M%S%L")
 
     @default_width = @@DEFAULT_WIDTH
@@ -29,7 +29,7 @@ class GameController < ApplicationController
     # @verbose = false #unless specified otherwise in params
     @verbose = !params[:v].nil?
 
-    @continuous = params[:c] ? (params[:c]=='1') : (@game_user%2==0) #either as specified or random otherwise
+    @continuous = params[:c] ? (params[:c]=='1') : (@game_user.to_i%2==0) #either as specified or random otherwise
 
     respond_to do |format|
       format.html do #on html calls
@@ -65,7 +65,7 @@ class GameController < ApplicationController
   def research
     @ref = params[:ref]
     session[:ref] = @ref
-    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
     puts @game_user
   end
@@ -76,19 +76,19 @@ class GameController < ApplicationController
   end
 
   def welcome
-    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
     puts @game_user
   end
 
   def how_to_play
-    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
     puts @game_user
   end
 
   def article
-    @game_user = session[:game_user] || params[:player] || rand(1000000000)
+    @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
     puts @game_user
   end
@@ -99,12 +99,12 @@ class GameController < ApplicationController
   end
 
   def survey_evaluation
-    @game_user = params[:player] || session[:game_user] || 'u'
+    @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
   end
   
   def thank_you #redirect after evaluation is completed
-    @game_user = params[:player] || session[:game_user] || 'u'
+    @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
   end
 
