@@ -76,21 +76,21 @@ class GameController < ApplicationController
   end
 
   def welcome
-    @game_user = params[:player] || session[:game_user] || rand(1000000000)
+    @game_user = params[:player] || session[:game_user]
     session[:game_user] = @game_user
-    puts @game_user
+    puts "game user: "+@game_user.to_s
   end
 
   def how_to_play
-    @game_user = params[:player] || session[:game_user] || rand(1000000000)
+    @game_user = params[:player] || session[:game_user]
     session[:game_user] = @game_user
-    puts @game_user
+    puts "game user: "+@game_user.to_s
   end
 
   def article
     @game_user = params[:player] || session[:game_user] || rand(1000000000)
     session[:game_user] = @game_user
-    puts @game_user
+    puts "game user: "+@game_user.to_s
   end
 
   def survey_demographic
@@ -99,13 +99,13 @@ class GameController < ApplicationController
   end
 
   def survey_evaluation
-    @game_user = params[:player] || session[:game_user] || rand(1000000000)
-    session[:game_user] = @game_user
+    @game_user = params[:player] || session[:game_user] || 300
+    puts "game user: "+@game_user.to_s
   end
   
   def thank_you #redirect after evaluation is completed
-    @game_user = params[:player] || session[:game_user] || rand(1000000000)
-    session[:game_user] = @game_user
+    @game_user = params[:player] || session[:game_user] || 301
+    puts "game user: "+@game_user.to_s
   end
 
 end
