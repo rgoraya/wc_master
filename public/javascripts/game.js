@@ -1344,10 +1344,10 @@ var buildend = function (x,y,event)
 			}
 			
 			//hint/reminder if starting out
-			if(!continuous && notifies<=1){
-				$('#run_button').qtip(instruction_qtip('When finished buiding bridges, click here to release the Causlings!',true));
-				notifies += 1
-			}
+			// if(!continuous && notifies<=1){
+			// 	$('#run_button').qtip(instruction_qtip('When finished buiding bridges, click here to release the Causlings!',true));
+			// 	notifies += 1
+			// }
 			
 			//if this is the first edge we've made in continous mode, start the game!!
 			// if(first_edge && continuous){
