@@ -1345,7 +1345,7 @@ var buildend = function (x,y,event)
 			
 			// hint/reminder if starting out
 			if(!continuous && notifies<=1){
-				$('#go_buttons').qtip(instruction_qtip('When finished buiding bridges, click here to release the Causlings!',true,485,80));
+				$('#go_buttons').qtip(instruction_qtip('When finished buiding bridges, use these buttons to release the Causlings!',true));
 				notifies += 1
 			}
 			
