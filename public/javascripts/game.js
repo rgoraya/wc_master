@@ -566,7 +566,7 @@ function clearTheBoard(){
 		if(!continuous)
 			islands[i].max_spawn = islands[i].bridges.length*3;
 		else
-			islands[i].max_spawn += islands[i].bridges.length;
+			islands[i].max_spawn += islands[i].bridges.length*2;
 	}
 
 	islands[HOME].activate() //open the home island
@@ -1358,8 +1358,8 @@ var buildend = function (x,y,event)
 
 			islands[edge.a.id].updateEdges() //update the edges for the islands -- AFTER we've cleared the board and launched the game
 			islands[edge.b.id].updateEdges()
-			islands[edge.a.id].max_spawn += 1
-			islands[edge.b.id].max_spawn += 1
+			islands[edge.a.id].max_spawn += 2
+			islands[edge.b.id].max_spawn += 2
 			
 			islands[edge.a.id].deploy_timer = DEPLOY_TIME
 			islands[edge.b.id].deploy_timer = DEPLOY_TIME
