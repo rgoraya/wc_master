@@ -1343,11 +1343,11 @@ var buildend = function (x,y,event)
 				}
 			}
 			
-			//hint/reminder if starting out
-			// if(!continuous && notifies<=1){
-			// 	$('#run_button').qtip(instruction_qtip('When finished buiding bridges, click here to release the Causlings!',true));
-			// 	notifies += 1
-			// }
+			// hint/reminder if starting out
+			if(!continuous && notifies<=1){
+				$('#go_buttons').qtip(instruction_qtip('When finished buiding bridges, click here to release the Causlings!',true,485,80));
+				notifies += 1
+			}
 			
 			//if this is the first edge we've made in continous mode, start the game!!
 			// if(first_edge && continuous){
@@ -1836,6 +1836,13 @@ $(document).ready(function(){
 		onClosed:unpauseAnimations,
 		open:true, //uncomment to show on first load
 	});
+
+	//turn off text selection
+  $("*").css("-webkit-user-select", "none"); 
+  $("*").css("-moz-user-select", "none"); 
+  if (jQuery.browser.msie) { 
+      $("body").attr("onselectstart", "return false;"); 
+  }
 
 	window.onbeforeunload = function (e) {
 		var str = 'You will lose all progress if you leave the game.';
