@@ -1805,7 +1805,7 @@ $(document).ready(function(){
 		$("#score_notice").slideUp(100);
 	});
 	
-	showEvalNotification(); //can call this whenever we want to show the link, such as after playing??
+	// showEvalNotification(); //can call this whenever we want to show the link, such as after playing??
 	
 		// $("#run_button").click(function(){
 	// 	if (game_running == false) {
