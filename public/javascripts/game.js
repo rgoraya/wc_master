@@ -1345,7 +1345,9 @@ var buildend = function (x,y,event)
 			
 			// hint/reminder if starting out
 			if(!continuous && notifies<=1){
-				$('#go_buttons').qtip(instruction_qtip('When finished buiding bridges, click here to release the Causlings!',true,485,80));
+				var inst = instruction_qtip('When finished buiding bridges, click here to release the Causlings!',true)
+				inst.position.adjust.x = -130;
+				$('#go_buttons').qtip(inst);
 				notifies += 1
 			}
 			
@@ -1803,7 +1805,7 @@ $(document).ready(function(){
 		$("#score_notice").slideUp(100);
 	});
 	
-	showEvalNotification(); //can call this whenever we want to show the link, such as after playing??
+	// showEvalNotification(); //can call this whenever we want to show the link, such as after playing??
 	
 		// $("#run_button").click(function(){
 	// 	if (game_running == false) {
