@@ -10,4 +10,5 @@ class ReportMailer < ActionMailer::Base
 		return mail(:to=>"randomemailaddress", :subject=>"Reputation system -- Ignore this")
 	end
 
+
 end

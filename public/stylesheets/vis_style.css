@@ -9,7 +9,7 @@
 }
 
 #sidebar_container {
-	margin-top:10px;
+	margin-top:-700px; /*orginal 10px */
 	float:right;
 	width:320px;
 /*	border:1px solid red;*/
